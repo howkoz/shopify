@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unicity Shopify POS Distributor Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 24px; }
+
+  h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 28px; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #1a1d27; border-radius: 10px; padding: 4px; width: fit-content; }
+  .tab { padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: #888; transition: all 0.2s; }
+  .tab.active { background: #2a6df0; color: #fff; }
+  .tab:hover:not(.active) { color: #ccc; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .layer { background: #1a1d27; border-radius: 12px; padding: 20px; border: 1px solid #2a2d37; }
+  .layer-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .layer-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; }
+  .layer-title { font-size: 15px; font-weight: 600; color: #fff; }
+
+  .badge-blue { background: #1a3a6a; color: #5b9bf5; }
+  .badge-green { background: #1a4a2a; color: #5bdb7a; }
+  .badge-orange { background: #4a3a1a; color: #f5a623; }
+  .badge-red { background: #4a1a1a; color: #f56565; }
+  .badge-purple { background: #3a1a5a; color: #a78bfa; }
+  .badge-teal { background: #1a3a3a; color: #5bd4db; }
+
+  .nodes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .node { background: #12141c; border: 1px solid #2a2d37; border-radius: 8px; padding: 12px 16px; flex: 1; min-width: 180px; }
+  .node-icon { font-size: 20px; margin-bottom: 6px; }
+  .node-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .node-desc { font-size: 11px; color: #888; line-height: 1.5; }
+  .node-tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-top: 6px; font-weight: 600; }
+  .tag-ok { background: #1a4a2a; color: #5bdb7a; }
+  .tag-warn { background: #4a3a1a; color: #f5a623; }
+  .tag-block { background: #4a1a1a; color: #f56565; }
+  .tag-info { background: #1a3a6a; color: #5b9bf5; }
+
+  .arrow-row { display: flex; justify-content: center; padding: 4px 0; }
+  .arrow { color: #444; font-size: 14px; letter-spacing: 1px; }
+
+  .flow-container { max-width: 960px; }
+  .flow-row { display: flex; align-items: stretch; gap: 12px; margin-bottom: 12px; }
+  .flow-step { background: #1a1d27; border: 1px solid #2a2d37; border-radius: 10px; padding: 16px; flex: 1; }
+  .flow-num { width: 24px; height: 24px; background: #2a6df0; color: #fff; font-size: 12px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .flow-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .flow-desc { font-size: 11px; color: #888; line-height: 1.5; }
+  .flow-connector { display: flex; align-items: center; color: #444; font-size: 18px; flex-shrink: 0; }
+
+  .matrix-table { width: 100%; border-collapse: collapse; max-width: 960px; }
+  .matrix-table th { text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #2a2d37; }
+  .matrix-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #1a1d27; }
+  .matrix-table tr:hover td { background: #1a1d27; }
+  .perm-yes { color: #5bdb7a; font-weight: 600; }
+  .perm-no { color: #f56565; font-weight: 600; }
+  .perm-custom { color: #f5a623; font-weight: 600; }
+
+  .timeline { max-width: 960px; position: relative; padding-left: 30px; }
+  .timeline::before { content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px; background: #2a2d37; }
+  .tl-item { position: relative; margin-bottom: 24px; }
+  .tl-dot { position: absolute; left: -25px; top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid; }
+  .tl-card { background: #1a1d27; border: 1px solid #2a2d37; border-radius: 10px; padding: 16px 20px; }
+  .tl-phase { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .tl-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+  .tl-desc { font-size: 12px; color: #888; line-height: 1.6; }
+  .tl-details { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+  .tl-detail { font-size: 11px; color: #666; }
+  .tl-detail strong { color: #aaa; }
+
+  .cost-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; max-width: 960px; }
+  .cost-card { background: #1a1d27; border: 1px solid #2a2d37; border-radius: 10px; padding: 18px; }
+  .cost-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .cost-value { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .cost-note { font-size: 11px; color: #666; line-height: 1.5; }
+  .cost-highlight { color: #5bdb7a; }
+  .cost-warn { color: #f5a623; }
+
+  .section-label { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 12px; }
+
+  .benefit-bar { display: flex; align-items: center; gap: 12px; background: #12141c; border: 1px solid #1a4a2a; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; max-width: 960px; }
+  .benefit-icon { font-size: 18px; flex-shrink: 0; }
+  .benefit-text { font-size: 13px; color: #ccc; }
+  .benefit-text strong { color: #5bdb7a; }
+
+  .warn-bar { display: flex; align-items: center; gap: 12px; background: #12141c; border: 1px solid #4a3a1a; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; max-width: 960px; }
+  .warn-text { font-size: 13px; color: #ccc; }
+  .warn-text strong { color: #f5a623; }
+</style>
+
+<!-- BREADCRUMB NAV - INJECTED -->
+<style>
+.payops-breadcrumb-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 99999;
+  background: rgba(7,9,14,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(22,32,49,0.8);
+  padding: 0 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  font-family: 'Space Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 11px;
+}
+.payops-breadcrumb-bar a {
+  color: #00d4ff;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.payops-breadcrumb-bar a:hover { color: #fff; }
+.payops-breadcrumb-bar .bc-sep {
+  color: #2d4459;
+  margin: 0 10px;
+  font-size: 10px;
+}
+.payops-breadcrumb-bar .bc-current {
+  color: #607d94;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
+
+<style>.payops-breadcrumb-bar ~ * { } body { padding-top: 44px !important; }</style>
+</head>
+<body>
+<div class="payops-breadcrumb-bar">
+  <a href="index.html">Home</a>
+  <span class="bc-sep">&#x25B8;</span>
+  <a href="hub-shopify.html">Shopify Operations</a>
+  <span class="bc-sep">&#x25B8;</span>
+  <span class="bc-current">Unicity Shopify POS Distributor Architecture</span>
+</div>
+
+
+<h1>Unicity Shopify POS Distributor Architecture</h1>
+<p class="subtitle">Shopify Payments only. No third-party gateways. Unified commerce platform.</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="showView('arch')">Architecture</div>
+  <div class="tab" onclick="showView('flow')">Order Flow</div>
+  <div class="tab" onclick="showView('perms')">Permissions</div>
+  <div class="tab" onclick="showView('phases')">Rollout Plan</div>
+  <div class="tab" onclick="showView('costs')">Cost Model</div>
+  <div class="tab" onclick="showView('benefits')">Benefits + Tradeoffs</div>
+  <div class="tab" onclick="showView('payflow')">Payment Flow</div>
+  <div class="tab" onclick="showView('setup')">Setup Guide</div>
+</div>
+
+<!-- ARCHITECTURE VIEW -->
+<div id="arch" class="view active">
+  <div style="max-width: 960px;">
+
+    <div class="layer" style="margin-bottom: 12px;">
+      <div class="layer-header">
+        <span class="layer-badge badge-blue">Distributor Layer</span>
+        <span class="layer-title">POS-Only Staff (Zero Admin Access)</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <div class="node-icon">📱</div>
+          <div class="node-name">Distributor A</div>
+          <div class="node-desc">POS-only staff. Unique PIN. Region West. Sells at home demos and events via personal iPhone or tablet.</div>
+          <span class="node-tag tag-ok">Isolated</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">📱</div>
+          <div class="node-name">Distributor B</div>
+          <div class="node-desc">POS-only staff. Unique PIN. Region West. Same location as A but cannot see A's sales or any backend data.</div>
+          <span class="node-tag tag-ok">Isolated</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">📱</div>
+          <div class="node-name">Distributor C</div>
+          <div class="node-desc">POS-only staff. Unique PIN. Region East. Different location. Separate order stream.</div>
+          <span class="node-tag tag-ok">Isolated</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">📱</div>
+          <div class="node-name">Distributor N...</div>
+          <div class="node-desc">Scales to thousands of POS-only staff across up to 200 regional locations. No per-distributor location needed.</div>
+          <span class="node-tag tag-info">Unlimited staff</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-row"><span class="arrow">▼ PIN Login via Shopify POS App on personal device ▼</span></div>
+
+    <div class="layer" style="margin-bottom: 12px;">
+      <div class="layer-header">
+        <span class="layer-badge badge-green">POS Location Layer</span>
+        <span class="layer-title">Regional POS Pro Locations (Up to 200 included with Shopify Payments)</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <div class="node-icon">🏪</div>
+          <div class="node-name">Region West</div>
+          <div class="node-desc">POS Pro location. Multiple distributors assigned. Shared product catalog. Each sale tagged by staff PIN for attribution.</div>
+        </div>
+        <div class="node">
+          <div class="node-icon">🏪</div>
+          <div class="node-name">Region East</div>
+          <div class="node-desc">POS Pro location. Same catalog. Separate order grouping. Add locations as distributor count grows per region.</div>
+        </div>
+        <div class="node">
+          <div class="node-icon">🏪</div>
+          <div class="node-name">Region Central</div>
+          <div class="node-desc">Scale to 200 locations at no additional cost with Shopify Payments active.</div>
+        </div>
+        <div class="node">
+          <div class="node-icon">🌍</div>
+          <div class="node-name">International</div>
+          <div class="node-desc">Expansion stores (up to 9) for international markets. Each gets its own 200 POS locations and local currency.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-row"><span class="arrow">▼ All payments via Shopify Payments (Stripe backend) ▼</span></div>
+
+    <div class="layer" style="margin-bottom: 12px;">
+      <div class="layer-header">
+        <span class="layer-badge badge-teal">Payment Layer</span>
+        <span class="layer-title">Shopify Payments (Single Gateway, All Channels)</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <div class="node-icon">💳</div>
+          <div class="node-name">POS In-Person</div>
+          <div class="node-desc">2.15% + 30¢ on Plus. Card present via tap, chip, swipe. iPhone Tap to Pay or Shopify reader.</div>
+          <span class="node-tag tag-ok">2.15% + 30¢</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">🛒</div>
+          <div class="node-name">Online Store</div>
+          <div class="node-desc">2.15% + 30¢ on Plus. Shop Pay, Apple Pay, Google Pay included. No surcharges.</div>
+          <span class="node-tag tag-ok">2.15% + 30¢</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">🔄</div>
+          <div class="node-name">Subscriptions / Autoship</div>
+          <div class="node-desc">Same Shopify Payments rate. Card tokens vaulted by Shopify. ReCharge or native subscriptions.</div>
+          <span class="node-tag tag-ok">Unified vault</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">✅</div>
+          <div class="node-name">Zero Surcharges</div>
+          <div class="node-desc">No third-party fees. Single processor. One settlement. One reconciliation stream.</div>
+          <span class="node-tag tag-ok">Simplified</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-row"><span class="arrow">▼ Webhooks (orders/create) + Admin API ▼</span></div>
+
+    <div class="layer">
+      <div class="layer-header">
+        <span class="layer-badge badge-purple">Integration Layer</span>
+        <span class="layer-title">Unicity Backend Systems</span>
+      </div>
+      <div class="nodes">
+        <div class="node">
+          <div class="node-icon">🔗</div>
+          <div class="node-name">Attribution Middleware</div>
+          <div class="node-desc">Webhook listener. Extracts staff_id (POS) or referral code (online). Maps to distributor ID. Pushes to commission engine.</div>
+          <span class="node-tag tag-ok">Custom build</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">🧮</div>
+          <div class="node-name">Commission Engine</div>
+          <div class="node-desc">Receives attributed POS + online sales. Calculates PV/BV. Runs upline commissions. Existing system.</div>
+          <span class="node-tag tag-ok">Existing</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">📊</div>
+          <div class="node-name">Distributor Portal</div>
+          <div class="node-desc">Distributors view their sales, commissions, downline. Lives outside Shopify. Existing back office.</div>
+          <span class="node-tag tag-ok">Existing</span>
+        </div>
+        <div class="node">
+          <div class="node-icon">📦</div>
+          <div class="node-name">Fulfillment</div>
+          <div class="node-desc">POS = hand to customer. Online = warehouse ship. Shopify manages unified inventory across channels.</div>
+          <span class="node-tag tag-ok">Unified</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ORDER FLOW VIEW -->
+<div id="flow" class="view">
+  <div class="flow-container">
+    <p class="section-label">POS Order Lifecycle</p>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-title">Distributor Opens POS</div>
+        <div class="flow-desc">Opens Shopify POS on personal iPhone or tablet. Logs in with unique PIN. Sees only checkout, product catalog, and customer lookup.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-title">Customer Purchase</div>
+        <div class="flow-desc">Distributor adds products. Customer pays via iPhone Tap to Pay or Shopify reader. Shopify Payments processes the charge.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-title">Order Created</div>
+        <div class="flow-desc">Order in Shopify with source = "pos", location_id, staff_id, line items, payment via Shopify Payments. Receipt sent to customer.</div>
+      </div>
+    </div>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-title">Webhook Fires</div>
+        <div class="flow-desc">orders/create webhook sent to Unicity middleware. Payload: order total, line items, staff_id, location_id, customer info.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-title">Attribution Mapping</div>
+        <div class="flow-desc">staff_id mapped to Unicity distributor ID. Order enriched with genealogy position. PV/BV eligibility validated.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-title">Commission Calculated</div>
+        <div class="flow-desc">Sale feeds commission engine. PV/BV applied. Upline bonuses computed. Distributor sees sale in their back office portal.</div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top: 32px;">Data Isolation Model</p>
+
+    <div class="flow-row">
+      <div class="flow-step" style="border-color: #2a6df0;">
+        <div class="flow-title" style="color: #5b9bf5;">Distributors CAN See</div>
+        <div class="flow-desc" style="margin-top: 8px;">
+          Product catalog at their location<br>
+          Customer info during active checkout<br>
+          Their own active cart and transaction<br>
+          Their own sales in current POS session
+        </div>
+      </div>
+      <div class="flow-step" style="border-color: #f56565;">
+        <div class="flow-title" style="color: #f56565;">Distributors CANNOT See</div>
+        <div class="flow-desc" style="margin-top: 8px;">
+          Other distributors' sales or orders<br>
+          Store analytics, reports, or revenue<br>
+          Shopify admin dashboard or settings<br>
+          Inventory costs, margins, or suppliers<br>
+          Other locations' data or staff lists<br>
+          Payment config or gateway info<br>
+          Online store orders or autoship data
+        </div>
+      </div>
+      <div class="flow-step" style="border-color: #f5a623;">
+        <div class="flow-title" style="color: #f5a623;">Controlled by POS Role</div>
+        <div class="flow-desc" style="margin-top: 8px;">
+          Inventory quantities at location<br>
+          Customer records (shared store-wide)<br>
+          <br>
+          <strong>Mitigations:</strong><br>
+          POS role restricts all sensitive actions<br>
+          No discount, return, or refund access<br>
+          Manager approval for exceptions
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top: 32px;">Online Order Flow</p>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-title">Customer Shops Online</div>
+        <div class="flow-desc">Visits Shopify store. Distributor referral link or code used for attribution.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-title">Shopify Payments Checkout</div>
+        <div class="flow-desc">Shop Pay, Apple Pay, Google Pay, or card. 2.15% + 30¢. Token vaulted for future orders.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-title">Same Commission Pipeline</div>
+        <div class="flow-desc">Attribution via referral code. Same webhook. Same engine. Unified reporting across POS and online.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PERMISSIONS VIEW -->
+<div id="perms" class="view">
+
+  <style>
+    .hier-container { max-width: 1100px; }
+    .hier-level { border-radius: 10px; padding: 16px 18px; margin-bottom: 0; position: relative; }
+    .hier-level-inner { border-radius: 8px; padding: 14px 16px; margin-top: 12px; }
+    .hier-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .hier-subtitle { font-size: 12px; color: #888; margin-bottom: 10px; }
+    .hier-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+    .hier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+    .hier-card { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px 12px; }
+    .hier-card-title { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+    .hier-card-desc { font-size: 11px; color: #aaa; line-height: 1.5; }
+    .hier-yes { color: #5bdb7a; }
+    .hier-no { color: #f55; }
+    .hier-limited { color: #f5a623; }
+    .hier-arrow { text-align: center; font-size: 20px; color: #444; padding: 6px 0; }
+    .hier-callout { background: rgba(0,0,0,0.35); border-left: 3px solid #f5a623; border-radius: 0 6px 6px 0; padding: 10px 14px; margin-top: 14px; font-size: 12px; color: #ccc; line-height: 1.6; }
+    .hier-callout strong { color: #f5a623; }
+    .ctrl-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+    .ctrl-table th { background: #1a1d27; padding: 8px 10px; text-align: left; font-weight: 700; color: #aaa; border-bottom: 2px solid #333; }
+    .ctrl-table td { padding: 8px 10px; border-bottom: 1px solid #222; color: #ccc; }
+    .ctrl-table tr:hover { background: rgba(255,255,255,0.03); }
+    .ctrl-cat { font-weight: 700; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; padding-top: 14px !important; }
+  </style>
+
+  <!-- ============================================ -->
+  <!-- SECTION 1: VISUAL CONTROL HIERARCHY          -->
+  <!-- ============================================ -->
+  <p class="section-label">Control Hierarchy: Who Controls What</p>
+  <p style="font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.6;">
+    Shopify uses two independent permission layers: <strong style="color:#ccc;">Store-level permissions</strong> (Shopify Admin access) and <strong style="color:#ccc;">POS roles</strong> (POS app access). Regional managers get both. Distributors get POS roles only.
+  </p>
+
+  <div class="hier-container">
+    <!-- HQ ADMIN -->
+    <div class="hier-level" style="background: #122218; border: 1px solid #5bdb7a;">
+      <div class="hier-title" style="color: #5bdb7a;">
+        HQ Admin (Payment Ops / IT)
+        <span class="hier-badge" style="background: #5bdb7a; color: #000;">FULL SHOPIFY ADMIN</span>
+      </div>
+      <div class="hier-subtitle">Store owner or staff with all store-level permissions. 2-3 people.</div>
+      <div class="hier-grid">
+        <div class="hier-card">
+          <div class="hier-card-title" style="color: #5bdb7a;">Products and Pricing</div>
+          <div class="hier-card-desc">Create, edit, and delete all products. Set prices (store-wide). Manage variants, images, descriptions. Pricing changes apply to ALL locations.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title" style="color: #5bdb7a;">Locations</div>
+          <div class="hier-card-desc">Create and configure POS Pro locations. Assign products to locations. Set which products are available where. Manage POS subscriptions.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title" style="color: #5bdb7a;">Payment Settings</div>
+          <div class="hier-card-desc">Shopify Payments configuration. Payout bank accounts. Tax settings. Payment capture mode. Fraud protection rules.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title" style="color: #5bdb7a;">Staff and Roles</div>
+          <div class="hier-card-desc">Create POS roles (Distributor, Manager). Create admin roles with limited permissions for regional managers. Assign staff to locations.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title" style="color: #5bdb7a;">Analytics and Finance</div>
+          <div class="hier-card-desc">View all reports, payouts, settlements. Revenue by location, staff, channel. Export data. Manage billing.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title" style="color: #5bdb7a;">Online Store</div>
+          <div class="hier-card-desc">Theme, checkout, shipping, subscriptions, apps, domains, SEO. Full control over every sales channel.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hier-arrow">&#x25BC;</div>
+
+    <!-- REGIONAL MANAGER -->
+    <div class="hier-level" style="background: #2a1f10; border: 1px solid #f5a623;">
+      <div class="hier-title" style="color: #f5a623;">
+        Regional Manager
+        <span class="hier-badge" style="background: #f5a623; color: #000;">LIMITED ADMIN + POS MANAGER ROLE</span>
+      </div>
+      <div class="hier-subtitle">Admin staff with restricted store-level permissions + POS Manager role. One per region.</div>
+      <div class="hier-grid">
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: Manage Product Availability</div>
+          <div class="hier-card-desc">Control which products appear at their location via inventory/availability settings. Toggle items on/off for their POS location. Needs "Products" store-level permission.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: Manage POS Staff</div>
+          <div class="hier-card-desc">Add/remove distributors at their location. Assign PINs. Set POS roles. Needs "Manage Point of Sale staff" POS permission.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: Process Returns</div>
+          <div class="hier-card-desc">Handle refunds and exchanges for orders at their location. Needs "Process returns" POS permission.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: View Location Orders</div>
+          <div class="hier-card-desc">See all orders from their assigned location. Cannot see other locations unless given "Manage orders at all locations" permission.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-no">CANNOT: Change Pricing</div>
+          <div class="hier-card-desc">Prices are store-wide in Shopify. Even with Products permission, editing a price changes it at ALL locations. HQ controls pricing.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-no">CANNOT: Payment/Finance Settings</div>
+          <div class="hier-card-desc">No access to Shopify Payments config, payout accounts, tax settings, analytics, or financial reports. HQ only.</div>
+        </div>
+      </div>
+
+      <div class="hier-callout">
+        <strong>Shopify constraint:</strong> Product pricing is store-wide, not per-location. If a regional manager edits a product price, the change affects every location. To enforce regional pricing differences, use Shopify Plus B2B Catalogs or Markets (both included with Plus). For most MLM operations, HQ sets pricing centrally and regional managers control product availability at their location.
+      </div>
+    </div>
+
+    <div class="hier-arrow">&#x25BC;</div>
+
+    <!-- DISTRIBUTOR -->
+    <div class="hier-level" style="background: #111833; border: 1px solid #2a6df0;">
+      <div class="hier-title" style="color: #5b9bf5;">
+        Distributor
+        <span class="hier-badge" style="background: #2a6df0; color: #fff;">POS-ONLY STAFF (PIN ACCESS)</span>
+      </div>
+      <div class="hier-subtitle">POS app only. No Shopify admin access. Unlimited accounts at zero cost per staff.</div>
+      <div class="hier-grid">
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: Process Sales</div>
+          <div class="hier-card-desc">Log in via PIN. Browse the product catalog at their assigned location. Ring up customers. Accept card payment via Tap to Pay or Shopify reader.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: Capture Customer Info</div>
+          <div class="hier-card-desc">Add customer email/phone at checkout for marketing lists and order receipts. Cannot view full customer profiles.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-yes">CAN: Auto-Attribute Sales</div>
+          <div class="hier-card-desc">Every sale auto-attributes to their staff_id via POS Pro. Shows in webhook payload as attributed_staffs. Commission tracked automatically.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-no">CANNOT: Add/Remove Products</div>
+          <div class="hier-card-desc">Product catalog is set by HQ and managed at the location level. Distributor sells from whatever catalog is available at their assigned location.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-no">CANNOT: Change Prices or Discounts</div>
+          <div class="hier-card-desc">No discount capability unless the POS role explicitly allows it. No access to modify any pricing. Sells at the price set by HQ.</div>
+        </div>
+        <div class="hier-card">
+          <div class="hier-card-title hier-no">CANNOT: Access Admin/Orders/Reports</div>
+          <div class="hier-card-desc">No Shopify admin. Cannot see order history, analytics, other staff, inventory counts, financial data, or any backend information.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECTION 2: DETAILED PERMISSION MATRIX        -->
+  <!-- ============================================ -->
+  <p class="section-label" style="margin-top: 36px;">Detailed Permission Matrix</p>
+  <p style="font-size: 12px; color: #888; margin-bottom: 12px; line-height: 1.6;">
+    Permissions split across two layers. <strong style="color:#ccc;">Store-level</strong> = Shopify Admin access (regional manager and HQ). <strong style="color:#ccc;">POS role</strong> = POS app access (all three roles). Distributor has POS role only.
+  </p>
+
+  <div style="overflow-x: auto;">
+  <table class="ctrl-table">
+    <thead>
+      <tr>
+        <th style="min-width: 250px;">Permission</th>
+        <th style="min-width: 100px; color: #5b9bf5;">Distributor</th>
+        <th style="min-width: 120px; color: #f5a623;">Regional Manager</th>
+        <th style="min-width: 100px; color: #5bdb7a;">HQ Admin</th>
+        <th style="min-width: 100px; color: #888;">Layer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="ctrl-cat" colspan="5">Sales and Checkout</td></tr>
+      <tr><td>Process sales / checkout</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Accept card payments (Tap to Pay / reader)</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Apply discounts at POS</td><td class="perm-no">No</td><td class="perm-custom">Approval req.</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Custom sale (manual price entry)</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Shop Pay Installments</td><td class="perm-yes">Available</td><td class="perm-yes">Available</td><td class="perm-yes">Yes</td><td style="color:#666;">Automatic</td></tr>
+
+      <tr><td class="ctrl-cat" colspan="5">Products and Pricing</td></tr>
+      <tr><td>View product catalog at POS</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Edit product details (name, description, images)</td><td class="perm-no">No</td><td class="perm-custom">With Products perm.</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Change product pricing</td><td class="perm-no">No</td><td class="perm-no">Not recommended *</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Add/remove products from location</td><td class="perm-no">No</td><td class="perm-custom">With Products perm.</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Create new products</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+
+      <tr><td class="ctrl-cat" colspan="5">Orders and Returns</td></tr>
+      <tr><td>View orders (own location)</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>View orders (all locations)</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Process returns / exchanges</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Issue store credit / gift cards</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+
+      <tr><td class="ctrl-cat" colspan="5">Customers</td></tr>
+      <tr><td>Capture customer email/phone at checkout</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>View/edit full customer profiles</td><td class="perm-no">No</td><td class="perm-custom">Own location</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+
+      <tr><td class="ctrl-cat" colspan="5">Staff and Locations</td></tr>
+      <tr><td>Manage POS staff (add/remove/PINs)</td><td class="perm-no">No</td><td class="perm-custom">Own location</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+      <tr><td>Create/configure POS locations</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Assign POS roles</td><td class="perm-no">No</td><td class="perm-custom">Own location</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+
+      <tr><td class="ctrl-cat" colspan="5">Inventory</td></tr>
+      <tr><td>View inventory counts</td><td class="perm-no">No</td><td class="perm-custom">Own location</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Adjust inventory / transfers</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Cash tracking / drawer management</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td class="perm-yes">Yes</td><td style="color:#666;">POS role</td></tr>
+
+      <tr><td class="ctrl-cat" colspan="5">Admin, Finance, and Settings</td></tr>
+      <tr><td>Access Shopify Admin</td><td class="perm-no">No</td><td class="perm-custom">Limited access</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>View analytics / reports</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Payment settings (Shopify Payments)</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Payout / settlement config</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+      <tr><td>Manage apps and integrations</td><td class="perm-no">No</td><td class="perm-no">No</td><td class="perm-yes">Yes</td><td style="color:#666;">Store-level</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="hier-callout" style="margin-top: 12px; max-width: 1100px;">
+    <strong>* Pricing note:</strong> Shopify product prices are store-wide. If a regional manager has "Products" permission and edits a price, the change hits every location. Recommendation: give regional managers "Products" permission for availability management only, with a policy that pricing changes go through HQ. For truly different regional pricing, use Shopify Plus B2B Catalogs or Markets features.
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECTION 3: ROLE SETUP IN SHOPIFY             -->
+  <!-- ============================================ -->
+  <p class="section-label" style="margin-top: 36px;">How to Configure Each Role in Shopify</p>
+
+  <div class="hier-container">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+
+      <!-- Distributor Setup -->
+      <div style="background: #111833; border: 1px solid #2a6df0; border-radius: 8px; padding: 16px;">
+        <div style="font-size: 14px; font-weight: 700; color: #5b9bf5; margin-bottom: 10px;">Distributor Setup</div>
+        <div style="font-size: 12px; color: #ccc; line-height: 1.7;">
+          <strong style="color: #888;">Staff type:</strong> POS app only (no admin)<br>
+          <strong style="color: #888;">POS role:</strong> Custom "Distributor" role<br>
+          <strong style="color: #888;">Location:</strong> Assigned to their regional location<br>
+          <strong style="color: #888;">PIN:</strong> Unique 4-6 digit PIN<br>
+          <strong style="color: #888;">Cost:</strong> $0 per staff account<br><br>
+          <strong style="color: #888;">POS permissions enabled:</strong><br>
+          &bull; Process checkout<br>
+          &bull; Capture customer info<br><br>
+          <strong style="color: #888;">Everything else:</strong> Disabled
+        </div>
+      </div>
+
+      <!-- Regional Manager Setup -->
+      <div style="background: #2a1f10; border: 1px solid #f5a623; border-radius: 8px; padding: 16px;">
+        <div style="font-size: 14px; font-weight: 700; color: #f5a623; margin-bottom: 10px;">Regional Manager Setup</div>
+        <div style="font-size: 12px; color: #ccc; line-height: 1.7;">
+          <strong style="color: #888;">Staff type:</strong> Admin staff with POS access<br>
+          <strong style="color: #888;">Admin role:</strong> Custom "Regional Manager" role<br>
+          <strong style="color: #888;">POS role:</strong> Custom "POS Manager" role<br>
+          <strong style="color: #888;">Location:</strong> Assigned to their region<br>
+          <strong style="color: #888;">Cost:</strong> $0 (staff account is free)<br><br>
+          <strong style="color: #888;">Store-level permissions:</strong><br>
+          &bull; Products (view, edit)<br>
+          &bull; Customers (view, edit)<br>
+          &bull; Orders (view, own location)<br><br>
+          <strong style="color: #888;">POS permissions:</strong><br>
+          &bull; All Distributor permissions<br>
+          &bull; Process returns/exchanges<br>
+          &bull; Manage POS staff<br>
+          &bull; Cash tracking/drawer<br>
+          &bull; Apply discounts (with approval)
+        </div>
+      </div>
+
+      <!-- HQ Admin Setup -->
+      <div style="background: #122218; border: 1px solid #5bdb7a; border-radius: 8px; padding: 16px;">
+        <div style="font-size: 14px; font-weight: 700; color: #5bdb7a; margin-bottom: 10px;">HQ Admin Setup</div>
+        <div style="font-size: 12px; color: #ccc; line-height: 1.7;">
+          <strong style="color: #888;">Staff type:</strong> Admin staff with POS access<br>
+          <strong style="color: #888;">Admin role:</strong> Store owner or full-permission role<br>
+          <strong style="color: #888;">POS role:</strong> Full access (all permissions)<br>
+          <strong style="color: #888;">Location:</strong> All locations<br>
+          <strong style="color: #888;">Count:</strong> 2-3 people (Payment Ops, IT)<br><br>
+          <strong style="color: #888;">Store-level permissions:</strong><br>
+          &bull; All permissions enabled<br>
+          &bull; Products, Orders, Customers<br>
+          &bull; Analytics, Finance, Settings<br>
+          &bull; Apps, Themes, Payments<br><br>
+          <strong style="color: #888;">This is the only role that can:</strong><br>
+          &bull; Change product pricing<br>
+          &bull; Configure Shopify Payments<br>
+          &bull; Create new locations<br>
+          &bull; View financial reports
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECTION 4: WHAT THE DISTRIBUTOR SEES          -->
+  <!-- ============================================ -->
+  <p class="section-label" style="margin-top: 36px;">What the Distributor Actually Sees</p>
+  <p style="font-size: 12px; color: #888; margin-bottom: 12px; line-height: 1.6;">
+    The distributor experience is intentionally minimal. They open the Shopify POS app, enter their PIN, and sell. They never see the Shopify admin, other orders, analytics, or any backend data.
+  </p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; max-width: 1100px;">
+    <div style="background: #111833; border: 1px solid #2a6df0; border-radius: 8px; padding: 14px; text-align: center;">
+      <div style="font-size: 28px; margin-bottom: 6px;">&#x1F4F1;</div>
+      <div style="font-size: 13px; font-weight: 700; color: #5b9bf5; margin-bottom: 4px;">Step 1: Open App</div>
+      <div style="font-size: 11px; color: #aaa;">Opens Shopify POS on their phone. Sees PIN entry screen.</div>
+    </div>
+    <div style="background: #111833; border: 1px solid #2a6df0; border-radius: 8px; padding: 14px; text-align: center;">
+      <div style="font-size: 28px; margin-bottom: 6px;">&#x1F522;</div>
+      <div style="font-size: 13px; font-weight: 700; color: #5b9bf5; margin-bottom: 4px;">Step 2: Enter PIN</div>
+      <div style="font-size: 11px; color: #aaa;">Enters their unique 4-6 digit PIN. Auto-assigns their staff_id for attribution.</div>
+    </div>
+    <div style="background: #111833; border: 1px solid #2a6df0; border-radius: 8px; padding: 14px; text-align: center;">
+      <div style="font-size: 28px; margin-bottom: 6px;">&#x1F6D2;</div>
+      <div style="font-size: 13px; font-weight: 700; color: #5b9bf5; margin-bottom: 4px;">Step 3: Browse Catalog</div>
+      <div style="font-size: 11px; color: #aaa;">Sees only the products available at their location. Prices set by HQ. Cannot modify.</div>
+    </div>
+    <div style="background: #111833; border: 1px solid #2a6df0; border-radius: 8px; padding: 14px; text-align: center;">
+      <div style="font-size: 28px; margin-bottom: 6px;">&#x1F4B3;</div>
+      <div style="font-size: 13px; font-weight: 700; color: #5b9bf5; margin-bottom: 4px;">Step 4: Accept Payment</div>
+      <div style="font-size: 11px; color: #aaa;">Customer taps or inserts card. Shopify Payments processes at 2.15% + 30 cents. Done.</div>
+    </div>
+    <div style="background: #111833; border: 1px solid #2a6df0; border-radius: 8px; padding: 14px; text-align: center;">
+      <div style="font-size: 28px; margin-bottom: 6px;">&#x2705;</div>
+      <div style="font-size: 13px; font-weight: 700; color: #5b9bf5; margin-bottom: 4px;">Step 5: Sale Attributed</div>
+      <div style="font-size: 11px; color: #aaa;">Sale auto-attributed to distributor. Commission calculated. Visible in Unicity portal.</div>
+    </div>
+  </div>
+
+  <div class="hier-callout" style="margin-top: 14px; max-width: 1100px;">
+    <strong>Key point for leadership:</strong> Distributors never touch the Shopify admin. They cannot see revenue, other distributors' sales, inventory levels, financial settings, or any backend data. The POS app is their only interface. Everything else is controlled by HQ or the regional manager.
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECTION 5: SOURCES                           -->
+  <!-- ============================================ -->
+  <p class="section-label" style="margin-top: 36px;">Sources</p>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; max-width: 960px;">
+    <div class="node" style="min-width: auto;">
+      <div class="node-name">POS Roles and Permissions</div>
+      <div class="node-desc">POS Pro required. Custom roles with granular POS-level permissions. Default "Associate" role. Roles apply at POS Pro locations only.</div>
+      <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">help.shopify.com/en/manual/sell-in-person/shopify-pos/staff-management/pos-roles</div>
+    </div>
+    <div class="node" style="min-width: auto;">
+      <div class="node-name">POS Staff by Location</div>
+      <div class="node-desc">Staff assigned to specific locations. POS-only staff can only log into POS Pro locations. Admin staff can access admin + POS.</div>
+      <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">help.shopify.com/en/manual/sell-in-person/shopify-pos/staff-management/staff-by-location</div>
+    </div>
+    <div class="node" style="min-width: auto;">
+      <div class="node-name">Store-Level Permissions</div>
+      <div class="node-desc">Products, Orders, Customers, Finance, Settings permissions. Assigned via admin roles. Separate from POS roles.</div>
+      <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">help.shopify.com/en/manual/your-account/users/roles/permissions/store-permissions</div>
+    </div>
+    <div class="node" style="min-width: auto;">
+      <div class="node-name">POS-Level Permissions List</div>
+      <div class="node-desc">Full list of POS-specific permissions: checkout, discounts, returns, cash tracking, staff management, custom sale, gift cards.</div>
+      <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">help.shopify.com/en/manual/your-account/users/roles/permissions/pos-permissions</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PHASES VIEW -->
+<div id="phases" class="view">
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color: #2a6df0; background: #2a6df0;"></div>
+      <div class="tl-card">
+        <div class="tl-phase" style="color: #5b9bf5;">Phase 1: Pilot (Weeks 1 to 6)</div>
+        <div class="tl-title">Validate the Model</div>
+        <div class="tl-desc">Set up 2 to 3 POS Pro locations in top US markets. Onboard 10 to 20 top distributors as POS-only staff. Configure distributor POS role. Shopify Payments for all transactions. Validate staff_id attribution.</div>
+        <div class="tl-details">
+          <div class="tl-detail"><strong>Locations:</strong> 2 to 3</div>
+          <div class="tl-detail"><strong>Distributors:</strong> 10 to 20</div>
+          <div class="tl-detail"><strong>Hardware:</strong> iPhone Tap to Pay ($0)</div>
+          <div class="tl-detail"><strong>Risk:</strong> Low, fully reversible</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color: #f5a623; background: #f5a623;"></div>
+      <div class="tl-card">
+        <div class="tl-phase" style="color: #f5a623;">Phase 2: Attribution Pipeline (Parallel, Weeks 2 to 4)</div>
+        <div class="tl-title">Build Commission Integration</div>
+        <div class="tl-desc">Webhook listener for orders/create. Staff_id to distributor ID mapping. Commission engine integration. Reconciliation reports: Shopify orders vs. commissions vs. payouts.</div>
+        <div class="tl-details">
+          <div class="tl-detail"><strong>Dev effort:</strong> 2 to 3 weeks</div>
+          <div class="tl-detail"><strong>Team:</strong> 1 backend developer</div>
+          <div class="tl-detail"><strong>Dependency:</strong> Shopify API + commission engine API</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color: #5bdb7a; background: #5bdb7a;"></div>
+      <div class="tl-card">
+        <div class="tl-phase" style="color: #5bdb7a;">Phase 3: Scale (Weeks 7 to 14)</div>
+        <div class="tl-title">Expand Distributor Network</div>
+        <div class="tl-desc">Add regional locations. Onboard in waves of 50 to 100. Self-service PIN onboarding. Deploy $49 readers to high-volume distributors. Monitor attribution accuracy.</div>
+        <div class="tl-details">
+          <div class="tl-detail"><strong>Target:</strong> 200 to 500 distributors</div>
+          <div class="tl-detail"><strong>Locations:</strong> 10 to 20 regional</div>
+          <div class="tl-detail"><strong>Hardware:</strong> $49/reader, optional</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color: #5bd4db; background: #5bd4db;"></div>
+      <div class="tl-card">
+        <div class="tl-phase" style="color: #5bd4db;">Phase 4: Subscription Migration (Months 4 to 8)</div>
+        <div class="tl-title">Migrate Autoship to Shopify Payments</div>
+        <div class="tl-desc">Move existing autoship from current card vault to Shopify Payments. POS-acquired customers already on Shopify Payments natively. Existing subscribers need card re-entry. Churn mitigation campaign required.</div>
+        <div class="tl-details">
+          <div class="tl-detail"><strong>Risk:</strong> High (token migration)</div>
+          <div class="tl-detail"><strong>Mitigation:</strong> Incentive program for re-entry</div>
+          <div class="tl-detail"><strong>New POS customers:</strong> Zero migration needed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color: #a78bfa; background: #a78bfa;"></div>
+      <div class="tl-card">
+        <div class="tl-phase" style="color: #a78bfa;">Phase 5: International (Months 6+)</div>
+        <div class="tl-title">Expansion Stores for Global Markets</div>
+        <div class="tl-desc">Create expansion stores for key markets. Each gets own POS locations, catalog, currency, and Shopify Payments config. Distributors assigned to local store.</div>
+        <div class="tl-details">
+          <div class="tl-detail"><strong>Expansion stores:</strong> Up to 9 included</div>
+          <div class="tl-detail"><strong>Constraint:</strong> Shopify Payments availability per country</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COSTS VIEW -->
+<div id="costs" class="view">
+
+  <style>
+    .cost-alert { background: rgba(245,166,35,0.1); border: 1px solid #f5a623; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; }
+    .cost-alert-title { font-size: 13px; font-weight: 700; color: #f5a623; margin-bottom: 6px; }
+    .cost-alert-desc { font-size: 12px; color: #ccc; line-height: 1.6; }
+    .eff-rate { display: inline-block; background: #1a1d27; border: 1px solid #333; border-radius: 6px; padding: 6px 12px; margin: 4px 4px 4px 0; font-size: 12px; }
+    .eff-label { color: #888; }
+    .eff-val { color: #5b9bf5; font-weight: 700; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-top: 12px; }
+    .scenario-card { background: #12141e; border: 1px solid #222; border-radius: 8px; padding: 14px 16px; }
+    .scenario-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .scenario-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-bottom: 1px solid #1a1d27; }
+    .scenario-row:last-child { border-bottom: none; }
+    .scenario-total { font-weight: 700; border-top: 2px solid #333; padding-top: 6px; margin-top: 4px; }
+  </style>
+
+  <!-- ============================================ -->
+  <!-- ACTUAL PLAN DETAILS                          -->
+  <!-- ============================================ -->
+  <p class="section-label">Your Shopify Plus Plan (Actual)</p>
+
+  <div class="cost-alert">
+    <div class="cost-alert-title">Plan: Shopify Plus | 1-Year Term | Renews January 30, 2027</div>
+    <div class="cost-alert-desc">
+      You pay whichever is greater each month: the fixed $2,500 platform fee OR the variable platform fee percentage of total sales. At $12.5M/month average volume, the variable fee will exceed the fixed fee every month. The $625K safe harbor does not apply at your volume.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LAYER 1: PROCESSING FEES                     -->
+  <!-- ============================================ -->
+  <p class="section-label">Layer 1: Shopify Payments Processing Rate</p>
+  <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Charged per transaction. Goes to Stripe (Shopify Payments processor). Same rate all channels.</p>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="cost-label">POS In-Person</div>
+      <div class="cost-value cost-highlight">2.15% <span style="font-size: 14px; color: #888;">+ 30¢</span></div>
+      <div class="cost-note">Card present. Tap, chip, swipe. All locations, all distributors.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Online Store</div>
+      <div class="cost-value cost-highlight">2.15% <span style="font-size: 14px; color: #888;">+ 30¢</span></div>
+      <div class="cost-note">Card not present. Shop Pay, Apple Pay, Google Pay, manual entry.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Third-Party Surcharge</div>
+      <div class="cost-value cost-highlight">$0</div>
+      <div class="cost-note">Using Shopify Payments exclusively. No third-party gateway surcharges.</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- LAYER 2: VARIABLE PLATFORM FEES              -->
+  <!-- ============================================ -->
+  <p class="section-label">Layer 2: Variable Platform Fees (On Top of Processing)</p>
+  <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Charged monthly by Shopify on total GMV. Kicks in above $625K/month. At $12.5M/month, this always applies.</p>
+  <div class="cost-grid">
+    <div class="cost-card" style="border-color: #f5a623;">
+      <div class="cost-label" style="color: #f5a623;">Online Transactions</div>
+      <div class="cost-value" style="color: #f5a623;">0.40%</div>
+      <div class="cost-note">Web checkout, subscriptions, online orders. On top of 2.15% + 30¢.</div>
+    </div>
+    <div class="cost-card" style="border-color: #f5a623;">
+      <div class="cost-label" style="color: #f5a623;">Retail (POS) Transactions</div>
+      <div class="cost-value" style="color: #f5a623;">0.25%</div>
+      <div class="cost-note">In-person POS sales. On top of 2.15% + 30¢.</div>
+    </div>
+    <div class="cost-card" style="border-color: #f5a623;">
+      <div class="cost-label" style="color: #f5a623;">B2B Transactions</div>
+      <div class="cost-value" style="color: #f5a623;">0.18%</div>
+      <div class="cost-note">B2B wholesale orders. Lowest variable rate.</div>
+    </div>
+  </div>
+
+  <div class="cost-alert" style="border-color: #f55; background: rgba(255,85,85,0.08); margin-top: 12px;">
+    <div class="cost-alert-title" style="color: #f55;">Effective Total Rate (Processing + Platform Fee)</div>
+    <div class="cost-alert-desc">
+      <div style="margin-top: 8px;">
+        <span class="eff-rate"><span class="eff-label">POS: </span><span class="eff-val">2.40% + 30¢</span></span>
+        <span class="eff-rate"><span class="eff-label">Online: </span><span class="eff-val">2.55% + 30¢</span></span>
+        <span class="eff-rate"><span class="eff-label">B2B: </span><span class="eff-val">2.33% + 30¢</span></span>
+      </div>
+      <div style="margin-top: 10px; color: #aaa;">
+        These are the real rates to use for cost comparisons. The 2.15% headline rate does not tell the full story at your volume.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MONTHLY PLATFORM COSTS                       -->
+  <!-- ============================================ -->
+  <p class="section-label">Monthly Platform Costs</p>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="cost-label">Shopify Plus (Fixed)</div>
+      <div class="cost-value">$2,500<span style="font-size: 14px; color: #888;">/mo</span></div>
+      <div class="cost-note">1-year term. 20 POS Pro locations included. Up to 9 expansion stores. Renews Jan 30, 2027.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">POS Pro (21 to 200 locations)</div>
+      <div class="cost-value cost-highlight">$0<span style="font-size: 14px; color: #888;">/mo</span></div>
+      <div class="cost-note">Waived with Shopify Payments active + 1 transaction/location/month.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">POS Staff Accounts</div>
+      <div class="cost-value cost-highlight">Unlimited</div>
+      <div class="cost-note">Zero per-distributor cost. Add thousands of POS-only staff.</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ANNUAL COST SCENARIOS                        -->
+  <!-- ============================================ -->
+  <p class="section-label">Annual Cost at $150M Volume (Scenarios)</p>
+  <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Three scenarios based on channel mix. Variable platform fees change significantly based on how much runs through POS vs online.</p>
+
+  <div class="scenario-grid">
+    <!-- Scenario A: Mostly Online -->
+    <div class="scenario-card">
+      <div class="scenario-title" style="color: #5b9bf5;">Scenario A: 80% Online / 20% POS</div>
+      <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Current state with autoship dominant</div>
+      <div class="scenario-row"><span style="color:#aaa;">Online processing (2.15%)</span><span style="color:#ccc;">$2,580,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">POS processing (2.15%)</span><span style="color:#ccc;">$645,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Online variable fee (0.40%)</span><span style="color:#f5a623;">$480,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">POS variable fee (0.25%)</span><span style="color:#f5a623;">$75,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Per-txn fees (est. 30¢ x 600K)</span><span style="color:#ccc;">$180,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Platform fee ($2,500 x 12)</span><span style="color:#ccc;">$30,000</span></div>
+      <div class="scenario-row scenario-total"><span style="color:#fff;">Total annual cost</span><span style="color:#5b9bf5;">~$3,990,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Effective blended rate</span><span style="color:#5b9bf5; font-weight:700;">~2.66%</span></div>
+    </div>
+
+    <!-- Scenario B: Even Split -->
+    <div class="scenario-card">
+      <div class="scenario-title" style="color: #f5a623;">Scenario B: 50% Online / 50% POS</div>
+      <div style="font-size: 11px; color: #888; margin-bottom: 8px;">After POS distributor network scales</div>
+      <div class="scenario-row"><span style="color:#aaa;">Online processing (2.15%)</span><span style="color:#ccc;">$1,612,500</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">POS processing (2.15%)</span><span style="color:#ccc;">$1,612,500</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Online variable fee (0.40%)</span><span style="color:#f5a623;">$300,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">POS variable fee (0.25%)</span><span style="color:#f5a623;">$187,500</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Per-txn fees (est. 30¢ x 600K)</span><span style="color:#ccc;">$180,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Platform fee ($2,500 x 12)</span><span style="color:#ccc;">$30,000</span></div>
+      <div class="scenario-row scenario-total"><span style="color:#fff;">Total annual cost</span><span style="color:#f5a623;">~$3,922,500</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Effective blended rate</span><span style="color:#f5a623; font-weight:700;">~2.62%</span></div>
+    </div>
+
+    <!-- Scenario C: POS Heavy -->
+    <div class="scenario-card">
+      <div class="scenario-title" style="color: #5bdb7a;">Scenario C: 20% Online / 80% POS</div>
+      <div style="font-size: 11px; color: #888; margin-bottom: 8px;">Aggressive POS distributor rollout</div>
+      <div class="scenario-row"><span style="color:#aaa;">Online processing (2.15%)</span><span style="color:#ccc;">$645,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">POS processing (2.15%)</span><span style="color:#ccc;">$2,580,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Online variable fee (0.40%)</span><span style="color:#f5a623;">$120,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">POS variable fee (0.25%)</span><span style="color:#f5a623;">$300,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Per-txn fees (est. 30¢ x 600K)</span><span style="color:#ccc;">$180,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Platform fee ($2,500 x 12)</span><span style="color:#ccc;">$30,000</span></div>
+      <div class="scenario-row scenario-total"><span style="color:#fff;">Total annual cost</span><span style="color:#5bdb7a;">~$3,855,000</span></div>
+      <div class="scenario-row"><span style="color:#aaa;">Effective blended rate</span><span style="color:#5bdb7a; font-weight:700;">~2.57%</span></div>
+    </div>
+  </div>
+
+  <div class="cost-alert" style="margin-top: 12px; border-color: #5bdb7a; background: rgba(91,219,122,0.08);">
+    <div class="cost-alert-title" style="color: #5bdb7a;">Takeaway: More POS volume = lower blended rate</div>
+    <div class="cost-alert-desc">
+      POS variable fee (0.25%) is lower than online (0.40%). Shifting volume to POS saves 0.15% per dollar. At $150M, every 10% shift from online to POS saves roughly $22,500/year in variable fees alone.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- HARDWARE                                     -->
+  <!-- ============================================ -->
+  <p class="section-label">Hardware</p>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="cost-label">iPhone Tap to Pay</div>
+      <div class="cost-value cost-highlight">$0</div>
+      <div class="cost-note">Distributor's own iPhone. Contactless only.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Card Reader</div>
+      <div class="cost-value">$49</div>
+      <div class="cost-note">Chip + swipe. Bluetooth. Optional.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">POS Terminal</div>
+      <div class="cost-value">$349</div>
+      <div class="cost-note">Countertop. Permanent locations only.</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SAVINGS VS CURRENT                           -->
+  <!-- ============================================ -->
+  <p class="section-label">Savings vs. Current</p>
+  <div class="cost-grid">
+    <div class="cost-card" style="border-color: #1a4a2a;">
+      <div class="cost-label">Current Blended Rate</div>
+      <div class="cost-value cost-warn">~7.5%</div>
+      <div class="cost-note">Current average across markets and processors.</div>
+    </div>
+    <div class="cost-card" style="border-color: #1a4a2a;">
+      <div class="cost-label">Shopify Effective Rate</div>
+      <div class="cost-value cost-highlight">~2.57% to 2.66%</div>
+      <div class="cost-note">Depends on POS vs online mix. Includes variable platform fees.</div>
+    </div>
+    <div class="cost-card" style="border-color: #1a4a2a;">
+      <div class="cost-label">Annual Savings (est.)</div>
+      <div class="cost-value cost-highlight">~$7.2M to $7.4M</div>
+      <div class="cost-note">At $150M volume. 7.5% current minus ~2.6% Shopify. Per-txn fees included.</div>
+    </div>
+  </div>
+
+  <div class="cost-alert" style="margin-top: 12px;">
+    <div class="cost-alert-title">Assumptions and Caveats</div>
+    <div class="cost-alert-desc">
+      <strong style="color:#fff;">Transaction count:</strong> Estimated 600K annual transactions (avg $250/order). Per-txn 30¢ fees scale with order count, not volume.<br>
+      <strong style="color:#fff;">Platform fee note:</strong> You pay the greater of $2,500/month or the variable %. At $12.5M/month, the variable fee ($31K+ online or $31K+ POS) always exceeds $2,500, so the fixed fee is effectively irrelevant.<br>
+      <strong style="color:#fff;">International:</strong> These rates apply to US Shopify Payments only. International markets with separate expansion stores may have different rates.<br>
+      <strong style="color:#fff;">Current rate:</strong> The 7.5% blended rate includes all markets. US-only comparison may differ.
+    </div>
+  </div>
+
+</div>
+
+<!-- BENEFITS VIEW -->
+<div id="benefits" class="view" style="max-width: 960px;">
+  <p class="section-label">Advantages</p>
+
+  <div class="benefit-bar">
+    <div class="benefit-icon">💰</div>
+    <div class="benefit-text"><strong>Zero gateway surcharges.</strong> No 0.5% to 2% third-party fee. Single rate across all channels.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">🔄</div>
+    <div class="benefit-text"><strong>Unified token vault.</strong> One payment system across POS, online, and subscriptions. Customer pays once, reusable everywhere.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">📱</div>
+    <div class="benefit-text"><strong>Shop Pay enabled.</strong> Highest-converting checkout on web. 1-click for returning customers. Only with Shopify Payments.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">🏪</div>
+    <div class="benefit-text"><strong>200 POS locations free.</strong> POS Pro waived with Shopify Payments. Saves up to $213K/year vs. third-party gateway.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">👥</div>
+    <div class="benefit-text"><strong>Unlimited POS staff.</strong> Thousands of distributors at zero per-user cost.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">📊</div>
+    <div class="benefit-text"><strong>Single reconciliation.</strong> One payout schedule. One settlement report. One chargeback process.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">🛡️</div>
+    <div class="benefit-text"><strong>PCI handled.</strong> Shopify/Stripe manages all card data. Zero PCI scope for Unicity.</div>
+  </div>
+  <div class="benefit-bar">
+    <div class="benefit-icon">🚀</div>
+    <div class="benefit-text"><strong>Fast pilot.</strong> No custom app build. POS-only staff + PIN login = distributors selling in days, not months.</div>
+  </div>
+
+  <p class="section-label" style="margin-top: 32px;">Tradeoffs to Accept</p>
+
+  <div class="warn-bar">
+    <div class="benefit-icon">⚠️</div>
+    <div class="warn-text"><strong>Token ownership.</strong> Shopify/Stripe owns all card tokens. Leaving Shopify means customers re-enter payment details.</div>
+  </div>
+  <div class="warn-bar">
+    <div class="benefit-icon">⚠️</div>
+    <div class="warn-text"><strong>International limits.</strong> Shopify Payments unavailable in some markets (Thailand, Indonesia, Middle East). Expansion stores need local alternatives.</div>
+  </div>
+  <div class="warn-bar">
+    <div class="benefit-icon">⚠️</div>
+    <div class="warn-text"><strong>Rate negotiation ceiling.</strong> Shopify/Stripe sets rates. Limited ability to negotiate below 2.15% at high volume. No interchange-plus.</div>
+  </div>
+  <div class="warn-bar">
+    <div class="benefit-icon">⚠️</div>
+    <div class="warn-text"><strong>Autoship migration.</strong> ~40K monthly orders on current vault must migrate. Customers re-enter cards. Plan for 10 to 20% churn.</div>
+  </div>
+  <div class="warn-bar">
+    <div class="benefit-icon">⚠️</div>
+    <div class="warn-text"><strong>Platform dependency.</strong> All payments on one platform. Account suspension or policy change affects everything simultaneously.</div>
+  </div>
+  <div class="warn-bar">
+    <div class="benefit-icon">⚠️</div>
+    <div class="warn-text"><strong>200 location cap.</strong> Enough for regional grouping, but cannot assign 1 location per distributor at scale. Shared locations required.</div>
+  </div>
+</div>
+
+<!-- PAYMENT FLOW VIEW -->
+<div id="payflow" class="view">
+  <div style="max-width: 1200px;">
+    <div class="section-label">Full Order Lifecycle: POS + Online + Subscription</div>
+    <p style="font-size: 12px; color: #888; margin-bottom: 16px; line-height: 1.6;">
+      Every step below is verified against Shopify documentation. Sources cited inline.
+    </p>
+
+    <div class="layer" style="margin-bottom: 16px; overflow-x: auto;">
+      <div class="layer-header">
+        <span class="layer-badge badge-blue">All Three Channels</span>
+        <span class="layer-title">Order Creation through Settlement</span>
+      </div>
+      <!-- PURE HTML/CSS FLOW DIAGRAM -->
+      <style>
+        .flow-row { display: flex; gap: 12px; margin-bottom: 2px; align-items: stretch; flex-wrap: wrap; }
+        .flow-col { flex: 1; min-width: 280px; }
+        .flow-section { border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+        .flow-section-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .flow-step { background: rgba(0,0,0,0.25); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; font-size: 12px; line-height: 1.5; color: #ccc; position: relative; }
+        .flow-step:last-child { margin-bottom: 0; }
+        .flow-step .step-num { display: inline-block; width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px; font-size: 10px; font-weight: 700; margin-right: 6px; flex-shrink: 0; }
+        .flow-arrow { text-align: center; color: #555; font-size: 16px; line-height: 1; margin: 2px 0; }
+        .flow-connector { text-align: center; padding: 8px 0; }
+        .flow-connector-label { display: inline-block; background: #1a1d27; border: 1px solid #444; border-radius: 12px; padding: 4px 14px; font-size: 11px; color: #aaa; }
+        .flow-diamond { background: rgba(0,0,0,0.3); border: 1px dashed #a78bfa; border-radius: 6px; padding: 8px 12px; text-align: center; font-size: 12px; color: #ccc; margin-bottom: 6px; }
+        .flow-branch-row { display: flex; gap: 8px; margin-bottom: 6px; }
+        .flow-branch { flex: 1; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px 10px; font-size: 11px; color: #ccc; line-height: 1.4; }
+        .flow-branch-label { font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+        .sec-pos { background: #1a2744; border: 1px solid #2a6df0; }
+        .sec-pos .flow-section-title { color: #5b9bf5; }
+        .sec-pos .step-num { background: #2a6df0; color: #fff; }
+        .sec-online { background: #1a3a2a; border: 1px solid #5bdb7a; }
+        .sec-online .flow-section-title { color: #5bdb7a; }
+        .sec-online .step-num { background: #3a8a4a; color: #fff; }
+        .sec-sub { background: #3a2a1a; border: 1px solid #f5a623; }
+        .sec-sub .flow-section-title { color: #f5a623; }
+        .sec-sub .step-num { background: #c88520; color: #fff; }
+        .sec-webhook { background: #2a1a3a; border: 1px solid #a78bfa; }
+        .sec-webhook .flow-section-title { color: #a78bfa; }
+        .sec-webhook .step-num { background: #7c5cbf; color: #fff; }
+        .sec-commission { background: #1a3a3a; border: 1px solid #5bd4db; }
+        .sec-commission .flow-section-title { color: #5bd4db; }
+        .sec-commission .step-num { background: #3a9a9e; color: #fff; }
+        .sec-fulfill { background: #1a1d27; border: 1px solid #666; }
+        .sec-fulfill .flow-section-title { color: #999; }
+        .sec-fulfill .step-num { background: #555; color: #fff; }
+        .sec-settle { background: #1a2a1a; border: 1px solid #5bdb7a; }
+        .sec-settle .flow-section-title { color: #5bdb7a; }
+        .sec-settle .step-num { background: #3a8a4a; color: #fff; }
+        .flow-retry { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11px; color: #f5a623; }
+        .flow-retry-arrow { font-size: 14px; }
+      </style>
+
+      <!-- THREE CHANNELS SIDE BY SIDE -->
+      <div class="flow-row">
+        <div class="flow-col">
+          <div class="flow-section sec-pos">
+            <div class="flow-section-title">POS Channel (source_name = "pos")</div>
+            <div class="flow-step"><span class="step-num">1</span>Distributor logs into Shopify POS app via unique PIN</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">2</span>Scans/selects products from shared catalog</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">3</span>Sale attributed to staff (auto or manual per POS Pro config)</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">4</span>Customer taps/inserts card via iPhone Tap to Pay or Shopify reader</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">5</span>Shopify Payments captures payment immediately (POS always auto-captures)</div>
+          </div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-section sec-online">
+            <div class="flow-section-title">Online Channel (source_name = "web")</div>
+            <div class="flow-step"><span class="step-num">1</span>Customer browses Shopify Online Store</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">2</span>Adds items to cart, proceeds to checkout</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">3</span>Shop Pay / Apple Pay / Google Pay / card entry</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">4</span>Shopify Payments authorizes card. Capture per store config: auto at checkout (default), auto at fulfillment (Plus only), or manual</div>
+          </div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-section sec-sub">
+            <div class="flow-section-title">Subscription Channel</div>
+            <div class="flow-step"><span class="step-num">1</span><strong>FIRST ORDER:</strong> Customer selects subscription plan at checkout (selling plan attached to line item)</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">2</span>Shopify Payments processes initial charge. Payment method vaulted via Customer Payment Method API (token stored by Stripe)</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">3</span><strong>RECURRING:</strong> Subscription app (ReCharge or Shopify Subscriptions) creates order on billing schedule</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">4</span>Shopify Payments auto-charges vaulted payment method. No customer action required.</div>
+            <div class="flow-retry"><span class="flow-retry-arrow">&#x21A9;</span> If charge fails: retry logic per subscription app config. Customer notified to update card.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONVERGE ARROW -->
+      <div class="flow-connector"><div class="flow-connector-label">All three channels fire orders/create webhook &#x25BC;</div></div>
+
+      <!-- WEBHOOK + ATTRIBUTION -->
+      <div class="flow-section sec-webhook">
+        <div class="flow-section-title">Webhook and Attribution Layer</div>
+        <div class="flow-step"><span class="step-num">W1</span><strong>orders/create</strong> webhook fires for ALL channels (POS, web, subscription)</div>
+        <div class="flow-arrow">&#x25BC;</div>
+        <div class="flow-diamond">Check <strong>source_name</strong> in order payload</div>
+        <div class="flow-branch-row">
+          <div class="flow-branch" style="border-left: 2px solid #2a6df0;">
+            <div class="flow-branch-label" style="color: #5b9bf5;">source_name = "pos"</div>
+            Extract <strong>attributed_staffs</strong> from line_items array. Each entry has StaffMember GID and quantity.
+          </div>
+          <div class="flow-branch" style="border-left: 2px solid #5bdb7a;">
+            <div class="flow-branch-label" style="color: #5bdb7a;">source_name = "web"</div>
+            Extract referral code from order note/metafield (custom implementation).
+          </div>
+          <div class="flow-branch" style="border-left: 2px solid #f5a623;">
+            <div class="flow-branch-label" style="color: #f5a623;">source_name = subscription app</div>
+            Identify via <strong>selling_plan_id</strong> on line_items or app_name = subscription provider.
+          </div>
+        </div>
+        <div class="flow-arrow">&#x25BC;</div>
+        <div class="flow-step"><span class="step-num">W6</span>Map staff/referral to <strong>Unicity Distributor ID</strong> via lookup table</div>
+      </div>
+
+      <!-- COMMISSION + FULFILLMENT + SETTLEMENT -->
+      <div class="flow-row">
+        <div class="flow-col">
+          <div class="flow-section sec-commission">
+            <div class="flow-section-title">Commission Engine (Custom Middleware)</div>
+            <div class="flow-step"><span class="step-num">C1</span>Push attributed sale to Unicity commission engine</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">C2</span>Distributor views sales + commissions in Unicity back office portal</div>
+          </div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-section sec-fulfill">
+            <div class="flow-section-title">Fulfillment</div>
+            <div class="flow-step"><span class="step-num">F1</span>Order appears in Shopify admin (all channels)</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">F2</span>Warehouse picks, packs, ships. Fulfillment created via FulfillmentOrder API.</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">F3</span>Customer receives tracking notification</div>
+          </div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-section sec-settle">
+            <div class="flow-section-title">Settlement (Shopify Payments / Stripe)</div>
+            <div class="flow-step"><span class="step-num">$1</span>Transaction fee deducted: 2.15% + 30 cents (Plus rate). Same rate across POS + Online + Subscription.</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">$2</span>Funds batched daily. Fri/Sat/Sun grouped into Monday payout.</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">$3</span>Settlement: 2-5 business days (US). 1 day to Shopify Balance. +1-3 days for external bank ACH.</div>
+            <div class="flow-arrow">&#x25BC;</div>
+            <div class="flow-step"><span class="step-num">$4</span>Single payout includes all channels combined. Fees, refunds, chargebacks netted before deposit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Source Citations</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; max-width: 960px;">
+      <div class="node" style="min-width: auto;">
+        <div class="node-name">POS Sales Attribution</div>
+        <div class="node-desc">POS Pro required. Auto or manual attribution config. attributed_staffs field in orders/create and orders/updated webhook payloads.</div>
+        <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">Source: help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/sales-attribution</div>
+      </div>
+      <div class="node" style="min-width: auto;">
+        <div class="node-name">source_name Values</div>
+        <div class="node-desc">Protected values: "web", "pos", "iphone", "android", "shopify_draft_order". Set at order creation, immutable after.</div>
+        <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">Source: shopify.dev/changelog/channel-attribution-is-now-available-in-beta</div>
+      </div>
+      <div class="node" style="min-width: auto;">
+        <div class="node-name">Payment Capture Methods</div>
+        <div class="node-desc">Auto at checkout (default), auto at fulfillment (Plus only), or manual. POS always captures immediately. Setting does not affect POS orders.</div>
+        <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">Source: help.shopify.com/en/manual/payments/payment-authorization</div>
+      </div>
+      <div class="node" style="min-width: auto;">
+        <div class="node-name">Subscription Architecture</div>
+        <div class="node-desc">Selling Plan APIs + Subscription Contract APIs + Customer Payment Method APIs. First order via checkout, renewals auto-charged. POS subscriptions require Shopify Payments.</div>
+        <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">Source: shopify.dev/docs/apps/build/purchase-options/subscriptions</div>
+      </div>
+      <div class="node" style="min-width: auto;">
+        <div class="node-name">Settlement Timing (US)</div>
+        <div class="node-desc">2-5 business days. Shopify Balance: as fast as 1 business day. External bank: +1-3 days ACH. Weekend/holiday transactions batch to next business day.</div>
+        <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">Source: help.shopify.com/en/manual/payments/shopify-payments/payouts/payout-timing</div>
+      </div>
+      <div class="node" style="min-width: auto;">
+        <div class="node-name">Webhook Payloads</div>
+        <div class="node-desc">orders/create fires for all channels. Payload includes source_name, line_items with attributed_staffs (POS), selling_plan allocation (subscriptions), financial_status.</div>
+        <div class="node-desc" style="color: #5b9bf5; margin-top: 4px;">Source: shopify.dev/docs/api/admin-rest/latest/resources/webhook</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 20px;">Key Facts Called Out</div>
+    <div class="benefit-bar">
+      <div class="benefit-icon">1</div>
+      <div class="benefit-text"><strong>POS always auto-captures.</strong> Payment capture settings in Shopify admin do not affect POS orders. Funds are captured at time of sale.</div>
+    </div>
+    <div class="benefit-bar">
+      <div class="benefit-icon">2</div>
+      <div class="benefit-text"><strong>One webhook serves all channels.</strong> orders/create fires for POS, online, and subscription orders. source_name field differentiates origin.</div>
+    </div>
+    <div class="benefit-bar">
+      <div class="benefit-icon">3</div>
+      <div class="benefit-text"><strong>Subscription tokens owned by Shopify/Stripe.</strong> Customer Payment Method API vaults cards. Leaving Shopify means customers re-enter payment details.</div>
+    </div>
+    <div class="benefit-bar">
+      <div class="benefit-icon">4</div>
+      <div class="benefit-text"><strong>POS subscriptions require Shopify Payments.</strong> POS stores without Shopify Payments cannot sell subscriptions. This validates the all-Shopify-Payments decision.</div>
+    </div>
+    <div class="benefit-bar">
+      <div class="benefit-icon">5</div>
+      <div class="benefit-text"><strong>Single settlement stream.</strong> All three channels settle into one payout. Fees, refunds, and chargebacks netted before deposit. One reconciliation process.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP GUIDE VIEW -->
+<div id="setup" class="view">
+
+  <style>
+    .setup-prereq { background: rgba(91,155,245,0.08); border: 1px solid #2a4a7a; border-radius: 10px; padding: 18px 20px; margin-bottom: 24px; }
+    .setup-prereq-title { font-size: 14px; font-weight: 700; color: #5b9bf5; margin-bottom: 10px; }
+    .setup-prereq-list { font-size: 12px; color: #bbb; line-height: 2; }
+    .setup-prereq-list span { color: #5bdb7a; font-weight: 600; }
+
+    .setup-step { background: #12141e; border: 1px solid #222; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .setup-step-header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #222; cursor: pointer; }
+    .setup-step-header:hover { background: rgba(255,255,255,0.02); }
+    .setup-step-num { background: #5b9bf5; color: #000; font-weight: 800; font-size: 14px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .setup-step-num.orange { background: #f5a623; }
+    .setup-step-num.green { background: #5bdb7a; }
+    .setup-step-title { font-size: 15px; font-weight: 700; color: #fff; flex-grow: 1; }
+    .setup-step-role { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+    .role-both { background: rgba(91,155,245,0.15); color: #5b9bf5; }
+    .role-rm { background: rgba(245,166,35,0.15); color: #f5a623; }
+    .role-dist { background: rgba(91,219,122,0.15); color: #5bdb7a; }
+    .setup-step-toggle { color: #555; font-size: 18px; transition: transform 0.2s; }
+
+    .setup-step-body { padding: 0 20px 20px 20px; }
+    .setup-step.collapsed .setup-step-body { display: none; }
+    .setup-step.collapsed .setup-step-toggle { transform: rotate(-90deg); }
+
+    .nav-path { background: #1a1d27; border: 1px solid #333; border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: #5b9bf5; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav-arrow { color: #555; font-size: 11px; }
+    .nav-item { color: #5b9bf5; }
+    .nav-item.action { color: #5bdb7a; font-weight: 600; }
+
+    .substep { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1a1d27; }
+    .substep:last-child { border-bottom: none; }
+    .substep-num { color: #555; font-size: 12px; font-weight: 700; min-width: 24px; padding-top: 1px; }
+    .substep-content { font-size: 13px; color: #ccc; line-height: 1.7; }
+    .substep-content strong { color: #fff; }
+    .substep-content code { background: #1a1d27; color: #f5a623; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace; }
+
+    .setup-tip { background: rgba(245,166,35,0.08); border-left: 3px solid #f5a623; padding: 10px 14px; margin: 12px 0; border-radius: 0 6px 6px 0; font-size: 12px; color: #ccc; }
+    .setup-tip strong { color: #f5a623; }
+
+    .setup-warn { background: rgba(255,85,85,0.08); border-left: 3px solid #f55; padding: 10px 14px; margin: 12px 0; border-radius: 0 6px 6px 0; font-size: 12px; color: #ccc; }
+    .setup-warn strong { color: #f55; }
+
+    .setup-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    @media (max-width: 700px) { .setup-config-grid { grid-template-columns: 1fr; } }
+    .config-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1a1d27; border-radius: 6px; font-size: 12px; }
+    .config-label { color: #888; }
+    .config-val { font-weight: 600; }
+    .config-on { color: #5bdb7a; }
+    .config-off { color: #f55; }
+
+    .perm-checklist { margin: 12px 0; }
+    .perm-row { display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: #1a1d27; border-radius: 6px; margin-bottom: 4px; font-size: 12px; }
+    .perm-check { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .perm-yes { background: rgba(91,219,122,0.2); color: #5bdb7a; }
+    .perm-no { background: rgba(255,85,85,0.15); color: #f55; }
+    .perm-name { color: #ccc; flex-grow: 1; }
+
+    .setup-summary { background: linear-gradient(135deg, #1a2a1a 0%, #12141e 100%); border: 1px solid #2a4a2a; border-radius: 10px; padding: 18px 20px; margin-top: 20px; }
+    .setup-summary-title { font-size: 14px; font-weight: 700; color: #5bdb7a; margin-bottom: 12px; }
+    .summary-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 8px 0; }
+    .summary-node { background: #1a1d27; border: 1px solid #333; border-radius: 6px; padding: 8px 14px; font-size: 12px; color: #ccc; text-align: center; }
+    .summary-arrow { color: #555; padding: 0 6px; font-size: 14px; }
+    .setup-source { font-size: 11px; color: #555; margin-top: 6px; }
+    .setup-source a { color: #5b9bf5; text-decoration: none; }
+    .setup-source a:hover { text-decoration: underline; }
+  </style>
+
+  <!-- ============================================ -->
+  <!-- PREREQUISITES                                -->
+  <!-- ============================================ -->
+  <p class="section-label">Setup Guide: Distributor and Regional Manager Accounts</p>
+
+  <div class="setup-prereq">
+    <div class="setup-prereq-title">Before You Start</div>
+    <div class="setup-prereq-list">
+      <span>&#10003;</span> Shopify Plus plan active ($2,500/month)<br>
+      <span>&#10003;</span> Shopify Payments enabled (Settings &gt; Payments)<br>
+      <span>&#10003;</span> POS Pro subscription active on target locations<br>
+      <span>&#10003;</span> Point of Sale sales channel installed<br>
+      <span>&#10003;</span> You are the store owner or have Organization Administrator role
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- KEY CONCEPT: LOCATIONS vs DISTRIBUTORS       -->
+  <!-- ============================================ -->
+  <div style="background: linear-gradient(135deg, #1a2040 0%, #12141e 100%); border: 2px solid #5b9bf5; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+    <div style="font-size: 16px; font-weight: 800; color: #5b9bf5; margin-bottom: 14px;">Key Concept: Location = Territory, Not a Person</div>
+    <div style="font-size: 13px; color: #ccc; line-height: 1.8; margin-bottom: 16px;">
+      A Shopify "location" is <strong style="color:#fff;">not</strong> an individual distributor. It is a <strong style="color:#fff;">territory</strong> or <strong style="color:#fff;">branch</strong>. Think of it as a regional office. Every distributor who works in that territory shares the same product catalog, inventory, and POS setup. The territory has a manager. The manager has staff. There is no limit on staff per territory.
+    </div>
+
+    <!-- Visual mapping -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+      <div style="background: #1a1d27; border: 1px solid #2a4a7a; border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">SHOPIFY TERM</div>
+        <div style="font-size: 22px; margin-bottom: 6px;">&#127970;</div>
+        <div style="font-size: 14px; font-weight: 700; color: #5b9bf5;">Location</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">Max: 200</div>
+      </div>
+      <div style="background: #1a1d27; border: 1px solid #4a3a1a; border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">SHOPIFY TERM</div>
+        <div style="font-size: 22px; margin-bottom: 6px;">&#128188;</div>
+        <div style="font-size: 14px; font-weight: 700; color: #f5a623;">Admin + POS Staff</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">Unlimited, $0</div>
+      </div>
+      <div style="background: #1a1d27; border: 1px solid #2a4a2a; border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">SHOPIFY TERM</div>
+        <div style="font-size: 22px; margin-bottom: 6px;">&#128100;</div>
+        <div style="font-size: 14px; font-weight: 700; color: #5bdb7a;">POS-Only Staff</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">Unlimited, $0</div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+      <div style="font-size: 18px; color: #555;">&#8595;</div>
+      <div style="font-size: 12px; color: #888; padding: 0 12px;">translates to</div>
+      <div style="font-size: 18px; color: #555;">&#8595;</div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px;">
+      <div style="background: #1a1d27; border: 1px solid #2a4a7a; border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">YOUR BUSINESS TERM</div>
+        <div style="font-size: 22px; margin-bottom: 6px;">&#127758;</div>
+        <div style="font-size: 14px; font-weight: 700; color: #5b9bf5;">Territory / Branch</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">e.g. Southeast Florida</div>
+      </div>
+      <div style="background: #1a1d27; border: 1px solid #4a3a1a; border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">YOUR BUSINESS TERM</div>
+        <div style="font-size: 22px; margin-bottom: 6px;">&#128101;</div>
+        <div style="font-size: 14px; font-weight: 700; color: #f5a623;">Territory Manager</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">e.g. Mike runs SE Florida</div>
+      </div>
+      <div style="background: #1a1d27; border: 1px solid #2a4a2a; border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 11px; color: #888; margin-bottom: 6px;">YOUR BUSINESS TERM</div>
+        <div style="font-size: 22px; margin-bottom: 6px;">&#128587;</div>
+        <div style="font-size: 14px; font-weight: 700; color: #5bdb7a;">Distributor</div>
+        <div style="font-size: 11px; color: #888; margin-top: 4px;">e.g. 75 reps under Mike</div>
+      </div>
+    </div>
+
+    <!-- Example scenario -->
+    <div style="background: rgba(91,219,122,0.06); border: 1px solid #2a4a2a; border-radius: 8px; padding: 14px 16px;">
+      <div style="font-size: 12px; font-weight: 700; color: #5bdb7a; margin-bottom: 8px;">Example: Scale to 10,000 Distributors</div>
+      <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 12px; color: #ccc; line-height: 1.8;">
+        <span style="color: #5b9bf5; font-weight: 700;">50 territories</span><span>covering all US states + key metros</span>
+        <span style="color: #f5a623; font-weight: 700;">50 territory managers</span><span>one per territory, admin + POS access</span>
+        <span style="color: #5bdb7a; font-weight: 700;">10,000 distributors</span><span>~200 per territory, POS-only, $0 each</span>
+        <span style="color: #888; font-weight: 700;">150 locations remaining</span><span>for international expansion and future growth</span>
+      </div>
+    </div>
+
+    <div style="font-size: 11px; color: #888; margin-top: 12px; line-height: 1.6;">
+      <strong style="color: #f5a623;">Bottom line:</strong> The 200-location cap is not a distributor cap. It is a territory cap. Each territory holds unlimited distributors at zero cost. The constraint is how many regions you create, not how many people sell.
+    </div>
+  </div>
+  <div class="setup-summary" style="margin-bottom: 24px; border-color: #2a3a5a; background: linear-gradient(135deg, #1a2040 0%, #12141e 100%);">
+    <div class="setup-summary-title" style="color: #5b9bf5;">Order of Operations</div>
+    <div class="summary-flow">
+      <div class="summary-node" style="border-color: #5b9bf5;">1. Create<br>Locations</div>
+      <div class="summary-arrow">&#8594;</div>
+      <div class="summary-node" style="border-color: #5b9bf5;">2. Activate<br>POS Pro</div>
+      <div class="summary-arrow">&#8594;</div>
+      <div class="summary-node" style="border-color: #f5a623;">3. Create<br>POS Roles</div>
+      <div class="summary-arrow">&#8594;</div>
+      <div class="summary-node" style="border-color: #f5a623;">4. Create Store<br>Roles</div>
+      <div class="summary-arrow">&#8594;</div>
+      <div class="summary-node" style="border-color: #f5a623;">5. Add Regional<br>Manager</div>
+      <div class="summary-arrow">&#8594;</div>
+      <div class="summary-node" style="border-color: #5bdb7a;">6. Add<br>Distributor</div>
+    </div>
+    <div style="font-size: 11px; color: #888; margin-top: 10px;">Locations and POS Pro must exist before you can create POS roles. POS roles must exist before adding staff.</div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 1: CREATE LOCATION                      -->
+  <!-- ============================================ -->
+  <div class="setup-step" id="step1">
+    <div class="setup-step-header" onclick="toggleStep('step1')">
+      <div class="setup-step-num">1</div>
+      <div class="setup-step-title">Create a Regional Location</div>
+      <div class="setup-step-role role-both">Both Roles Need This</div>
+      <div class="setup-step-toggle">&#9660;</div>
+    </div>
+    <div class="setup-step-body">
+      <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Every region needs a location. Distributors and regional managers get assigned to locations. Create the location first.</p>
+
+      <div class="nav-path">
+        <span class="nav-item">Settings</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Locations</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item action">Add location</span>
+      </div>
+
+      <div class="substep">
+        <div class="substep-num">1a.</div>
+        <div class="substep-content">
+          Go to <strong>Settings &gt; Locations</strong> in your Shopify admin.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">1b.</div>
+        <div class="substep-content">
+          Click <strong>Add location</strong>. Enter the region name using a consistent naming convention.<br>
+          Example: <code>US-West-LosAngeles</code> or <code>US-Southeast-Miami</code>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">1c.</div>
+        <div class="substep-content">
+          Enter the physical address for the region. This is required. Use the regional manager's business address or a central location for the region.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">1d.</div>
+        <div class="substep-content">
+          In the <strong>Fulfillment</strong> section, turn <strong>OFF</strong> "Inventory at this location is available to fulfill online orders" unless this location also ships product.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">1e.</div>
+        <div class="substep-content">
+          Click <strong>Save</strong>.
+        </div>
+      </div>
+
+      <div class="setup-tip">
+        <strong>Naming convention matters.</strong> With up to 200 locations, use a structured format like <code>Country-Region-City</code> so you can find and filter locations easily. Shopify supports keyword search on the Locations page.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 2: UPGRADE TO POS PRO                   -->
+  <!-- ============================================ -->
+  <div class="setup-step" id="step2">
+    <div class="setup-step-header" onclick="toggleStep('step2')">
+      <div class="setup-step-num">2</div>
+      <div class="setup-step-title">Activate POS Pro on Location</div>
+      <div class="setup-step-role role-both">Both Roles Need This</div>
+      <div class="setup-step-toggle">&#9660;</div>
+    </div>
+    <div class="setup-step-body">
+      <p style="font-size: 12px; color: #888; margin-bottom: 12px;">POS Pro is required for custom POS roles and POS-only staff. New locations default to POS Lite even on Plus. You need to explicitly activate POS Pro on each location. No extra cost on your Plus plan (first 20 included, additional locations $0 with Shopify Payments active).</p>
+
+      <div class="nav-path">
+        <span class="nav-item">Sales channels</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Point of Sale</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Locations</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item action">Manage subscriptions</span>
+      </div>
+
+      <div class="substep">
+        <div class="substep-num">2a.</div>
+        <div class="substep-content">
+          Go to <strong>Sales channels &gt; Point of Sale &gt; Locations</strong>.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">2b.</div>
+        <div class="substep-content">
+          Click <strong>Manage subscriptions</strong>.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">2c.</div>
+        <div class="substep-content">
+          Find your new location. Select <strong>POS Pro</strong>. This is not a paid upgrade on your Plus plan. It just switches the location from Lite to Pro.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">2d.</div>
+        <div class="substep-content">
+          Click <strong>Save</strong>. The location now supports custom POS roles and POS-only staff.
+        </div>
+      </div>
+
+      <div class="setup-tip">
+        <strong>Bulk activation tip:</strong> If you have 20+ locations, select multiple checkboxes on the Locations screen, then click <strong>Manage subscriptions</strong> to activate POS Pro on up to 250 at once.
+      </div>
+
+      <div class="setup-warn">
+        <strong>POS Pro must be active before adding POS-only staff.</strong> New locations default to POS Lite even on Plus. If the location is still on Lite, the "Point of Sale" tab for adding POS-only users will not work for that location. POS roles also only apply at POS Pro locations.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 3: CREATE POS ROLES                     -->
+  <!-- ============================================ -->
+  <div class="setup-step" id="step3">
+    <div class="setup-step-header" onclick="toggleStep('step3')">
+      <div class="setup-step-num orange">3</div>
+      <div class="setup-step-title">Create POS Roles (Distributor + POS Manager)</div>
+      <div class="setup-step-role role-both">Both Roles Need This</div>
+      <div class="setup-step-toggle">&#9660;</div>
+    </div>
+    <div class="setup-step-body">
+      <p style="font-size: 12px; color: #888; margin-bottom: 12px;">POS roles control what staff can do inside the POS app. Create two custom roles: one locked-down role for distributors, and one manager role for regional managers. These are separate from store-level admin roles.</p>
+
+      <div class="nav-path">
+        <span class="nav-item">Sales channels</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Point of Sale</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Staff</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item action">Manage POS roles</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item action">Create POS role</span>
+      </div>
+
+      <!-- Distributor POS Role -->
+      <div style="margin-top: 16px; padding: 14px 16px; background: rgba(91,219,122,0.05); border: 1px solid #2a4a2a; border-radius: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #5bdb7a; margin-bottom: 10px;">Role A: "Distributor" POS Role</div>
+        <div class="substep">
+          <div class="substep-num">3a.</div>
+          <div class="substep-content">
+            Go to <strong>Sales channels &gt; Point of Sale &gt; Staff</strong>.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">3b.</div>
+          <div class="substep-content">
+            Click <strong>Manage POS roles &gt; Create POS role</strong>.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">3c.</div>
+          <div class="substep-content">
+            Title: <code>Distributor</code>
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">3d.</div>
+          <div class="substep-content">Set permissions. Enable only what distributors need:</div>
+        </div>
+
+        <div class="perm-checklist">
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Checkout: Process sales</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Checkout: Apply manual discounts (with approval)</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Customers: Add and edit customers</div></div>
+          <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Returns and exchanges</div></div>
+          <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Cash tracking: Manage cash</div></div>
+          <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Custom discounts (without approval)</div></div>
+          <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Manage Point of Sale staff</div></div>
+          <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Manage orders at all locations</div></div>
+          <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">View POS sales reports</div></div>
+        </div>
+
+        <div class="substep">
+          <div class="substep-num">3e.</div>
+          <div class="substep-content">
+            Do NOT check "Set as default POS role" (keep Associate as default to avoid accidentally giving new staff distributor-level access). Click <strong>Save</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Regional Manager POS Role -->
+      <div style="margin-top: 16px; padding: 14px 16px; background: rgba(245,166,35,0.05); border: 1px solid #4a3a1a; border-radius: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #f5a623; margin-bottom: 10px;">Role B: "POS Manager" POS Role</div>
+        <div class="substep">
+          <div class="substep-num">3f.</div>
+          <div class="substep-content">
+            Click <strong>Manage POS roles &gt; Create POS role</strong> again.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">3g.</div>
+          <div class="substep-content">
+            Title: <code>POS Manager</code>
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">3h.</div>
+          <div class="substep-content">Set permissions. Enable everything the regional manager needs in the POS app:</div>
+        </div>
+
+        <div class="perm-checklist">
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Checkout: Process sales</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Checkout: Apply manual discounts</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Checkout: Apply custom discounts</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Returns and exchanges</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Cash tracking: Manage cash</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Customers: Add and edit customers</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Manage Point of Sale staff</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Manage orders at all locations</div></div>
+          <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">View POS sales reports</div></div>
+        </div>
+
+        <div class="substep">
+          <div class="substep-num">3i.</div>
+          <div class="substep-content">
+            Click <strong>Save</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-tip">
+        <strong>POS roles are separate from store roles.</strong> A regional manager needs BOTH: a store-level role (Step 4) for Shopify admin access AND a POS role (this step) for POS app permissions. A distributor needs only the POS role since they never touch the admin.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 4: CREATE STORE-LEVEL ROLE              -->
+  <!-- ============================================ -->
+  <div class="setup-step" id="step4">
+    <div class="setup-step-header" onclick="toggleStep('step4')">
+      <div class="setup-step-num orange">4</div>
+      <div class="setup-step-title">Create Store-Level Role for Regional Manager</div>
+      <div class="setup-step-role role-rm">Regional Manager Only</div>
+      <div class="setup-step-toggle">&#9660;</div>
+    </div>
+    <div class="setup-step-body">
+      <p style="font-size: 12px; color: #888; margin-bottom: 12px;">This controls what the regional manager can see and do in the Shopify admin (the web dashboard). Distributors skip this step entirely because they get POS-only access with no admin.</p>
+
+      <div class="nav-path">
+        <span class="nav-item">Settings</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Users</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Roles</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item action">Add role</span>
+      </div>
+
+      <div class="substep">
+        <div class="substep-num">4a.</div>
+        <div class="substep-content">
+          Go to <strong>Settings &gt; Users &gt; Roles</strong>.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">4b.</div>
+        <div class="substep-content">
+          Click <strong>Add role</strong>. Select the <strong>Store</strong> role category.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">4c.</div>
+        <div class="substep-content">
+          Name: <code>Regional Manager</code><br>
+          Description: <code>Limited admin access for regional POS managers. Can manage product availability, customers, and POS staff at assigned locations.</code>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">4d.</div>
+        <div class="substep-content">Set store-level permissions:</div>
+      </div>
+
+      <div class="perm-checklist">
+        <div style="font-size: 11px; color: #888; padding: 4px 12px; font-weight: 600;">Products</div>
+        <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">View products</div></div>
+        <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Edit products (for availability at their location only by policy)</div></div>
+        <div style="font-size: 11px; color: #888; padding: 8px 12px 4px; font-weight: 600;">Customers</div>
+        <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">View customers</div></div>
+        <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Edit customers</div></div>
+        <div style="font-size: 11px; color: #888; padding: 8px 12px 4px; font-weight: 600;">Orders</div>
+        <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">View orders</div></div>
+        <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Edit orders</div></div>
+        <div style="font-size: 11px; color: #888; padding: 8px 12px 4px; font-weight: 600;">Point of Sale</div>
+        <div class="perm-row"><div class="perm-check perm-yes">&#10003;</div><div class="perm-name">Access Point of Sale</div></div>
+        <div style="font-size: 11px; color: #888; padding: 8px 12px 4px; font-weight: 600;">Deny</div>
+        <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Finances (view payouts, view financial reports)</div></div>
+        <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Settings (payment providers, checkout, taxes, shipping)</div></div>
+        <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Online store (themes, pages, navigation)</div></div>
+        <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Analytics (dashboards, reports)</div></div>
+        <div class="perm-row"><div class="perm-check perm-no">&#10007;</div><div class="perm-name">Users and permissions management</div></div>
+      </div>
+
+      <div class="substep">
+        <div class="substep-num">4e.</div>
+        <div class="substep-content">
+          In <strong>App permissions</strong>, select only Shopify POS related apps. Deselect everything else.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">4f.</div>
+        <div class="substep-content">
+          Click <strong>Save</strong>.
+        </div>
+      </div>
+
+      <div class="setup-warn">
+        <strong>Pricing gotcha reminder:</strong> Product prices are store-wide in Shopify. If you grant "Edit products" permission, the regional manager can technically change a price and it affects ALL locations. Enforce by policy that pricing changes go through HQ only. Grant "Edit products" for product availability toggling at their location, not price changes.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 5: ADD REGIONAL MANAGER                 -->
+  <!-- ============================================ -->
+  <div class="setup-step" id="step5">
+    <div class="setup-step-header" onclick="toggleStep('step5')">
+      <div class="setup-step-num orange">5</div>
+      <div class="setup-step-title">Add Regional Manager User</div>
+      <div class="setup-step-role role-rm">Regional Manager</div>
+      <div class="setup-step-toggle">&#9660;</div>
+    </div>
+    <div class="setup-step-body">
+      <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Regional managers get both admin access (limited) and POS access. They are added as a full user (not POS-only) so they can log into the Shopify admin dashboard AND the POS app.</p>
+
+      <div class="nav-path">
+        <span class="nav-item">Settings</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Users</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item action">Add users</span>
+        <span class="nav-arrow">&#8250;</span>
+        <span class="nav-item">Admin and Point of Sale tab</span>
+      </div>
+
+      <div class="substep">
+        <div class="substep-num">5a.</div>
+        <div class="substep-content">
+          Go to <strong>Settings &gt; Users</strong>. Click <strong>Add users</strong>.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">5b.</div>
+        <div class="substep-content">
+          Make sure the <strong>"Admin and Point of Sale"</strong> tab is selected (not the "Point of Sale" tab).
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">5c.</div>
+        <div class="substep-content">
+          Click <strong>Add users</strong>. Enter the regional manager's <strong>email address</strong>. Click <strong>Add Users</strong>.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">5d.</div>
+        <div class="substep-content">
+          In the <strong>Roles</strong> section, click <strong>Assign</strong>. Select the <code>Regional Manager</code> store role you created in Step 4.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">5e.</div>
+        <div class="substep-content">
+          In <strong>Two-step authentication</strong>, set to <strong>Required</strong> for security.
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-num">5f.</div>
+        <div class="substep-content">
+          Click <strong>Save</strong>. The manager receives an email invitation. They have <strong>7 days</strong> to accept.
+        </div>
+      </div>
+
+      <div style="background: #1a1d27; border-radius: 8px; padding: 14px 16px; margin-top: 14px;">
+        <div style="font-size: 12px; font-weight: 700; color: #f5a623; margin-bottom: 8px;">After They Accept the Invite:</div>
+        <div class="substep">
+          <div class="substep-num">5g.</div>
+          <div class="substep-content">
+            Go to <strong>Sales channels &gt; Point of Sale &gt; Staff</strong>. Find the manager in the staff list.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">5h.</div>
+          <div class="substep-content">
+            Click their name. Assign the <code>POS Manager</code> POS role (created in Step 3).
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">5i.</div>
+          <div class="substep-content">
+            Under <strong>Assigned locations</strong>, select only their regional location(s). Un-assign all other locations so they can only PIN into their region.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">5j.</div>
+          <div class="substep-content">
+            Set their unique <strong>4 to 6 digit PIN</strong>. Click <strong>Save</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-tip">
+        <strong>Two separate role assignments happen here.</strong> Step 5d assigns the store-level admin role (what they see in the web dashboard). Steps 5h-5i assign the POS role (what they can do in the POS app). Both are required for a regional manager.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 6: ADD DISTRIBUTOR                      -->
+  <!-- ============================================ -->
+  <div class="setup-step" id="step6">
+    <div class="setup-step-header" onclick="toggleStep('step6')">
+      <div class="setup-step-num green">6</div>
+      <div class="setup-step-title">Add Distributor (POS-Only Staff)</div>
+      <div class="setup-step-role role-dist">Distributor</div>
+      <div class="setup-step-toggle">&#9660;</div>
+    </div>
+    <div class="setup-step-body">
+      <p style="font-size: 12px; color: #888; margin-bottom: 12px;">Distributors are POS-only staff. No email needed. No admin access. No cost. They log into the POS app with a PIN and that is it. This is the account type you will create thousands of.</p>
+
+      <div style="background: rgba(91,219,122,0.08); border: 1px solid #2a4a2a; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 700; color: #5bdb7a; margin-bottom: 6px;">Two Ways to Add Distributors</div>
+        <div style="font-size: 12px; color: #ccc; line-height: 1.8;">
+          <strong style="color:#fff;">Option A: From Shopify Admin</strong> (HQ bulk setup)<br>
+          <strong style="color:#fff;">Option B: From POS App</strong> (regional manager adds on-device)
+        </div>
+      </div>
+
+      <!-- Option A -->
+      <div style="margin-top: 16px; padding: 14px 16px; background: rgba(91,219,122,0.03); border: 1px solid #2a4a2a; border-radius: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #5bdb7a; margin-bottom: 10px;">Option A: From Shopify Admin (HQ)</div>
+
+        <div class="nav-path">
+          <span class="nav-item">Settings</span>
+          <span class="nav-arrow">&#8250;</span>
+          <span class="nav-item">Users</span>
+          <span class="nav-arrow">&#8250;</span>
+          <span class="nav-item action">Add users</span>
+          <span class="nav-arrow">&#8250;</span>
+          <span class="nav-item" style="color: #5bdb7a; font-weight: 700;">Point of Sale tab</span>
+        </div>
+
+        <div class="substep">
+          <div class="substep-num">6a.</div>
+          <div class="substep-content">
+            Go to <strong>Settings &gt; Users</strong>. Click <strong>Add users</strong>.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6b.</div>
+          <div class="substep-content">
+            Click the <strong>"Point of Sale"</strong> tab. This is different from Step 5. This tab creates POS-only users with no admin access.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6c.</div>
+          <div class="substep-content">
+            Click <strong>Add users</strong>. Enter the distributor's <strong>first name, last name</strong>, and optional contact info. No email required.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6d.</div>
+          <div class="substep-content">
+            Click <strong>Add user</strong>. Then click the new user's name in the staff list.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6e.</div>
+          <div class="substep-content">
+            Assign the <code>Distributor</code> POS role (created in Step 3).
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6f.</div>
+          <div class="substep-content">
+            Under <strong>Assigned locations</strong>, select only their regional manager's location.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6g.</div>
+          <div class="substep-content">
+            Set a unique <strong>4 to 6 digit PIN</strong>. Click <strong>Save</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Option B -->
+      <div style="margin-top: 16px; padding: 14px 16px; background: rgba(245,166,35,0.03); border: 1px solid #4a3a1a; border-radius: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #f5a623; margin-bottom: 10px;">Option B: From POS App (Regional Manager Adds On-Device)</div>
+        <p style="font-size: 12px; color: #888; margin-bottom: 12px;">If the regional manager has the "Manage Point of Sale staff" POS permission, they can add distributors directly from the POS iPad or iPhone app.</p>
+
+        <div class="substep">
+          <div class="substep-num">6h.</div>
+          <div class="substep-content">
+            On the POS app, tap <strong>&#9776; (menu) &gt; Staff</strong>.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6i.</div>
+          <div class="substep-content">
+            Tap <strong>Add staff</strong>. Enter first name, last name.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6j.</div>
+          <div class="substep-content">
+            The new staff is <strong>automatically assigned to that device's location only</strong>.
+          </div>
+        </div>
+        <div class="substep">
+          <div class="substep-num">6k.</div>
+          <div class="substep-content">
+            Assign the <code>Distributor</code> POS role and set a PIN.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-tip">
+        <strong>Option B is how you scale.</strong> Let regional managers add their own distributors from the POS app. Staff added this way are auto-assigned to only that location. HQ maintains control through the POS role permissions. The distributor never sees or touches the Shopify admin.
+      </div>
+
+      <div class="setup-warn">
+        <strong>Commission tracking requirement:</strong> To map POS sales back to Unicity distributor IDs, you need a naming convention or custom field mapping. Consider using the staff first/last name fields to include the Unicity distributor ID, like <code>First: John</code> <code>Last: Smith-D12345</code>, or build middleware that maps the Shopify staff_id to the Unicity ID in your commission engine.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- QUICK REFERENCE CHEATSHEET                   -->
+  <!-- ============================================ -->
+  <p class="section-label" style="margin-top: 24px;">Quick Reference: Admin Paths</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Create Location</div>
+      <div style="font-size: 11px; color: #5b9bf5; font-family: monospace;">Settings &gt; Locations &gt; Add location</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Activate POS Pro</div>
+      <div style="font-size: 11px; color: #5b9bf5; font-family: monospace;">POS channel &gt; Locations &gt; Manage subscriptions</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Create POS Roles</div>
+      <div style="font-size: 11px; color: #5b9bf5; font-family: monospace;">POS channel &gt; Staff &gt; Manage POS roles</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Create Store Roles</div>
+      <div style="font-size: 11px; color: #5b9bf5; font-family: monospace;">Settings &gt; Users &gt; Roles &gt; Add role</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Add Regional Manager</div>
+      <div style="font-size: 11px; color: #f5a623; font-family: monospace;">Settings &gt; Users &gt; Add users &gt; "Admin and POS" tab</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Add Distributor</div>
+      <div style="font-size: 11px; color: #5bdb7a; font-family: monospace;">Settings &gt; Users &gt; Add users &gt; "Point of Sale" tab</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Assign POS Role to Staff</div>
+      <div style="font-size: 11px; color: #5b9bf5; font-family: monospace;">POS channel &gt; Staff &gt; [click name] &gt; Role</div>
+    </div>
+    <div class="config-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+      <div class="config-label">Assign Locations to Staff</div>
+      <div style="font-size: 11px; color: #5b9bf5; font-family: monospace;">POS channel &gt; Staff &gt; [click name] &gt; Locations</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SOURCES                                      -->
+  <!-- ============================================ -->
+  <p class="section-label" style="margin-top: 24px;">Sources</p>
+  <div class="setup-source"><a href="https://help.shopify.com/en/manual/your-account/users/roles/manage-roles" target="_blank">Shopify Help: Managing roles (Store-level)</a></div>
+  <div class="setup-source"><a href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/staff-management/plus-plan-staff-management/pos-roles" target="_blank">Shopify Help: Manage POS roles (Shopify Plus)</a></div>
+  <div class="setup-source"><a href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/staff-management/add-staff" target="_blank">Shopify Help: Adding Point of Sale staff</a></div>
+  <div class="setup-source"><a href="https://help.shopify.com/en/manual/your-account/staff-accounts/create-staff-accounts" target="_blank">Shopify Help: Inviting users</a></div>
+  <div class="setup-source"><a href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/staff-management/staff-by-location" target="_blank">Shopify Help: POS staff by location</a></div>
+  <div class="setup-source"><a href="https://help.shopify.com/en/manual/sell-in-person/getting-started/shopify-pos-from-admin/add-locations" target="_blank">Shopify Help: POS location management</a></div>
+
+</div>
+
+<script>
+function toggleStep(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+</script>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

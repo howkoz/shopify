@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify POS Architecture Flows | Unicity Payment Operations</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0f14;
+  --bg-card: #141820;
+  --bg-card-hover: #1a1f2b;
+  --bg-elevated: #1e2430;
+  --border: #2a3040;
+  --border-active: #4a7cff;
+  --text: #e8ecf4;
+  --text-dim: #8892a4;
+  --text-muted: #5a6478;
+  --accent: #4a7cff;
+  --accent-glow: rgba(74, 124, 255, 0.15);
+  --accent-soft: rgba(74, 124, 255, 0.08);
+  --green: #34d399;
+  --green-bg: rgba(52, 211, 153, 0.1);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251, 191, 36, 0.1);
+  --red: #f87171;
+  --red-bg: rgba(248, 113, 113, 0.1);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167, 139, 250, 0.1);
+  --cyan: #22d3ee;
+  --cyan-bg: rgba(34, 211, 238, 0.1);
+  --orange: #fb923c;
+  --orange-bg: rgba(251, 146, 60, 0.1);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --transition: 0.2s ease;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  padding:40px 48px 32px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(74,124,255,0.04) 0%, transparent 100%);
+}
+.page-header h1 {
+  font-family:'Fraunces',serif;
+  font-size:32px;
+  font-weight:700;
+  letter-spacing:-0.5px;
+  margin-bottom:6px;
+}
+.page-header h1 span { color:var(--accent); font-style:italic; }
+.page-header .subtitle {
+  color:var(--text-dim);
+  font-size:14px;
+  margin-bottom:16px;
+}
+.header-meta {
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.tag {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.3px;
+  text-transform:uppercase;
+}
+.tag-blue { background:var(--accent-glow); color:var(--accent); }
+.tag-green { background:var(--green-bg); color:var(--green); }
+.tag-amber { background:var(--amber-bg); color:var(--amber); }
+.tag-purple { background:var(--purple-bg); color:var(--purple); }
+
+/* ===== NAV BAR ===== */
+.back-link {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 16px;
+  margin:16px 48px;
+  color:var(--text-dim);
+  text-decoration:none;
+  font-size:13px;
+  border-radius:var(--radius-sm);
+  transition:var(--transition);
+}
+.back-link:hover { color:var(--accent); background:var(--accent-soft); }
+
+/* ===== TABS ===== */
+.tab-container {
+  padding:0 48px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg-card);
+  position:sticky;
+  top:0;
+  z-index:100;
+  overflow-x:auto;
+  white-space:nowrap;
+  scrollbar-width:none;
+}
+.tab-container::-webkit-scrollbar { display:none; }
+.tab-row {
+  display:flex;
+  gap:0;
+}
+.tab-btn {
+  padding:14px 22px;
+  font-size:13px;
+  font-weight:500;
+  color:var(--text-dim);
+  background:none;
+  border:none;
+  border-bottom:2px solid transparent;
+  cursor:pointer;
+  transition:var(--transition);
+  white-space:nowrap;
+  font-family:inherit;
+}
+.tab-btn:hover { color:var(--text); background:var(--accent-soft); }
+.tab-btn.active {
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+  background:var(--accent-soft);
+}
+
+/* ===== CONTENT ===== */
+.content { padding:32px 48px 64px; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+.section-title {
+  font-family:'Fraunces',serif;
+  font-size:20px;
+  font-weight:600;
+  margin:32px 0 16px;
+  color:var(--text);
+}
+.section-title:first-child { margin-top:0; }
+
+.section-desc {
+  color:var(--text-dim);
+  font-size:14px;
+  margin-bottom:20px;
+  max-width:800px;
+  line-height:1.7;
+}
+
+/* ===== MERMAID ===== */
+.mermaid-wrap {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:32px;
+  margin-bottom:24px;
+  overflow-x:auto;
+  min-height:400px;
+}
+.mermaid-wrap svg {
+  width:100% !important;
+  min-width:900px;
+  height:auto !important;
+  min-height:350px;
+}
+.mermaid-wrap .mermaid {
+  display:flex;
+  justify-content:center;
+}
+
+/* ===== INFO BOXES ===== */
+.info-box {
+  padding:14px 18px;
+  border-radius:var(--radius-sm);
+  font-size:13px;
+  line-height:1.6;
+  margin-bottom:16px;
+}
+.info-box.blue { background:var(--accent-glow); border-left:3px solid var(--accent); }
+.info-box.green { background:var(--green-bg); border-left:3px solid var(--green); }
+.info-box.amber { background:var(--amber-bg); border-left:3px solid var(--amber); }
+.info-box.red { background:var(--red-bg); border-left:3px solid var(--red); }
+.info-box.purple { background:var(--purple-bg); border-left:3px solid var(--purple); }
+
+/* ===== TABLES ===== */
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:16px;
+  font-size:13px;
+}
+th {
+  text-align:left;
+  padding:10px 14px;
+  background:var(--bg-elevated);
+  color:var(--text-dim);
+  font-weight:600;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  border-bottom:1px solid var(--border);
+}
+td {
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--text);
+}
+tr:hover td { background:var(--bg-card-hover); }
+
+/* ===== KEY/LEGEND ===== */
+.legend {
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+.legend-item {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  color:var(--text-dim);
+}
+.legend-dot {
+  width:10px;
+  height:10px;
+  border-radius:50%;
+}
+
+/* ===== ZOOM CONTROLS ===== */
+.zoom-bar {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+.zoom-btn {
+  padding:6px 14px;
+  font-size:14px;
+  font-weight:600;
+  font-family:inherit;
+  background:var(--bg-elevated);
+  color:var(--text-dim);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:var(--transition);
+}
+.zoom-btn:hover { color:var(--accent); border-color:var(--accent); }
+.zoom-label {
+  font-size:12px;
+  color:var(--text-muted);
+  min-width:40px;
+  text-align:center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:768px) {
+  .page-header, .content, .back-link { padding-left:20px; padding-right:20px; }
+  .tab-container { padding:0 20px; }
+  .page-header h1 { font-size:24px; }
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">â† Back to Hub</a>
+
+<div class="page-header">
+  <h1>Shopify POS <span>Architecture Flows</span></h1>
+  <div class="subtitle">Process flow diagrams for the Shopify POS Distributor pilot. Each tab isolates a functional domain.</div>
+  <div class="header-meta">
+    <span class="tag tag-blue">TKT-5793</span>
+    <span class="tag tag-green">6 Flow Diagrams</span>
+    <span class="tag tag-amber">Feb 2026</span>
+    <span class="tag tag-purple">Mermaid v10</span>
+  </div>
+</div>
+
+<div class="tab-container">
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab('integration')">Integration Map</button>
+    <button class="tab-btn" onclick="switchTab('transaction')">Transaction Flow</button>
+    <button class="tab-btn" onclick="switchTab('settlement')">Payment Settlement</button>
+    <button class="tab-btn" onclick="switchTab('lifecycle')">Order Lifecycle</button>
+    <button class="tab-btn" onclick="switchTab('permissions')">Permissions</button>
+    <button class="tab-btn" onclick="switchTab('org')">Org Structure</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ========== TAB 1: INTEGRATION MAP ========== -->
+<div id="tab-integration" class="tab-panel active">
+  <div class="section-title">System Integration Map</div>
+  <div class="section-desc">
+    High level view of all system components and how they connect. Shopify Platform sits at the center. 
+    Custom middleware (Attribution) and existing Unicity systems (Commission Engine, Fulfillment, Finance) 
+    attach via webhooks and batch processes.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Shopify Platform</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Custom Build (New)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div> Existing Unicity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> External / Payment</div>
+  </div>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+graph TB
+  subgraph ENTRY["Entry Points"]
+    direction LR
+    POS["POS App<br/>Distributor Devices"]
+    WEB["Online Store<br/>Shopify Storefront"]
+    SUB["Subscription App<br/>ReCharge or Native"]
+    ADMIN["Shopify Admin<br/>HQ + Managers"]
+  end
+
+  subgraph SHOPIFY["Shopify Platform"]
+    direction TB
+    API["Admin API + Webhooks"]
+    PAY["Shopify Payments<br/>Stripe Backend"]
+  end
+
+  subgraph CUSTOM["Custom Build â€” New"]
+    direction TB
+    MW["Attribution Middleware"]
+    MW1["Webhook Listener"]
+    MW2["Staff â†’ Distributor Mapping"]
+    MW3["Referral â†’ Distributor Mapping"]
+    MW4["Order Enrichment"]
+  end
+
+  subgraph UNICITY["Existing Unicity Systems"]
+    direction TB
+    CE["Commission Engine<br/>PV/BV Calculation<br/>Upline Tree"]
+    DP["Distributor Portal<br/>Sales Dashboard<br/>Commission View"]
+    FF["Fulfillment<br/>Pick/Pack/Ship<br/>Inventory Sync"]
+    FIN["Finance / ERP<br/>Reconciliation<br/>AP / AR"]
+  end
+
+  POS --> API
+  WEB --> API
+  SUB --> API
+  ADMIN --> API
+  API --> PAY
+  API -->|"orders/create webhook"| MW
+  MW --> MW1
+  MW --> MW2
+  MW --> MW3
+  MW --> MW4
+  MW -->|"attributed sale"| CE
+  CE --> DP
+  API -->|"fulfillment webhooks"| FF
+  FF --> FIN
+  PAY -->|"settlement"| FIN
+
+  style ENTRY fill:#1a1f2b,stroke:#4a7cff,color:#e8ecf4
+  style SHOPIFY fill:#1a1f2b,stroke:#4a7cff,color:#e8ecf4
+  style CUSTOM fill:#1a1f2b,stroke:#34d399,color:#e8ecf4
+  style UNICITY fill:#1a1f2b,stroke:#a78bfa,color:#e8ecf4
+    </pre>
+  </div>
+
+  <div class="info-box blue">
+    <strong>Pilot Simplification:</strong> For the 10 distributor pilot, the Attribution Middleware is replaced by a daily CSV export from Shopify Admin. 
+    Staff name on each order maps to Distributor ID via a lookup table. No webhook listener needed at pilot scale.
+  </div>
+
+  <table>
+    <thead><tr><th>Component</th><th>Owner</th><th>Pilot Status</th><th>Scale Status</th></tr></thead>
+    <tbody>
+      <tr><td>POS App</td><td>Shopify</td><td>Ready (included)</td><td>Ready</td></tr>
+      <tr><td>Online Store</td><td>Shopify</td><td>Ready (included)</td><td>Ready</td></tr>
+      <tr><td>Shopify Payments</td><td>Stripe</td><td>Ready (2.15% + $0.30)</td><td>Volume pricing available</td></tr>
+      <tr><td>Attribution Middleware</td><td>Unicity (new build)</td><td>CSV export (manual)</td><td>Webhook listener needed</td></tr>
+      <tr><td>Commission Engine</td><td>InfoTrax (existing)</td><td>No change</td><td>No change</td></tr>
+      <tr><td>Distributor Portal</td><td>Unicity (existing)</td><td>No change</td><td>No change</td></tr>
+      <tr><td>Fulfillment</td><td>Unicity (existing)</td><td>Hand to customer (POS)</td><td>Warehouse ships (online)</td></tr>
+      <tr><td>Finance / ERP</td><td>Unicity (existing)</td><td>Single payout reconciliation</td><td>Multi-channel reconciliation</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== TAB 2: TRANSACTION FLOW ========== -->
+<div id="tab-transaction" class="tab-panel">
+  <div class="section-title">POS Transaction Flow</div>
+  <div class="section-desc">
+    Step by step walkthrough of a single POS sale. Distributor W1 (PIN 4821) sells Unimate Yerba Mate ($59.95) 
+    via Tap to Pay. Follows the order from PIN entry through to bank settlement.
+  </div>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+sequenceDiagram
+  participant D as Distributor W1<br/>PIN 4821
+  participant POS as Shopify POS App
+  participant SP as Shopify Payments<br/>Stripe
+  participant PLAT as Shopify Platform
+  participant MW as Attribution<br/>Middleware
+  participant CE as Commission<br/>Engine
+  participant BANK as Unicity Bank
+
+  Note over D,POS: Distributor opens app, enters PIN 4821
+  D->>POS: Enter PIN 4821
+  POS->>PLAT: Validate PIN â†’ Staff W1 at Region West
+  PLAT-->>POS: PIN validated
+
+  Note over D,POS: Customer wants Unimate ($59.95)
+  D->>POS: Scan product, add to cart
+  Note over POS: Price $59.95 set by HQ, not editable
+
+  D->>POS: Customer taps iPhone (NFC)
+  POS->>SP: Auth request $59.95<br/>Card present, NFC
+  SP->>SP: Authorize with card network
+  SP-->>POS: Auth approved
+  Note over SP: Auto-capture: POS always captures
+
+  POS-->>D: Payment confirmed, receipt sent
+
+  PLAT->>MW: orders/create webhook<br/>source=pos, staff=W1, $59.95
+  Note over PLAT,MW: Webhook fires immediately
+
+  MW->>MW: Lookup Staff W1 â†’ Distributor D12345
+  MW->>CE: Sale attributed to D12345<br/>Product: Unimate, Amount: $59.95
+  CE->>CE: Calculate commission<br/>Credit D12345, run upline tree
+
+  SP->>BANK: Daily batch payout<br/>All channels combined
+  Note over SP,BANK: Settlement: 2-5 business days
+
+  Note over SP: Fee: 2.15% + $0.30 = $1.59<br/>Variable: 0.25% = $0.15<br/>Net payout: $58.21
+    </pre>
+  </div>
+
+  <div class="info-box green">
+    <strong>Key Detail:</strong> POS always auto-captures. There is no manual capture step. 
+    The webhook fires immediately after order creation, not after settlement.
+  </div>
+
+  <table>
+    <thead><tr><th>Step</th><th>Action</th><th>Actor</th><th>System</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Open POS app, enter PIN</td><td>Distributor</td><td>Shopify POS</td></tr>
+      <tr><td>2</td><td>Scan product, add to cart</td><td>Distributor</td><td>Shopify POS</td></tr>
+      <tr><td>3</td><td>Customer taps card (NFC)</td><td>Customer</td><td>Card Reader / iPhone</td></tr>
+      <tr><td>4</td><td>Auth request sent</td><td>System</td><td>Shopify Payments (Stripe)</td></tr>
+      <tr><td>5</td><td>Auth approved, auto-capture</td><td>System</td><td>Card Network â†’ Stripe</td></tr>
+      <tr><td>6</td><td>Order created, webhook fires</td><td>System</td><td>Shopify Platform</td></tr>
+      <tr><td>7</td><td>Staff mapped to Distributor ID</td><td>System</td><td>Attribution Middleware</td></tr>
+      <tr><td>8</td><td>Commission calculated</td><td>System</td><td>Commission Engine</td></tr>
+      <tr><td>9</td><td>Daily batch payout</td><td>System</td><td>Stripe â†’ Bank</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== TAB 3: PAYMENT SETTLEMENT ========== -->
+<div id="tab-settlement" class="tab-panel">
+  <div class="section-title">Payment Capture and Settlement</div>
+  <div class="section-desc">
+    How money flows from customer card to Unicity bank account. Three entry channels (POS, Online, Subscription) 
+    converge into a single daily batch payout. One reconciliation stream for all channels.
+  </div>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+graph LR
+  subgraph CHANNELS["Entry Channels"]
+    direction TB
+    CH1["POS Transaction<br/>Tap / Chip / Swipe<br/>ALWAYS auto-captures"]
+    CH2["Online Transaction<br/>Shop Pay / Apple Pay<br/>Auto or manual capture"]
+    CH3["Subscription Charge<br/>Vaulted token auto-charge<br/>ALWAYS auto-captures"]
+  end
+
+  AUTH["Authorization<br/>Card network validates<br/>Funds held"]
+  CAP["Capture<br/>Funds move to<br/>Shopify Payments balance"]
+
+  subgraph FEES["Fee Deduction"]
+    direction TB
+    BASE["Base: 2.15% + $0.30"]
+    F1["POS: +0.25%<br/>Effective: 2.40% + $0.30"]
+    F2["Online: +0.40%<br/>Effective: 2.55% + $0.30"]
+    F3["B2B: +0.18%<br/>Effective: 2.33% + $0.30"]
+  end
+
+  BATCH["Daily Batching<br/>All channels combined<br/>Fri/Sat/Sun â†’ Monday"]
+  NET["Net Calculation<br/>Gross âˆ’ Fees<br/>âˆ’ Refunds âˆ’ Chargebacks"]
+
+  subgraph PAYOUT["Payout"]
+    direction TB
+    P1["Shopify Balance: 1 biz day"]
+    P2["External Bank: +1-3 days ACH"]
+    P3["SINGLE deposit all channels"]
+  end
+
+  BANK["Unicity Bank Account"]
+
+  CH1 --> AUTH
+  CH2 --> AUTH
+  CH3 --> AUTH
+  AUTH --> CAP
+  CAP --> FEES
+  BASE --> F1
+  BASE --> F2
+  BASE --> F3
+  FEES --> BATCH
+  BATCH --> NET
+  NET --> PAYOUT
+  PAYOUT --> BANK
+
+  style CHANNELS fill:#1a1f2b,stroke:#4a7cff,color:#e8ecf4
+  style FEES fill:#1a1f2b,stroke:#fbbf24,color:#e8ecf4
+  style PAYOUT fill:#1a1f2b,stroke:#34d399,color:#e8ecf4
+    </pre>
+  </div>
+
+  <div class="info-box amber">
+    <strong>Variable Platform Fee:</strong> Kicks in above $625K/month in volume. The base processing rate 
+    stays at 2.15% + $0.30 but Shopify adds a variable fee on top depending on channel type.
+  </div>
+
+  <div class="info-box blue">
+    <strong>Reconciliation Benefit:</strong> One deposit per payout cycle maps to all POS + Online + Subscription 
+    orders. Single reconciliation stream regardless of channel mix.
+  </div>
+
+  <table>
+    <thead><tr><th>Channel</th><th>Base Rate</th><th>Variable Fee</th><th>Effective Rate</th><th>Capture Mode</th></tr></thead>
+    <tbody>
+      <tr><td>POS (Card Present)</td><td>2.15% + $0.30</td><td>+0.25%</td><td>2.40% + $0.30</td><td>Always auto-capture</td></tr>
+      <tr><td>Online (Card Not Present)</td><td>2.15% + $0.30</td><td>+0.40%</td><td>2.55% + $0.30</td><td>Auto or manual</td></tr>
+      <tr><td>B2B</td><td>2.15% + $0.30</td><td>+0.18%</td><td>2.33% + $0.30</td><td>Auto or manual</td></tr>
+      <tr><td>Subscription</td><td>2.15% + $0.30</td><td>Same as online</td><td>2.55% + $0.30</td><td>Always auto-capture</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">Fee Math Example (POS Sale)</div>
+  <table>
+    <thead><tr><th>Line Item</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Gross Sale</td><td>$59.95</td></tr>
+      <tr><td>Processing Fee (2.15% + $0.30)</td><td>-$1.59</td></tr>
+      <tr><td>Variable POS Fee (0.25%)</td><td>-$0.15</td></tr>
+      <tr><td style="font-weight:600">Net Payout</td><td style="font-weight:600">$58.21</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== TAB 4: ORDER LIFECYCLE ========== -->
+<div id="tab-lifecycle" class="tab-panel">
+  <div class="section-title">Order Lifecycle</div>
+  <div class="section-desc">
+    Every order follows the same lifecycle regardless of entry point. The source_name field determines 
+    how attribution is resolved. POS orders carry attributed_staffs. Online orders carry referral codes. 
+    Subscription orders carry selling_plan_id.
+  </div>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart TB
+  subgraph ENTRY["Order Entry Points"]
+    direction LR
+    E1["POS Sale<br/>Distributor opens app<br/>Logs in with PIN<br/>Customer taps card"]
+    E2["Online Store<br/>Customer shops website<br/>Shop Pay or Apple Pay<br/>Referral code in URL"]
+    E3["Subscription Renewal<br/>Auto-charge on schedule<br/>Shopify vaulted token<br/>selling_plan_id attached"]
+  end
+
+  ORDER["Order Created<br/>Assigned order_id<br/>source_name tagged<br/>financial_status: paid"]
+
+  WEBHOOK["orders/create fires<br/>Full payload includes:<br/>source_name, line_items,<br/>financial_status, location_id"]
+
+  CHECK{{"source_name?"}}
+
+  subgraph POS_PATH["POS Path"]
+    P1["Extract attributed_staffs<br/>from line_items array<br/>Contains staff GID + qty"]
+  end
+
+  subgraph WEB_PATH["Web Path"]
+    W1["Extract referral code<br/>from order note<br/>or metafield"]
+  end
+
+  subgraph SUB_PATH["Subscription Path"]
+    S1["Identify via selling_plan_id<br/>on line_items"]
+  end
+
+  MW["Attribution Middleware<br/>Maps staff_id â†’ Distributor ID<br/>Maps referral â†’ Distributor ID<br/>Lookup table or DB"]
+  CE["Commission Engine<br/>Calculate PV/BV<br/>Run upline commissions<br/>Credit distributor"]
+  DP["Distributor Portal<br/>View sales + commissions<br/>Existing back office"]
+
+  subgraph FULFILL["Fulfillment"]
+    F1["POS: hand to customer"]
+    F2["Online: warehouse ships"]
+    F3["Unified inventory"]
+  end
+
+  E1 --> ORDER
+  E2 --> ORDER
+  E3 --> ORDER
+  ORDER --> WEBHOOK
+  WEBHOOK --> CHECK
+  CHECK -->|"source = pos"| POS_PATH
+  CHECK -->|"source = web"| WEB_PATH
+  CHECK -->|"source = subscription_app"| SUB_PATH
+  POS_PATH --> MW
+  WEB_PATH --> MW
+  SUB_PATH --> MW
+  MW --> CE
+  CE --> DP
+  ORDER --> FULFILL
+
+  style ENTRY fill:#1a1f2b,stroke:#4a7cff,color:#e8ecf4
+  style POS_PATH fill:#1a1f2b,stroke:#34d399,color:#e8ecf4
+  style WEB_PATH fill:#1a1f2b,stroke:#a78bfa,color:#e8ecf4
+  style SUB_PATH fill:#1a1f2b,stroke:#22d3ee,color:#e8ecf4
+  style FULFILL fill:#1a1f2b,stroke:#fbbf24,color:#e8ecf4
+    </pre>
+  </div>
+
+  <div class="info-box green">
+    <strong>Attribution Key Fields:</strong>
+  </div>
+  <table>
+    <thead><tr><th>Source</th><th>source_name</th><th>Attribution Field</th><th>Location</th></tr></thead>
+    <tbody>
+      <tr><td>POS Sale</td><td>pos</td><td>attributed_staffs (staff GID + qty)</td><td>line_items array</td></tr>
+      <tr><td>Online Store</td><td>web</td><td>Referral code</td><td>order note or metafield</td></tr>
+      <tr><td>Subscription</td><td>subscription_app</td><td>selling_plan_id</td><td>line_items</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box purple">
+    <strong>Webhook Payload:</strong> The orders/create webhook includes source_name, line_items, financial_status, 
+    location_id, and attributed_staffs (for POS). This single webhook covers all three entry channels.
+  </div>
+</div>
+
+<!-- ========== TAB 5: PERMISSIONS ========== -->
+<div id="tab-permissions" class="tab-panel">
+  <div class="section-title">Permission Boundary Map</div>
+  <div class="section-desc">
+    Three permission tiers with strict boundaries. Distributors get POS-only access via PIN. 
+    Regional Managers get limited Admin plus POS Manager role. HQ Admin gets full access to everything. 
+    Each tier inherits nothing from the tier below.
+  </div>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+graph TB
+  subgraph HQ["HQ ADMIN â€” Full Access"]
+    direction TB
+    HQ1["Products: create / edit / delete"]
+    HQ2["Orders: view / manage / fulfill"]
+    HQ3["Customers: view / edit profiles"]
+    HQ4["Analytics: reports / exports"]
+    HQ5["Settings: payments / taxes / apps"]
+    HQ6["Online Store: themes / checkout"]
+    HQ7["Payment Config / Payouts / Bank"]
+    HQ8["Create POS locations (up to 200)"]
+    HQ9["Create and assign staff roles"]
+  end
+
+  subgraph MGR["REGIONAL MANAGER â€” Limited Admin + POS Manager"]
+    direction TB
+    MGR_CAN["CAN:<br/>Process checkout<br/>Manage POS staff own location<br/>Process returns<br/>View location orders<br/>Toggle product availability<br/>Approve discounts"]
+    MGR_NO["CANNOT:<br/>Change pricing<br/>Payment settings<br/>Analytics or reports<br/>Create locations<br/>Manage apps<br/>See other locations"]
+  end
+
+  subgraph DIST["DISTRIBUTOR â€” POS PIN Only"]
+    direction TB
+    DIST_CAN["CAN:<br/>Process checkout<br/>Capture customer info<br/>Auto-attribute sales"]
+    DIST_NO["CANNOT:<br/>Apply discounts<br/>View orders<br/>Process returns<br/>Access admin<br/>See other staff<br/>View reports"]
+  end
+
+  HQ -->|"full access<br/>all permissions"| MGR
+  MGR -->|"limited subset<br/>POS Manager role"| DIST
+
+  style HQ fill:#1a1f2b,stroke:#f87171,color:#e8ecf4
+  style MGR fill:#1a1f2b,stroke:#fbbf24,color:#e8ecf4
+  style DIST fill:#1a1f2b,stroke:#34d399,color:#e8ecf4
+    </pre>
+  </div>
+
+  <table>
+    <thead><tr><th>Role</th><th>Login Method</th><th>Store Access</th><th>POS Role</th><th>Key Restriction</th></tr></thead>
+    <tbody>
+      <tr><td>HQ Admin (Store Owner)</td><td>Email login</td><td>Full Shopify Admin</td><td>N/A (admin)</td><td>None</td></tr>
+      <tr><td>Regional Manager</td><td>Email login</td><td>Limited store permissions</td><td>POS Manager</td><td>Own location only</td></tr>
+      <tr><td>Distributor</td><td>PIN only (4-6 digits)</td><td>None</td><td>POS only</td><td>Checkout only, no admin</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">HQ Admin Capabilities</div>
+  <table>
+    <thead><tr><th>Domain</th><th>Capabilities</th></tr></thead>
+    <tbody>
+      <tr><td>Products and Pricing</td><td>Create/edit/delete, set prices store-wide, manage variants</td></tr>
+      <tr><td>Locations</td><td>Create POS Pro locations (up to 200 included), assign products per location</td></tr>
+      <tr><td>Staff and Roles</td><td>Create POS roles, create admin roles, assign staff to locations</td></tr>
+      <tr><td>Payment Config</td><td>Shopify Payments setup, payout bank accounts, tax and fraud rules</td></tr>
+      <tr><td>Analytics</td><td>All reports, revenue by location, revenue by staff</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== TAB 6: ORG STRUCTURE ========== -->
+<div id="tab-org" class="tab-panel">
+  <div class="section-title">Ownership and Control Hierarchy</div>
+  <div class="section-desc">
+    Three layers of ownership. The Platform Layer is Shopify-owned and cannot be modified. 
+    The HQ Admin Layer controls global configuration. The Regional Layer manages location-specific operations.
+  </div>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+graph TB
+  subgraph PLATFORM["PLATFORM LAYER â€” Shopify Owned"]
+    direction TB
+    SP["Shopify Payments<br/>Stripe backend<br/>Token vault<br/>Settlement engine"]
+    WH["Webhook Engine<br/>orders/create<br/>orders/updated"]
+  end
+
+  subgraph HQLAYER["HQ ADMIN LAYER"]
+    direction TB
+    OWNER["Store Owner<br/>Full Shopify Admin<br/>Payment Settings<br/>Payouts, Apps, Analytics"]
+  end
+
+  subgraph REGIONAL["REGIONAL LAYER"]
+    direction LR
+
+    subgraph WEST["Region West"]
+      MW_MGR["Manager West<br/>Email login<br/>Limited store perms<br/>POS Manager role"]
+      W1["Distributor W1<br/>PIN 4821"]
+      W2["Distributor W2<br/>PIN 7734"]
+      W3["Distributor W3<br/>PIN 1199"]
+      MW_MGR -->|"manages"| W1
+      MW_MGR -->|"manages"| W2
+      MW_MGR -->|"manages"| W3
+    end
+
+    subgraph EAST["Region East"]
+      ME_MGR["Manager East<br/>Email login<br/>Limited store perms<br/>POS Manager role"]
+      E1["Distributor E1<br/>PIN 5502"]
+      E2["Distributor E2<br/>PIN 3318"]
+      ME_MGR -->|"manages"| E1
+      ME_MGR -->|"manages"| E2
+    end
+  end
+
+  SP -->|"payments"| OWNER
+  WH -->|"fires"| OWNER
+  OWNER --> MW_MGR
+  OWNER --> ME_MGR
+
+  style PLATFORM fill:#1a1f2b,stroke:#4a7cff,color:#e8ecf4
+  style HQLAYER fill:#1a1f2b,stroke:#f87171,color:#e8ecf4
+  style REGIONAL fill:#1a1f2b,stroke:#fbbf24,color:#e8ecf4
+  style WEST fill:#141820,stroke:#34d399,color:#e8ecf4
+  style EAST fill:#141820,stroke:#a78bfa,color:#e8ecf4
+    </pre>
+  </div>
+
+  <div class="info-box blue">
+    <strong>Key Concept â€” Location = Territory:</strong> Each Shopify POS Pro location maps to a business territory. 
+    Managers see only their own location. Distributors see only the checkout screen. 
+    HQ sees everything across all locations.
+  </div>
+
+  <table>
+    <thead><tr><th>Layer</th><th>Controls</th><th>Cannot Touch</th></tr></thead>
+    <tbody>
+      <tr><td>Platform (Shopify)</td><td>Payment processing, webhook delivery, token vault, settlement</td><td>N/A (Shopify owns this)</td></tr>
+      <tr><td>HQ Admin</td><td>Products, pricing, locations, staff, payment config, analytics, apps</td><td>Stripe internals, webhook engine</td></tr>
+      <tr><td>Regional Manager</td><td>Own location staff, returns, order view, product availability</td><td>Other locations, pricing, payment settings, analytics</td></tr>
+      <tr><td>Distributor</td><td>Checkout, customer capture, sale attribution</td><td>Everything else</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- end .content -->
+
+<script>
+// Zoom state per tab
+const zoomLevels = {};
+
+function zoomDiagram(tabId, direction) {
+  if (!zoomLevels[tabId]) zoomLevels[tabId] = 100;
+  if (direction === 'in') zoomLevels[tabId] = Math.min(200, zoomLevels[tabId] + 20);
+  if (direction === 'out') zoomLevels[tabId] = Math.max(60, zoomLevels[tabId] - 20);
+  if (direction === 'reset') zoomLevels[tabId] = 100;
+  
+  const panel = document.getElementById('tab-' + tabId);
+  const svgs = panel.querySelectorAll('.mermaid-wrap svg');
+  svgs.forEach(svg => {
+    svg.style.transform = 'scale(' + (zoomLevels[tabId]/100) + ')';
+    svg.style.transformOrigin = 'top left';
+  });
+  
+  const label = panel.querySelector('.zoom-label');
+  if (label) label.textContent = zoomLevels[tabId] + '%';
+}
+
+// Inject zoom bars into each tab panel
+function injectZoomBars() {
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    const tabId = panel.id.replace('tab-', '');
+    const bar = document.createElement('div');
+    bar.className = 'zoom-bar';
+    bar.innerHTML = '<button class="zoom-btn" onclick="zoomDiagram(\'' + tabId + '\',\'out\')">âˆ’</button>'
+      + '<span class="zoom-label">100%</span>'
+      + '<button class="zoom-btn" onclick="zoomDiagram(\'' + tabId + '\',\'in\')">+</button>'
+      + '<button class="zoom-btn" onclick="zoomDiagram(\'' + tabId + '\',\'reset\')">Reset</button>';
+    const firstWrap = panel.querySelector('.mermaid-wrap');
+    if (firstWrap) firstWrap.parentNode.insertBefore(bar, firstWrap);
+  });
+}
+
+// Tab switching with Mermaid re-render
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  
+  const panel = document.getElementById('tab-' + id);
+  panel.classList.add('active');
+  
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.getAttribute('onclick').includes(id)) b.classList.add('active');
+  });
+  
+  // Re-render any unprocessed mermaid in the newly visible panel
+  const unprocessed = panel.querySelectorAll('.mermaid:not([data-processed])');
+  if (unprocessed.length > 0) {
+    mermaid.run({ nodes: unprocessed });
+  }
+}
+
+// Init Mermaid with dark theme
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1e2430',
+    primaryTextColor: '#e8ecf4',
+    primaryBorderColor: '#4a7cff',
+    lineColor: '#5a6478',
+    secondaryColor: '#141820',
+    tertiaryColor: '#1a1f2b',
+    fontFamily: 'DM Sans, sans-serif',
+    fontSize: '16px',
+    noteBkgColor: '#1e2430',
+    noteTextColor: '#e8ecf4',
+    noteBorderColor: '#4a7cff',
+    actorBkg: '#1e2430',
+    actorTextColor: '#e8ecf4',
+    actorBorder: '#4a7cff',
+    signalColor: '#8892a4',
+    signalTextColor: '#e8ecf4',
+    activationBkgColor: '#1a1f2b',
+    activationBorderColor: '#4a7cff',
+    sequenceNumberColor: '#4a7cff'
+  },
+  flowchart: {
+    curve: 'basis',
+    padding: 30,
+    htmlLabels: true,
+    useMaxWidth: false,
+    nodeSpacing: 40,
+    rankSpacing: 60
+  },
+  sequence: {
+    useMaxWidth: false,
+    showSequenceNumbers: false,
+    actorMargin: 80,
+    messageMargin: 50,
+    width: 200,
+    height: 50,
+    boxMargin: 20,
+    noteMargin: 20
+  }
+});
+
+// Render active tab on load, inject zoom bars
+document.addEventListener('DOMContentLoaded', () => {
+  injectZoomBars();
+  const activePanel = document.querySelector('.tab-panel.active');
+  const nodes = activePanel.querySelectorAll('.mermaid');
+  if (nodes.length > 0) {
+    mermaid.run({ nodes: nodes });
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unicity Shopify Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2333;
+  --border: #30363d;
+  --border-hover: #484f58;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --text-dim: #6e7681;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88,166,255,0.12);
+  --green: #3fb950;
+  --green-bg: rgba(63,185,80,0.1);
+  --yellow: #d29922;
+  --yellow-bg: rgba(210,153,34,0.1);
+  --purple: #bc8cff;
+  --purple-bg: rgba(188,140,255,0.1);
+  --red: #f85149;
+  --red-bg: rgba(248,81,73,0.1);
+  --orange: #f0883e;
+  --orange-bg: rgba(240,136,62,0.1);
+  --cyan: #39d2c0;
+  --cyan-bg: rgba(57,210,192,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* HEADER */
+.header {
+  padding:48px 48px 40px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(88,166,255,0.03) 0%, transparent 100%);
+}
+.header-top {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:8px;
+}
+.header-logo {
+  width:44px; height:44px;
+  background:var(--accent-glow);
+  border:1px solid rgba(88,166,255,0.25);
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+}
+.header h1 {
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:-0.5px;
+  color:#fff;
+}
+.header h1 span { color:var(--accent); }
+.header .subtitle {
+  font-size:14px;
+  color:var(--text-muted);
+  margin-bottom:20px;
+  max-width:640px;
+}
+.header-meta {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.meta-tag {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:500;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text-muted);
+}
+.meta-tag .dot {
+  width:7px; height:7px;
+  border-radius:50%;
+}
+
+/* MAIN */
+main {
+  max-width:1200px;
+  margin:0 auto;
+  padding:40px 48px 60px;
+}
+
+/* SECTION LABELS */
+.section-label {
+  font-size:11px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--text-dim);
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.section-label::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--border);
+}
+
+/* CARD GRID */
+.card-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+  gap:16px;
+  margin-bottom:48px;
+}
+.card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px;
+  text-decoration:none;
+  color:var(--text);
+  transition:all 0.2s ease;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.card:hover {
+  border-color:var(--border-hover);
+  background:var(--surface2);
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.3);
+}
+.card-icon {
+  width:48px; height:48px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px;
+  flex-shrink:0;
+}
+.card-header {
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.card-title {
+  font-size:16px;
+  font-weight:600;
+  color:#fff;
+}
+.card-badge {
+  font-size:10px;
+  font-weight:600;
+  padding:2px 8px;
+  border-radius:10px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-left:auto;
+  white-space:nowrap;
+}
+.card-desc {
+  font-size:13px;
+  color:var(--text-muted);
+  line-height:1.7;
+}
+.card-tags {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:auto;
+}
+.card-tag {
+  font-size:10px;
+  font-weight:500;
+  padding:3px 8px;
+  border-radius:4px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  color:var(--text-dim);
+}
+.card-arrow {
+  position:absolute;
+  top:24px; right:24px;
+  color:var(--text-dim);
+  font-size:18px;
+  transition:all 0.2s;
+}
+.card:hover .card-arrow {
+  color:var(--accent);
+  transform:translateX(3px);
+}
+
+/* COLOR VARIANTS */
+.icon-blue { background:var(--accent-glow); border:1px solid rgba(88,166,255,0.2); }
+.icon-green { background:var(--green-bg); border:1px solid rgba(63,185,80,0.2); }
+.icon-purple { background:var(--purple-bg); border:1px solid rgba(188,140,255,0.2); }
+.icon-yellow { background:var(--yellow-bg); border:1px solid rgba(210,153,34,0.2); }
+.icon-orange { background:var(--orange-bg); border:1px solid rgba(240,136,62,0.2); }
+.icon-cyan { background:var(--cyan-bg); border:1px solid rgba(57,210,192,0.2); }
+
+.badge-green { background:var(--green-bg); color:var(--green); }
+.badge-blue { background:var(--accent-glow); color:var(--accent); }
+.badge-purple { background:var(--purple-bg); color:var(--purple); }
+.badge-yellow { background:var(--yellow-bg); color:var(--yellow); }
+.badge-orange { background:var(--orange-bg); color:var(--orange); }
+.badge-cyan { background:var(--cyan-bg); color:var(--cyan); }
+
+/* FOOTER */
+.footer {
+  border-top:1px solid var(--border);
+  padding:24px 48px;
+  text-align:center;
+  font-size:12px;
+  color:var(--text-dim);
+}
+.footer a {
+  color:var(--accent);
+  text-decoration:none;
+}
+.footer a:hover { text-decoration:underline; }
+
+/* RESPONSIVE */
+@media (max-width:768px) {
+  .header { padding:32px 20px 28px; }
+  main { padding:28px 20px 40px; }
+  .card-grid { grid-template-columns:1fr; }
+  .footer { padding:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-logo">&#x1f6d2;</div>
+    <h1>Unicity <span>Shopify</span> Hub</h1>
+  </div>
+  <div class="subtitle">Centralized documentation, reference guides, and tools for the Unicity Shopify Plus implementation and POS pilot program.</div>
+  <div class="header-meta">
+    <span class="meta-tag"><span class="dot" style="background:var(--green)"></span> Shopify Plus</span>
+    <span class="meta-tag"><span class="dot" style="background:var(--accent)"></span> POS Pilot</span>
+    <span class="meta-tag"><span class="dot" style="background:var(--purple)"></span> Unicity International</span>
+  </div>
+</div>
+
+<main>
+
+  <div class="section-label">Interactive Tools</div>
+  <div class="card-grid">
+
+    <a href="shopify-demo-v3.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-blue">&#x1f4f1;</div>
+        <div>
+          <div class="card-title">Checkout Demo</div>
+        </div>
+        <span class="card-badge badge-blue">Interactive</span>
+      </div>
+      <div class="card-desc">Interactive phone simulation showing Online and Tap to Pay checkout flows. Covers Apple Pay, Shop Pay, standard card payments, new vs returning customers, and POS staff attribution.</div>
+      <div class="card-tags">
+        <span class="card-tag">Online Checkout</span>
+        <span class="card-tag">POS Tap to Pay</span>
+        <span class="card-tag">Shop Pay</span>
+        <span class="card-tag">Apple Pay</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="section-label">POS Pilot</div>
+  <div class="card-grid">
+
+    <a href="shopify-pos-pilot-dashboard.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-green">&#x1f4ca;</div>
+        <div>
+          <div class="card-title">Project Dashboard</div>
+        </div>
+        <span class="card-badge badge-green">Tracking</span>
+      </div>
+      <div class="card-desc">POS pilot project tracker with task management, phase progress, and ClickUp integration. Covers all workstreams from store setup through post-launch monitoring.</div>
+      <div class="card-tags">
+        <span class="card-tag">Task Tracking</span>
+        <span class="card-tag">Phases</span>
+        <span class="card-tag">ClickUp</span>
+      </div>
+    </a>
+
+    <a href="shopify-pos-order-sync-model.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-blue">&#x1f504;</div>
+        <div>
+          <div class="card-title">D2D Order Sync Simulator</div>
+        </div>
+        <span class="card-badge badge-blue">Interactive</span>
+      </div>
+      <div class="card-desc">Live simulation of the door-to-door order sync pipeline. Walk through first-time orders, subscription renewals, refunds, and full lifecycle flows between Shopify, middleware, and Unity.</div>
+      <div class="card-tags">
+        <span class="card-tag">Order Sync</span>
+        <span class="card-tag">D2D Pipeline</span>
+        <span class="card-tag">Simulation</span>
+      </div>
+    </a>
+
+    <a href="shopify-pos-distributor-architecture.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-cyan">&#x1f465;</div>
+        <div>
+          <div class="card-title">Distributor Architecture</div>
+        </div>
+        <span class="card-badge badge-cyan">Technical</span>
+      </div>
+      <div class="card-desc">POS distributor architecture covering staff account mapping, distributor attribution via PIN entry, Unity ID sync, and the middleware lookup table that ties Shopify sessions to Unicity distributor records.</div>
+      <div class="card-tags">
+        <span class="card-tag">Distributor Attribution</span>
+        <span class="card-tag">Staff Mapping</span>
+        <span class="card-tag">Unity Sync</span>
+      </div>
+    </a>
+
+    <a href="shopify-configurations.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-orange">&#x1f4cb;</div>
+        <div>
+          <div class="card-title">POS Configurations</div>
+        </div>
+        <span class="card-badge badge-orange">Checklist</span>
+      </div>
+      <div class="card-desc">Configuration reference and checklist for the POS pilot. Covers every setting required for Tap to Pay deployment, staff accounts, location setup, and payment provider configuration.</div>
+      <div class="card-tags">
+        <span class="card-tag">POS Setup</span>
+        <span class="card-tag">Staff Accounts</span>
+        <span class="card-tag">Locations</span>
+      </div>
+    </a>
+
+    <a href="shopify-architecture-flows.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-cyan">&#x1f3d7;&#xFE0F;</div>
+        <div>
+          <div class="card-title">Architecture Flows</div>
+        </div>
+        <span class="card-badge badge-cyan">Technical</span>
+      </div>
+      <div class="card-desc">POS architecture documentation with Mermaid diagrams showing data flows between Shopify, Unity, and middleware. Covers order lifecycle, distributor attribution, and sync patterns.</div>
+      <div class="card-tags">
+        <span class="card-tag">Mermaid Diagrams</span>
+        <span class="card-tag">Data Flows</span>
+        <span class="card-tag">Sync</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="section-label">Reference Guides</div>
+  <div class="card-grid">
+
+    <a href="shopify-admin-operations-guide.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-purple">&#x2699;&#xFE0F;</div>
+        <div>
+          <div class="card-title">Admin Operations Guide</div>
+        </div>
+        <span class="card-badge badge-purple">Reference</span>
+      </div>
+      <div class="card-desc">Complete reference for the Shopify Admin workspace covering Home, Orders, Products, Customers, Marketing, Discounts, Content, Markets, Finance, Analytics, Online Store, POS, and Subscriptions.</div>
+      <div class="card-tags">
+        <span class="card-tag">Orders</span>
+        <span class="card-tag">Products</span>
+        <span class="card-tag">Customers</span>
+        <span class="card-tag">Analytics</span>
+      </div>
+    </a>
+
+    <a href="shopify-settings-reference.html" class="card">
+      <span class="card-arrow">&#x2192;</span>
+      <div class="card-header">
+        <div class="card-icon icon-yellow">&#x1f527;</div>
+        <div>
+          <div class="card-title">Settings Reference</div>
+        </div>
+        <span class="card-badge badge-yellow">Reference</span>
+      </div>
+      <div class="card-desc">Every Settings section documented: Organization, Users, Billing, General, Plan, Payments, Checkout, Shipping, Taxes, Locations, Apps, Sales Channels, Domains, Events, Notifications, Metafields, Privacy, and Policies.</div>
+      <div class="card-tags">
+        <span class="card-tag">Payments</span>
+        <span class="card-tag">Checkout</span>
+        <span class="card-tag">Shipping</span>
+        <span class="card-tag">Taxes</span>
+      </div>
+    </a>
+
+  </div>
+
+</main>
+
+<div class="footer">
+  Unicity International &mdash; Shopify Plus Documentation Hub &mdash; <a href="https://howkoz.github.io/payments/index.html">Payments Hub</a>
+</div>
+
+</body>
+</html>

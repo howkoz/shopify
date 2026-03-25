@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unicity Shopify Plus Settings Reference Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; padding: 24px; }
+
+  h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 28px; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #1a1d27; border-radius: 10px; padding: 4px; flex-wrap: wrap; width: fit-content; max-width: 100%; }
+  .tab { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500; color: #888; transition: all 0.2s; white-space: nowrap; }
+  .tab.active { background: #2a6df0; color: #fff; }
+  .tab:hover:not(.active) { color: #ccc; }
+
+  .tab-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #555; padding: 8px 10px; display: flex; align-items: center; }
+
+  .view { display: none; max-width: 960px; }
+  .view.active { display: block; }
+
+  .section { background: #1a1d27; border-radius: 12px; padding: 20px; border: 1px solid #2a2d37; margin-bottom: 16px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; }
+  .section-title { font-size: 15px; font-weight: 600; color: #fff; }
+  .section-desc { font-size: 13px; color: #aaa; line-height: 1.7; margin-bottom: 14px; }
+
+  .badge-blue { background: #1a3a6a; color: #5b9bf5; }
+  .badge-green { background: #1a4a2a; color: #5bdb7a; }
+  .badge-orange { background: #4a3a1a; color: #f5a623; }
+  .badge-red { background: #4a1a1a; color: #f56565; }
+  .badge-purple { background: #3a1a5a; color: #a78bfa; }
+  .badge-teal { background: #1a3a3a; color: #5bd4db; }
+  .badge-gray { background: #2a2d37; color: #aaa; }
+
+  .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+  .field-card { background: #12141c; border: 1px solid #2a2d37; border-radius: 8px; padding: 14px 16px; }
+  .field-icon { font-size: 20px; margin-bottom: 6px; }
+  .field-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .field-desc { font-size: 11px; color: #888; line-height: 1.6; }
+  .field-tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-top: 6px; font-weight: 600; }
+  .tag-ok { background: #1a4a2a; color: #5bdb7a; }
+  .tag-warn { background: #4a3a1a; color: #f5a623; }
+  .tag-block { background: #4a1a1a; color: #f56565; }
+  .tag-info { background: #1a3a6a; color: #5b9bf5; }
+  .tag-purple { background: #3a1a5a; color: #a78bfa; }
+
+  .current-value { background: #12141c; border: 1px solid #2a2d37; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .cv-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .cv-value { font-size: 14px; color: #fff; font-weight: 600; }
+  .cv-status { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .status-active { background: #1a4a2a; color: #5bdb7a; }
+  .status-warning { background: #4a3a1a; color: #f5a623; }
+  .status-error { background: #4a1a1a; color: #f56565; }
+  .status-info { background: #1a3a6a; color: #5b9bf5; }
+  .status-pending { background: #4a3a1a; color: #f5a623; }
+
+  .nav-path { font-size: 11px; color: #555; margin-bottom: 14px; font-family: monospace; }
+  .nav-path span { color: #5b9bf5; }
+
+  .section-label { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 12px; }
+
+  .tip-bar { display: flex; align-items: flex-start; gap: 12px; background: #12141c; border: 1px solid #1a4a2a; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; }
+  .tip-bar.warn { border-color: #4a3a1a; }
+  .tip-bar.error { border-color: #4a1a1a; }
+  .tip-bar.info { border-color: #1a3a6a; }
+  .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 12px; color: #ccc; line-height: 1.6; }
+  .tip-text strong { color: #5bdb7a; }
+  .tip-bar.warn .tip-text strong { color: #f5a623; }
+  .tip-bar.error .tip-text strong { color: #f56565; }
+  .tip-bar.info .tip-text strong { color: #5b9bf5; }
+
+  .data-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .data-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #2a2d37; }
+  .data-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #1a1d27; }
+  .data-table tr:hover td { background: #1a1d27; }
+
+  .view-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+  .view-desc { font-size: 13px; color: #888; margin-bottom: 20px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div style="background:#161b22;border-bottom:1px solid #30363d;padding:8px 32px;display:flex;align-items:center;gap:8px;">
+<a href="index.html" style="color:#58a6ff;text-decoration:none;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">&#x2190; Back to Hub</a>
+</div>
+
+<h1>Unicity Shopify Plus Settings Reference Guide</h1>
+<p class="subtitle">Complete reference for every Settings section in Shopify Admin. Organization: Unicity International (unicity.com) | Plan: Plus $2,500/mo | Updated: Feb 2026</p>
+
+<div class="tabs">
+  <span class="tab-group-label">ORG</span>
+  <div class="tab active" onclick="showView('org')">Organization</div>
+  <div class="tab" onclick="showView('users')">Users</div>
+  <div class="tab" onclick="showView('billing')">Billing</div>
+  <div class="tab" onclick="showView('testdrives')">Test Drives</div>
+  <span class="tab-group-label">STORE</span>
+  <div class="tab" onclick="showView('general')">General</div>
+  <div class="tab" onclick="showView('plan')">Plan</div>
+  <div class="tab" onclick="showView('payments')">Payments</div>
+  <div class="tab" onclick="showView('checkout')">Checkout</div>
+  <div class="tab" onclick="showView('custaccts')">Customer Accts</div>
+  <span class="tab-group-label">OPS</span>
+  <div class="tab" onclick="showView('shipping')">Shipping</div>
+  <div class="tab" onclick="showView('taxes')">Taxes</div>
+  <div class="tab" onclick="showView('locations')">Locations</div>
+  <span class="tab-group-label">CHANNELS</span>
+  <div class="tab" onclick="showView('apps')">Apps</div>
+  <div class="tab" onclick="showView('sales')">Sales Channels</div>
+  <div class="tab" onclick="showView('domains')">Domains</div>
+  <span class="tab-group-label">DATA</span>
+  <div class="tab" onclick="showView('events')">Events</div>
+  <div class="tab" onclick="showView('notifications')">Notifications</div>
+  <div class="tab" onclick="showView('metafields')">Metafields</div>
+  <div class="tab" onclick="showView('privacy')">Privacy</div>
+  <div class="tab" onclick="showView('policies')">Policies</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ORGANIZATION                                                  -->
+<!-- ============================================================ -->
+<div id="org" class="view active">
+  <div class="view-title">ðŸ¢ Organization</div>
+  <div class="nav-path"><span>Settings</span> â€º Organization</div>
+  <div class="view-desc">Top level org settings. Controls the organization name, stores, and registered business entities. This is the parent container for everything in your Shopify Plus account.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Identity</span>
+      <span class="section-title">Organization Name</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Current Name</div><div class="cv-value">Unicity International</div></div>
+    </div>
+    <div class="section-desc">The organization name appears across your admin, invoices, and internal references. Change it here if your company rebrands. This does not affect your store name or customer facing domain.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Stores</span>
+      <span class="section-title">Store Management</span>
+    </div>
+    <div class="section-desc">Lists all stores under your org. Shopify Plus lets you create multiple stores: Production, Staging, and Dev. Each store gets its own products, orders, and settings.</div>
+    <div class="current-value">
+      <div><div class="cv-label">Active Store</div><div class="cv-value">Unicity International (unicity.com)</div></div>
+      <span class="cv-status status-active">Production</span>
+      <span class="cv-status status-active">Active</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸª</div>
+        <div class="field-name">Production Stores</div>
+        <div class="field-desc">Live stores serving real customers. Your main store at unicity.com is here. Shopify Plus includes up to 9 expansion stores for international markets.</div>
+        <span class="field-tag tag-ok">Live</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ§ª</div>
+        <div class="field-name">Staging / Dev Stores</div>
+        <div class="field-desc">Test environments. Use Staging to test theme changes, app installs, or checkout customizations before pushing to Production. Dev stores for API work.</div>
+        <span class="field-tag tag-info">Testing</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">âž•</div>
+        <div class="field-name">Create Store</div>
+        <div class="field-desc">Click "Create store" to add a new production, staging, or dev store. International expansion stores let you sell in local currencies with localized content.</div>
+        <span class="field-tag tag-purple">Plus Feature</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-orange">Legal</span>
+      <span class="section-title">Business Entities</span>
+    </div>
+    <div class="section-desc">Registered business entities tied to this org. Used for payments, tax collection, and legal compliance. Each entity needs a legal name, address, and type.</div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Entity</th><th>Address</th><th>Type</th></tr>
+        <tr><td style="color:#fff; font-weight:600;">Unicity USA</td><td>1712 South East Bay Blvd, 101, Provo UT 84606</td><td>Private corporation</td></tr>
+        <tr><td style="color:#fff; font-weight:600;">USA</td><td>1712 South East Bay Blvd, Suite 101, Provo UT 84606</td><td>Private corporation</td></tr>
+      </table>
+    </div>
+    <div class="tip-bar warn">
+      <span class="tip-icon">âš ï¸</span>
+      <div class="tip-text"><strong>Note:</strong> You have two entities with slightly different names and addresses for the same location. Consider consolidating to avoid confusion in payment routing and tax reporting.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- USERS                                                         -->
+<!-- ============================================================ -->
+<div id="users" class="view">
+  <div class="view-title">ðŸ‘¥ Users</div>
+  <div class="nav-path"><span>Settings</span> â€º Users</div>
+  <div class="view-desc">Manage who has access to your Shopify admin, POS, and organization level settings. Each user gets a role that defines their permissions.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Access</span>
+      <span class="section-title">Current Users</span>
+    </div>
+    <div class="section-desc">All users with access to your store or organization. Status shows whether the invite was accepted. Roles control what each person can see and do.</div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>User</th><th>Status</th><th>Role</th></tr>
+        <tr><td style="color:#fff;">aj.pardilla@unicity.com</td><td><span class="cv-status status-pending">Pending</span></td><td>Store user administrator</td></tr>
+        <tr><td style="color:#fff;">rick.trout@unicity.com</td><td><span class="cv-status status-active">Active</span></td><td>Organization administrator, Store u...</td></tr>
+        <tr><td style="color:#fff;">Howard Koziara</td><td><span class="cv-status status-active">Active</span></td><td>Organization owner, Store owner</td></tr>
+        <tr><td style="color:#fff;">Thammarat Chawalit</td><td><span class="cv-status status-active">Active</span></td><td>Organization administrator, Unicity,...</td></tr>
+        <tr><td style="color:#fff;">Thinh Le</td><td><span class="cv-status status-active">Active</span></td><td>Organization administrator, Unicity,...</td></tr>
+        <tr><td style="color:#fff;">Walter Portillo</td><td><span class="cv-status status-active">Active</span></td><td>Unicity</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Sub-Sections</span>
+      <span class="section-title">Users Sub-Navigation</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸŽ­</div>
+        <div class="field-name">Roles</div>
+        <div class="field-desc">Create and manage custom roles. On Shopify Plus, you get granular permission control. Define exactly what each role can access: orders, products, reports, discounts, settings, etc.</div>
+        <span class="field-tag tag-purple">Plus Feature</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ‘¤</div>
+        <div class="field-name">Groups</div>
+        <div class="field-desc">Organize users into groups for bulk role assignment. Useful when you have many staff. Assign a group to a role and all members inherit those permissions.</div>
+        <span class="field-tag tag-info">Optional</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ”’</div>
+        <div class="field-name">Security</div>
+        <div class="field-desc">Enforce login security. Require 2FA for all users, set session timeout policies, and review login activity. Critical for PCI compliance and protecting store data.</div>
+        <span class="field-tag tag-warn">Review</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“±</div>
+        <div class="field-name">POS App-Only</div>
+        <div class="field-desc">Filter to see users who only have POS access (no admin). These staff log in via PIN on the Shopify POS app. They cannot see your admin dashboard or store settings.</div>
+        <span class="field-tag tag-info">POS Staff</span>
+      </div>
+    </div>
+    <div class="tip-bar info">
+      <span class="tip-icon">â„¹ï¸</span>
+      <div class="tip-text"><strong>Legacy Roles Alert:</strong> Your account shows "Users with legacy access have been assigned roles." Review auto-generated roles and reconfigure them to match your actual permission needs.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BILLING                                                       -->
+<!-- ============================================================ -->
+<div id="billing" class="view">
+  <div class="view-title">ðŸ’³ Billing</div>
+  <div class="nav-path"><span>Settings</span> â€º Billing</div>
+  <div class="view-desc">View your billing cycle, payment method, and past invoices. All Shopify platform charges (plan fees, app subscriptions, shipping labels, variable fees) appear here.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Current Cycle</span>
+      <span class="section-title">Billing Cycle Status</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Billed On</div><div class="cv-value">Feb 28, 2026</div></div>
+      <div><div class="cv-label">Running Total</div><div class="cv-value" style="color: #5bdb7a;">$0.00 USD</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Payment Method</div><div class="cv-value">Visa â€¢â€¢â€¢â€¢2210</div></div>
+      <span class="cv-status status-active">Primary</span>
+    </div>
+    <div class="section-desc">Running total shows accumulated charges during this cycle (usage based app fees, shipping label purchases, variable platform fees). Click "View current charges" in the admin to see the breakdown.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">History</span>
+      <span class="section-title">Past Bills</span>
+    </div>
+    <div class="section-desc">All past invoices. Filter by status: All, Paid, Open, Failed, Processing, Refunded, Canceled. Download invoices for accounting.</div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Date</th><th>Bill #</th><th>Type</th><th>Status</th><th>Amount</th></tr>
+        <tr><td>Jan 30, 2026</td><td>#481777323</td><td>Subscription</td><td><span class="cv-status status-active">Paid</span></td><td style="color:#fff;">$427.65</td></tr>
+        <tr><td>Jan 30, 2026</td><td>#481777234</td><td>Subscription</td><td><span class="cv-status status-active">Paid</span></td><td>$0.00</td></tr>
+        <tr><td>Jan 30, 2026</td><td>#481777173</td><td>Billing cycle</td><td><span class="cv-status status-active">Paid</span></td><td>$1.08</td></tr>
+        <tr><td>Jan 30, 2026</td><td>#481696354</td><td>Billing cycle</td><td><span class="cv-status status-active">Paid</span></td><td>$0.00</td></tr>
+      </table>
+    </div>
+    <div class="tip-bar">
+      <span class="tip-icon">ðŸ’¡</span>
+      <div class="tip-text"><strong>Subscription vs Billing cycle:</strong> Subscription bills are recurring app charges (Loop Subscriptions, etc). Billing cycle bills capture usage fees like shipping labels, SMS, and variable platform fees that exceed thresholds.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FEATURE TEST DRIVES                                           -->
+<!-- ============================================================ -->
+<div id="testdrives" class="view">
+  <div class="view-title">ðŸ§ª Feature Test Drives</div>
+  <div class="nav-path"><span>Settings</span> â€º Organization â€º Feature test drives</div>
+  <div class="view-desc">Shopify Plus exclusive. Preview and activate upcoming Shopify features on your stores before they roll out to all merchants. Test new features in staging first to prepare your workflows and integrations.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-purple">Plus Only</span>
+      <span class="section-title">How Feature Test Drives Work</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Current Status</div><div class="cv-value">No features available to test</div></div>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“§</div>
+        <div class="field-name">Notifications</div>
+        <div class="field-desc">When a feature is released to test drives, you get an email with details. You choose which stores to activate it on.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸª</div>
+        <div class="field-name">Store Selection</div>
+        <div class="field-desc">Activate features on specific stores. Filter by staging vs production. Toggle auto-activate on future stores.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“…</div>
+        <div class="field-name">Release Dates</div>
+        <div class="field-desc">Each feature has an auto-release date. You can edit the timeline up until the mandatory release date.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ”</div>
+        <div class="field-name">Permissions</div>
+        <div class="field-desc">Only the Organization owner gets access by default. Create a user role with "Feature test drives" permission to grant others access.</div>
+      </div>
+    </div>
+    <div class="tip-bar info">
+      <span class="tip-icon">â„¹ï¸</span>
+      <div class="tip-text"><strong>Why use this:</strong> Test upcoming Shopify changes on staging before they hit production. Update any custom integrations, workflows, or apps that might break with new features. Prevents surprises on release day.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- GENERAL                                                       -->
+<!-- ============================================================ -->
+<div id="general" class="view">
+  <div class="view-title">âš™ï¸ General</div>
+  <div class="nav-path"><span>Settings</span> â€º General</div>
+  <div class="view-desc">Core store identity and operational defaults. Business details, contact info, currency, timezone, and order processing behavior.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Identity</span>
+      <span class="section-title">Business Details</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Entity</div><div class="cv-value">USA (Private corporation)</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Address</div><div class="cv-value">1712 South East Bay Boulevard, Provo, UT 84606</div></div>
+    </div>
+    <div class="section-desc">Your registered business entity. Used for payments, tax calculations, markets, and apps. Change the entity in Organization settings if needed.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Contact</span>
+      <span class="section-title">Store Contact Details</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Store Name</div><div class="cv-value">Unicity International</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Email</div><div class="cv-value">howard.koziara@unicity.com</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Phone</div><div class="cv-value" style="color: #f5a623;">No phone number</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Store Address</div><div class="cv-value">1712 South East Bay Boulevard #101, Provo UT 84606</div></div>
+    </div>
+    <div class="tip-bar warn">
+      <span class="tip-icon">âš ï¸</span>
+      <div class="tip-text"><strong>Missing phone:</strong> Add a store phone number. This appears on customer facing pages and may be required by certain payment providers and marketplaces.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-teal">Defaults</span>
+      <span class="section-title">Store Defaults</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ’µ</div>
+        <div class="field-name">Currency</div>
+        <div class="field-desc">US Dollar (USD $). To manage currencies customers see, go to Markets. This is your base reporting currency.</div>
+        <span class="field-tag tag-ok">USD</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸŒ</div>
+        <div class="field-name">Backup Region</div>
+        <div class="field-desc">United States. Determines settings for customers outside your defined markets.</div>
+        <span class="field-tag tag-ok">US</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“</div>
+        <div class="field-name">Unit System</div>
+        <div class="field-desc">Imperial system. Default weight unit: Pound (lb). Affects product weights and shipping calculations.</div>
+        <span class="field-tag tag-ok">Imperial / lb</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ•</div>
+        <div class="field-name">Time Zone</div>
+        <div class="field-desc">(GMT-05:00) Eastern Time (US &amp; Canada). Controls when orders and analytics are recorded. This is a store level setting. User level timezone is separate.</div>
+        <span class="field-tag tag-ok">EST</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-orange">Orders</span>
+      <span class="section-title">Order ID &amp; Processing</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Order ID Format</div><div class="cv-value">Prefix: # | Suffix: (none) â†’ #1001, #1002, #1003...</div></div>
+    </div>
+    <div class="section-desc">Order IDs are shown on order pages, customer pages, and notification emails. The prefix/suffix is cosmetic only. Internal order IDs are always sequential.</div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“¦</div>
+        <div class="field-name">Order Processing</div>
+        <div class="field-desc">Currently set to: "Don't fulfill any line items automatically." After payment, orders stay unfulfilled until staff manually processes them. Auto-archive is ON.</div>
+        <span class="field-tag tag-ok">Manual Fulfillment</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“</div>
+        <div class="field-name">Auto-Archive</div>
+        <div class="field-desc">Automatically archive orders after fulfillment + payment (or full refund). Removes them from your open orders list to keep it clean.</div>
+        <span class="field-tag tag-ok">Enabled</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-gray">Resources</span>
+      <span class="section-title">Store Assets &amp; Resources</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ·ï¸</div>
+        <div class="field-name">Store Assets (Metafields)</div>
+        <div class="field-desc">Metafields available in themes and Storefront API. Brand assets that integrate across sales channels, themes, and apps.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“‹</div>
+        <div class="field-name">Change Log</div>
+        <div class="field-desc">View store activity log. Track what changed, who changed it, and when. Essential for auditing configuration changes.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“ž</div>
+        <div class="field-name">Priority Support</div>
+        <div class="field-desc">Shopify Plus gets 24/7 priority support via chat, email, or phone at +1 (855) 221-7587. Use this for urgent production issues.</div>
+        <span class="field-tag tag-purple">Plus Perk</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PLAN                                                          -->
+<!-- ============================================================ -->
+<div id="plan" class="view">
+  <div class="view-title">ðŸ“‹ Plan</div>
+  <div class="nav-path"><span>Settings</span> â€º Plan</div>
+  <div class="view-desc">Your Shopify Plus plan details, variable fee structure, and renewal timeline.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-purple">Plan Details</span>
+      <span class="section-title">Shopify Plus</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Monthly Fee</div><div class="cv-value" style="font-size:20px;">$2,500 USD/month</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Term</div><div class="cv-value">1-year term</div></div>
+      <div><div class="cv-label">Renewal Date</div><div class="cv-value">January 30, 2027</div></div>
+    </div>
+    <div class="tip-bar info">
+      <span class="tip-icon">ðŸ’¡</span>
+      <div class="tip-text"><strong>Save money:</strong> Shopify suggests renewing on a 3-year term for a lower monthly platform fee. Contact Shopify Plus support to negotiate renewal pricing.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-orange">Variable Fees</span>
+      <span class="section-title">Variable Platform Fees</span>
+    </div>
+    <div class="section-desc">Variable fees kick in when your monthly sales exceed $625,000 USD. You pay whichever is greater: the fixed $2,500/mo fee or the variable percentage of sales.</div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ–¥ï¸</div>
+        <div class="field-name">Online Transactions</div>
+        <div class="field-desc">0.40% of online transaction volume. Applies to web store sales processed through Shopify checkout.</div>
+        <span class="field-tag tag-info">0.40%</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“±</div>
+        <div class="field-name">Retail Transactions</div>
+        <div class="field-desc">0.25% of in-person POS transaction volume. Lower rate because POS has lower fraud risk.</div>
+        <span class="field-tag tag-ok">0.25%</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ¢</div>
+        <div class="field-name">B2B Transactions</div>
+        <div class="field-desc">0.18% of B2B transaction volume. Lowest rate. Applies to wholesale/B2B channel orders.</div>
+        <span class="field-tag tag-ok">0.18%</span>
+      </div>
+    </div>
+    <div class="tip-bar">
+      <span class="tip-icon">ðŸ“Š</span>
+      <div class="tip-text"><strong>Threshold:</strong> Variable fees do not apply if you sell less than $625,000 USD in a month. They also may not apply above that depending on your revenue source split. Check your contract terms.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAYMENTS                                                      -->
+<!-- ============================================================ -->
+<div id="payments" class="view">
+  <div class="view-title">ðŸ’° Payments</div>
+  <div class="nav-path"><span>Settings</span> â€º Payments</div>
+  <div class="view-desc">Configure how you accept and process payments. Controls payment gateways, capture method, manual payments, gift cards, and Apple Wallet passes.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Gateway</span>
+      <span class="section-title">Payment Providers</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Primary Provider</div><div class="cv-value">Shopify Payments (1 account)</div></div>
+      <span class="cv-status status-active">Accepting payments</span>
+      <span class="cv-status status-active">Receiving payouts</span>
+    </div>
+    <div class="section-desc">Shopify Payments is your sole payment processor (Stripe backend). This eliminates third-party transaction fees. You can connect additional providers if needed, but doing so adds surcharges.</div>
+    <div class="tip-bar">
+      <span class="tip-icon">âœ…</span>
+      <div class="tip-text"><strong>Optimal setup:</strong> Using only Shopify Payments means zero third-party transaction fees. This also unlocks all 200 POS Pro locations at no extra cost. Keep it this way.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Capture</span>
+      <span class="section-title">Payment Capture Method</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Current Setting</div><div class="cv-value">Automatically at checkout</div></div>
+      <span class="cv-status status-active">Active</span>
+    </div>
+    <div class="section-desc">Payment is captured immediately when the order is placed. Two other options: "Automatically when fulfilling" (authorize at checkout, capture at fulfillment) and "Manually" (authorize at checkout, you manually capture later). For most setups, auto-capture at checkout is simplest.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-gray">Additional</span>
+      <span class="section-title">Other Payment Settings</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ¦</div>
+        <div class="field-name">Manual Payment Methods</div>
+        <div class="field-desc">Payments made outside your online store (bank transfers, checks, COD). Orders paid manually need approval before fulfillment. Click "Manual payment method" to add one.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸŽ¨</div>
+        <div class="field-name">Payment Method Customizations</div>
+        <div class="field-desc">Control how payment methods appear at checkout. Hide, reorder, or rename payment options. Install customization apps from the Shopify App Store.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸŽ</div>
+        <div class="field-name">Gift Card Expiration</div>
+        <div class="field-desc">Currently set to: Gift cards never expire. The alternative lets you set an expiration date. Check local laws as some jurisdictions require non-expiring gift cards.</div>
+        <span class="field-tag tag-ok">Never expire</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸŽ</div>
+        <div class="field-name">Apple Wallet Passes</div>
+        <div class="field-desc">Digital Apple Wallet pass for customers to use online and in retail stores. Customers can add your store pass to their iPhone wallet.</div>
+        <span class="field-tag tag-ok">Active</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CHECKOUT                                                      -->
+<!-- ============================================================ -->
+<div id="checkout" class="view">
+  <div class="view-title">ðŸ›’ Checkout</div>
+  <div class="nav-path"><span>Settings</span> â€º Checkout</div>
+  <div class="view-desc">Controls every aspect of the checkout experience: contact method, customer info fields, marketing opt-ins, tipping, abandoned cart emails, language, and advanced preferences.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-purple">Config</span>
+      <span class="section-title">Checkout Configuration</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Configuration</div><div class="cv-value">Unicity International configuration</div></div>
+      <span class="cv-status status-active">Live</span>
+    </div>
+    <div class="section-desc">Last saved Jan 30 at 1:11 PM. You can Duplicate this config to test changes, or Customize to edit the checkout theme (branding, colors, layout). On Plus, you get full checkout extensibility.</div>
+    <div class="tip-bar warn">
+      <span class="tip-icon">âš ï¸</span>
+      <div class="tip-text"><strong>Domain mismatch:</strong> Your customer accounts domain (including Order status page) uses shopify.com instead of unicity.com. Click "Change your customer accounts domain" to fix this.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Contact</span>
+      <span class="section-title">Customer Contact Method</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Contact Method</div><div class="cv-value">Phone number or email</div></div>
+    </div>
+    <div class="section-desc">Determines what customers provide for order confirmation and shipping updates. "Phone number or email" gives flexibility. An SMS App is required to send SMS updates. The alternative is email only.</div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“±</div>
+        <div class="field-name">Shop App Tracking</div>
+        <div class="field-desc">Show a link for customers to track orders with Shop app from the order status page.</div>
+        <span class="field-tag tag-ok">Enabled</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ”</div>
+        <div class="field-name">Account Required</div>
+        <div class="field-desc">Require customers to sign in before checkout. Currently OFF. Enable this for B2B or member-only stores.</div>
+        <span class="field-tag tag-info">Disabled</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Fields</span>
+      <span class="section-title">Customer Information Fields</span>
+    </div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Field</th><th>Setting</th></tr>
+        <tr><td style="color:#fff;">Full name</td><td>Only require last name</td></tr>
+        <tr><td style="color:#fff;">Company name</td><td>Don't include</td></tr>
+        <tr><td style="color:#fff;">Address line 2</td><td>Optional</td></tr>
+        <tr><td style="color:#fff;">Shipping phone number</td><td>Don't include</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-orange">Marketing &amp; More</span>
+      <span class="section-title">Additional Checkout Settings</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“§</div>
+        <div class="field-name">Marketing Opt-in</div>
+        <div class="field-desc">Display checkboxes at checkout for email and SMS marketing sign-up. Both email and SMS are currently OFF. Enable to grow your list.</div>
+        <span class="field-tag tag-warn">Both OFF</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ’°</div>
+        <div class="field-name">Tipping</div>
+        <div class="field-desc">Let customers choose between 3 preset tips or enter a custom amount at checkout. Currently disabled. Useful for service based businesses.</div>
+        <span class="field-tag tag-info">Disabled</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ›‘</div>
+        <div class="field-name">Abandoned Checkout Emails</div>
+        <div class="field-desc">Send recovery emails to customers who started but did not complete checkout. Settings moved to Marketing Automations in the admin.</div>
+        <span class="field-tag tag-info">See Automations</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸŒ</div>
+        <div class="field-name">Checkout Language</div>
+        <div class="field-desc">Currently English. Click "Edit checkout content" to customize every text string on the checkout page (button labels, error messages, etc).</div>
+        <span class="field-tag tag-ok">English</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ›¡ï¸</div>
+        <div class="field-name">Add-to-Cart Limit</div>
+        <div class="field-desc">Protects available inventory quantities from being revealed. Prevents bad actors from probing your stock levels.</div>
+        <span class="field-tag tag-ok">On</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“</div>
+        <div class="field-name">Address Collection</div>
+        <div class="field-desc">Manage how shipping and billing addresses are collected. Set defaults for address autocomplete, validation, and pre-population behavior.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CUSTOMER ACCOUNTS                                             -->
+<!-- ============================================================ -->
+<div id="custaccts" class="view">
+  <div class="view-title">ðŸ‘¤ Customer Accounts</div>
+  <div class="nav-path"><span>Settings</span> â€º Customer accounts</div>
+  <div class="view-desc">Controls how customers create and access their accounts. Manage sign-in methods, self-serve returns, store credit, and the account URL.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Sign-In</span>
+      <span class="section-title">Sign-In Links &amp; Account Version</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Sign-in links in header + checkout</div><div class="cv-value">Enabled</div></div>
+      <span class="cv-status status-active">On</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Account Version</div><div class="cv-value">Customer accounts (Recommended)</div></div>
+    </div>
+    <div class="section-desc">Using the new "Customer accounts" version where customers sign in with a one-time code sent to their email (no passwords). This version also works with B2B. The alternative is "Legacy" which uses traditional email + password.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Features</span>
+      <span class="section-title">Customer Account Features</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">âš™ï¸</div>
+        <div class="field-name">Configurations</div>
+        <div class="field-desc">Configure apps, branding, and features for checkout and customer accounts. Click "Customize" to edit the customer account page layout and branding.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ”‘</div>
+        <div class="field-name">Authentication</div>
+        <div class="field-desc">Manage sign-in methods and account access. Configure whether to allow email-only login, add social login providers, or require specific auth flows.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“¦</div>
+        <div class="field-name">Self-Serve Returns</div>
+        <div class="field-desc">Allow customers to request and manage returns from their account page. Currently OFF. Enable and customize with return rules.</div>
+        <span class="field-tag tag-info">Disabled</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ’³</div>
+        <div class="field-name">Store Credit</div>
+        <div class="field-desc">Allow customers to see and spend store credit from their account page. Currently ENABLED. Credits can be issued for returns, loyalty, or manual adjustments.</div>
+        <span class="field-tag tag-ok">Enabled</span>
+      </div>
+    </div>
+    <div class="current-value" style="margin-top: 12px;">
+      <div><div class="cv-label">Account URL</div><div class="cv-value" style="font-family: monospace; font-size: 12px;">https://shopify.com/95542280559/account</div></div>
+    </div>
+    <div class="tip-bar warn">
+      <span class="tip-icon">âš ï¸</span>
+      <div class="tip-text"><strong>Domain:</strong> Your customer account URL currently uses shopify.com. Click "Change domain" to point it to unicity.com for a branded experience. Your Order status page also uses this domain.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SHIPPING AND DELIVERY                                         -->
+<!-- ============================================================ -->
+<div id="shipping" class="view">
+  <div class="view-title">ðŸšš Shipping and Delivery</div>
+  <div class="nav-path"><span>Settings</span> â€º Shipping and delivery</div>
+  <div class="view-desc">Everything related to getting products to customers. Shipping rates, labels, carriers, delivery dates, local delivery, pickup, packages, and fulfillment.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Rates</span>
+      <span class="section-title">Shipping Rates</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Profile</div><div class="cv-value">General shipping rates (All products)</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Zones</div><div class="cv-value">Domestic + International</div></div>
+    </div>
+    <div class="section-desc">Your default shipping profile applies to all products. Rates are defined per zone (domestic, international). Create custom profiles to set different rates or restrict destinations for specific products.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Labels &amp; Carriers</span>
+      <span class="section-title">Shipping Labels &amp; Carrier Accounts</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ·ï¸</div>
+        <div class="field-name">Shipping Labels</div>
+        <div class="field-desc">Buy discounted labels directly in Shopify. Click "Calculate rates" to compare carrier pricing. Manage preferred carriers (you have 4+ carriers configured).</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸš›</div>
+        <div class="field-name">Carrier Accounts</div>
+        <div class="field-desc">Connect your own carrier accounts (UPS, FedEx, DHL, etc) to use your negotiated rates at checkout instead of Shopify's discounted rates.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-teal">Delivery</span>
+      <span class="section-title">Delivery Options</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“…</div>
+        <div class="field-name">Estimated Delivery Dates</div>
+        <div class="field-desc">Show estimated delivery dates on your store to increase conversion and trust. Currently Automated by Shopify.</div>
+        <span class="field-tag tag-ok">Automated</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ†</div>
+        <div class="field-name">Shop Promise</div>
+        <div class="field-desc">A Shopify badge guaranteeing delivery by the displayed date. Backed by Shopify's delivery guarantee. Currently OFF.</div>
+        <span class="field-tag tag-info">Off</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ </div>
+        <div class="field-name">Local Delivery</div>
+        <div class="field-desc">Deliver orders to customers directly from your locations. Define delivery zones and fees per location. Needs setup.</div>
+        <span class="field-tag tag-warn">Not Set Up</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸª</div>
+        <div class="field-name">Pickup in Store</div>
+        <div class="field-desc">Let customers buy online and pick up at your location. Shows availability and expected pickup time at checkout. Needs setup.</div>
+        <span class="field-tag tag-warn">Not Set Up</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-gray">Fulfillment</span>
+      <span class="section-title">Packages, Documents &amp; Custom Fulfillment</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“¦</div>
+        <div class="field-name">Packages</div>
+        <div class="field-desc">Define package dimensions for shipping rate calculations and label purchases. Default: "Sample box" (8.6 x 5.4 x 1.6 in, 0 lb). Add more package types as needed.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“„</div>
+        <div class="field-name">Shipping Documents</div>
+        <div class="field-desc">Customize the store name on shipping labels. Edit the packing slip template to include branding, custom messages, or line item details.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ”—</div>
+        <div class="field-name">Delivery Customizations</div>
+        <div class="field-desc">Control how delivery options appear at checkout. Hide, reorder, or rename delivery options. No customizations currently configured.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“§</div>
+        <div class="field-name">Custom Order Fulfillment</div>
+        <div class="field-desc">Add an email for a custom fulfillment service that handles orders for you. Third-party logistics (3PL) integration point.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAXES AND DUTIES                                              -->
+<!-- ============================================================ -->
+<div id="taxes" class="view">
+  <div class="view-title">ðŸ§¾ Taxes and Duties</div>
+  <div class="nav-path"><span>Settings</span> â€º Taxes and duties</div>
+  <div class="view-desc">Tax collection configuration by region, duty/import tax settings, customs info, and global tax behavior. Shopify Tax services handle automated tax calculations.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Tax Service</span>
+      <span class="section-title">Shopify Tax Services</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Status</div><div class="cv-value">Shopify tax services</div></div>
+      <span class="cv-status status-active">Active</span>
+    </div>
+    <div class="section-desc">Shopify Tax automatically calculates sales tax based on customer location and product type. This handles US state/county level tax, Canadian GST/HST/PST, EU VAT, and more.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Regions</span>
+      <span class="section-title">Tax Regions</span>
+    </div>
+    <div class="section-desc">Areas where your customers pay tax and where you collect/remit. Create a shipping zone to add a new tax region. Consult a tax professional if you are unsure about your tax liability.</div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Region</th><th>Tax Service</th></tr>
+        <tr><td style="color:#fff;">ðŸ‡ºðŸ‡¸ United States</td><td>Shopify Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¦ðŸ‡º Australia</td><td>Basic Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¨ðŸ‡¦ Canada</td><td>Basic Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡ªðŸ‡º European Union</td><td>Shopify Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡­ðŸ‡° Hong Kong SAR</td><td>Manual Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡®ðŸ‡± Israel</td><td>Manual Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¯ðŸ‡µ Japan</td><td>Manual Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡²ðŸ‡¾ Malaysia</td><td>Manual Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡³ðŸ‡¿ New Zealand</td><td>Basic Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡³ðŸ‡´ Norway</td><td>Basic Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¸ðŸ‡¬ Singapore</td><td>Basic Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡°ðŸ‡· South Korea</td><td>Manual Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¨ðŸ‡­ Switzerland</td><td>Basic Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¦ðŸ‡ª UAE</td><td>Manual Tax</td></tr>
+        <tr><td style="color:#fff;">ðŸ‡¬ðŸ‡§ United Kingdom</td><td>Shopify Tax</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-orange">Duties</span>
+      <span class="section-title">Duties, Import Taxes &amp; Customs</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸŒ</div>
+        <div class="field-name">Duties &amp; Import Taxes</div>
+        <div class="field-desc">Collect duties and import taxes at checkout. Prevents surprise fees for international customers at delivery. 0.5% transaction fee applies. Delivered Duty Paid (DDP) labels available at all fulfillment locations.</div>
+        <span class="field-tag tag-warn">Needs Setup</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“‹</div>
+        <div class="field-name">Customs Information</div>
+        <div class="field-desc">Country of origin: No default set. Harmonized System (HS) codes: No physical products available. Set these per product for accurate customs declarations.</div>
+        <span class="field-tag tag-warn">Not Configured</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-gray">Global</span>
+      <span class="section-title">Global Tax Settings</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ’²</div>
+        <div class="field-name">Tax Included in Price</div>
+        <div class="field-desc">Include sales tax in product price and shipping rate. Uses 0% base rate adjusted to local rates with dynamic tax inclusion. Currently OFF.</div>
+        <span class="field-tag tag-info">Off</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“¦</div>
+        <div class="field-name">Tax on Shipping</div>
+        <div class="field-desc">Charge sales tax on shipping. Auto-calculated for Canada, EU, and US. Currently OFF.</div>
+        <span class="field-tag tag-info">Off</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ’»</div>
+        <div class="field-name">VAT on Digital Goods</div>
+        <div class="field-desc">Creates a collection of digital goods that will be charged VAT at checkout for European customers. Currently OFF.</div>
+        <span class="field-tag tag-info">Off</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LOCATIONS                                                     -->
+<!-- ============================================================ -->
+<div id="locations" class="view">
+  <div class="view-title">ðŸ“ Locations</div>
+  <div class="nav-path"><span>Settings</span> â€º Locations</div>
+  <div class="view-desc">Physical and virtual locations where you stock inventory, fulfill orders, or sell in person via POS. Your plan supports up to 200 active locations.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Active</span>
+      <span class="section-title">Current Locations</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Usage</div><div class="cv-value">1 of 200 active locations</div></div>
+    </div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Location</th><th>POS Subscription</th><th>Status</th></tr>
+        <tr><td style="color:#fff;">Shop location (United States)</td><td><span class="cv-status status-info">POS Pro</span></td><td><span class="cv-status status-active">Active</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">POS Pricing</span>
+      <span class="section-title">POS Pro Location Pricing</span>
+    </div>
+    <div class="section-desc">Using Shopify Payments unlocks 200 POS Pro locations at no extra cost. Without Shopify Payments, each POS Pro location beyond 20 costs $89 USD/month. Contact Shopify Plus support for POS pricing details.</div>
+    <div class="tip-bar">
+      <span class="tip-icon">ðŸ’¡</span>
+      <div class="tip-text"><strong>For POS distributor rollout:</strong> Add regional locations as needed (up to 200 free). Each location can host unlimited POS staff with unique PINs. Use the "Add location" button to create new ones.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-teal">POS App</span>
+      <span class="section-title">Point of Sale Subscriptions</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">POS App</div><div class="cv-value">Point of Sale</div></div>
+      <span class="cv-status status-active">Installed</span>
+    </div>
+    <div class="section-desc">The Shopify POS app is installed and ready. Staff log in via PIN on the POS app on iOS or Android. POS Pro gives you advanced features: staff management, custom printed receipts, exchanges, and custom discounts.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- APPS                                                          -->
+<!-- ============================================================ -->
+<div id="apps" class="view">
+  <div class="view-title">ðŸ“± Apps</div>
+  <div class="nav-path"><span>Settings</span> â€º Apps</div>
+  <div class="view-desc">Installed third-party and first-party apps that extend your store's functionality. Manage app installs, develop custom apps, or browse the Shopify App Store.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Installed</span>
+      <span class="section-title">Currently Installed Apps</span>
+    </div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>App</th><th>Purpose</th></tr>
+        <tr><td style="color:#fff;">Subscriptions</td><td>Shopify's native subscription functionality. Manage recurring billing for autoship products.</td></tr>
+        <tr><td style="color:#fff;">Loop Subscriptions</td><td>Third-party subscription management. Advanced features like dunning, retention flows, and subscription analytics.</td></tr>
+        <tr><td style="color:#fff;">Messaging</td><td>Customer communication tool. Send messages and notifications to customers from within Shopify.</td></tr>
+      </table>
+    </div>
+    <div class="tip-bar info">
+      <span class="tip-icon">â„¹ï¸</span>
+      <div class="tip-text"><strong>Subscription overlap:</strong> You have both Shopify's native Subscriptions app and Loop Subscriptions installed. Make sure you are using one or the other to avoid conflicts. Check billing as Loop charges separately.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Options</span>
+      <span class="section-title">App Management Options</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ”§</div>
+        <div class="field-name">Develop Apps</div>
+        <div class="field-desc">Create custom/private apps for your store. Generate API credentials, configure scopes, and test integrations. Used for custom middleware, webhooks, and automation.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ›ï¸</div>
+        <div class="field-name">Shopify App Store</div>
+        <div class="field-desc">Browse and install third-party apps. Categories include marketing, fulfillment, customer support, loyalty, analytics, and more.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SALES CHANNELS                                                -->
+<!-- ============================================================ -->
+<div id="sales" class="view">
+  <div class="view-title">ðŸ“¢ Sales Channels</div>
+  <div class="nav-path"><span>Settings</span> â€º Sales channels</div>
+  <div class="view-desc">The platforms and surfaces where your products are available for purchase. Each channel connects to your centralized product catalog, inventory, and order management.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Installed</span>
+      <span class="section-title">Active Sales Channels</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸŒ</div>
+        <div class="field-name">Online Store</div>
+        <div class="field-desc">Your main website at unicity.com. Theme based storefront. Handles product pages, collections, blog, cart, and checkout. The core web presence.</div>
+        <span class="field-tag tag-ok">Active</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“±</div>
+        <div class="field-name">Point of Sale</div>
+        <div class="field-desc">In-person selling via Shopify POS app. Supports tap/chip/swipe payments, POS Pro features, staff PINs, and receipt customization. For distributor in-person sales.</div>
+        <span class="field-tag tag-ok">Active</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ›’</div>
+        <div class="field-name">Shop</div>
+        <div class="field-desc">Shopify's consumer-facing Shop app and Shop Pay checkout. Customers discover and buy products through the Shop app. Gives you exposure in Shop's marketplace.</div>
+        <span class="field-tag tag-ok">Active</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-purple">New</span>
+      <span class="section-title">Agentic Storefronts (Shopify Catalog)</span>
+    </div>
+    <div class="section-desc">The global Shopify Catalog is a launchpad for AI shopping. It automatically uses your default product listing. No setup required. AI agents can browse and purchase your products on behalf of customers. Preview your products to see how they appear to AI shopping agents.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DOMAINS                                                       -->
+<!-- ============================================================ -->
+<div id="domains" class="view">
+  <div class="view-title">ðŸŒ Domains</div>
+  <div class="nav-path"><span>Settings</span> â€º Domains</div>
+  <div class="view-desc">Manage custom domains connected to your store. Your domain is how customers find your store and affects SEO, email deliverability, and brand trust.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Connected</span>
+      <span class="section-title">Domain Status</span>
+    </div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Domain</th><th>Status</th><th>Notes</th></tr>
+        <tr><td style="color:#fff;">unicity.com</td><td><span class="cv-status status-error">TLS Failure</span></td><td>Primary domain. SSL certificate issue needs resolution.</td></tr>
+        <tr><td style="color:#fff;">gz9sfg-vd.myshopify.com</td><td><span class="cv-status status-active">Connected</span></td><td>Default Shopify subdomain. Always available as fallback.</td></tr>
+        <tr><td style="color:#fff;">unicity-international-2.myshopify.com</td><td><span class="cv-status status-active">Connected</span></td><td>Secondary Shopify subdomain.</td></tr>
+        <tr><td style="color:#fff;">www.unicity.com</td><td><span class="cv-status status-error">TLS Failure</span></td><td>www variant. Same TLS issue as the root domain.</td></tr>
+      </table>
+    </div>
+    <div class="tip-bar error">
+      <span class="tip-icon">ðŸš¨</span>
+      <div class="tip-text"><strong>Critical:</strong> Both unicity.com and www.unicity.com show TLS Failure. This means the SSL certificate is not properly provisioned. Customers visiting your domain may see browser security warnings. Fix this in your DNS settings or contact Shopify support. The Shopify subdomains work fine as a fallback.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-gray">Actions</span>
+      <span class="section-title">Domain Management</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ”—</div>
+        <div class="field-name">Connect Existing</div>
+        <div class="field-desc">Point a domain you already own (registered with GoDaddy, Cloudflare, etc) to your Shopify store. Requires updating DNS records (CNAME or A record).</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ›’</div>
+        <div class="field-name">Buy New Domain</div>
+        <div class="field-desc">Purchase a domain directly through Shopify. Auto-configures DNS, SSL, and email forwarding. Convenient but slightly less flexible than third-party registrars.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CUSTOMER EVENTS                                               -->
+<!-- ============================================================ -->
+<div id="events" class="view">
+  <div class="view-title">ðŸ“Š Customer Events</div>
+  <div class="nav-path"><span>Settings</span> â€º Customer events</div>
+  <div class="view-desc">Pixel tracking and customer event data collection. Connect third-party analytics and marketing tools to track customer behavior on your store.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Pixels</span>
+      <span class="section-title">App Pixels</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Status</div><div class="cv-value">No app pixels installed</div></div>
+    </div>
+    <div class="section-desc">App pixels are the most secure way to collect customer events. They run in a sandboxed environment and only access the data Shopify approves. Install pixel apps for Google Analytics, Meta Ads, TikTok, etc.</div>
+    <div class="tip-bar info">
+      <span class="tip-icon">â„¹ï¸</span>
+      <div class="tip-text"><strong>Smart data protection:</strong> Shopify is rolling out "Optimized data access" as the default. This restricts marketing pixels to only access required data. If you need full access, switch to "Always on" before it auto-enables.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- NOTIFICATIONS                                                 -->
+<!-- ============================================================ -->
+<div id="notifications" class="view">
+  <div class="view-title">ðŸ”” Notifications</div>
+  <div class="nav-path"><span>Settings</span> â€º Notifications</div>
+  <div class="view-desc">Email notification templates and sender configuration. Controls what emails go to customers and staff when orders, shipping, and account events occur.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Sender</span>
+      <span class="section-title">Sender Email Configuration</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Sender Email</div><div class="cv-value">howard.koziara@unicity.com</div></div>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Fallback</div><div class="cv-value" style="font-family: monospace; font-size: 11px;">store+95542280559@shopifyemail.com</div></div>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ”</div>
+        <div class="field-name">Email Domain Authentication</div>
+        <div class="field-desc">Manage domain authentication for your custom email address. Verifies you own the sending domain (SPF, DKIM). Improves deliverability and prevents emails from landing in spam.</div>
+        <span class="field-tag tag-warn">Needs Setup</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ›¡ï¸</div>
+        <div class="field-name">DMARC Record Setup</div>
+        <div class="field-desc">Increase trust and deliverability by protecting your sending domain with a DMARC record. Tells receiving servers what to do with unauthenticated emails.</div>
+        <span class="field-tag tag-warn">Needs Setup</span>
+      </div>
+    </div>
+    <div class="tip-bar error">
+      <span class="tip-icon">âš ï¸</span>
+      <div class="tip-text"><strong>Action needed:</strong> Email domain authentication and DMARC are both flagged as "Needs setup." Without these, your order confirmation and shipping notification emails may go to spam. Set up SPF, DKIM, and DMARC records in your DNS.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Templates</span>
+      <span class="section-title">Notification Categories</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“§</div>
+        <div class="field-name">Customer Notifications</div>
+        <div class="field-desc">Emails sent to customers: order confirmation, shipping confirmation, delivery updates, refund notices, account invites, password resets, and more. Fully customizable HTML templates.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ‘¥</div>
+        <div class="field-name">Staff Notifications</div>
+        <div class="field-desc">Emails sent to staff about new orders, low stock, and other store events. Configure which staff members receive which notifications.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ“¦</div>
+        <div class="field-name">Fulfillment Request Notifications</div>
+        <div class="field-desc">Emails sent to your fulfillment service provider when you mark an order as fulfilled. Used with 3PL integrations.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ”—</div>
+        <div class="field-name">Webhooks</div>
+        <div class="field-desc">Send XML or JSON notifications about store events to a URL. This is how you integrate with external systems (commission engine, ERP, CRM). Configure event triggers and destination URLs.</div>
+        <span class="field-tag tag-purple">Key for Integration</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- METAFIELDS AND METAOBJECTS                                    -->
+<!-- ============================================================ -->
+<div id="metafields" class="view">
+  <div class="view-title">ðŸ·ï¸ Metafields and Metaobjects</div>
+  <div class="nav-path"><span>Settings</span> â€º Metafields and metaobjects</div>
+  <div class="view-desc">Custom data fields you attach to products, customers, orders, and other Shopify resources. Metaobjects are standalone custom content types. Both power advanced theme features and API integrations.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Definitions</span>
+      <span class="section-title">Metafield Definitions</span>
+    </div>
+    <div class="section-desc">Each resource type can have custom metafield definitions. Click a resource to define custom fields with types (text, number, date, URL, JSON, file, etc).</div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Resource</th><th>Definitions</th></tr>
+        <tr><td style="color:#fff;">Products</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Variants</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Collections</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Customers</td><td>1</td></tr>
+        <tr><td style="color:#fff;">Orders</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Draft orders</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Companies</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Company locations</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Locations</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Pages</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Blogs</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Blog posts</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Markets</td><td>0</td></tr>
+        <tr><td style="color:#fff;">Shop</td><td>0</td></tr>
+      </table>
+    </div>
+    <div class="tip-bar info">
+      <span class="tip-icon">ðŸ’¡</span>
+      <div class="tip-text"><strong>Customer metafield:</strong> You have 1 customer metafield defined. This could store distributor ID, referral codes, loyalty tier, or other custom data per customer. Click Customers to view the definition.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-purple">Metaobjects</span>
+      <span class="section-title">Custom Content Types</span>
+    </div>
+    <div class="section-desc">Metaobjects let you group fields into standalone content types (like a "Testimonial" with name, quote, photo, rating). Display them on your storefront through theme sections or the Storefront API. None defined yet.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CUSTOMER PRIVACY                                              -->
+<!-- ============================================================ -->
+<div id="privacy" class="view">
+  <div class="view-title">ðŸ”’ Customer Privacy</div>
+  <div class="nav-path"><span>Settings</span> â€º Customer privacy</div>
+  <div class="view-desc">Privacy compliance settings. Manage privacy policy, cookie consent, data sharing opt-out, network intelligence, marketing consent, and data storage location.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-green">Privacy Settings</span>
+      <span class="section-title">Privacy Policy &amp; Consent</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“œ</div>
+        <div class="field-name">Privacy Policy</div>
+        <div class="field-desc">Published on your online store. Shopify auto-generates a baseline policy. Customize it to match your actual data practices.</div>
+        <span class="field-tag tag-ok">Automated</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸª</div>
+        <div class="field-name">Cookie Banner</div>
+        <div class="field-desc">Not required for regions where you sell. If you sell to EU customers, you may need to enable this for GDPR compliance. Currently automated by Shopify.</div>
+        <span class="field-tag tag-ok">Automated</span>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸš«</div>
+        <div class="field-name">Data Sharing Opt-Out Page</div>
+        <div class="field-desc">Active in California, Colorado, and 13 other states. Lets customers opt out of data sharing per state privacy laws (CCPA, CPA, etc).</div>
+        <span class="field-tag tag-ok">Automated</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-teal">Network</span>
+      <span class="section-title">Shopify Network Intelligence</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Status</div><div class="cv-value">Shopify Network Intelligence</div></div>
+      <span class="cv-status status-active">Enabled</span>
+    </div>
+    <div class="section-desc">Your customer data is securely used with other Shopify data to improve products, ad targeting, and personalization for your store. No other merchant can see your data. Disable this if you want to fully isolate your customer data.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Marketing &amp; Data</span>
+      <span class="section-title">Marketing Settings &amp; Data Storage</span>
+    </div>
+    <div class="field-grid">
+      <div class="field-card">
+        <div class="field-icon">ðŸ“§</div>
+        <div class="field-name">Email &amp; SMS Marketing in Checkout</div>
+        <div class="field-desc">Ask customers for their marketing preferences during checkout. Controls whether the email/SMS opt-in checkbox appears.</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">âœ…</div>
+        <div class="field-name">Double Opt-In</div>
+        <div class="field-desc">Ask customers to confirm their contact details before adding them to marketing lists. Required in some regions (Germany, for example).</div>
+      </div>
+      <div class="field-card">
+        <div class="field-icon">ðŸ—„ï¸</div>
+        <div class="field-name">Data Storage Location</div>
+        <div class="field-desc">Your customer data is stored in the United States. This affects GDPR and cross-border data transfer compliance.</div>
+        <span class="field-tag tag-ok">United States</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- POLICIES                                                      -->
+<!-- ============================================================ -->
+<div id="policies" class="view">
+  <div class="view-title">ðŸ“‹ Policies</div>
+  <div class="nav-path"><span>Settings</span> â€º Policies</div>
+  <div class="view-desc">Legal policies that appear in the footer of your checkout and can be added to your online store menu. These protect your business and set customer expectations.</div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-orange">Return Rules</span>
+      <span class="section-title">Return Rules</span>
+    </div>
+    <div class="current-value">
+      <div><div class="cv-label">Status</div><div class="cv-value">Off</div></div>
+    </div>
+    <div class="section-desc">Enable return rules to simplify return management. Set up return fees, return shipping, and define final sale items. When enabled, self-serve returns in customer accounts use these rules.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-blue">Written Policies</span>
+      <span class="section-title">Store Policies</span>
+    </div>
+    <div class="section-desc">Policies are linked in the footer of checkout and can be added to your online store menu.</div>
+    <div class="data-table">
+      <table class="data-table">
+        <tr><th>Policy</th><th>Status</th></tr>
+        <tr><td style="color:#fff;">Return and refund policy</td><td><span class="cv-status status-warning">No policy set</span></td></tr>
+        <tr><td style="color:#fff;">Privacy policy</td><td><span class="cv-status status-active">Automated</span></td></tr>
+        <tr><td style="color:#fff;">Terms of service</td><td><span class="cv-status status-warning">No policy set</span></td></tr>
+        <tr><td style="color:#fff;">Shipping policy</td><td><span class="cv-status status-warning">No policy set</span></td></tr>
+        <tr><td style="color:#fff;">Contact information</td><td><span class="cv-status status-error">Required</span></td></tr>
+      </table>
+    </div>
+    <div class="tip-bar error">
+      <span class="tip-icon">ðŸš¨</span>
+      <div class="tip-text"><strong>Action needed:</strong> Contact information is marked "Required" and missing. Several policies (return/refund, terms of service, shipping) are not set. These are important for legal protection and customer trust. At minimum, add your contact info and a return policy.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

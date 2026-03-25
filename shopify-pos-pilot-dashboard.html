@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify POS Pilot - Project Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2333;
+  --border: #30363d;
+  --border-light: #3d444d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --text-dim: #6e7681;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88,166,255,0.15);
+  --green: #3fb950;
+  --green-bg: rgba(63,185,80,0.1);
+  --yellow: #d29922;
+  --yellow-bg: rgba(210,153,34,0.1);
+  --red: #f85149;
+  --red-bg: rgba(248,81,73,0.1);
+  --purple: #bc8cff;
+  --purple-bg: rgba(188,140,255,0.1);
+  --orange: #f0883e;
+  --tab-active: #58a6ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* TOP BAR */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,17,23,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-badge {
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.topbar h1 { font-size: 16px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.progress-ring {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-muted);
+}
+.progress-ring strong { color: var(--green); font-size: 15px; }
+
+/* TABS */
+.tab-bar {
+  position: sticky; top: 53px; z-index: 99;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; overflow-x: auto; gap: 0;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 10px 18px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  user-select: none;
+}
+.tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .tab-count {
+  font-size: 10px; margin-left: 5px;
+  background: var(--border);
+  padding: 1px 6px; border-radius: 10px;
+}
+
+/* MAIN */
+.main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.card-header:hover { background: rgba(255,255,255,0.02); }
+.card-header h3 {
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-header .arrow {
+  color: var(--text-dim);
+  transition: transform 0.2s;
+  font-size: 12px;
+}
+.card-header .arrow.open { transform: rotate(90deg); }
+.card-body { padding: 0 18px 16px; }
+.card-progress {
+  font-size: 12px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-progress .bar {
+  width: 60px; height: 4px;
+  background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.card-progress .bar-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--green);
+  transition: width 0.3s;
+}
+
+/* TABLES */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  color: var(--text);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+/* CHECKBOXES */
+.check-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; }
+.check-row + .check-row { border-top: 1px solid rgba(48,54,61,0.4); }
+.check-box {
+  width: 18px; height: 18px; min-width: 18px;
+  border: 2px solid var(--border-light);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.check-box:hover { border-color: var(--accent); }
+.check-box.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.check-box.checked::after {
+  content: 'âœ“';
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.check-label { font-size: 13px; flex: 1; text-align: left; }
+.check-label.done { color: var(--text-dim); text-decoration: line-through; }
+.check-num { font-family: 'JetBrains Mono', monospace; color: var(--accent); min-width: 20px; font-size: 12px; font-weight: 600; flex-shrink: 0; text-align: left; }
+.check-notes {
+  font-size: 12px; color: var(--text-dim);
+  min-width: 160px; text-align: right;
+  flex-shrink: 0;
+}
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-high { background: var(--red-bg); color: var(--red); }
+.badge-normal { background: var(--yellow-bg); color: var(--yellow); }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-descoped { background: rgba(110,118,129,0.15); color: var(--text-dim); text-decoration: line-through; }
+
+/* FLOW DIAGRAM */
+.flow {
+  display: flex; align-items: stretch; gap: 0;
+  overflow-x: auto; padding: 16px 0;
+}
+.flow-step {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 120px; flex: 1; position: relative;
+}
+.flow-step::after {
+  content: 'â†’';
+  position: absolute; right: -8px; top: 18px;
+  color: var(--text-dim); font-size: 16px;
+}
+.flow-step:last-child::after { display: none; }
+.flow-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 8px;
+}
+.flow-title { font-size: 11px; font-weight: 600; text-align: center; }
+.flow-sub { font-size: 10px; color: var(--text-dim); text-align: center; margin-top: 2px; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 7px; top: 4px; bottom: 4px;
+  width: 2px; background: var(--border);
+}
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item::before {
+  content: '';
+  position: absolute; left: -21px; top: 6px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+}
+.tl-item.done::before { background: var(--green); border-color: var(--green); }
+.tl-phase {
+  font-size: 12px; font-weight: 600;
+  color: var(--accent); margin-bottom: 4px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tl-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.tl-detail { font-size: 12px; color: var(--text-muted); }
+
+/* STAT GRID */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 700; }
+.stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* SECTION HEADERS */
+.section-title {
+  font-size: 18px; font-weight: 700;
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.section-title:first-child { margin-top: 0; }
+.section-sub {
+  font-size: 13px; color: var(--text-muted);
+  margin: -8px 0 16px;
+}
+
+/* INFO BOX */
+.info-box {
+  background: var(--accent-glow);
+  border: 1px solid rgba(88,166,255,0.3);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.info-box.warn {
+  background: var(--yellow-bg);
+  border-color: rgba(210,153,34,0.3);
+}
+.info-box.success {
+  background: var(--green-bg);
+  border-color: rgba(63,185,80,0.3);
+}
+.info-box strong { color: var(--accent); }
+.info-box.warn strong { color: var(--yellow); }
+
+/* PERMISSION MATRIX */
+.perm-grid { display: grid; gap: 1px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.perm-cell {
+  padding: 8px 12px;
+  font-size: 12px;
+  background: var(--surface);
+}
+.perm-header {
+  background: var(--surface2);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.perm-yes { color: var(--green); }
+.perm-no { color: var(--red); }
+.perm-label { font-weight: 500; }
+
+/* COST BAR */
+.cost-compare {
+  display: flex; gap: 16px; margin: 16px 0;
+}
+.cost-bar-container { flex: 1; }
+.cost-bar-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.cost-bar-wrap { background: var(--border); border-radius: 6px; overflow: hidden; height: 28px; position: relative; }
+.cost-bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 600; }
+
+/* SPRINT VIEW */
+.sprint-day {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0;
+  margin-bottom: 2px;
+}
+.sprint-day-label {
+  padding: 10px 12px;
+  font-size: 12px; font-weight: 600;
+  color: var(--accent);
+  background: var(--surface2);
+  border-right: 2px solid var(--accent);
+  display: flex; align-items: center;
+}
+.sprint-day-tasks {
+  padding: 6px 12px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  align-items: center;
+  background: var(--surface);
+}
+.sprint-task {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  white-space: nowrap;
+}
+.sprint-task.crit { border-color: var(--red); color: var(--red); }
+
+/* ROLE DIAGRAM */
+.role-stack { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+.role-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.role-box.hq { border-color: var(--purple); background: var(--purple-bg); }
+.role-box.mgr { border-color: var(--accent); background: var(--accent-glow); }
+.role-box.dist { border-color: var(--green); background: var(--green-bg); }
+.role-name { font-weight: 600; font-size: 14px; }
+.role-detail { font-size: 12px; color: var(--text-muted); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .topbar { padding: 10px 16px; flex-wrap: wrap; }
+  .main { padding: 16px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .tab { padding: 8px 12px; font-size: 12px; }
+  .flow { flex-wrap: wrap; }
+  .flow-step { min-width: 90px; }
+  .flow-step::after { display: none; }
+  .cost-compare { flex-direction: column; }
+}
+
+/* PRINT */
+@media print {
+  .topbar, .tab-bar { position: static; }
+  .panel { display: block !important; page-break-inside: avoid; }
+  .card-body { display: block !important; }
+}
+</style>
+</head>
+<body>
+<div style="background:#161b22;border-bottom:1px solid #30363d;padding:8px 32px;display:flex;align-items:center;gap:8px;">
+<a href="index.html" style="color:#58a6ff;text-decoration:none;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">&#x2190; Back to Hub</a>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-badge">TKT-5793</span>
+    <h1>Shopify POS Distributor Pilot &mdash; USA</h1>
+  </div>
+  <div class="topbar-right">
+    <div class="progress-ring">
+      Overall: <strong id="globalProgress">0%</strong>
+    </div>
+    <div style="font-size:12px;color:var(--text-dim)">1-Week Sprint</div>
+  </div>
+</div>
+
+<div class="tab-bar" id="tabBar"></div>
+
+<div class="main" id="mainContent"></div>
+
+<script>
+// ================================================
+// STATE
+// ================================================
+const state = {
+  activeTab: 0,
+  checks: {},
+  collapsed: {}
+};
+
+// Helper to toggle checks
+function toggleCheck(id) {
+  state.checks[id] = !state.checks[id];
+  render();
+}
+function isChecked(id) { return !!state.checks[id]; }
+
+function toggleCollapse(id) {
+  state.collapsed[id] = !state.collapsed[id];
+  render();
+}
+function isCollapsed(id) { return !!state.collapsed[id]; }
+
+// ================================================
+// CHECKLIST DATA
+// ================================================
+const goLiveChecks = {
+  platform: [
+    'Shopify Plus plan active',
+    'Shopify Payments enabled and bank verified',
+    'POS Pro active on US-Pilot location',
+    'Products available at pilot location with correct pricing'
+  ],
+  hardware: [
+    'All 10 readers received and unboxed',
+    'All 10 readers fully charged',
+    'All 10 readers paired to distributor iPhones',
+    'Firmware updated on all 10 readers',
+    'Test transaction on each reader',
+    'Serial numbers documented and mapped',
+    'USB-C cables distributed',
+    'Each reader labeled with distributor name/ID'
+  ],
+  roles: [
+    '"Distributor" POS role created and verified',
+    '"POS Manager" POS role created and verified',
+    '"Regional Manager" store role created and verified',
+    'Regional manager onboarded with both roles',
+    'All 10 distributors onboarded as POS-only staff',
+    'All PINs set and tested'
+  ],
+  attribution: [
+    'Sales attribution enabled (auto-attribution mode)',
+    'Staff name to Unicity ID mapping table complete',
+    'Test sale shows correct "Attributed to" on order',
+    'Sales by Staff report accurate'
+  ],
+  csv: [
+    'CSV export process documented and tested',
+    'Export includes all required fields',
+    'Staff name mapping validated in CSV',
+    'Unity import process confirmed with data team',
+    'Test import completed successfully',
+    'Subscription orders identifiable in CSV',
+    'Daily export schedule and owner assigned'
+  ],
+  subscriptions: [
+    'Subscription app installed and configured',
+    'Selling plans created for pilot products',
+    'Test subscription token vaulted',
+    'Test renewal charged',
+    'Failed payment retry and notification working'
+  ],
+  security: [
+    'Data isolation verified',
+    ' 2FA enabled for regional manager',
+    'Distributors confirmed blocked from admin',
+    'Pricing change policy communicated'
+  ],
+  testing: [
+    'All E2E test scenarios passed',
+    'POS sale attributed correctly (card reader)',
+    'POS sale attributed correctly (Tap to Pay)',
+    'Online sale with referral code captured',
+    'CSV export matches Shopify dashboard totals',
+    'Settlement reconciliation verified'
+  ],
+  training: [
+    'All distributors have POS app installed',
+    'All distributors confirmed PIN working',
+    'All distributors confirmed reader working',
+    'Training materials distributed',
+    'Escalation path communicated',
+    'CSV export schedule communicated'
+  ],
+  gonogo: [
+    'All pre-launch items verified',
+    'Stakeholder sign-off obtained',
+    'Daily monitoring process defined',
+    'Rollback plan documented',
+    'PILOT DECLARED LIVE'
+  ]
+};
+
+const e2eTests = [
+  { id: 'e2e1', name: 'POS sale via card reader', steps: 'PIN login â†’ add product â†’ customer taps card', expect: 'Order created, source="pos", correct attribution' },
+  { id: 'e2e2', name: 'POS sale via Tap to Pay', steps: 'Same flow, customer taps iPhone directly', expect: 'Same result (backup method verified)' },
+  { id: 'e2e3', name: 'POS sale with subscription', steps: 'Add subscription product, capture email, card pay', expect: 'selling_plan on line item, token vaulted' },
+  { id: 'e2e4', name: 'Subscription renewal', steps: 'Wait for billing cycle or trigger manually', expect: 'Auto-charge on vaulted token, new order' },
+  { id: 'e2e5', name: 'Failed subscription payment', steps: 'Use test card that declines', expect: 'Retry logic triggers, customer notified' },
+  { id: 'e2e6', name: 'Online sale with referral', steps: 'Customer uses referral link, checkout', expect: 'source="web", referral code captured' },
+  { id: 'e2e7', name: 'Manager processes return', steps: 'Manager login â†’ find order â†’ process return', expect: 'Refund issued via Shopify Payments' },
+  { id: 'e2e8', name: 'Manager adds distributor', steps: 'Manager POS app â†’ Staff â†’ Add staff', expect: 'New distributor can process sales' },
+  { id: 'e2e9', name: 'Data isolation: Dist A vs B', steps: 'Dist A sale â†’ logout â†’ Dist B login', expect: 'Dist B cannot see Dist A sale' },
+  { id: 'e2e10', name: 'Data isolation: Admin', steps: 'Distributor attempts admin URL', expect: 'Blocked, no admin access' },
+  { id: 'e2e11', name: 'Attribution accuracy', steps: '5 sales across 3 distributors', expect: 'Sales by Staff report correct for each' },
+  { id: 'e2e12', name: 'CSV export accuracy', steps: 'Export orders CSV after test sales', expect: 'All fields present and correct' },
+  { id: 'e2e13', name: 'CSV staff name mapping', steps: 'Apply lookup table to exported CSV', expect: 'All staff names map to Unicity IDs' },
+  { id: 'e2e14', name: 'Settlement reconciliation', steps: 'Check Shopify payout vs order totals', expect: 'Match (minus fees/refunds)' }
+];
+
+const tickets = [
+  { n:1, name:'Create Regional POS Location', pri:'High', dep:'Plus plan active', effort:'15 min', phase:1, link:'86dztj289' },
+  { n:2, name:'Activate POS Pro on Pilot Location', pri:'High', dep:'Ticket 1', effort:'5 min', phase:1, link:'86dztj2dq' },
+  { n:3, name:'Create POS Roles', pri:'High', dep:'Ticket 2', effort:'30 min', phase:1, link:'86dztj2h0' },
+  { n:4, name:'Create Store-Level Role for Regional Manager', pri:'High', dep:'None', effort:'20 min', phase:1, link:'86dztj2jx' },
+  { n:5, name:'Add Regional Manager User Account', pri:'High', dep:'Tickets 3, 4', effort:'15 min + 7d invite', phase:1, link:'86dztj2mn' },
+  { n:6, name:'Onboard 10 Distributors as POS-Only Staff', pri:'High', dep:'Tickets 1, 3', effort:'1 hour', phase:1, link:'86dztj2pn' },
+  { n:7, name:'Configure Product Catalog for POS Location', pri:'Normal', dep:'Ticket 1', effort:'1-2 hours', phase:1, link:'86dztj2r3' },
+  { n:8, name:'Verify Shopify Payments Configuration', pri:'High', dep:'Plus plan active', effort:'30 min', phase:1, link:'86dztj2un' },
+  { n:18, name:'Set Up and Pair 10 Shopify Card Readers', pri:'High', dep:'Tickets 6, 8', effort:'2-3 hours', phase:1, link:'86dztj5bf' },
+  { n:9, name:'Configure POS Sales Attribution', pri:'High', dep:'Tickets 2, 6', effort:'30 min', phase:2, link:'86dztj2x3' },
+  { n:12, name:'Configure Subscriptions / Autoship', pri:'High', dep:'Ticket 8', effort:'1 week', phase:2, link:'86dztj390' },
+  { n:19, name:'CSV Export Process and Unity Database Import', pri:'High', dep:'Tickets 6, 9', effort:'1-2 days', phase:2, link:'86dztjaur' },
+  { n:10, name:'Build Attribution Middleware', pri:'DESCOPED', dep:'â€”', effort:'â€”', phase:'X', link:'86dztj2zy' },
+  { n:11, name:'Commission Engine Integration', pri:'DESCOPED', dep:'â€”', effort:'â€”', phase:'X', link:'86dztj33q' },
+  { n:13, name:'Data Isolation Validation', pri:'High', dep:'Ticket 6', effort:'2-3 hours', phase:3, link:'86dztj3az' },
+  { n:14, name:'End-to-End Testing (incl. CSV)', pri:'High', dep:'All previous', effort:'1-2 days', phase:3, link:'86dztj3ee' },
+  { n:15, name:'Reconciliation Setup', pri:'Normal', dep:'Tickets 9, 19', effort:'1-2 days', phase:3, link:'86dztj3jd' },
+  { n:16, name:'Training Materials and PIN Distribution', pri:'Normal', dep:'Tickets 5, 6', effort:'1-2 days', phase:3, link:'86dztj3nt' },
+  { n:17, name:'Go-Live Checklist and Launch Validation', pri:'High', dep:'All previous', effort:'1 day', phase:3, link:'86dztj3tf' },
+];
+
+// ================================================
+// TABS
+// ================================================
+const tabs = [
+  { label: 'Overview', icon: 'â—‰' },
+  { label: 'Data Flow', icon: 'â†“' },
+  { label: 'Permissions', icon: 'ðŸ”’' },
+  { label: 'Tickets', icon: '#' },
+  { label: 'Sprint Plan', icon: 'âš¡' },
+  { label: 'Hardware', icon: 'â¬¡' },
+  { label: 'Subscriptions', icon: 'â†»' },
+  { label: 'Onboarding', icon: 'â†’' },
+  { label: 'Testing', icon: 'âœ“' },
+  { label: 'Go-Live', icon: 'ðŸš€' },
+  { label: 'Monitoring', icon: 'â—Ž' },
+];
+
+function setTab(i) { state.activeTab = i; render(); }
+
+// ================================================
+// RENDER HELPERS
+// ================================================
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k,v]) => {
+    if (k === 'className') el.className = v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else el.setAttribute(k, v);
+  });
+  children.flat(3).forEach(c => {
+    if (c == null) return;
+    el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return el;
+}
+
+function checklistCard(title, sectionId, items, prefix) {
+  const checked = items.filter((_,i) => isChecked(prefix+i)).length;
+  const total = items.length;
+  const pct = total ? Math.round(checked/total*100) : 0;
+  const open = !isCollapsed(sectionId);
+
+  return h('div', { className: 'card' },
+    h('div', { className: 'card-header', onClick: () => toggleCollapse(sectionId) },
+      h('h3', null,
+        h('span', { className: 'arrow ' + (open?'open':'') }, 'â–¶'),
+        title
+      ),
+      h('div', { className: 'card-progress' },
+        h('span', null, `${checked}/${total}`),
+        h('div', { className: 'bar' },
+          h('div', { className: 'bar-fill', style: { width: pct+'%', background: pct===100?'var(--green)':pct>50?'var(--yellow)':'var(--accent)' } })
+        ),
+        h('span', null, pct + '%')
+      )
+    ),
+    open ? h('div', { className: 'card-body' },
+      ...items.map((item, i) => {
+        const id = prefix + i;
+        const done = isChecked(id);
+        return h('div', { className: 'check-row' },
+          h('div', { className: 'check-box' + (done?' checked':''), onClick: () => toggleCheck(id) }),
+          h('span', { className: 'check-label' + (done?' done':'') }, item)
+        );
+      })
+    ) : null
+  );
+}
+
+function getGlobalProgress() {
+  let total = 0, checked = 0;
+  Object.entries(goLiveChecks).forEach(([key, items]) => {
+    items.forEach((_, i) => {
+      total++;
+      if (isChecked('gl_'+key+'_'+i)) checked++;
+    });
+  });
+  e2eTests.forEach(t => { total++; if (isChecked(t.id)) checked++; });
+  return total ? Math.round(checked/total*100) : 0;
+}
+
+// ================================================
+// PANEL RENDERERS
+// ================================================
+function renderOverview() {
+  return h('div', null,
+    // Stats
+    h('div', { className: 'stats' },
+      ...[
+        { label:'Location', value:'1', sub:'US-Pilot' },
+        { label:'Manager', value:'1', sub:'Regional' },
+        { label:'Distributors', value:'10', sub:'POS-only staff' },
+        { label:'Card Readers', value:'10', sub:'$49 each' },
+        { label:'Gateway Rate', value:'2.15%', sub:'+ 30Â¢' },
+        { label:'Incremental Cost', value:'$490', sub:'One-time only' },
+        { label:'Timeline', value:'~1 wk', sub:'Was 6 weeks' },
+        { label:'Active Tickets', value:'17', sub:'2 descoped' },
+      ].map(s => h('div', { className: 'stat' },
+        h('div', { className: 'stat-label' }, s.label),
+        h('div', { className: 'stat-value' }, s.value),
+        h('div', { className: 'stat-sub' }, s.sub)
+      ))
+    ),
+
+    h('div', { className: 'info-box' },
+      h('strong', null, 'Executive Summary: '),
+      'This pilot validates the Shopify POS distributor model with 1 regional manager, 10 distributors, and subscription (autoship) capability in the US market. Distributors use the Shopify POS app on iPhones with Bluetooth card readers. Every sale auto-attributes to the distributor via staff_id. No commission engine on Shopify. No middleware. Daily CSV export to Unity database.'
+    ),
+
+    h('div', { className: 'section-title' }, 'Architecture Stack'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null,
+            h('th', null, 'Layer'), h('th', null, 'Component'), h('th', null, 'Pilot Config')
+          )),
+          h('tbody', null,
+            ...([
+              ['Distributor','POS-only staff, PIN access, zero admin','10 accounts, $0 each'],
+              ['Manager','Admin + POS staff, limited store access','1 account, $0'],
+              ['Location','POS Pro territory','1 location (US-Pilot)'],
+              ['Hardware','Shopify Tap & Chip readers','10 readers ($49 each)'],
+              ['Backup','iPhone Tap to Pay (NFC)','Distributor phone, $0'],
+              ['Payment','Shopify Payments (Stripe)','2.15% + 30Â¢'],
+              ['Subscriptions','Selling Plan APIs + token vault','Auto-charge vaulted cards'],
+              ['Attribution','POS Pro sales by staff','Staff name on each order'],
+              ['Data Export','CSV from Shopify Admin','Daily manual export'],
+              ['Data Import','Batch import to Unity','Bryan Simmons'],
+              ['Commission','Existing InfoTrax pipeline','No change'],
+            ].map(r => h('tr', null, ...r.map(c => h('td', null, c)))))
+          )
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'NOT in Scope'),
+    h('div', { className: 'info-box warn' },
+      h('strong', null, 'Descoped: '), 'Webhook middleware (CSV replaces it), Commission engine on Shopify (stays in InfoTrax), Real-time order sync (daily batch sufficient), Shopify Flow automation (manual manageable at this scale).'
+    ),
+
+    h('div', { className: 'section-title' }, 'Key Concept: Location = Territory'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null,
+            h('th', null, 'Shopify Term'), h('th', null, 'Business Term'), h('th', null, 'Pilot'), h('th', null, 'Max at Scale')
+          )),
+          h('tbody', null,
+            h('tr', null, h('td', null, 'Location'), h('td', null, 'Territory / Branch'), h('td', null, '1 (US-Pilot)'), h('td', null, '200 (Plus cap)')),
+            h('tr', null, h('td', null, 'Admin + POS Staff'), h('td', null, 'Territory Manager'), h('td', null, '1'), h('td', null, '1 per territory')),
+            h('tr', null, h('td', null, 'POS-Only Staff'), h('td', null, 'Distributor'), h('td', null, '10'), h('td', null, 'Unlimited, $0'))
+          )
+        ),
+        h('div', { className: 'info-box', style: { marginTop:'12px', marginBottom:'0' } },
+          'A location is NOT a person. All 10 distributors share one location. The 200-location cap is a territory cap, not a distributor cap.'
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Control Hierarchy'),
+    h('div', { className: 'role-stack' },
+      h('div', { className: 'role-box hq' },
+        h('div', null, h('div', { className: 'role-name' }, 'HQ Admin'), h('div', { className: 'role-detail' }, 'Full store owner + all POS')),
+        h('div', null, h('span', { className: 'badge badge-purple' }, '2-3 people'))
+      ),
+      h('div', { className: 'role-box mgr' },
+        h('div', null, h('div', { className: 'role-name' }, 'Regional Manager'), h('div', { className: 'role-detail' }, 'Limited admin (Products, Customers, Orders) + POS Manager')),
+        h('div', null, h('span', { className: 'badge', style: { background:'var(--accent-glow)', color:'var(--accent)' } }, '1 person'))
+      ),
+      h('div', { className: 'role-box dist' },
+        h('div', null, h('div', { className: 'role-name' }, 'Distributor'), h('div', { className: 'role-detail' }, 'No admin access. POS checkout only.')),
+        h('div', null, h('span', { className: 'badge badge-green' }, '10 people, $0'))
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Cost Comparison'),
+    h('div', { className: 'cost-compare' },
+      h('div', { className: 'cost-bar-container' },
+        h('div', { className: 'cost-bar-label' }, 'Current Setup (~7.5%)'),
+        h('div', { className: 'cost-bar-wrap' },
+          h('div', { className: 'cost-bar-fill', style: { width:'100%', background:'var(--red)' } }, '$11.25M at $150M vol')
+        )
+      ),
+      h('div', { className: 'cost-bar-container' },
+        h('div', { className: 'cost-bar-label' }, 'Shopify Pilot (~2.4%)'),
+        h('div', { className: 'cost-bar-wrap' },
+          h('div', { className: 'cost-bar-fill', style: { width:'34%', background:'var(--green)' } }, '$3.9M')
+        )
+      )
+    ),
+    h('div', { className: 'info-box success' },
+      h('strong', null, 'Savings potential: '), '$7.2-7.4M annually at $150M volume. Pilot incremental cost: $490 one-time for 10 card readers.'
+    )
+  );
+}
+
+function renderDataFlow() {
+  return h('div', null,
+    h('div', { className: 'section-title' }, 'Order Data Flow'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('div', { className: 'flow' },
+          ...([
+            { icon:'ðŸ’³', bg:'var(--accent-glow)', title:'Customer Pays', sub:'Card reader / Tap' },
+            { icon:'ðŸ“', bg:'var(--green-bg)', title:'Order Created', sub:'staff_id attributed' },
+            { icon:'ðŸ“¤', bg:'var(--yellow-bg)', title:'CSV Export', sub:'Daily from Admin' },
+            { icon:'ðŸ”„', bg:'var(--purple-bg)', title:'Map Staff â†’ ID', sub:'Lookup table' },
+            { icon:'ðŸ“¥', bg:'var(--green-bg)', title:'Import to Unity', sub:'Batch import' },
+            { icon:'ðŸ’°', bg:'var(--accent-glow)', title:'Commissions', sub:'InfoTrax pipeline' },
+          ].map(s => h('div', { className: 'flow-step' },
+            h('div', { className: 'flow-icon', style: { background: s.bg } }, s.icon),
+            h('div', { className: 'flow-title' }, s.title),
+            h('div', { className: 'flow-sub' }, s.sub)
+          )))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'POS Order Flow (Card Reader)'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Step'), h('th', null, 'Action'), h('th', null, 'Who'))),
+          h('tbody', null, ...([
+            ['1','Open Shopify POS app on iPhone','Distributor'],
+            ['2','Enter unique 4-6 digit PIN','Distributor (auto-assigns staff_id)'],
+            ['3','Browse product catalog, add items to cart','Distributor'],
+            ['4','Customer taps or inserts card on reader','Customer'],
+            ['5','Shopify Payments captures payment immediately','Shopify (auto-capture)'],
+            ['6','Order created with source_name="pos", staff attribution','Shopify'],
+            ['7','Order visible in Admin with "Attributed to" field','Shopify Admin'],
+            ['8','Daily CSV export captures order with staff name','HQ Admin (manual)'],
+            ['9','Map staff name to Unicity distributor ID','Lookup table'],
+            ['10','Import to Unity database','Data team'],
+          ].map(r => h('tr', null, ...r.map((c,i) => h('td', i===0 ? { className:'mono', style:{color:'var(--accent)',fontWeight:'600'} } : null, c))))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Subscription / Autoship Flow'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('div', { className: 'flow' },
+          ...([
+            { icon:'ðŸ›’', bg:'var(--accent-glow)', title:'Customer Selects', sub:'Subscription plan' },
+            { icon:'ðŸ’³', bg:'var(--green-bg)', title:'Initial Charge', sub:'Card token vaulted' },
+            { icon:'ðŸ“…', bg:'var(--yellow-bg)', title:'Billing Schedule', sub:'App creates order' },
+            { icon:'âš¡', bg:'var(--purple-bg)', title:'Auto-Charge', sub:'Vaulted payment' },
+            { icon:'ðŸ“¤', bg:'var(--green-bg)', title:'CSV Export', sub:'Renewal order' },
+            { icon:'ðŸ“¥', bg:'var(--accent-glow)', title:'Unity Import', sub:'Data team' },
+          ].map(s => h('div', { className: 'flow-step' },
+            h('div', { className: 'flow-icon', style: { background: s.bg } }, s.icon),
+            h('div', { className: 'flow-title' }, s.title),
+            h('div', { className: 'flow-sub' }, s.sub)
+          )))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'CSV Export: Field Mapping'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Shopify CSV Field'), h('th', null, 'Unity DB Field'), h('th', null, 'Notes'))),
+          h('tbody', null, ...([
+            ['Name (order number)','ORDER_NUMBER','Shopify format: #1001, #1002'],
+            ['Created at','ORDER_DATE','ISO 8601 format'],
+            ['Total','ORDER_TOTAL','Decimal, includes tax'],
+            ['Subtotal','SUBTOTAL','Before tax/shipping'],
+            ['Financial Status','PAYMENT_STATUS','paid / refunded / partially_refunded'],
+            ['Attributed staff','DIST_ID (via mapping)','Staff display name â†’ Unicity ID'],
+            ['Source','ORDER_SOURCE','"pos" / "web" / subscription app'],
+            ['Lineitem name','PRODUCT_NAME','Product sold'],
+            ['Lineitem sku','SKU','For PV/BV lookup in Unity'],
+            ['Lineitem quantity','QTY','Units sold'],
+            ['Lineitem price','UNIT_PRICE','Per-unit price'],
+            ['Selling Plan Name','SUBSCRIPTION_FLAG','Present if subscription'],
+            ['Billing Name','CUSTOMER_NAME','Customer who purchased'],
+            ['Email','CUSTOMER_EMAIL','For subscription customers'],
+          ].map(r => h('tr', null, ...r.map((c,i) => h('td', i===0 ? { className:'mono', style:{fontSize:'12px'} } : null, c))))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Daily CSV Export Process'),
+    h('div', { className: 'info-box' }, h('strong', null, 'Estimated daily effort: '), '15-30 minutes for 10 distributors'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, '#'), h('th', null, 'Action'), h('th', null, 'Owner'), h('th', null, 'Time'))),
+          h('tbody', null, ...([
+            ['1','Go to Shopify Admin â†’ Orders','Howard or delegate',''],
+            ['2','Filter by date range (previous day)','',''],
+            ['3','Filter by location: US-Pilot','',''],
+            ['4','Click Export â†’ Export orders â†’ CSV for Excel','',''],
+            ['5','Add Unicity Distributor ID column using staff name mapping','','5 min'],
+            ['6','Validate: order count matches Shopify dashboard','','2 min'],
+            ['7','Send to data team for Unity import','Bryan Simmons',''],
+            ['8','Verify imported orders in Unity','','5 min'],
+          ].map(r => h('tr', null, ...r.map((c,i) => h('td', i===0 ? { className:'mono', style:{color:'var(--accent)'} } : null, c))))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Automation Path (Post-Pilot)'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Scale'), h('th', null, 'Approach'), h('th', null, 'Effort'))),
+          h('tbody', null, ...([
+            ['Current (10)','Manual CSV, 15-30 min/day','Done'],
+            ['50+','Shopify Flow + Google Sheet auto-append','1-2 days setup'],
+            ['200+','Scheduled script via Admin API (hourly)','2-3 days dev'],
+            ['500+','Full middleware (original Ticket 10 scope)','2-3 weeks dev'],
+          ].map(r => h('tr', null, ...r.map(c => h('td', null, c))))))
+        )
+      )
+    )
+  );
+}
+
+function renderPermissions() {
+  const storePerms = [
+    ['Access Shopify Admin','No','Yes (limited)','Yes (full)'],
+    ['Products: View','No','Yes','Yes'],
+    ['Products: Edit','No','Yes (availability)','Yes'],
+    ['Products: Change pricing','No','NO (policy)','Yes'],
+    ['Customers: View','No','Yes','Yes'],
+    ['Customers: Edit','No','Yes','Yes'],
+    ['Orders: View','No','Yes (own location)','Yes'],
+    ['Orders: Export CSV','No','No','Yes (HQ only)'],
+    ['Analytics / Reports','No','No','Yes'],
+    ['Finances / Payouts','No','No','Yes'],
+    ['Settings / Payment config','No','No','Yes'],
+    ['Users / Permissions','No','No','Yes'],
+  ];
+  const posPerms = [
+    ['Process sales / checkout','Yes','Yes','Yes'],
+    ['Accept card payments','Yes','Yes','Yes'],
+    ['Capture customer email/phone','Yes','Yes','Yes'],
+    ['Apply discounts (with approval)','Yes','Yes','Yes'],
+    ['Apply discounts (without approval)','No','Yes','Yes'],
+    ['Process returns / exchanges','No','Yes','Yes'],
+    ['Cash tracking','No','Yes','Yes'],
+    ['Manage POS staff','No','Yes (own loc)','Yes'],
+    ['View POS sales reports','No','Yes','Yes'],
+    ['Manage orders at all locations','No','No','Yes'],
+  ];
+  function permTable(title, data) {
+    return h('div', null,
+      h('div', { className: 'section-title' }, title),
+      h('div', { className: 'card' },
+        h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+          h('table', null,
+            h('thead', null, h('tr', null,
+              h('th', null, 'Permission'),
+              h('th', null, 'Distributor'),
+              h('th', null, 'Regional Manager'),
+              h('th', null, 'HQ Admin')
+            )),
+            h('tbody', null, ...data.map(r => h('tr', null,
+              h('td', { style: { fontWeight:'500' } }, r[0]),
+              ...r.slice(1).map(c => {
+                const isYes = c.startsWith('Yes');
+                const isNo = c === 'No' || c.startsWith('NO');
+                return h('td', { style: { color: isYes?'var(--green)':isNo?'var(--red)':'var(--text)', fontWeight:'500' } },
+                  (isYes ? 'âœ“ ' : isNo ? 'âœ• ' : '') + c
+                );
+              })
+            )))
+          )
+        )
+      )
+    );
+  }
+  return h('div', null,
+    permTable('Store-Level Permissions (Web Admin)', storePerms),
+    h('div', { className: 'info-box warn', style: { marginTop:'16px' } },
+      h('strong', null, 'Pricing constraint: '), 'Product prices are store-wide in Shopify. If a regional manager edits a price, it affects every location. Enforce by policy that pricing changes go through HQ only.'
+    ),
+    permTable('POS App Permissions', posPerms),
+
+    h('div', { className: 'section-title' }, 'What the Distributor Sees'),
+    h('div', { style: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px' } },
+      h('div', { className: 'card' },
+        h('div', { className: 'card-header' }, h('h3', null, 'âœ“ CAN Do')),
+        h('div', { className: 'card-body' },
+          ...['Process sales','Accept card payments','Capture customer email/phone','See product catalog','See their active cart/transaction'].map(t =>
+            h('div', { style: { padding:'6px 0', fontSize:'13px', color:'var(--green)' } }, 'âœ“ ' + t)
+          )
+        )
+      ),
+      h('div', { className: 'card' },
+        h('div', { className: 'card-header' }, h('h3', null, 'âœ• CANNOT Do')),
+        h('div', { className: 'card-body' },
+          ...['See other distributors\' sales','Access Shopify admin','View revenue or reports','Change prices or products','See inventory levels or costs','See financial settings or payouts','Export data or view analytics'].map(t =>
+            h('div', { style: { padding:'6px 0', fontSize:'13px', color:'var(--red)' } }, 'âœ• ' + t)
+          )
+        )
+      )
+    )
+  );
+}
+
+function renderTickets() {
+  const activeTickets = tickets.filter(t => t.phase !== 'X');
+  const descopedTickets = tickets.filter(t => t.phase === 'X');
+
+  function phaseLabel(p) {
+    if (p === 1) return ['Phase 1: Shopify Setup', 'var(--accent)'];
+    if (p === 2) return ['Phase 2: Configuration', 'var(--purple)'];
+    if (p === 3) return ['Phase 3: Validation & Launch', 'var(--green)'];
+    return ['Descoped', 'var(--text-dim)'];
+  }
+
+  return h('div', null,
+    h('div', { className: 'info-box' },
+      h('strong', null, 'Epic: '), 'Shopify POS Distributor Pilot â€” USA  |  17 active tickets, 2 descoped  |  ',
+      h('a', { href:'https://app.clickup.com/t/86dztj228', target:'_blank', style: { color:'var(--accent)' } }, 'Open in ClickUp')
+    ),
+
+    ...[1,2,3].map(phase => {
+      const pts = activeTickets.filter(t => t.phase === phase);
+      const [label, color] = phaseLabel(phase);
+      return h('div', null,
+        h('div', { className: 'section-title', style: { color } }, label),
+        h('div', { className: 'card' },
+          h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+            h('table', null,
+              h('thead', null, h('tr', null,
+                h('th', { style: { width:'40px' } }, ''), h('th', { style: { width:'40px' } }, '#'), h('th', null, 'Ticket'), h('th', null, 'Priority'), h('th', null, 'Dependencies'), h('th', null, 'Effort')
+              )),
+              h('tbody', null, ...pts.map(t => h('tr', null,
+                h('td', null,
+                  h('div', { className: 'check-box' + (isChecked('tkt'+t.n)?' checked':''), onClick: () => toggleCheck('tkt'+t.n), style: { width:'16px', height:'16px', minWidth:'16px' } })
+                ),
+                h('td', { className: 'mono', style: { color:'var(--accent)' } }, '' + t.n),
+                h('td', null,
+                  h('a', { href: 'https://app.clickup.com/t/' + t.link, target:'_blank', style: { color: isChecked('tkt'+t.n)?'var(--text-dim)':'var(--text)', textDecoration: isChecked('tkt'+t.n)?'line-through':'none' } }, t.name)
+                ),
+                h('td', null, h('span', { className: 'badge ' + (t.pri==='High'?'badge-high':'badge-normal') }, t.pri)),
+                h('td', { style: { fontSize:'12px', color:'var(--text-muted)' } }, t.dep),
+                h('td', { className: 'mono', style: { fontSize:'12px' } }, t.effort)
+              )))
+            )
+          )
+        )
+      );
+    }),
+
+    h('div', { className: 'section-title', style: { color:'var(--text-dim)' } }, 'Descoped'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        ...descopedTickets.map(t =>
+          h('div', { style: { padding:'8px 0', display:'flex', gap:'12px', alignItems:'center', textDecoration:'line-through', color:'var(--text-dim)' } },
+            h('span', { className: 'badge badge-descoped' }, 'DESCOPED'),
+            h('span', null, `#${t.n} ${t.name}`)
+          )
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Dependency Map'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Ticket'), h('th', null, 'Depends On'), h('th', null, 'Blocks'))),
+          h('tbody', null, ...([
+            ['1. Create Location','Plus plan active','2, 6, 7'],
+            ['2. Activate POS Pro','1','3, 9'],
+            ['3. Create POS Roles','2','5, 6'],
+            ['4. Create Store Role','None','5'],
+            ['5. Add Manager','3, 4','16'],
+            ['6. Onboard Distributors','1, 3','9, 13, 18, 19'],
+            ['7. Configure Products','1','14'],
+            ['8. Verify Shopify Payments','Plus plan active','12, 18'],
+            ['9. Configure Attribution','2, 6','19'],
+            ['12. Configure Subscriptions','8','14'],
+            ['13. Data Isolation','6','14'],
+            ['14. E2E Testing','All previous','17'],
+            ['15. Reconciliation Setup','9, 19','17'],
+            ['16. Training Materials','5, 6','17'],
+            ['17. Go-Live Checklist','All previous','Launch'],
+            ['18. Card Readers','6, 8','14, 17'],
+            ['19. CSV Export + Unity','6, 9','14, 15'],
+          ].map(r => h('tr', null, ...r.map((c,i) => h('td', i===0 ? { style:{fontWeight:'500'} } : { style: { fontSize:'12px', color:'var(--text-muted)' } }, c))))))
+        )
+      )
+    ),
+
+    h('div', { className: 'info-box success' },
+      h('strong', null, 'Critical Path: '), '1 â†’ 2 â†’ 3 â†’ 6 â†’ 9 â†’ 19 â†’ 14 â†’ 17  |  Middleware removal cut 3 weeks off the timeline.'
+    )
+  );
+}
+
+function renderSprint() {
+  const days = [
+    { day: 'Day 1', label: 'Mon', tasks: [
+      { t: '#1 Create Location', crit: true },
+      { t: '#2 Activate POS Pro', crit: true },
+      { t: '#4 Create Store Role' },
+      { t: '#8 Verify Payments', crit: true },
+    ]},
+    { day: 'Day 2', label: 'Tue', tasks: [
+      { t: '#3 Create POS Roles', crit: true },
+      { t: '#5 Add Manager (send invite)', crit: true },
+      { t: '#7 Configure Products' },
+      { t: '#12 Start Subscription Config' },
+    ]},
+    { day: 'Day 3', label: 'Wed', tasks: [
+      { t: '#6 Onboard 10 Distributors', crit: true },
+      { t: '#18 Pair Card Readers', crit: true },
+      { t: '#12 Continue Subscriptions' },
+    ]},
+    { day: 'Day 4', label: 'Thu', tasks: [
+      { t: '#9 Configure Attribution', crit: true },
+      { t: '#19 CSV Export + Unity Import', crit: true },
+      { t: '#13 Data Isolation Validation' },
+    ]},
+    { day: 'Day 5', label: 'Fri', tasks: [
+      { t: '#14 E2E Testing', crit: true },
+      { t: '#15 Reconciliation Setup' },
+      { t: '#16 Training Materials' },
+    ]},
+    { day: 'Day 6', label: 'Sat', tasks: [
+      { t: '#14 Continue E2E Testing' },
+      { t: '#16 Distribute Training' },
+      { t: 'Buffer / Catch-up' },
+    ]},
+    { day: 'Day 7', label: 'Sun', tasks: [
+      { t: '#17 Go-Live Checklist', crit: true },
+      { t: 'Stakeholder Sign-off' },
+      { t: 'PILOT LIVE ðŸš€', crit: true },
+    ]},
+  ];
+
+  return h('div', null,
+    h('div', { className: 'info-box' },
+      h('strong', null, '1-Week Sprint Plan: '), 'Aggressive but achievable. Critical path items marked in red. Manager invite (Ticket #5) has a 7-day acceptance window but work continues in parallel.'
+    ),
+    h('div', { className: 'section-title' }, '7-Day Sprint Timeline'),
+    h('div', { style: { borderRadius:'8px', overflow:'hidden', border:'1px solid var(--border)' } },
+      ...days.map((d, i) => h('div', { className: 'sprint-day', style: { borderBottom: i < days.length-1 ? '1px solid var(--border)' : 'none' } },
+        h('div', { className: 'sprint-day-label' }, d.day),
+        h('div', { className: 'sprint-day-tasks' },
+          ...d.tasks.map(t => h('span', { className: 'sprint-task' + (t.crit ? ' crit' : '') }, t.t))
+        )
+      ))
+    ),
+
+    h('div', { className: 'section-title' }, 'Phase Breakdown'),
+    h('div', { className: 'timeline' },
+      h('div', { className: 'tl-item' },
+        h('div', { className: 'tl-phase' }, 'Phase 1: Shopify Setup'),
+        h('div', { className: 'tl-title' }, 'Days 1-3: Tickets 1-8, 18'),
+        h('div', { className: 'tl-detail' }, 'Location, roles, staff, readers configured. 1-2 days actual work.')
+      ),
+      h('div', { className: 'tl-item' },
+        h('div', { className: 'tl-phase' }, 'Phase 2: Configuration'),
+        h('div', { className: 'tl-title' }, 'Days 3-4: Tickets 9, 12, 19'),
+        h('div', { className: 'tl-detail' }, 'Attribution, subscriptions, CSV process ready.')
+      ),
+      h('div', { className: 'tl-item' },
+        h('div', { className: 'tl-phase' }, 'Phase 3: Validation'),
+        h('div', { className: 'tl-title' }, 'Days 5-7: Tickets 13-17'),
+        h('div', { className: 'tl-detail' }, 'E2E tests pass, training complete, go-live.')
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Timeline Comparison'),
+    h('div', { className: 'cost-compare' },
+      h('div', { className: 'cost-bar-container' },
+        h('div', { className: 'cost-bar-label' }, 'Original (middleware + commission engine)'),
+        h('div', { className: 'cost-bar-wrap' },
+          h('div', { className: 'cost-bar-fill', style: { width:'100%', background:'var(--red)' } }, '6 weeks')
+        )
+      ),
+      h('div', { className: 'cost-bar-container' },
+        h('div', { className: 'cost-bar-label' }, 'Current (CSV export, no middleware)'),
+        h('div', { className: 'cost-bar-wrap' },
+          h('div', { className: 'cost-bar-fill', style: { width:'17%', background:'var(--green)' } }, '~1 week')
+        )
+      )
+    )
+  );
+}
+
+function renderHardware() {
+  return h('div', null,
+    h('div', { className: 'stats' },
+      ...[
+        { label:'Device', value:'Tap & Chip', sub:'Shopify Card Reader' },
+        { label:'Cost', value:'$49', sub:'Each ($490 total)' },
+        { label:'Accepts', value:'3 methods', sub:'Tap, Chip, Swipe' },
+        { label:'Connectivity', value:'Bluetooth', sub:'~10 ft range' },
+        { label:'Battery', value:'All Day', sub:'USB-C rechargeable' },
+        { label:'Backup', value:'Tap to Pay', sub:'iPhone NFC, $0' },
+      ].map(s => h('div', { className: 'stat' },
+        h('div', { className: 'stat-label' }, s.label),
+        h('div', { className: 'stat-value' }, s.value),
+        h('div', { className: 'stat-sub' }, s.sub)
+      ))
+    ),
+
+    h('div', { className: 'section-title' }, 'Pairing Steps (Per Reader)'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        ...([
+          ['1','Charge reader fully','USB-C cable included'],
+          ['2','Open Shopify POS app on distributor\'s iPhone','Must be onboarded first'],
+          ['3','Log in with distributor\'s PIN',''],
+          ['4','Tap Menu â†’ Settings â†’ Set up hardware â†’ Card reader',''],
+          ['5','Power on reader (hold button until LED flashes)',''],
+          ['6','Select reader from Bluetooth list in POS app',''],
+          ['7','Wait for firmware update if prompted','Do NOT interrupt, up to 10 min'],
+          ['8','Process test transaction','Confirm reader works end-to-end'],
+          ['9','Label reader with distributor name/ID','Sticker on back'],
+        ].map(r => h('div', { className: 'check-row' },
+          h('div', { className: 'check-box' + (isChecked('pair'+r[0])?' checked':''), onClick: () => toggleCheck('pair'+r[0]) }),
+          h('span', { className: 'check-num' }, r[0]),
+          h('span', { className: 'check-label' + (isChecked('pair'+r[0])?' done':'') }, r[1]),
+          r[2] ? h('span', { className: 'check-notes' }, r[2]) : null
+        )))
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Reader Assignment Tracker'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px', overflowX:'auto' } },
+        h('table', null,
+          h('thead', null, h('tr', null,
+            h('th', null, '#'),
+            ...['Charged','Paired','Firmware','Test Txn','Cable','Labeled'].map(c => h('th', { style: { textAlign:'center' } }, c))
+          )),
+          h('tbody', null,
+            ...(Array.from({length:10}, (_,i) => h('tr', null,
+              h('td', { className: 'mono', style: { color:'var(--accent)' } }, ''+(i+1)),
+              ...['chrg','pair','fw','test','cable','label'].map(f =>
+                h('td', { style: { textAlign:'center' } },
+                  h('div', { className: 'check-box' + (isChecked('hw'+i+f)?' checked':''), onClick: () => toggleCheck('hw'+i+f), style: { margin:'0 auto', width:'16px', height:'16px', minWidth:'16px' } })
+                )
+              )
+            )))
+          )
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Troubleshooting'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Problem'), h('th', null, 'Fix'))),
+          h('tbody', null, ...([
+            ['Reader not appearing in POS app','Verify Bluetooth enabled, reader powered on (LED flashing), within 10 ft'],
+            ['Pairing fails','Restart both reader and POS app, try again'],
+            ['Firmware update stuck','Do NOT power off. Wait 15 min. Contact Shopify support if stuck'],
+            ['Test transaction declines','Verify Shopify Payments active (Ticket 8)'],
+            ['Reader disconnects mid-sale','Move closer to iPhone. Fall back to Tap to Pay'],
+            ['Reader won\'t charge','Try different USB-C cable. Check port for debris'],
+          ].map(r => h('tr', null, h('td', { style: { fontWeight:'500', color:'var(--yellow)' } }, r[0]), h('td', null, r[1])))))
+        )
+      )
+    )
+  );
+}
+
+function renderSubscriptions() {
+  return h('div', null,
+    h('div', { className: 'section-title' }, 'Subscription Configuration'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Decision'), h('th', null, 'Options'), h('th', null, 'Recommendation'))),
+          h('tbody', null, ...([
+            ['Subscription app','Shopify Subscriptions (free), ReCharge ($99/mo), Bold','Start with Shopify Subscriptions for pilot'],
+            ['Billing frequency','Monthly, Quarterly, Custom','Match existing autoship programs'],
+            ['Failed payment retry','1-3 retries over 7-14 days','Match current retry policy'],
+            ['Customer notifications','Upcoming renewal, failed payment, card expiring','All enabled'],
+            ['Token ownership','Shopify/Stripe owns all tokens','Accepted tradeoff for pilot'],
+          ].map(r => h('tr', null, h('td', { style: { fontWeight:'500' } }, r[0]), h('td', null, r[1]), h('td', { style: { color:'var(--green)' } }, r[2])))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Token Lifecycle'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Event'), h('th', null, 'What Happens'), h('th', null, 'Impact'))),
+          h('tbody', null, ...([
+            ['First POS sale w/ subscription','Card token vaulted via Stripe','Customer enrolled in autoship'],
+            ['Renewal date','Sub app creates order, auto-charges vaulted token','No customer action needed'],
+            ['Charge fails','Retry per config (1-3 attempts, 7-14 days)','Customer notified to update card'],
+            ['Card expires','Card updater service auto-update attempt','May need customer re-entry'],
+            ['Customer cancels','Subscription deactivated, token remains','No future charges'],
+            ['Leave Shopify platform','All tokens lost (Shopify/Stripe owned)','Customers must re-enter cards'],
+          ].map(r => h('tr', null,
+            h('td', { style: { fontWeight:'500' } }, r[0]),
+            h('td', null, r[1]),
+            h('td', { style: { fontSize:'12px', color: r[0].includes('Leave')?'var(--red)':'var(--text-muted)' } }, r[2])
+          ))))
+        )
+      )
+    ),
+
+    h('div', { className: 'info-box warn' },
+      h('strong', null, 'Platform lock-in risk: '), 'Shopify/Stripe owns all tokens. If Unicity leaves Shopify, customers must re-enter cards. Accepted tradeoff for pilot. Evaluate at scale.'
+    )
+  );
+}
+
+function renderOnboarding() {
+  const distFields = ['PIN Set','POS App','Reader Paired','Test Sale','CSV Verified'];
+  const mgrSteps = [
+    'Name confirmed','Email confirmed','Store role assigned','Invite sent',
+    'Invite accepted (7-day window)','POS role assigned','Location assigned',
+    'PIN set','2FA enabled','POS app installed','Reader paired',
+    'Admin dashboard tested','Return/refund tested','Staff management tested'
+  ];
+
+  return h('div', null,
+    h('div', { className: 'section-title' }, 'Distributor Onboarding Tracker'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px', overflowX:'auto' } },
+        h('table', null,
+          h('thead', null, h('tr', null,
+            h('th', null, '#'),
+            ...distFields.map(f => h('th', { style: { textAlign:'center' } }, f)),
+            h('th', null, 'Status')
+          )),
+          h('tbody', null,
+            ...(Array.from({length:10}, (_,i) => {
+              const keys = ['pin','app','reader','sale','csv'].map(k => 'dist'+i+k);
+              const done = keys.filter(k => isChecked(k)).length;
+              return h('tr', null,
+                h('td', { className: 'mono', style: { color:'var(--accent)' } }, ''+(i+1)),
+                ...keys.map(k =>
+                  h('td', { style: { textAlign:'center' } },
+                    h('div', { className: 'check-box' + (isChecked(k)?' checked':''), onClick: () => toggleCheck(k), style: { margin:'0 auto', width:'16px', height:'16px', minWidth:'16px' } })
+                  )
+                ),
+                h('td', null,
+                  h('span', { className: 'badge ' + (done===5?'badge-green':done>0?'badge-normal':'') },
+                    done===5 ? 'Ready' : done > 0 ? `${done}/5` : 'Pending'
+                  )
+                )
+              );
+            }))
+          )
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Manager Onboarding Tracker'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        ...mgrSteps.map((step, i) => h('div', { className: 'check-row' },
+          h('div', { className: 'check-box' + (isChecked('mgr'+i)?' checked':''), onClick: () => toggleCheck('mgr'+i) }),
+          h('span', { className: 'check-num' }, ''+(i+1)),
+          h('span', { className: 'check-label' + (isChecked('mgr'+i)?' done':'') }, step)
+        ))
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Staff Name â†’ Distributor ID Mapping'),
+    h('div', { className: 'info-box' },
+      'Shopify CSV exports the staff display name, not the internal staff_id GID. This lookup table maps display names to Unicity IDs for the Unity import.'
+    ),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, '#'), h('th', null, 'Shopify Staff Display Name'), h('th', null, 'Unicity Distributor ID'), h('th', { style: { textAlign:'center' } }, 'Verified'))),
+          h('tbody', null,
+            ...(Array.from({length:10}, (_,i) => h('tr', null,
+              h('td', { className: 'mono', style: { color:'var(--accent)' } }, ''+(i+1)),
+              h('td', { style: { color:'var(--text-dim)' } }, '[TBD]'),
+              h('td', { style: { color:'var(--text-dim)' } }, '[TBD]'),
+              h('td', { style: { textAlign:'center' } },
+                h('div', { className: 'check-box' + (isChecked('map'+i)?' checked':''), onClick: () => toggleCheck('map'+i), style: { margin:'0 auto', width:'16px', height:'16px', minWidth:'16px' } })
+              )
+            )))
+          )
+        )
+      )
+    )
+  );
+}
+
+function renderTesting() {
+  return h('div', null,
+    h('div', { className: 'section-title' }, 'E2E Test Scenarios'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        ...e2eTests.map(t => {
+          const done = isChecked(t.id);
+          return h('div', { style: { padding:'10px 0', borderBottom:'1px solid rgba(48,54,61,0.4)', display:'flex', gap:'12px', alignItems:'flex-start' } },
+            h('div', { className: 'check-box' + (done?' checked':''), onClick: () => toggleCheck(t.id) }),
+            h('div', { style: { flex:1 } },
+              h('div', { style: { fontWeight:'600', fontSize:'13px', color: done?'var(--text-dim)':'var(--text)', textDecoration: done?'line-through':'none' } }, t.name),
+              h('div', { style: { fontSize:'12px', color:'var(--text-muted)', marginTop:'2px' } }, t.steps),
+              h('div', { style: { fontSize:'12px', color:'var(--green)', marginTop:'2px' } }, 'Expected: ' + t.expect)
+            ),
+            h('span', { className: 'badge ' + (done?'badge-green':''), style: { marginTop:'2px' } }, done ? 'PASS' : 'Pending')
+          );
+        })
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Reconciliation Process'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Check'), h('th', null, 'Frequency'), h('th', null, 'Source A'), h('th', null, 'Source B'), h('th', null, 'Owner'))),
+          h('tbody', null, ...([
+            ['Order count by distributor','Daily','Shopify Sales by Staff','CSV export totals','Howard'],
+            ['Order totals match','Daily','Shopify Orders dashboard','CSV import â†’ Unity','Howard'],
+            ['Payment settlement','Per payout','Shopify Payouts report','Bank statement','Howard'],
+            ['Subscription renewals','Per billing cycle','Sub app dashboard','Shopify Orders','Howard'],
+            ['Failed payments','Daily','Shopify Payments','Sub app retry log','Howard'],
+            ['Unity import accuracy','Daily','CSV sent to data team','Unity DB order count','Bryan Simmons'],
+          ].map(r => h('tr', null, ...r.map(c => h('td', null, c))))))
+        )
+      )
+    )
+  );
+}
+
+function renderGoLive() {
+  const sections = [
+    { key: 'platform', title: 'Platform', icon: 'ðŸ—ï¸' },
+    { key: 'hardware', title: 'Hardware (10 Readers)', icon: 'â¬¡' },
+    { key: 'roles', title: 'Roles and Access', icon: 'ðŸ”’' },
+    { key: 'attribution', title: 'Attribution and Data', icon: 'ðŸ“Š' },
+    { key: 'csv', title: 'CSV Export and Unity Import', icon: 'ðŸ“¤' },
+    { key: 'subscriptions', title: 'Subscriptions', icon: 'â†»' },
+    { key: 'security', title: 'Security', icon: 'ðŸ›¡ï¸' },
+    { key: 'testing', title: 'Testing', icon: 'âœ“' },
+    { key: 'training', title: 'Training', icon: 'ðŸ“š' },
+    { key: 'gonogo', title: 'Go / No-Go', icon: 'ðŸš€' },
+  ];
+
+  // Compute overall
+  let totalAll = 0, checkedAll = 0;
+  sections.forEach(s => {
+    goLiveChecks[s.key].forEach((_, i) => { totalAll++; if (isChecked('gl_'+s.key+'_'+i)) checkedAll++; });
+  });
+  const pctAll = totalAll ? Math.round(checkedAll/totalAll*100) : 0;
+
+  return h('div', null,
+    h('div', { className: 'stats', style: { gridTemplateColumns: '1fr' } },
+      h('div', { style: { background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:'8px', padding:'16px', textAlign:'center' } },
+        h('div', { style: { fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'8px' } }, 'Go-Live Readiness'),
+        h('div', { style: { display:'flex', alignItems:'center', justifyContent:'center', gap:'16px' } },
+          h('div', { style: { fontSize:'36px', fontWeight:'700', color: pctAll===100?'var(--green)':pctAll>70?'var(--yellow)':'var(--accent)' } }, pctAll + '%'),
+          h('div', { style: { flex:1, maxWidth:'400px' } },
+            h('div', { style: { background:'var(--border)', borderRadius:'6px', overflow:'hidden', height:'12px' } },
+              h('div', { style: { height:'100%', borderRadius:'6px', width:pctAll+'%', background: pctAll===100?'var(--green)':pctAll>70?'var(--yellow)':'var(--accent)', transition:'width 0.3s' } })
+            )
+          ),
+          h('div', { style: { fontSize:'13px', color:'var(--text-muted)' } }, `${checkedAll} / ${totalAll} items`)
+        )
+      )
+    ),
+
+    ...sections.map(s => checklistCard(
+      s.icon + ' ' + s.title,
+      'gl_' + s.key,
+      goLiveChecks[s.key],
+      'gl_' + s.key + '_'
+    ))
+  );
+}
+
+function renderMonitoring() {
+  return h('div', null,
+    h('div', { className: 'section-title' }, 'Post-Launch Monitoring (First 2 Weeks)'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Metric'), h('th', null, 'Frequency'), h('th', null, 'Owner'), h('th', null, 'Alert Threshold'))),
+          h('tbody', null, ...([
+            ['Order count reconciliation','Daily','Howard','Any mismatch'],
+            ['Attribution accuracy','Daily','Howard','Below 99%'],
+            ['Payment failure rate','Daily','Howard','Above 3%'],
+            ['Subscription renewal success','Per cycle','Howard','Below 90%'],
+            ['Card reader connectivity','Daily','Regional Manager','> 2 incidents/day'],
+            ['CSV export timeliness','Daily','Howard','Not done by 10 AM'],
+            ['Unity import success','Daily','Bryan Simmons','Any import failures'],
+            ['Distributor feedback','Weekly','Regional Manager','Any blocking issues'],
+            ['Settlement reconciliation','Per payout','Howard','Any discrepancy'],
+          ].map(r => h('tr', null,
+            h('td', { style: { fontWeight:'500' } }, r[0]),
+            h('td', null, r[1]),
+            h('td', null, r[2]),
+            h('td', { style: { color:'var(--yellow)', fontSize:'12px' } }, r[3])
+          ))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Risks and Mitigations'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Risk'), h('th', null, 'Impact'), h('th', null, 'Likelihood'), h('th', null, 'Mitigation'))),
+          h('tbody', null, ...([
+            ['Token ownership by Shopify/Stripe','High (lock-in)','Certain','Accepted for pilot. Evaluate at scale.'],
+            ['Pricing is store-wide','Medium','Low','Policy enforcement. HQ controls pricing.'],
+            ['CSV export missed/delayed','Medium','Low','Backup person + daily calendar reminder'],
+            ['Staff name mismatch in mapping','Low','Low','Validate mapping during onboarding'],
+            ['Manual CSV doesn\'t scale beyond ~50','Medium','N/A for pilot','Automation path defined'],
+            ['Subscription token migration','High (10-20% churn)','N/A','Pilot = new customers only'],
+            ['200 location cap','Low','N/A','1 loc. At scale: 200 territories, unlimited dists'],
+            ['Card reader Bluetooth','Low','Medium','iPhone Tap to Pay backup'],
+            ['Rate negotiation ceiling','Low','Certain','Fixed by Shopify/Stripe. No interchange-plus.'],
+            ['Distributor loses/breaks reader','Low','Medium','$49 replacement + Tap to Pay backup'],
+          ].map(r => h('tr', null,
+            h('td', { style: { fontWeight:'500' } }, r[0]),
+            h('td', null, h('span', { className: 'badge ' + (r[1].startsWith('High')?'badge-high':r[1].startsWith('Medium')?'badge-normal':'badge-green') }, r[1])),
+            h('td', { style: { fontSize:'12px' } }, r[2]),
+            h('td', { style: { fontSize:'12px', color:'var(--text-muted)' } }, r[3])
+          ))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Shopify Admin Quick Reference'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Action'), h('th', null, 'Navigation Path'))),
+          h('tbody', null, ...([
+            ['Create Location','Settings â†’ Locations â†’ Add location'],
+            ['Activate POS Pro','POS channel â†’ Locations â†’ Manage subscriptions'],
+            ['Create POS Roles','POS channel â†’ Staff â†’ Manage POS roles'],
+            ['Create Store Roles','Settings â†’ Users â†’ Roles â†’ Add role'],
+            ['Add Regional Manager','Settings â†’ Users â†’ Add users â†’ "Admin and POS" tab'],
+            ['Add Distributor','Settings â†’ Users â†’ Add users â†’ "Point of Sale" tab'],
+            ['Assign POS Role','POS channel â†’ Staff â†’ [click name] â†’ Role'],
+            ['Pair Card Reader','POS app â†’ Menu â†’ Settings â†’ Set up hardware â†’ Card reader'],
+            ['Configure Attribution','POS channel â†’ Settings â†’ Sales attribution'],
+            ['Export Orders CSV','Orders â†’ Export'],
+            ['View Sales by Staff','POS channel â†’ Analytics â†’ Sales by staff'],
+            ['Manage Subscriptions','Apps â†’ [Subscription app]'],
+            ['Check Payouts','Settings â†’ Payments â†’ View payouts'],
+          ].map(r => h('tr', null,
+            h('td', { style: { fontWeight:'500' } }, r[0]),
+            h('td', { className: 'mono', style: { fontSize:'12px' } }, r[1])
+          ))))
+        )
+      )
+    ),
+
+    h('div', { className: 'section-title' }, 'Related Tickets'),
+    h('div', { className: 'card' },
+      h('div', { className: 'card-body', style: { paddingTop:'16px' } },
+        h('table', null,
+          h('thead', null, h('tr', null, h('th', null, 'Ticket'), h('th', null, 'Title'), h('th', null, 'Relationship'))),
+          h('tbody', null,
+            h('tr', null, h('td', null, 'TKT-5784'), h('td', null, 'Shopify - USA - POS'), h('td', null, 'Parent initiative')),
+            h('tr', null, h('td', null, 'TKT-5656'), h('td', null, 'Shopify Payments + Shop Pay Implementation'), h('td', null, 'Payment platform')),
+            h('tr', null, h('td', null, 'TKT-5793'), h('td', null, 'Shopify POS Distributor Pilot (this epic)'), h('td', null, '17 active + 2 descoped'))
+          )
+        )
+      )
+    )
+  );
+}
+
+const panelRenderers = [
+  renderOverview, renderDataFlow, renderPermissions, renderTickets, renderSprint,
+  renderHardware, renderSubscriptions, renderOnboarding, renderTesting, renderGoLive, renderMonitoring
+];
+
+// ================================================
+// MAIN RENDER
+// ================================================
+function render() {
+  // Update global progress
+  document.getElementById('globalProgress').textContent = getGlobalProgress() + '%';
+
+  // Tabs
+  const tabBar = document.getElementById('tabBar');
+  tabBar.innerHTML = '';
+  tabs.forEach((t, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (i === state.activeTab ? ' active' : '');
+    tab.textContent = t.label;
+    tab.onclick = () => setTab(i);
+    tabBar.appendChild(tab);
+  });
+
+  // Panels
+  const main = document.getElementById('mainContent');
+  main.innerHTML = '';
+  main.appendChild(panelRenderers[state.activeTab]());
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unicity Shopify Demo - Online + Tap to Pay</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap');
+:root{
+  --navy:#2a3d5c;--navy-dark:#1a2744;--navy-light:#3d567a;
+  --gold:#c89b3c;--gold-light:#f5ecd8;
+  --teal:#3a9d8f;--teal-light:#e8f5f3;
+  --sp-purple:#5a31f4;--sp-purple-dark:#4a21e4;--sp-purple-light:#f0ecfe;
+  --gray-50:#f8f9fb;--gray-100:#f0f1f4;--gray-200:#e2e4e8;--gray-300:#ccc;
+  --gray-500:#888;--gray-700:#444;--gray-900:#111;
+  --green:#34c759;--red:#ff3b30;
+  --radius:12px;
+  --pos-green:#00c853;--pos-blue:#2962ff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(145deg,#1e2028 0%,#252530 50%,#1e2028 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:var(--gray-900)}
+
+/* === MODE TOGGLE === */
+.mode-toggle{display:flex;background:#2a2c38;border-radius:12px;padding:4px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.25);border:1px solid #3a3c48;gap:3px}
+.mode-btn{padding:10px 24px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.3s;border:none;font-family:inherit;background:transparent;color:#8a8c98;display:flex;align-items:center;gap:6px}
+.mode-btn.active-online{background:var(--navy);color:#fff;box-shadow:0 2px 8px rgba(42,61,92,0.3)}
+.mode-btn.active-pos{background:#111;color:var(--pos-green);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.mode-btn .mode-ic{font-size:15px}
+
+/* === DEMO CONTROLS === */
+.demo-header{text-align:center;margin-bottom:12px}
+.demo-header h1{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:#c0c4d0;letter-spacing:3px;text-transform:uppercase}
+.demo-header p{font-size:11px;color:#7a7e8c;margin-top:3px}
+.demo-header.pos-mode h1{color:#c0c4d0}
+.demo-header.pos-mode p{color:#7a7e8c}
+.online-controls{transition:all 0.3s}
+.online-controls.hidden{display:none}
+.customer-toggle{display:flex;background:#2a2c38;border-radius:10px;padding:3px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.2);border:1px solid #3a3c48}
+.ct-btn{padding:8px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.25s;border:none;font-family:inherit;background:transparent;color:#8a8c98}
+.ct-btn.active{background:var(--navy);color:#fff;box-shadow:0 2px 8px rgba(42,61,92,0.3)}
+.path-indicator{display:flex;gap:6px;margin-bottom:8px}
+.path-badge{padding:4px 12px;border-radius:14px;font-size:10px;font-weight:600;background:#2a2c38;border:1px solid #3a3c48;color:#8a8c98;transition:all 0.3s;cursor:default}
+.path-badge.a-ap{background:#000;border-color:#000;color:#fff}
+.path-badge.a-sp{background:var(--sp-purple);border-color:var(--sp-purple);color:#fff}
+.path-badge.a-std{background:var(--navy);border-color:var(--navy);color:#fff}
+.screen-indicator{display:flex;gap:6px;margin-bottom:12px}
+.sdot{width:28px;height:3px;border-radius:2px;background:#3a3c48;transition:all 0.4s;cursor:pointer}
+.sdot.active{background:var(--navy);width:44px}
+.sdot.pos-dot.active{background:var(--pos-green)}
+
+/* POS controls */
+.pos-controls{display:none;margin-bottom:10px}
+.pos-controls.show{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pos-info{display:flex;gap:8px;align-items:center}
+.pos-badge{padding:5px 14px;border-radius:8px;font-size:11px;font-weight:600;background:#111;color:var(--pos-green);border:1px solid #333}
+.pos-staff{padding:5px 14px;border-radius:8px;font-size:11px;font-weight:600;background:#2a2c38;color:#c0c2ce;border:1px solid #3a3c48}
+
+/* === PHONE === */
+.phone{width:375px;height:812px;background:#1a1a1a;border-radius:52px;padding:10px;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 20px 60px rgba(0,0,0,0.4),0 0 0 8px #3a3c48;transition:box-shadow 0.4s}
+.phone.pos-phone{box-shadow:0 0 0 1px rgba(0,0,0,0.1),0 20px 60px rgba(0,0,0,0.25),0 0 0 8px #333}
+.phone::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:120px;height:32px;background:#1a1a1a;border-radius:0 0 18px 18px;z-index:100}
+.screen{width:100%;height:100%;background:#fff;border-radius:44px;overflow:hidden;position:relative}
+.statusbar{height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 6px;font-size:14px;font-weight:600;color:#000;position:absolute;top:0;left:0;right:0;z-index:50}
+.statusbar.light{color:#fff}
+.screens{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;border-radius:44px}
+.view{position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.32,0.72,0,1),opacity 0.45s ease;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.view.active{transform:translateX(0);opacity:1}
+.view::-webkit-scrollbar{display:none}
+
+/* === NAV / STORE BARS === */
+.nav-hdr{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-top:52px;position:relative;z-index:10}
+.nav-hdr .back{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;transition:background 0.2s}
+.nav-hdr .back:hover{background:rgba(0,0,0,0.05)}
+.nav-hdr .htitle{font-size:17px;font-weight:600;color:var(--navy-dark);position:absolute;left:50%;transform:translateX(-50%)}
+.cart-ic{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.cart-bdg{position:absolute;top:2px;right:2px;width:16px;height:16px;background:var(--navy);color:#fff;font-size:9px;font-weight:700;border-radius:50%;display:none;align-items:center;justify-content:center}
+.cart-bdg.show{display:flex}
+.chevron{width:22px;height:22px}
+.store-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;margin-top:52px;border-bottom:1px solid var(--gray-100)}
+.store-logo{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:800;color:var(--navy-dark);letter-spacing:2.5px}
+.store-tagline{font-size:10px;color:var(--gray-500);font-weight:500;letter-spacing:0.5px}
+
+/* === ONLINE: SCREEN 1 CATALOG === */
+.cat-search{margin:8px 16px 12px;padding:10px 14px;background:var(--gray-50);border-radius:10px;font-size:13px;color:var(--gray-300);display:flex;align-items:center;gap:8px;border:1px solid var(--gray-100)}
+.cat-tabs{display:flex;gap:6px;padding:0 16px;margin-bottom:14px;overflow-x:auto}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{padding:7px 14px;border-radius:18px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 0.2s;background:var(--gray-50);color:var(--gray-500);border:1px solid var(--gray-100);font-family:inherit}
+.cat-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 100px}
+.prod-card{background:#fff;border-radius:var(--radius);overflow:hidden;cursor:pointer;border:1px solid var(--gray-100);transition:all 0.25s}
+.prod-card:hover{border-color:var(--gray-200);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.prod-card:active{transform:scale(0.97)}
+.prod-img{height:130px;display:flex;align-items:center;justify-content:center;position:relative}
+.prod-emoji{font-size:44px}
+.prod-info{padding:10px 12px 14px}
+.prod-info .pname{font-size:13px;font-weight:600;color:var(--navy-dark)}
+.prod-info .prating{font-size:11px;color:var(--gray-500);margin-top:2px}
+.prod-info .prating span{color:var(--gold)}
+.prod-info .pprice{font-size:14px;font-weight:700;color:var(--navy);margin-top:4px}
+
+/* SCREEN 2: PRODUCT DETAIL */
+.pd-hero{height:280px;display:flex;align-items:center;justify-content:center;margin-top:52px}
+.pd-hero .pv{font-size:110px;filter:drop-shadow(0 8px 20px rgba(42,61,92,0.1))}
+.pd-body{padding:0 20px 120px}
+.pd-row{display:flex;justify-content:space-between;align-items:flex-start;margin-top:16px}
+.pd-name{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:var(--navy-dark)}
+.pd-price{font-size:20px;font-weight:700;color:var(--navy)}
+.pd-rating{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--gray-500)}
+.pd-rating .stars{color:var(--gold)}
+.pd-desc{font-size:13px;color:var(--gray-700);line-height:1.6;margin-top:12px}
+.pd-qty{display:flex;align-items:center;gap:0;margin-top:18px}
+.pd-qty label{font-size:13px;font-weight:600;color:var(--navy-dark);margin-right:14px}
+.qbtn{width:34px;height:34px;border:1.5px solid var(--gray-200);background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--navy);cursor:pointer;font-family:inherit}
+.qbtn:first-of-type{border-radius:8px 0 0 8px}
+.qbtn:last-of-type{border-radius:0 8px 8px 0}
+.qval{width:40px;height:34px;border-top:1.5px solid var(--gray-200);border-bottom:1.5px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--navy-dark)}
+.pd-bens{margin-top:20px}
+.pd-bens h3{font-size:14px;font-weight:600;color:var(--navy-dark);margin-bottom:8px}
+.ben{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:12px;color:var(--gray-700);line-height:1.5}
+.ben .ck{color:var(--teal);font-weight:700;flex-shrink:0}
+.pd-bottom{position:absolute;bottom:0;left:0;right:0;padding:12px 20px 34px;background:linear-gradient(transparent,#fff 20%);z-index:20}
+.btn-atc{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--navy);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.25s;font-family:inherit}
+.btn-atc:hover{background:var(--navy-dark)}
+.btn-atc:active{transform:scale(0.98)}
+
+/* SCREEN 3: CART */
+.cart-bd{padding:0 20px 120px;margin-top:8px}
+.cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--gray-100)}
+.ci-img{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.ci-info{flex:1}
+.ci-info .ci-n{font-size:14px;font-weight:600;color:var(--navy-dark)}
+.ci-info .ci-v{font-size:11px;color:var(--gray-500);margin-top:2px}
+.ci-qty{display:flex;align-items:center;gap:0;margin-top:6px}
+.ci-qty button{width:26px;height:26px;border:1px solid var(--gray-200);background:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.ci-qty button:first-child{border-radius:6px 0 0 6px}
+.ci-qty button:last-child{border-radius:0 6px 6px 0}
+.ci-qty .cqv{width:30px;height:26px;border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.ci-price{font-size:15px;font-weight:700;color:var(--navy-dark);align-self:flex-start}
+
+.po-section{margin-top:18px}
+.po-section h3{font-size:14px;font-weight:600;color:var(--navy-dark);margin-bottom:10px}
+.po-opt{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:2px solid var(--gray-200);border-radius:var(--radius);margin-bottom:6px;cursor:pointer;transition:all 0.2s}
+.po-opt.sel{border-color:var(--navy);background:rgba(42,61,92,0.03)}
+.po-opt .po-l{display:flex;align-items:center;gap:10px}
+.po-rad{width:18px;height:18px;border-radius:50%;border:2px solid var(--gray-300);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.po-opt.sel .po-rad{border-color:var(--navy)}
+.po-opt.sel .po-rad::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--navy)}
+.po-lbl{font-size:13px;font-weight:500;color:var(--gray-900)}
+.po-sub{font-size:10px;color:var(--gray-500);margin-top:1px}
+.po-pr{font-size:15px;font-weight:700;color:var(--navy-dark);white-space:nowrap}
+.po-save{display:inline-block;background:var(--teal-light);color:var(--teal);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px}
+.sub-det{max-height:0;overflow:hidden;transition:max-height 0.4s ease;margin-top:-8px;margin-bottom:6px}
+.sub-det.open{max-height:180px}
+.sub-det-in{padding:12px 14px;background:var(--gray-50);border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--gray-100);border-top:0}
+.sub-freq{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sub-freq label{font-size:12px;color:var(--gray-700)}
+.sub-freq select{padding:5px 8px;border:1px solid var(--gray-200);border-radius:6px;font-size:12px;font-family:inherit;background:#fff}
+.sub-perks{list-style:none;padding:0}
+.sub-perks li{font-size:11px;color:var(--gray-700);padding:2px 0;display:flex;align-items:center;gap:5px}
+.sub-perks li .spk{color:var(--teal);font-weight:700;font-size:12px}
+
+.os-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-100)}
+.os-section h3{font-size:14px;font-weight:600;color:var(--navy-dark);margin-bottom:10px}
+.osr{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;color:var(--gray-700)}
+.osr.tot{font-weight:700;color:var(--navy-dark);font-size:15px;margin-top:6px;padding-top:8px;border-top:1px solid var(--gray-100)}
+.osr .disc{color:var(--teal);font-weight:500}
+
+.cart-btns{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.express-checkout{padding:16px 0 8px;border-bottom:1px solid var(--gray-200);margin-bottom:12px}
+.express-label{font-size:11px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;text-align:center;margin-bottom:10px}
+.express-btns{display:flex;gap:8px}
+.or-div{display:flex;align-items:center;gap:10px;padding:2px 0}
+.or-div span{font-size:11px;color:var(--gray-300);white-space:nowrap}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.btn-ap{width:100%;padding:14px;border:none;border-radius:var(--radius);background:#000;color:#fff;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.2s}
+.btn-sp{width:100%;padding:14px;border:none;border-radius:var(--radius);background:var(--sp-purple);color:#fff;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.2s}
+.btn-sp .spl{display:inline-block;background:#fff;color:var(--sp-purple);padding:2px 7px;border-radius:4px;font-weight:700;font-size:12px}
+.btn-co{width:100%;padding:14px;border:2px solid var(--navy);border-radius:var(--radius);background:#fff;color:var(--navy);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+
+/* APPLE PAY OVERLAY */
+.ap-overlay{position:absolute;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;border-radius:44px}
+.ap-overlay.show{display:flex}
+.ap-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 40px;animation:slideUp 0.4s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ap-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ap-hdr h3{font-size:16px;font-weight:700;color:var(--gray-900)}
+.ap-cls{width:28px;height:28px;background:var(--gray-100);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--gray-500);border:none;font-family:inherit}
+.ap-amt{text-align:center;margin-bottom:16px}
+.ap-amt .ap-store{font-size:12px;color:var(--gray-500)}
+.ap-amt .ap-tot{font-size:30px;font-weight:700;color:var(--gray-900);margin-top:4px}
+.ap-card{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--gray-50);border-radius:10px;margin-bottom:14px}
+.ap-card-ic{width:38px;height:26px;background:#1a1f71;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700}
+.ap-card-dt{font-size:12px;color:var(--gray-700)}
+.ap-card-dt strong{color:var(--gray-900)}
+.ap-fid{text-align:center;padding:16px;margin-bottom:10px}
+.ap-fid-ic{width:56px;height:56px;margin:0 auto 10px;border:3px solid var(--green);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(0.95)}}
+.ap-fid-t{font-size:13px;color:var(--gray-900);font-weight:600}
+.ap-fid-s{font-size:11px;color:var(--gray-500);margin-top:3px}
+.btn-ap-conf{width:100%;padding:15px;border:none;border-radius:var(--radius);background:#000;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.ap-new-note{margin:0 0 14px;padding:10px 12px;background:#fff8e0;border:1px solid #ffe58f;border-radius:8px;font-size:11px;color:#8a6d3b;line-height:1.4;display:none}
+.ap-new-note.show{display:block}
+.ap-new-note strong{color:#6b4e1e;display:block;margin-bottom:2px;font-size:12px}
+
+/* SHOP PAY SCREENS */
+.sp-banner{background:var(--sp-purple);padding:52px 0 18px;text-align:center}
+.sp-banner .nav-hdr{margin-top:0;position:relative}
+.sp-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);padding:7px 16px;border-radius:24px;color:#fff;font-size:14px;font-weight:600}
+.sp-pill .splw{background:#fff;color:var(--sp-purple);padding:2px 7px;border-radius:4px;font-weight:700;font-size:11px}
+.sp-body{padding:36px 24px;text-align:center}
+.sp-body h2{font-size:20px;font-weight:700;color:var(--gray-900)}
+.sp-body p{font-size:13px;color:var(--gray-500);margin-top:6px;line-height:1.5}
+.sp-input{width:100%;padding:13px 14px;border:1.5px solid var(--gray-200);border-radius:10px;font-size:14px;margin-top:20px;font-family:inherit;color:var(--gray-900);transition:border-color 0.2s;outline:none}
+.sp-input:focus{border-color:var(--sp-purple)}
+.sp-new-notice{margin-top:16px;padding:12px;background:#fff8e0;border:1px solid #ffe58f;border-radius:10px;font-size:12px;color:#8a6d3b;line-height:1.5;display:none}
+.sp-new-notice.show{display:block}
+.sp-new-notice strong{color:#6b4e1e}
+.sp-phone-row{margin-top:8px;display:none}
+.sp-phone-row.show{display:block}
+.btn-sp-cont{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--sp-purple);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit;transition:all 0.2s}
+
+/* VERIFY */
+.verify-bd{padding:36px 24px;text-align:center}
+.verify-bd h2{font-size:20px;font-weight:700;color:var(--gray-900)}
+.verify-bd p{font-size:13px;color:var(--gray-500);margin-top:6px}
+.verify-bd p strong{color:var(--gray-900)}
+.code-row{display:flex;gap:7px;justify-content:center;margin-top:24px}
+.code-box{width:42px;height:50px;border:2px solid var(--gray-200);border-radius:10px;font-size:20px;font-weight:700;text-align:center;color:var(--gray-900);font-family:inherit;display:flex;align-items:center;justify-content:center;background:#fff;transition:border-color 0.2s}
+.code-box.filled{border-color:var(--sp-purple)}
+.btn-verify{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--sp-purple);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:20px;font-family:inherit}
+.resend{color:var(--sp-purple);font-size:12px;margin-top:14px;cursor:pointer;display:inline-block;font-weight:500}
+.alt-method{color:var(--sp-purple);font-size:12px;margin-top:10px;cursor:pointer;display:none;font-weight:500;padding:8px 16px;border:1.5px solid var(--sp-purple);border-radius:8px;transition:all 0.2s}
+.alt-method.show{display:inline-block}
+.alt-method:active{background:var(--sp-purple-light)}
+.sp-email-wrap{position:relative}
+.sp-email-wrap .passkey-hint{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;background:var(--sp-purple);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s}
+.sp-email-wrap .passkey-hint svg{width:16px;height:16px;fill:#fff}
+.sp-email-wrap .passkey-hint:active{transform:translateY(-50%) scale(0.93)}
+.verify-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px}
+.verify-icon.sms{background:#e8f5e9;color:#2e7d32}
+.verify-icon.email{background:var(--sp-purple-light);color:var(--sp-purple)}
+.phone-mask{font-family:'SF Mono',monospace;letter-spacing:0.5px}
+
+/* SCREEN 6: SP EXPRESS */
+.exp-top{background:linear-gradient(135deg,var(--sp-purple) 0%,#7c52ff 100%);padding:52px 20px 16px}
+.exp-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);padding:9px 16px;border-radius:10px;width:100%}
+.exp-bolt{font-size:18px}
+.exp-badge .ebt{color:#fff;font-size:14px;font-weight:600}
+.exp-badge .ebs{color:rgba(255,255,255,0.7);font-size:11px}
+.si-section{padding:14px 20px 0}
+.si-hdr{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--navy-dark)}
+.si-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-100)}
+.si-row:last-child{border-bottom:none}
+.si-lbl{font-size:11px;color:var(--gray-500);margin-bottom:1px}
+.si-val{font-size:13px;color:var(--gray-900);font-weight:500}
+.si-chg{color:var(--sp-purple);font-size:12px;font-weight:600;cursor:pointer}
+.si-default{display:flex;align-items:center;gap:6px;padding:6px 0 0;font-size:11px;color:var(--gray-500)}
+.si-default input[type=checkbox]{accent-color:var(--sp-purple);width:14px;height:14px}
+.si-default.checked label{color:var(--sp-purple);font-weight:500}
+.sp-saved-card{margin:0 20px;padding:12px 14px;background:var(--sp-purple-light);border:2px solid var(--sp-purple);border-radius:var(--radius);display:flex;align-items:center;gap:10px}
+.spc-ic{width:42px;height:28px;background:#1a1f71;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+.spc-info{flex:1}
+.spc-info .spc-n{font-size:13px;font-weight:600;color:var(--navy-dark)}
+.spc-info .spc-d{font-size:11px;color:var(--gray-500);margin-top:1px}
+.spc-chk{width:20px;height:20px;background:var(--sp-purple);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+.divider{height:1px;background:var(--gray-100);margin:10px 20px}
+
+/* New customer SP form */
+.new-sp-form{padding:0 20px 10px}
+.form-section{margin-bottom:14px}
+.form-section h3{font-size:13px;font-weight:600;color:var(--navy-dark);margin-bottom:8px}
+.f-field{margin-bottom:8px}
+.f-field:last-child{margin-bottom:0}
+.f-field label{font-size:10px;font-weight:600;color:var(--gray-500);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px}
+.f-input{width:100%;padding:10px 11px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:13px;font-family:inherit;color:var(--gray-900);outline:none;transition:border-color 0.2s;background:#fff}
+.f-input:focus{border-color:var(--sp-purple)}
+.f-input::placeholder{color:var(--gray-300)}
+.f-row{display:flex;gap:8px}
+.f-row .f-field{flex:1}
+.sp-save-row{margin:0 20px 8px;display:none;align-items:center;gap:8px;padding:10px 14px;background:var(--sp-purple-light);border-radius:8px;font-size:12px;color:var(--navy-dark)}
+.sp-save-row.show{display:flex}
+.sp-save-row input[type=checkbox]{accent-color:var(--sp-purple);width:16px;height:16px}
+
+.eo-section{padding:0 20px 6px}
+.eo-section h3{font-size:13px;font-weight:600;color:var(--navy-dark);margin-bottom:8px}
+.eo-item{display:flex;gap:10px;padding:8px 0;align-items:center}
+.eo-img{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.eo-info{flex:1}
+.eo-info .eo-n{font-size:12px;font-weight:500;color:var(--navy-dark)}
+.eo-info .eo-v{font-size:10px;color:var(--sp-purple);margin-top:1px}
+.eo-pr{font-size:12px;font-weight:600;color:var(--navy-dark)}
+.sub-badge{margin:4px 20px 6px;padding:8px 12px;background:var(--teal-light);border:1px solid #c8e6e0;border-radius:8px;display:none;align-items:center}
+.sub-badge.show{display:flex}
+.sub-badge .sb-ic{width:24px;height:24px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;margin-right:8px}
+.sub-badge .sb-t{font-size:10px;color:var(--teal);line-height:1.4}
+.sub-badge .sb-t strong{color:#1a6e5a}
+.ex-totals{padding:0 20px}
+.ex-totals .osr{font-size:12px}
+.ex-totals .osr.tot{font-size:14px}
+.btn-complete{margin:12px 20px 4px;width:calc(100% - 40px);padding:14px;border:none;border-radius:var(--radius);background:var(--sp-purple);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.sp-terms{text-align:center;font-size:10px;color:var(--gray-500);padding:4px 20px 26px;line-height:1.4}
+
+/* SCREEN 7: STANDARD CHECKOUT */
+.std-bd{padding:0 20px 120px;margin-top:8px}
+.std-sec{margin-bottom:16px}
+.std-sec h3{font-size:14px;font-weight:600;color:var(--navy-dark);margin-bottom:10px}
+.std-ship{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:8px;margin-bottom:4px}
+.std-ship .sl{font-size:11px;color:var(--gray-500)}
+.std-ship .sv{font-size:12px;color:var(--gray-900);font-weight:500}
+.std-ship-edit{color:var(--navy);font-size:11px;font-weight:600;cursor:pointer}
+.std-returning.hide{display:none}
+.std-form-fields{display:none}
+.std-form-fields.show{display:block}
+.create-acct{display:none;margin:10px 0;padding:10px 12px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-100)}
+.create-acct.show{display:flex;align-items:center;gap:8px}
+.create-acct input[type=checkbox]{accent-color:var(--navy);width:15px;height:15px}
+.create-acct label{font-size:12px;color:var(--gray-700)}
+.pay-methods{display:flex;flex-direction:column;gap:5px}
+.pm{display:flex;align-items:center;gap:10px;padding:11px 12px;border:2px solid var(--gray-200);border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
+.pm.sel{border-color:var(--navy);background:rgba(42,61,92,0.02)}
+.pm-rad{width:16px;height:16px;border-radius:50%;border:2px solid var(--gray-300);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.pm.sel .pm-rad{border-color:var(--navy)}
+.pm.sel .pm-rad::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--navy)}
+.pm-ic{width:38px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.pm-ic.card{background:var(--gray-100);color:var(--gray-500);font-size:15px}
+.pm-ic.apple{background:#000;color:#fff;font-size:12px}
+.pm-ic.paypal{background:#003087;color:#fff;font-size:8px;letter-spacing:0.3px}
+.pm-info{flex:1}
+.pm-info .pm-n{font-size:12px;font-weight:600;color:var(--navy-dark)}
+.pm-info .pm-d{font-size:10px;color:var(--gray-500);margin-top:1px}
+.cc-form{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.cc-form.open{max-height:360px;margin-top:5px}
+.cc-form-in{padding:14px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200)}
+.std-ap-conf{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.std-ap-conf.open{max-height:100px;margin-top:5px}
+.std-ap-conf-in{padding:12px;background:var(--gray-50);border-radius:var(--radius);border:1px solid var(--gray-200);display:flex;align-items:center;gap:10px}
+.std-pp-conf{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.std-pp-conf.open{max-height:100px;margin-top:5px}
+.std-pp-conf-in{padding:12px;background:#fff8e0;border-radius:var(--radius);border:1px solid #ffe58f;display:flex;align-items:center;gap:10px}
+.pp-ic-lg{width:36px;height:36px;background:#003087;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+.conf-msg{font-size:11px;color:var(--gray-700);line-height:1.4}
+.conf-msg strong{color:var(--gray-900);display:block;margin-bottom:1px;font-size:12px}
+
+.std-os{margin-top:16px;padding-top:14px;border-top:1px solid var(--gray-100)}
+.std-os h3{font-size:14px;font-weight:600;color:var(--navy-dark);margin-bottom:10px}
+.std-eo{display:flex;gap:10px;padding:8px 0;align-items:center}
+.std-eo-img{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.btn-std{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--navy);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-std.apple-mode{background:#000}
+.btn-std.paypal-mode{background:#ffc439;color:#003087}
+
+/* SCREEN 8: CONFIRMATION */
+.confirm-view{background:#fff;text-align:center}
+.conf-check{width:72px;height:72px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:76px auto 0;animation:scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes scaleIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.conf-body{padding:16px 24px}
+.conf-body h2{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:var(--navy-dark);margin-top:6px}
+.conf-body .conf-sub{font-size:13px;color:var(--gray-500);margin-top:4px}
+.conf-details{background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-top:20px;text-align:left}
+.cdr{display:flex;justify-content:space-between;padding:7px 0;font-size:12px;border-bottom:1px solid var(--gray-200)}
+.cdr:last-child{border-bottom:none}
+.cdr .cdl{color:var(--gray-500)}
+.cdr .cdv{color:var(--navy-dark);font-weight:500;text-align:right}
+.conf-pay{margin-top:10px;padding:9px 12px;background:var(--sp-purple-light);border-radius:8px;display:flex;align-items:center;gap:8px;text-align:left}
+.cpb-ic{width:34px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.cpb-ic.visa{background:#1a1f71;color:#fff}
+.cpb-ic.apple{background:#000;color:#fff;font-size:11px}
+.cpb-ic.paypal{background:#003087;color:#fff;font-size:7px}
+.cpb-t{font-size:11px;color:var(--gray-700)}
+.cpb-t strong{color:var(--navy-dark)}
+.conf-path{margin-top:6px;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:600;display:inline-block}
+.conf-path.p-sp{background:var(--sp-purple-light);color:var(--sp-purple)}
+.conf-path.p-ap{background:var(--gray-100);color:var(--gray-900)}
+.conf-path.p-std{background:rgba(42,61,92,0.06);color:var(--navy)}
+.conf-path.p-pos{background:#e8f5e9;color:#2e7d32}
+.conf-new{margin-top:6px;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:600;display:none;background:#fff8e0;color:#8a6d3b}
+.conf-new.show{display:inline-block}
+.conf-sub-badge{margin-top:10px;padding:12px;background:var(--teal-light);border:1px solid #c8e6e0;border-radius:var(--radius);text-align:left;display:none}
+.conf-sub-badge.show{display:block}
+.conf-sub-badge .csb-t{font-size:12px;font-weight:600;color:var(--teal)}
+.conf-sub-badge .csb-d{font-size:11px;color:var(--gray-700);margin-top:3px}
+.conf-acct-note{margin-top:10px;padding:12px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius);text-align:left;display:none;font-size:11px;color:var(--gray-700);line-height:1.5}
+.conf-acct-note.show{display:block}
+.conf-acct-note strong{color:var(--navy-dark);display:block;margin-bottom:3px;font-size:12px}
+.conf-metafields{margin-top:14px;padding:14px;background:#f0f8ff;border:1px solid #b3d9ff;border-radius:var(--radius);text-align:left;display:none}
+.cmf-title{font-size:12px;font-weight:700;color:#1a5276;margin-bottom:2px}
+.cmf-desc{font-size:10px;color:#5d7a8c;margin-bottom:10px}
+.cmf-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #daeaf5;font-size:11px}
+.cmf-row:last-of-type{border-bottom:none}
+.cmf-l{color:#5d7a8c;font-weight:500}
+.cmf-v{color:#1a5276;font-weight:600;font-family:'SF Mono',monospace;font-size:10px}
+.cmf-flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:12px 0 8px;padding:10px;background:#e8f4fd;border-radius:8px}
+.cmf-step{font-size:10px;font-weight:600;color:#1a5276;padding:4px 8px;background:#fff;border-radius:6px;border:1px solid #b3d9ff}
+.cmf-arrow{color:#5d7a8c;font-size:14px}
+.cmf-note{font-size:9px;color:#7a8e9c;line-height:1.4;font-style:italic}
+.btn-vo{width:100%;padding:14px;border:2px solid var(--navy);border-radius:var(--radius);background:#fff;color:var(--navy);font-size:14px;font-weight:600;cursor:pointer;margin-top:16px;font-family:inherit}
+.btn-cs{width:100%;padding:14px;border:none;border-radius:var(--radius);background:transparent;color:var(--gray-500);font-size:13px;font-weight:500;cursor:pointer;margin-top:6px;font-family:inherit}
+
+/* ==============================
+   POS / TAP TO PAY SCREENS
+   ============================== */
+
+/* POS dark theme base */
+.pos-view{background:#0d1117;color:#e6edf3}
+
+/* P1: PIN Login */
+.pos-login{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 30px;text-align:center}
+.pos-logo{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:3px;margin-bottom:4px}
+.pos-logo-sub{font-size:11px;color:#666;letter-spacing:1px;margin-bottom:40px}
+.pos-app-label{font-size:12px;color:var(--pos-green);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+.pin-display{display:flex;gap:12px;margin-bottom:24px}
+.pin-dot{width:44px;height:52px;background:#161b22;border:2px solid #30363d;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--pos-green);transition:all 0.2s}
+.pin-dot.filled{border-color:var(--pos-green);background:#0d2818}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:240px;margin-bottom:16px}
+.pin-key{width:72px;height:52px;background:#161b22;border:1px solid #30363d;border-radius:10px;font-size:20px;font-weight:600;color:#e6edf3;cursor:pointer;font-family:inherit;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
+.pin-key:hover{background:#1c2129;border-color:#444}
+.pin-key:active{transform:scale(0.93);background:var(--pos-green);color:#000}
+.pin-key.clear{font-size:12px;color:#f85149}
+.pin-key.enter{background:var(--pos-green);color:#000;font-size:13px;font-weight:700;border-color:var(--pos-green)}
+.pin-key.enter:hover{background:#00e676}
+.pin-staff{font-size:12px;color:#484f58;margin-top:8px}
+
+/* P2: POS Catalog */
+.pos-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;margin-top:52px;background:#161b22;border-bottom:1px solid #30363d}
+.pos-header .ph-logo{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:#fff;letter-spacing:2px}
+.pos-header .ph-staff{font-size:10px;color:var(--pos-green);font-weight:600;background:#0d2818;padding:4px 10px;border-radius:6px;border:1px solid #1a4028}
+.pos-cart-count{min-width:20px;height:20px;background:var(--pos-green);color:#000;font-size:10px;font-weight:700;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.pos-search{margin:10px 16px;padding:10px 14px;background:#161b22;border-radius:10px;font-size:13px;color:#484f58;display:flex;align-items:center;gap:8px;border:1px solid #30363d}
+.pos-prod-list{padding:0 16px 120px}
+.pos-prod-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #21262d;cursor:pointer;transition:background 0.15s}
+.pos-prod-row:active{background:rgba(0,200,83,0.05)}
+.pos-prod-ic{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.pos-prod-info{flex:1}
+.pos-prod-info .ppn{font-size:14px;font-weight:600;color:#e6edf3}
+.pos-prod-info .ppd{font-size:11px;color:#484f58;margin-top:2px}
+.pos-prod-price{font-size:15px;font-weight:700;color:var(--pos-green)}
+.pos-prod-add{width:36px;height:36px;background:#0d2818;border:1px solid #1a4028;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--pos-green);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.pos-prod-add:hover{background:#1a4028}
+.pos-prod-add:active{transform:scale(0.9);background:var(--pos-green);color:#000}
+.pos-bottom{position:absolute;bottom:0;left:0;right:0;padding:0 16px 34px;background:linear-gradient(transparent,#0d1117 30%);z-index:20}
+.btn-pos-checkout{width:100%;padding:16px;border:none;border-radius:var(--radius);background:var(--pos-green);color:#000;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+.btn-pos-checkout:hover{background:#00e676}
+.btn-pos-checkout:active{transform:scale(0.98)}
+
+/* P3: POS Cart */
+.pos-cart-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;margin-top:52px;background:#161b22;border-bottom:1px solid #30363d}
+.pos-cart-body{padding:16px;padding-bottom:200px}
+.pos-ci{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #21262d}
+.pos-ci-ic{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pos-ci-info{flex:1}
+.pos-ci-info .pcn{font-size:13px;font-weight:600;color:#e6edf3}
+.pos-ci-info .pcq{font-size:11px;color:#484f58}
+.pos-ci-price{font-size:14px;font-weight:700;color:var(--pos-green)}
+.pos-totals{margin-top:16px;padding-top:12px;border-top:1px solid #30363d}
+.pos-tr{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:#8b949e}
+.pos-tr.total{font-size:20px;font-weight:700;color:#fff;padding:10px 0;margin-top:4px;border-top:1px solid #30363d}
+.pos-cart-bottom{position:absolute;bottom:0;left:0;right:0;padding:16px 16px 34px;background:linear-gradient(transparent,#0d1117 20%);z-index:20}
+.btn-collect{width:100%;padding:18px;border:none;border-radius:var(--radius);background:var(--pos-green);color:#000;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+.btn-collect:hover{background:#00e676}
+
+/* P4: TAP TO PAY */
+.tap-view{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:30px;text-align:center;cursor:pointer;user-select:none}
+.tap-amount{font-size:42px;font-weight:800;color:#fff;margin-bottom:8px;font-family:'Montserrat',sans-serif}
+.tap-label{font-size:13px;color:#8b949e;margin-bottom:36px}
+
+/* P3b: Payment Selection */
+.ps-grid{padding:16px 20px 100px}
+.ps-title{font-size:13px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding:0 4px}
+.ps-method{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#161b22;border:1.5px solid #30363d;border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all 0.15s}
+.ps-method:active{transform:scale(0.98);border-color:var(--pos-green);background:#0d2818}
+.ps-method .pm-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ps-method .pm-icon.nfc{background:#0d2818;color:var(--pos-green)}
+.ps-method .pm-icon.reader{background:#1a1f36;color:#818cf8}
+.ps-method .pm-icon.manual{background:#1a1a2e;color:#a78bfa}
+.ps-method .pm-icon.cash{background:#1a2e1a;color:#6ee7b7}
+.ps-method .pm-icon.gift{background:#2e1a2e;color:#f0abfc}
+.ps-method .pm-icon.credit{background:#1a2e2e;color:#67e8f9}
+.ps-method .pm-icon.install{background:#1e1a2e;color:#c4b5fd}
+.ps-method .pm-icon.custom{background:#2e2a1a;color:#fcd34d}
+.ps-method .pm-info{flex:1}
+.ps-method .pm-name{font-size:14px;font-weight:600;color:#e6edf3}
+.ps-method .pm-desc{font-size:11px;color:#8b949e;margin-top:1px}
+.ps-method .pm-arrow{color:#484f58;font-size:16px}
+.ps-split{margin-top:6px;padding:12px 16px;background:transparent;border:1.5px dashed #30363d;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:#8b949e;font-size:13px;font-weight:500;transition:all 0.15s}
+.ps-split:active{border-color:var(--pos-green);color:var(--pos-green)}
+.ps-total-bar{position:absolute;bottom:0;left:0;right:0;padding:14px 20px;background:linear-gradient(transparent,#0d1117 30%);z-index:10}
+.ps-total{font-size:11px;color:#8b949e;text-align:center;margin-bottom:4px}
+.ps-total strong{color:#e6edf3;font-size:16px}
+/* Dynamic payment views inside P4 */
+.pay-screen{display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.pay-screen.active{display:flex}
+#payNfc.active{display:block}
+.pay-back{position:absolute;top:60px;left:16px;z-index:10;cursor:pointer}
+.pay-back svg{width:24px;height:24px}
+.pay-reader-icon{width:100px;height:100px;background:#161b22;border:3px solid #818cf8;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:44px;animation:readerPulse 2s ease-in-out infinite}
+@keyframes readerPulse{0%,100%{box-shadow:0 0 0 0 rgba(129,140,248,0.3)}50%{box-shadow:0 0 0 16px rgba(129,140,248,0)}}
+.pay-manual-form{width:100%;max-width:280px;text-align:left}
+.pay-manual-form .pmf-field{margin-bottom:12px}
+.pay-manual-form label{font-size:11px;color:#8b949e;display:block;margin-bottom:4px}
+.pay-manual-form input{width:100%;padding:11px 14px;background:#161b22;border:1.5px solid #30363d;border-radius:8px;font-size:14px;color:#e6edf3;font-family:inherit;outline:none;box-sizing:border-box}
+.pay-manual-form input:focus{border-color:var(--pos-green)}
+.pay-manual-form input::placeholder{color:#484f58}
+.pmf-row{display:flex;gap:10px}
+.pmf-row .pmf-field{flex:1}
+.pay-cash-display{width:100%;max-width:280px}
+.cash-due{font-size:32px;font-weight:700;color:var(--pos-green);margin-bottom:16px}
+.cash-presets{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+.cash-preset{padding:8px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.cash-preset:active,.cash-preset.sel{background:var(--pos-green);color:#000;border-color:var(--pos-green)}
+.cash-input-wrap{position:relative;margin-bottom:14px}
+.cash-input-wrap input{width:100%;padding:14px 14px 14px 28px;background:#161b22;border:2px solid #30363d;border-radius:10px;font-size:20px;font-weight:600;color:#e6edf3;font-family:inherit;outline:none;text-align:center;box-sizing:border-box}
+.cash-input-wrap input:focus{border-color:var(--pos-green)}
+.cash-dollar{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#8b949e;font-size:20px;font-weight:600}
+.cash-change{padding:12px;background:#0d2818;border:1px solid #1a4028;border-radius:8px;display:none}
+.cash-change.show{display:block}
+.cash-change-label{font-size:11px;color:#6ee7b7;text-transform:uppercase;letter-spacing:1px}
+.cash-change-amount{font-size:24px;font-weight:700;color:#6ee7b7;margin-top:4px}
+.gift-input{width:100%;max-width:280px;padding:14px;background:#161b22;border:2px solid #30363d;border-radius:10px;font-size:16px;color:#e6edf3;font-family:inherit;outline:none;text-align:center;letter-spacing:2px;box-sizing:border-box}
+.gift-input:focus{border-color:#f0abfc}
+.gift-input::placeholder{color:#484f58;letter-spacing:0}
+.credit-lookup input{width:100%;max-width:280px;padding:14px;background:#161b22;border:2px solid #30363d;border-radius:10px;font-size:14px;color:#e6edf3;font-family:inherit;outline:none;text-align:center;box-sizing:border-box}
+.credit-lookup input:focus{border-color:#67e8f9}
+.credit-lookup input::placeholder{color:#484f58}
+.credit-bal{margin-top:12px;padding:12px;background:#0d2818;border:1px solid #1a4028;border-radius:8px;display:none;max-width:280px;width:100%}
+.credit-bal.show{display:block}
+.install-qr{width:120px;height:120px;background:#fff;border-radius:12px;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:1px;padding:8px;margin:0 auto 16px;overflow:hidden}
+.install-qr i{background:#000;border-radius:1px}
+.install-qr i.w{background:#fff}
+.btn-pay-confirm{width:100%;max-width:280px;padding:14px;border:none;border-radius:10px;background:var(--pos-green);color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px;transition:all 0.15s}
+.btn-pay-confirm:active{transform:scale(0.97)}
+.btn-pay-confirm.purple{background:#818cf8}
+.btn-pay-confirm.pink{background:#f0abfc;color:#1a0020}
+.btn-pay-confirm.cyan{background:#67e8f9;color:#0a1a1a}
+.btn-pay-confirm.yellow{background:#fcd34d;color:#1a1500}
+.btn-pay-confirm.violet{background:#c4b5fd;color:#0f0a1e}
+.pay-method-label{font-size:12px;color:#8b949e;margin-top:8px}
+.pay-title{font-size:18px;font-weight:700;color:#e6edf3;margin-bottom:6px}
+.pay-sub{font-size:13px;color:#8b949e;margin-bottom:20px}
+/* NFC waves animation */
+.nfc-zone{width:180px;height:180px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:32px}
+.nfc-ring{position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid var(--pos-green);opacity:0;animation:nfcPulse 2.4s ease-out infinite}
+.nfc-ring:nth-child(2){animation-delay:0.6s}
+.nfc-ring:nth-child(3){animation-delay:1.2s}
+@keyframes nfcPulse{0%{transform:scale(0.4);opacity:0.6}100%{transform:scale(1);opacity:0}}
+.nfc-icon{width:80px;height:80px;background:#161b22;border:3px solid var(--pos-green);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:2;transition:all 0.3s}
+.nfc-icon svg{width:40px;height:40px}
+.tap-instruction{font-size:16px;font-weight:600;color:var(--pos-green);margin-bottom:6px}
+.tap-sub{font-size:12px;color:#484f58}
+.tap-hint{position:absolute;bottom:50px;font-size:11px;color:#30363d;font-weight:500}
+
+/* Tap success state */
+.tap-view.tapped .nfc-icon{background:var(--pos-green);border-color:var(--pos-green);transform:scale(1.1)}
+.tap-view.tapped .nfc-ring{animation:none;opacity:0}
+.tap-view.tapped .tap-instruction{color:#fff}
+
+/* P5: POS Processing */
+.pos-processing{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:30px}
+.pos-proc-spinner{width:48px;height:48px;border:4px solid #30363d;border-top-color:var(--pos-green);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:20px}
+.pos-proc-text{font-size:15px;font-weight:600;color:#e6edf3}
+.pos-proc-sub{font-size:12px;color:#484f58;margin-top:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* P6: POS Receipt */
+.pos-receipt{padding:0 20px 40px}
+.pos-rcpt-check{width:72px;height:72px;background:var(--pos-green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:76px auto 0;animation:scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.pos-rcpt-body{text-align:center;margin-top:16px}
+.pos-rcpt-body h2{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:#fff}
+.pos-rcpt-body .prs{font-size:13px;color:#8b949e;margin-top:4px}
+.pos-rcpt-details{background:#161b22;border-radius:var(--radius);padding:16px;margin-top:20px;text-align:left;border:1px solid #30363d}
+.prd{display:flex;justify-content:space-between;padding:7px 0;font-size:12px;border-bottom:1px solid #21262d}
+.prd:last-child{border-bottom:none}
+.prd .prl{color:#8b949e}
+.prd .prv{color:#e6edf3;font-weight:500;text-align:right}
+.pos-attrib{margin-top:12px;padding:12px;background:#0d2818;border:1px solid #1a4028;border-radius:var(--radius);text-align:left}
+.pos-attrib .pa-title{font-size:11px;font-weight:600;color:var(--pos-green);margin-bottom:6px}
+.pa-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px}
+.pa-row .pal{color:#4a7c59}
+.pa-row .pav{color:#8bcea0;font-weight:500}
+.pos-fees{margin-top:12px;padding:12px;background:#1c1917;border:1px solid #44403c;border-radius:var(--radius);text-align:left}
+.pos-fees .pf-title{font-size:11px;font-weight:600;color:#fbbf24;margin-bottom:6px}
+.pf-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px}
+.pf-row .pfl{color:#a8a29e}
+.pf-row .pfv{color:#d6d3d1;font-weight:500}
+.pf-row.net{color:#fbbf24;font-weight:600;padding-top:6px;margin-top:4px;border-top:1px solid #44403c}
+.pf-row.net .pfv{color:#fbbf24}
+.btn-pos-done{width:100%;padding:14px;border:none;border-radius:var(--radius);background:var(--pos-green);color:#000;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;font-family:inherit}
+.btn-pos-new{width:100%;padding:14px;border:none;border-radius:var(--radius);background:transparent;border:1px solid #30363d;color:#8b949e;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;font-family:inherit}
+
+/* === OVERLAYS === */
+.loading-ov{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.95);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;border-radius:44px}
+.loading-ov.show{display:flex}
+.loading-ov.dark{background:rgba(13,17,23,0.95)}
+.spinner{width:32px;height:32px;border:3px solid var(--gray-200);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite}
+.loading-ov .lt{font-size:12px;color:var(--gray-500);margin-top:10px}
+.loading-ov.dark .spinner{border-color:#30363d;border-top-color:var(--pos-green)}
+.loading-ov.dark .lt{color:#8b949e}
+
+/* BOTTOM CONTROLS */
+.nav-arrows{display:flex;gap:10px;margin-top:14px}
+.nav-arr{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:var(--gray-500)}
+.nav-arr:hover{background:var(--gray-50);color:var(--navy);border-color:var(--navy)}
+.nav-arr.disabled{opacity:0.2;pointer-events:none}
+.reset-btn{position:fixed;bottom:16px;right:16px;padding:8px 14px;background:#fff;border:1px solid var(--gray-200);border-radius:8px;color:var(--gray-500);font-size:11px;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.reset-btn:hover{background:var(--gray-50);color:var(--navy)}
+.keys-hint{position:fixed;bottom:16px;left:16px;font-size:10px;color:var(--gray-300)}
+</style>
+</head>
+<body>
+<div style="background:#161b22;border-bottom:1px solid #30363d;padding:8px 32px;display:flex;align-items:center;gap:8px;">
+<a href="index.html" style="color:#58a6ff;text-decoration:none;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">&#x2190; Back to Hub</a>
+</div>
+
+<!-- MODE TOGGLE -->
+<div class="mode-toggle">
+  <button class="mode-btn active-online" id="modeOnline" onclick="setMode('online')"><span class="mode-ic">&#128722;</span> Online Store</button>
+  <button class="mode-btn" id="modePos" onclick="setMode('pos')"><span class="mode-ic">&#128241;</span> Tap to Pay (POS)</button>
+</div>
+
+<div class="demo-header" id="demoHeader">
+  <h1 id="demoTitle">UNICITY &middot; SHOPIFY CHECKOUT</h1>
+  <p id="demoSub">Interactive demo &middot; Three checkout paths &middot; New &amp; returning customers</p>
+</div>
+
+<!-- ONLINE CONTROLS -->
+<div class="online-controls" id="onlineControls">
+  <div class="customer-toggle">
+    <button class="ct-btn active" id="ctNew" onclick="setCust('new')">New Customer</button>
+    <button class="ct-btn" id="ctReturn" onclick="setCust('returning')">Returning Customer</button>
+  </div>
+  <div class="path-indicator">
+    <div class="path-badge" id="bAp">&#63743; Apple Pay</div>
+    <div class="path-badge" id="bSp">Shop Pay</div>
+    <div class="path-badge" id="bSt">Standard</div>
+  </div>
+</div>
+
+<!-- POS CONTROLS -->
+<div class="pos-controls" id="posControls">
+  <div class="pos-info">
+    <div class="pos-badge">Shopify POS</div>
+    <div class="pos-staff" id="posStaffBadge">Not logged in</div>
+  </div>
+</div>
+
+<div class="screen-indicator" id="dots"></div>
+
+<div class="phone" id="phoneFrame"><div class="screen"><div class="screens" id="screensContainer">
+
+<!-- ===================== ONLINE VIEWS ===================== -->
+
+<!-- VIEW 1: CATALOG -->
+<div class="view active" id="v1">
+  <div class="statusbar"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="store-bar">
+    <div><div class="store-logo">UNICITY</div><div class="store-tagline">Make Life Better</div></div>
+    <div class="cart-ic" onclick="go(3)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><div class="cart-bdg" id="cb1">1</div></div>
+  </div>
+  <div class="cat-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search products...</div>
+  <div class="cat-tabs"><button class="cat-tab active">All</button><button class="cat-tab">Wellness</button><button class="cat-tab">Nutrition</button><button class="cat-tab">Energy</button></div>
+  <div class="prod-grid">
+    <div class="prod-card" onclick="go(2)"><div class="prod-img" style="background:linear-gradient(135deg,#fdf6e3,#f5ecd0)"><div class="prod-emoji">&#x1F9E9;</div></div><div class="prod-info"><div class="pname">Unimate</div><div class="prating"><span>&#9733;</span> 4.8</div><div class="pprice">$59.95</div></div></div>
+    <div class="prod-card" onclick="go(2)"><div class="prod-img" style="background:linear-gradient(135deg,#e8f0f8,#dde8f2)"><div class="prod-emoji">&#x2696;&#xFE0F;</div></div><div class="prod-info"><div class="pname">Balance</div><div class="prating"><span>&#9733;</span> 4.9</div><div class="pprice">$59.95</div></div></div>
+    <div class="prod-card"><div class="prod-img" style="background:linear-gradient(135deg,#fdf6e3,#e8f5f0)"><div class="prod-emoji">&#x1F49A;</div></div><div class="prod-info"><div class="pname">Feel Great</div><div class="prating"><span>&#9733;</span> 4.9</div><div class="pprice">$119.90</div></div></div>
+    <div class="prod-card"><div class="prod-img" style="background:linear-gradient(135deg,#f5ece0,#f0e8da)"><div class="prod-emoji">&#x1F344;</div></div><div class="prod-info"><div class="pname">Bio Reishi</div><div class="prating"><span>&#9733;</span> 4.6</div><div class="pprice">$39.95</div></div></div>
+    <div class="prod-card"><div class="prod-img" style="background:linear-gradient(135deg,#f0ece0,#e8e4d8)"><div class="prod-emoji">&#x1F33E;</div></div><div class="prod-info"><div class="pname">LiFiber</div><div class="prating"><span>&#9733;</span> 4.5</div><div class="pprice">$29.95</div></div></div>
+  </div>
+</div>
+
+<!-- VIEW 2: PRODUCT DETAIL -->
+<div class="view" id="v2">
+  <div class="statusbar"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="nav-hdr" style="position:absolute;z-index:30;left:0;right:0;background:transparent">
+    <div class="back" onclick="go(1)"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div class="htitle">Unimate</div>
+    <div class="cart-ic" onclick="go(3)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><div class="cart-bdg" id="cb2">1</div></div>
+  </div>
+  <div class="pd-hero" style="background:linear-gradient(180deg,#fdf6e3,#f5ecd0)"><div class="pv">&#x1F9E9;</div></div>
+  <div class="pd-body">
+    <div class="pd-row"><div class="pd-name">Unimate</div><div class="pd-price">$59.95</div></div>
+    <div class="pd-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> 4.8 (324 reviews)</div>
+    <div class="pd-desc">Premium yerba mate drink that supports mental clarity and healthy weight management. Sustained energy without the crash.</div>
+    <div class="pd-qty"><label>Quantity</label><button class="qbtn" onclick="chgQty(-1)">-</button><div class="qval" id="qtyD">1</div><button class="qbtn" onclick="chgQty(1)">+</button></div>
+    <div class="pd-bens"><h3>Key Benefits</h3>
+      <div class="ben"><span class="ck">&#10003;</span> Supports mental clarity and focus</div>
+      <div class="ben"><span class="ck">&#10003;</span> Promotes healthy weight management</div>
+      <div class="ben"><span class="ck">&#10003;</span> Sustained energy without jitters</div>
+      <div class="ben"><span class="ck">&#10003;</span> Premium yerba mate sourced responsibly</div>
+    </div>
+  </div>
+  <div class="pd-bottom"><button class="btn-atc" onclick="addCart()">Add to Cart</button></div>
+</div>
+
+<!-- VIEW 3: CART -->
+<div class="view" id="v3">
+  <div class="statusbar"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="store-bar"><div><div class="store-logo">UNICITY</div></div><div class="htitle" style="font-size:16px;font-weight:600;color:var(--navy-dark)">Cart</div><div style="width:36px"></div></div>
+  <div class="cart-bd">
+    <!-- Express Checkout -->
+    <div class="express-checkout">
+      <div class="express-label">Express checkout</div>
+      <div class="express-btns">
+        <button class="btn-ap" onclick="startAP()" style="flex:1">&#63743; Pay</button>
+        <button class="btn-sp" onclick="startSP()" style="flex:1"><span class="spl">Shop Pay</span></button>
+      </div>
+      <div class="or-div"><span>OR</span></div>
+    </div>
+    <div class="cart-item">
+      <div class="ci-img" style="background:linear-gradient(135deg,#fdf6e3,#f5ecd0)">&#x1F9E9;</div>
+      <div class="ci-info"><div class="ci-n">Unimate</div><div class="ci-v">30-day supply</div><div class="ci-qty"><button onclick="chgCQ(-1)">-</button><div class="cqv" id="cqD">1</div><button onclick="chgCQ(1)">+</button></div></div>
+      <div class="ci-price" id="ciP">$59.95</div>
+    </div>
+    <div class="po-section"><h3>Purchase Options</h3>
+      <div class="po-opt sel" id="poOne" onclick="selPO('onetime')"><div class="po-l"><div class="po-rad"></div><div><div class="po-lbl">One-time purchase</div></div></div><div class="po-pr" id="prOne">$59.95</div></div>
+      <div class="po-opt" id="poSub" onclick="selPO('subscribe')"><div class="po-l"><div class="po-rad"></div><div><div class="po-lbl">Subscribe &amp; Save 15% <span class="po-save">SAVE</span></div><div class="po-sub" id="prSubLbl">$50.96/month</div></div></div><div class="po-pr" id="prSub">$50.96</div></div>
+      <div class="sub-det" id="subDet"><div class="sub-det-in"><div class="sub-freq"><label>Delivery frequency</label><select><option>Every 30 days</option><option>Every 60 days</option><option>Every 90 days</option></select></div><ul class="sub-perks"><li><span class="spk">&#10003;</span> 15% off every order</li><li><span class="spk">&#10003;</span> Free shipping</li><li><span class="spk">&#10003;</span> Cancel anytime</li></ul></div></div>
+    </div>
+    <div class="os-section"><h3>Order Summary</h3>
+      <div class="osr"><span>Subtotal</span><span id="osSub">$59.95</span></div>
+      <div class="osr" id="osDiscR" style="display:none"><span class="disc">Subscription discount</span><span class="disc" id="osDisc">-$8.99</span></div>
+      <div class="osr"><span>Shipping</span><span id="osShip">$5.00</span></div>
+      <div class="osr tot"><span>Total</span><span id="osTot">$64.95</span></div>
+    </div>
+    <div class="cart-btns">
+      <button class="btn-co" onclick="startStd()">Continue to Checkout</button>
+    </div>
+  </div>
+  <div class="ap-overlay" id="apOv">
+    <div class="ap-sheet">
+      <div class="ap-hdr"><h3>&#63743; Pay</h3><button class="ap-cls" onclick="closeAP()">&#10005;</button></div>
+      <div class="ap-amt"><div class="ap-store">unicity.com</div><div class="ap-tot" id="apTot">$64.95</div></div>
+      <div class="ap-card"><div class="ap-card-ic">VISA</div><div class="ap-card-dt"><strong>Visa</strong> ....4242</div></div>
+      <div class="ap-new-note" id="apNewNote"><strong>Guest Checkout via Apple Pay</strong>Shopify creates a guest order. No account needed. Order confirmation and tracking link sent to email associated with your Apple ID.</div>
+      <div class="ap-fid"><div class="ap-fid-ic">&#128566;</div><div class="ap-fid-t">Confirm with Face ID</div><div class="ap-fid-s">Double-click side button to pay</div></div>
+      <button class="btn-ap-conf" onclick="confAP()">&#63743; Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW 4: SHOP PAY LOGIN -->
+<div class="view" id="v4">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="sp-banner">
+    <div class="nav-hdr" style="margin-top:0;position:relative"><div class="back" onclick="go(3)"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div><div></div><div></div></div>
+    <div class="sp-pill"><span class="splw">Shop Pay</span></div>
+  </div>
+  <div class="sp-body">
+    <h2 id="spTitle">Welcome</h2>
+    <p id="spDesc">Enter your email to check out faster</p>
+    <div class="sp-email-wrap" style="position:relative;margin-top:20px">
+      <input type="email" class="sp-input" id="spEmail" placeholder="Enter your email" style="margin-top:0;padding-right:48px">
+      <div class="passkey-hint" title="Sign in with passkey"><svg viewBox="0 0 24 24"><path d="M12.65 10a6 6 0 1 1-1.3 0H7v2H5v-2H2v-2h9.35zM10 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm11 10.5a3.5 3.5 0 1 1-4.78-3.26V8h2v5.24A3.5 3.5 0 0 1 21 16.5zm-3.5 1.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg></div>
+    </div>
+    <div class="sp-new-notice" id="spNotice"><strong>No Shop Pay account found.</strong> No problem! We will create one for you so future checkouts are instant. Enter your phone number below for verification.</div>
+    <div class="sp-phone-row" id="spPhoneRow"><input type="tel" class="sp-input" id="spPhone" placeholder="Phone number for verification" style="margin-top:0"></div>
+    <button class="btn-sp-cont" onclick="spCont()">Continue</button>
+  </div>
+</div>
+
+<!-- VIEW 5: VERIFY CODE -->
+<div class="view" id="v5">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="sp-banner">
+    <div class="nav-hdr" style="margin-top:0;position:relative"><div class="back" onclick="go(4)"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div><div></div><div></div></div>
+    <div class="sp-pill"><span class="splw">Shop Pay</span></div>
+  </div>
+  <div class="verify-bd">
+    <div class="verify-icon sms" id="vIcon">&#128241;</div>
+    <h2 id="vTitle">Confirm it's you</h2>
+    <p id="vDesc">We sent a 6-digit code to <strong class="phone-mask">(555) ***-4567</strong></p>
+    <div class="code-row" id="codeRow"><div class="code-box"></div><div class="code-box"></div><div class="code-box"></div><div class="code-box"></div><div class="code-box"></div><div class="code-box"></div></div>
+    <button class="btn-verify" onclick="doVerify()">Verify</button>
+    <div class="resend" onclick="doResend()">Resend code</div>
+    <div class="alt-method" id="altMethod" onclick="toggleAltMethod()">Send me a code by email instead</div>
+  </div>
+</div>
+
+<!-- VIEW 6: SP EXPRESS / NEW CUSTOMER FORM -->
+<div class="view" id="v6">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="exp-top">
+    <div class="nav-hdr" style="margin-top:0;position:relative"><div class="back" onclick="go(5)"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div><div class="htitle" style="color:#fff">Shop Pay</div><div style="width:36px"></div></div>
+    <div class="exp-badge"><span class="exp-bolt">&#9889;</span><div><div class="ebt" id="expT">Express Checkout</div><div class="ebs" id="expS">One tap. You are done.</div></div></div>
+  </div>
+  <div id="spRet">
+    <div class="si-section"><div class="si-hdr">&#128100; Saved Information</div>
+      <div class="si-row"><div><div class="si-lbl">Email</div><div class="si-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b0d8dfc7d1c2d4f0c5ded9d3d9c4c99ed3dfdd">[email&#160;protected]</a></div></div><div class="si-chg">Change</div></div>
+      <div class="si-row"><div><div class="si-lbl">Ship to</div><div class="si-val">123 Main St, New York, NY 10001</div><div class="si-default checked"><input type="checkbox" id="spDefaultAddr" checked><label for="spDefaultAddr">Set as default</label></div></div><div class="si-chg">Change</div></div>
+    </div>
+    <div class="divider"></div>
+    <div style="padding:0 20px 6px"><div style="font-size:13px;font-weight:600;color:var(--navy-dark);margin-bottom:8px;display:flex;align-items:center;gap:5px">&#128179; Payment</div></div>
+    <div class="sp-saved-card"><div class="spc-ic">VISA</div><div class="spc-info"><div class="spc-n">Visa ending in 4242</div><div class="spc-d">Expires 12/25</div></div><div class="spc-chk">&#10003;</div></div>
+  </div>
+  <div id="spNew" style="display:none">
+    <div class="new-sp-form">
+      <div class="form-section"><h3>&#128666; Shipping Address</h3>
+        <div class="f-row"><div class="f-field"><label>First name</label><input class="f-input" placeholder="First name"></div><div class="f-field"><label>Last name</label><input class="f-input" placeholder="Last name"></div></div>
+        <div class="f-field"><label>Address</label><input class="f-input" placeholder="Street address"></div>
+        <div class="f-row"><div class="f-field"><label>City</label><input class="f-input" placeholder="City"></div><div class="f-field"><label>State</label><input class="f-input" placeholder="State"></div></div>
+        <div class="f-row"><div class="f-field"><label>ZIP</label><input class="f-input" placeholder="ZIP"></div><div class="f-field"><label>Country</label><input class="f-input" value="United States" readonly style="background:var(--gray-50)"></div></div>
+      </div>
+      <div class="form-section"><h3>&#128179; Payment</h3>
+        <div class="f-field"><label>Card number</label><input class="f-input" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
+        <div class="f-field"><label>Name on card</label><input class="f-input" placeholder="Name on card"></div>
+        <div class="f-row"><div class="f-field"><label>Expiration</label><input class="f-input" placeholder="MM / YY" maxlength="7" oninput="fmtExp(this)"></div><div class="f-field"><label>CVV</label><input class="f-input" placeholder="123" maxlength="4"></div></div>
+      </div>
+    </div>
+    <div class="sp-save-row show"><input type="checkbox" checked><span>Save my info to Shop Pay for faster checkout next time</span></div>
+  </div>
+  <div class="divider"></div>
+  <div class="eo-section"><h3>Order Summary</h3>
+    <div class="eo-item"><div class="eo-img" style="background:linear-gradient(135deg,#fdf6e3,#f5ecd0)">&#x1F9E9;</div><div class="eo-info"><div class="eo-n">Unimate</div><div class="eo-v" id="eoVar">One-time purchase</div></div><div class="eo-pr" id="eoPr">$59.95</div></div>
+  </div>
+  <div class="sub-badge" id="subBdg"><div class="sb-ic">&#10003;</div><div class="sb-t"><strong>Subscription Active</strong><br>Next delivery: March 15, 2026</div></div>
+  <div class="ex-totals">
+    <div class="osr"><span>Subtotal</span><span id="exSub">$59.95</span></div>
+    <div class="osr" id="exDiscR" style="display:none"><span class="disc">Subscription (15%)</span><span class="disc" id="exDisc">-$8.99</span></div>
+    <div class="osr"><span>Shipping</span><span id="exShip">$5.00</span></div>
+    <div class="osr tot"><span>Total</span><span id="exTot">$64.95</span></div>
+  </div>
+  <button class="btn-complete" onclick="completeSP()">&#128274; Complete Purchase</button>
+  <div class="sp-terms">By placing your order, you agree to Shop Pay's Terms of Service</div>
+</div>
+
+<!-- VIEW 7: STANDARD CHECKOUT -->
+<div class="view" id="v7">
+  <div class="statusbar"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="nav-hdr"><div class="back" onclick="go(3)"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div><div class="htitle">Checkout</div><div style="width:36px"></div></div>
+  <div class="std-bd">
+    <div class="std-returning" id="stdRet">
+      <div class="std-sec"><h3>Contact &amp; Shipping</h3>
+        <div class="std-ship"><div><div class="sl">Email</div><div class="sv"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3abacb4a2b1a783b6adaaa0aab7baeda0acae">[email&#160;protected]</a></div></div><div class="std-ship-edit">Edit</div></div>
+        <div class="std-ship"><div><div class="sl">Ship to</div><div class="sv">123 Main St, New York, NY 10001</div></div><div class="std-ship-edit">Edit</div></div>
+      </div>
+    </div>
+    <div class="std-form-fields" id="stdNew">
+      <div class="std-sec"><h3>Contact</h3>
+        <div class="f-field"><label>Email</label><input class="f-input" placeholder="Email address"></div>
+        <div class="create-acct show" id="createAcct"><input type="checkbox" id="createAcctCb"><label for="createAcctCb">Create a Unicity account for faster checkout</label></div>
+      </div>
+      <div class="std-sec"><h3>Shipping Address</h3>
+        <div class="f-row"><div class="f-field"><label>First name</label><input class="f-input" placeholder="First name"></div><div class="f-field"><label>Last name</label><input class="f-input" placeholder="Last name"></div></div>
+        <div class="f-field"><label>Address</label><input class="f-input" placeholder="Street address"></div>
+        <div class="f-row"><div class="f-field"><label>City</label><input class="f-input" placeholder="City"></div><div class="f-field"><label>State</label><input class="f-input" placeholder="State"></div></div>
+        <div class="f-row"><div class="f-field"><label>ZIP</label><input class="f-input" placeholder="ZIP"></div><div class="f-field"><label>Country</label><input class="f-input" value="United States" readonly style="background:var(--gray-50)"></div></div>
+      </div>
+    </div>
+    <div class="std-sec"><h3>Payment Method</h3>
+      <div class="pay-methods">
+        <div class="pm sel" id="pmCard" onclick="selPay('card')"><div class="pm-rad"></div><div class="pm-ic card">&#128179;</div><div class="pm-info"><div class="pm-n">Credit or debit card</div><div class="pm-d">Visa, Mastercard, Amex, Discover</div></div></div>
+        <div class="cc-form open" id="ccF">
+          <div class="cc-form-in">
+            <div class="f-field"><label>Card number</label><input class="f-input" id="ccN" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
+            <div class="f-field"><label>Name on card</label><input class="f-input" placeholder="Howard Koziara"></div>
+            <div class="f-row"><div class="f-field"><label>Expiration</label><input class="f-input" placeholder="MM / YY" maxlength="7" oninput="fmtExp(this)"></div><div class="f-field"><label>CVV</label><input class="f-input" placeholder="123" maxlength="4"></div></div>
+            <div style="display:flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;color:var(--gray-500)">&#128274; Encrypted and secure</div>
+          </div>
+        </div>
+        <div class="pm" id="pmAp" onclick="selPay('apple-pay')"><div class="pm-rad"></div><div class="pm-ic apple">&#63743;</div><div class="pm-info"><div class="pm-n">Apple Pay</div><div class="pm-d">Face ID or Touch ID</div></div></div>
+        <div class="std-ap-conf" id="apConf"><div class="std-ap-conf-in"><div style="font-size:24px">&#128241;</div><div class="conf-msg"><strong>Ready to pay with Apple Pay</strong>Confirm with Face ID</div></div></div>
+        <div class="pm" id="pmPp" onclick="selPay('paypal')"><div class="pm-rad"></div><div class="pm-ic paypal">PayPal</div><div class="pm-info"><div class="pm-n">PayPal</div><div class="pm-d">Pay with your PayPal account</div></div></div>
+        <div class="std-pp-conf" id="ppConf"><div class="std-pp-conf-in"><div class="pp-ic-lg">PP</div><div class="conf-msg"><strong>Log in to PayPal</strong>Redirecting to PayPal</div></div></div>
+      </div>
+    </div>
+    <div class="std-os"><h3>Order Summary</h3>
+      <div class="std-eo"><div class="std-eo-img" style="background:linear-gradient(135deg,#fdf6e3,#f5ecd0)">&#x1F9E9;</div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--navy-dark)">Unimate</div><div style="font-size:10px;color:var(--navy);margin-top:1px" id="sEoV">One-time purchase</div></div><div style="font-size:12px;font-weight:600;color:var(--navy-dark)" id="sEoP">$59.95</div></div>
+      <div class="sub-badge" id="sSubBdg" style="margin:6px 0"><div class="sb-ic">&#10003;</div><div class="sb-t"><strong>Subscription Active</strong><br>Next delivery: March 15, 2026</div></div>
+      <div class="osr"><span>Subtotal</span><span id="sSub">$59.95</span></div>
+      <div class="osr" id="sDiscR" style="display:none"><span class="disc">Subscription (15%)</span><span class="disc" id="sDisc">-$8.99</span></div>
+      <div class="osr"><span>Shipping</span><span id="sShip">$5.00</span></div>
+      <div class="osr tot"><span>Total</span><span id="sTot">$64.95</span></div>
+    </div>
+    <button class="btn-std" id="bStd" onclick="completeStd()"><span id="bStdIc">&#128274;</span> <span id="bStdTx">Complete Purchase</span></button>
+  </div>
+</div>
+
+<!-- VIEW 8: CONFIRMATION (shared online + POS) -->
+<div class="view confirm-view" id="v8">
+  <div class="statusbar"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="conf-check"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+  <div class="conf-body">
+    <h2>Order Confirmed!</h2>
+    <p class="conf-sub" id="cSub">Processed securely</p>
+    <div class="conf-details">
+      <div class="cdr"><span class="cdl">Confirmation sent to</span><span class="cdv" id="cEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3e5651495f4c5a7e4b50575d574a47105d5153">[email&#160;protected]</a></span></div>
+      <div class="cdr"><span class="cdl">Order Number</span><span class="cdv">#UNI-2026-5678</span></div>
+      <div class="cdr"><span class="cdl">Total</span><span class="cdv" id="cTot">$64.95</span></div>
+      <div class="cdr"><span class="cdl">Delivery</span><span class="cdv">Feb 15-17, 2026</span></div>
+    </div>
+    <div class="conf-pay" id="cPay"><div class="cpb-ic visa" id="cPayIc">VISA</div><div class="cpb-t" id="cPayTx"><strong>Paid with Visa</strong> ending in 4242</div></div>
+    <div id="cPathB"></div>
+    <div class="conf-new" id="cNew">New customer checkout</div>
+    <div class="conf-sub-badge" id="cSubBdg"><div class="csb-t">&#128260; Subscription Active</div><div class="csb-d">Next delivery: March 15, 2026</div></div>
+    <div class="conf-acct-note" id="cAcct"><strong>How Shopify handles new customers:</strong>
+      <span id="cAcctTxt">Shopify stores your order as a guest checkout.</span>
+    </div>
+    <!-- Customer Metafield Attribution (email-to-DIST_ID mapping) -->
+    <div class="conf-metafields" id="cMeta">
+      <div class="cmf-title">Customer Attribution (Metafields)</div>
+      <div class="cmf-desc">Email mapped to Unicity DIST_ID via import</div>
+      <div class="cmf-row"><span class="cmf-l">Customer Email</span><span class="cmf-v" id="cmfEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c74736b7d6e785c6972757f756865327f7371">[email&#160;protected]</a></span></div>
+      <div class="cmf-row"><span class="cmf-l">Referrer ID</span><span class="cmf-v" id="cmfRef">104635663</span></div>
+      <div class="cmf-row"><span class="cmf-l">Unicity ID</span><span class="cmf-v" id="cmfUnid">103255665</span></div>
+      <div class="cmf-row"><span class="cmf-l">Customer Origin</span><span class="cmf-v">shopify</span></div>
+      <div class="cmf-row"><span class="cmf-l">Unicity Customer Status</span><span class="cmf-v">M</span></div>
+      <div class="cmf-row"><span class="cmf-l">Existing Subscription</span><span class="cmf-v" id="cmfSub">False</span></div>
+      <div class="cmf-flow">
+        <div class="cmf-step">&#9993; Email login</div>
+        <div class="cmf-arrow">&#8594;</div>
+        <div class="cmf-step">&#128269; Import match</div>
+        <div class="cmf-arrow">&#8594;</div>
+        <div class="cmf-step">&#9989; DIST_ID assigned</div>
+      </div>
+      <div class="cmf-note">Metafields populated via batch import mapping email to Unity DB DIST_ID. Without import, CS must manually search Portal risking wrong ID assignment.</div>
+    </div>
+    <button class="btn-vo">View Order Details</button>
+    <button class="btn-cs" onclick="reset()">Continue Shopping</button>
+  </div>
+</div>
+
+<!-- ===================== POS VIEWS ===================== -->
+
+<!-- P1: PIN LOGIN -->
+<div class="view pos-view" id="p1">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="pos-login">
+    <div class="pos-logo">UNICITY</div>
+    <div class="pos-logo-sub">SHOPIFY POS</div>
+    <div class="pos-app-label">Tap to Pay on iPhone</div>
+    <div class="pin-display">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinKey(1)">1</button>
+      <button class="pin-key" onclick="pinKey(2)">2</button>
+      <button class="pin-key" onclick="pinKey(3)">3</button>
+      <button class="pin-key" onclick="pinKey(4)">4</button>
+      <button class="pin-key" onclick="pinKey(5)">5</button>
+      <button class="pin-key" onclick="pinKey(6)">6</button>
+      <button class="pin-key" onclick="pinKey(7)">7</button>
+      <button class="pin-key" onclick="pinKey(8)">8</button>
+      <button class="pin-key" onclick="pinKey(9)">9</button>
+      <button class="pin-key clear" onclick="pinClear()">CLR</button>
+      <button class="pin-key" onclick="pinKey(0)">0</button>
+      <button class="pin-key enter" onclick="pinEnter()">GO</button>
+    </div>
+    <div class="pin-staff" id="pinStaffLabel">Enter your 4-digit staff PIN</div>
+  </div>
+</div>
+
+<!-- P2: POS CATALOG -->
+<div class="view pos-view" id="p2">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="pos-header">
+    <div class="ph-logo">UNICITY</div>
+    <div class="ph-staff" id="posStaffName">W1</div>
+    <div class="pos-cart-count" id="posCartCount">0</div>
+  </div>
+  <div class="pos-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#484f58" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search or scan barcode...</div>
+  <div class="pos-prod-list">
+    <div class="pos-prod-row" onclick="posAdd('unimate',59.95)">
+      <div class="pos-prod-ic" style="background:linear-gradient(135deg,#2a1f0a,#3d2e15)">&#x1F9E9;</div>
+      <div class="pos-prod-info"><div class="ppn">Unimate Yerba Mate</div><div class="ppd">SKU: UNI-YM-30 &middot; In stock</div></div>
+      <div class="pos-prod-price">$59.95</div>
+      <button class="pos-prod-add">+</button>
+    </div>
+    <div class="pos-prod-row" onclick="posAdd('balance',59.95)">
+      <div class="pos-prod-ic" style="background:linear-gradient(135deg,#0a1a2a,#152e3d)">&#x2696;&#xFE0F;</div>
+      <div class="pos-prod-info"><div class="ppn">Balance</div><div class="ppd">SKU: UNI-BAL-30 &middot; In stock</div></div>
+      <div class="pos-prod-price">$59.95</div>
+      <button class="pos-prod-add">+</button>
+    </div>
+    <div class="pos-prod-row" onclick="posAdd('feelgreat',119.90)">
+      <div class="pos-prod-ic" style="background:linear-gradient(135deg,#0a2a15,#153d28)">&#x1F49A;</div>
+      <div class="pos-prod-info"><div class="ppn">Feel Great Pack</div><div class="ppd">SKU: UNI-FG-30 &middot; In stock</div></div>
+      <div class="pos-prod-price">$119.90</div>
+      <button class="pos-prod-add">+</button>
+    </div>
+    <div class="pos-prod-row" onclick="posAdd('reishi',39.95)">
+      <div class="pos-prod-ic" style="background:linear-gradient(135deg,#2a1f0a,#3d2e15)">&#x1F344;</div>
+      <div class="pos-prod-info"><div class="ppn">Bio Reishi</div><div class="ppd">SKU: UNI-BR-30 &middot; In stock</div></div>
+      <div class="pos-prod-price">$39.95</div>
+      <button class="pos-prod-add">+</button>
+    </div>
+    <div class="pos-prod-row" onclick="posAdd('lifiber',29.95)">
+      <div class="pos-prod-ic" style="background:linear-gradient(135deg,#1a1a0a,#2d2d15)">&#x1F33E;</div>
+      <div class="pos-prod-info"><div class="ppn">LiFiber</div><div class="ppd">SKU: UNI-LF-30 &middot; In stock</div></div>
+      <div class="pos-prod-price">$29.95</div>
+      <button class="pos-prod-add">+</button>
+    </div>
+  </div>
+  <div class="pos-bottom">
+    <button class="btn-pos-checkout" id="btnPosCheckout" onclick="posGoCart()" style="opacity:0.4;pointer-events:none">Charge $0.00</button>
+  </div>
+</div>
+
+<!-- P3: POS CART -->
+<div class="view pos-view" id="p3">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="pos-cart-hdr">
+    <div class="back" onclick="posGo('p2')" style="cursor:pointer"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="#e6edf3" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div style="font-size:16px;font-weight:600;color:#e6edf3">Cart</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="pos-cart-body" id="posCartBody">
+    <!-- Filled dynamically -->
+  </div>
+  <div class="pos-cart-bottom">
+    <button class="btn-collect" onclick="posGoPaySelect()">Collect Payment</button>
+  </div>
+</div>
+
+<!-- P3b: SELECT PAYMENT METHOD -->
+<div class="view pos-view" id="p3b">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="pos-cart-hdr">
+    <div class="back" onclick="posGo('p3')" style="cursor:pointer"><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="#e6edf3" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div style="font-size:16px;font-weight:600;color:#e6edf3">Select Payment</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="ps-grid" id="psGrid">
+    <div class="ps-title">Payment Methods</div>
+
+    <div class="ps-method" onclick="selectPayMethod('nfc')">
+      <div class="pm-icon nfc"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 13.5c1-1.5 2.5-2.5 5.5-2.5s4.5 1 5.5 2.5"/><path d="M4 16c1.5-2.5 4-4 8-4s6.5 1.5 8 4"/><circle cx="12" cy="9" r="1.2" fill="currentColor"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Tap to Pay on iPhone</div><div class="pm-desc">Contactless NFC payment</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('reader')">
+      <div class="pm-icon reader"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Card Reader</div><div class="pm-desc">Chip insert, swipe, or tap</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('manual')">
+      <div class="pm-icon manual"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 10h20"/><path d="M6 15h8"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Manual Card Entry</div><div class="pm-desc">Key in card number (MOTO)</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('cash')">
+      <div class="pm-icon cash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="5" width="22" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="19.5" cy="12" r="1" fill="currentColor"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Cash</div><div class="pm-desc">Accept cash payment</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('gift')">
+      <div class="pm-icon gift"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 13h18"/><path d="M12 8v13"/><path d="M12 8c-1.5-2-4-3-4-3s2-.5 4 3c2-3.5 4-3 4-3s-2.5 1-4 3"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Gift Card</div><div class="pm-desc">Redeem Shopify gift card</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('storecredit')">
+      <div class="pm-icon credit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M15 9.5c-.5-1-1.5-1.5-3-1.5-2 0-3 1-3 2.2s1 1.8 3 2.3 3 1.3 3 2.5-1 2.2-3 2.2c-1.5 0-2.5-.5-3-1.5"/><path d="M12 6v2m0 8v2"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Store Credit</div><div class="pm-desc">Apply customer store credit</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('installments')">
+      <div class="pm-icon install"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8"/><path d="M8 8h8"/><path d="M8 16h5"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Shop Pay Installments</div><div class="pm-desc">Buy now, pay later in 4</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-method" onclick="selectPayMethod('custom')">
+      <div class="pm-icon custom"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></div>
+      <div class="pm-info"><div class="pm-name">Custom / External Terminal</div><div class="pm-desc">Mark as paid externally</div></div>
+      <div class="pm-arrow">&#8250;</div>
+    </div>
+
+    <div class="ps-split" onclick="selectPayMethod('split')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      Split Payment
+    </div>
+  </div>
+  <div class="ps-total-bar">
+    <div class="ps-total">Total: <strong id="psTotalLabel">$0.00</strong></div>
+  </div>
+</div>
+
+<!-- P4: PAYMENT PROCESSING (dynamic content based on method) -->
+<div class="view pos-view" id="p4">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="pay-back" onclick="posGo('p3b')"><svg viewBox="0 0 24 24" fill="none" stroke="#e6edf3" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+
+  <!-- NFC Tap to Pay -->
+  <div class="pay-screen" id="payNfc">
+    <div class="tap-view" id="tapZone" onclick="doTap()">
+      <div class="tap-amount" id="tapAmount">$59.95</div>
+      <div class="tap-label">Ready to accept payment</div>
+      <div class="nfc-zone">
+        <div class="nfc-ring"></div>
+        <div class="nfc-ring"></div>
+        <div class="nfc-ring"></div>
+        <div class="nfc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c853" stroke-width="1.5">
+            <path d="M6.5 13.5c1-1.5 2.5-2.5 5.5-2.5s4.5 1 5.5 2.5"/>
+            <path d="M4 16c1.5-2.5 4-4 8-4s6.5 1.5 8 4"/>
+            <path d="M9 11c.7-1 1.8-1.5 3-1.5s2.3.5 3 1.5"/>
+            <circle cx="12" cy="9" r="1" fill="#00c853"/>
+          </svg>
+        </div>
+      </div>
+      <div class="tap-instruction" id="tapInstr">Hold card near iPhone</div>
+      <div class="tap-sub" id="tapSub">NFC contactless payment</div>
+      <div class="tap-hint">Click anywhere to simulate tap</div>
+    </div>
+  </div>
+
+  <!-- Card Reader -->
+  <div class="pay-screen" id="payReader">
+    <div class="pay-reader-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+    </div>
+    <div class="pay-title">Insert, Swipe, or Tap</div>
+    <div class="pay-sub">Waiting for card reader...</div>
+    <div class="tap-amount" id="readerAmount" style="font-size:28px;color:#818cf8;margin-bottom:20px">$0.00</div>
+    <div style="display:flex;gap:10px;margin-bottom:20px">
+      <div style="padding:8px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;font-size:12px;color:#8b949e;text-align:center">
+        <div style="font-size:20px;margin-bottom:4px">&#x1F4B3;</div>Chip
+      </div>
+      <div style="padding:8px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;font-size:12px;color:#8b949e;text-align:center">
+        <div style="font-size:20px;margin-bottom:4px">&#x1F4F1;</div>Tap
+      </div>
+      <div style="padding:8px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;font-size:12px;color:#8b949e;text-align:center">
+        <div style="font-size:20px;margin-bottom:4px">&#x1F501;</div>Swipe
+      </div>
+    </div>
+    <button class="btn-pay-confirm purple" onclick="simPayComplete('reader','Card Reader','Visa ****3842','Card present')">Simulate Card Read</button>
+    <div class="pay-method-label">POS Terminal / WisePad 3 / Tap &amp; Chip</div>
+  </div>
+
+  <!-- Manual Card Entry (MOTO) -->
+  <div class="pay-screen" id="payManual">
+    <div class="pay-title">Manual Card Entry</div>
+    <div class="pay-sub">Key in card number (MOTO rate applies)</div>
+    <div class="pay-manual-form">
+      <div class="pmf-field">
+        <label>Card Number</label>
+        <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" id="motoCard">
+      </div>
+      <div class="pmf-row">
+        <div class="pmf-field">
+          <label>Expiry</label>
+          <input type="text" placeholder="MM / YY" maxlength="7" id="motoExp">
+        </div>
+        <div class="pmf-field">
+          <label>CVV</label>
+          <input type="text" placeholder="123" maxlength="4" id="motoCvv">
+        </div>
+      </div>
+      <div class="pmf-field">
+        <label>Cardholder Name</label>
+        <input type="text" placeholder="John Smith" id="motoName">
+      </div>
+    </div>
+    <button class="btn-pay-confirm" onclick="simPayComplete('manual','Manual Entry (MOTO)','Visa ****4242','Card not present')" id="btnMotoCharge">Charge <span id="motoTotal">$0.00</span></button>
+    <div class="pay-method-label">Online credit card rate applies</div>
+  </div>
+
+  <!-- Cash -->
+  <div class="pay-screen" id="payCash">
+    <div class="pay-title">Cash Payment</div>
+    <div class="pay-cash-display">
+      <div class="cash-due" id="cashDue">$0.00</div>
+      <div class="cash-presets" id="cashPresets"></div>
+      <div class="cash-input-wrap">
+        <span class="cash-dollar">$</span>
+        <input type="number" placeholder="0.00" id="cashTendered" oninput="calcChange()">
+      </div>
+      <div class="cash-change" id="cashChangeBox">
+        <div class="cash-change-label">Change Due</div>
+        <div class="cash-change-amount" id="cashChangeAmt">$0.00</div>
+      </div>
+    </div>
+    <button class="btn-pay-confirm" onclick="simPayComplete('cash','Cash','Tendered','Cash payment')" id="btnCashComplete" style="opacity:0.4;pointer-events:none">Complete Cash Payment</button>
+    <div class="pay-method-label">No processing fees</div>
+  </div>
+
+  <!-- Gift Card -->
+  <div class="pay-screen" id="payGift">
+    <div class="pay-title">Gift Card</div>
+    <div class="pay-sub">Scan or enter gift card code</div>
+    <div style="font-size:40px;margin-bottom:16px">&#x1F381;</div>
+    <input class="gift-input" type="text" placeholder="Enter gift card code" maxlength="20" id="giftCode" oninput="checkGiftCode()">
+    <div style="margin-top:8px;font-size:12px;color:#8b949e" id="giftStatus"></div>
+    <button class="btn-pay-confirm pink" onclick="simPayComplete('gift','Gift Card','GC ****'+($('giftCode').value.slice(-4)||'0000'),'Gift card redemption')" id="btnGiftRedeem" style="opacity:0.4;pointer-events:none">Redeem Gift Card</button>
+    <div class="pay-method-label">Shopify gift card</div>
+  </div>
+
+  <!-- Store Credit -->
+  <div class="pay-screen" id="payStoreCredit">
+    <div class="pay-title">Store Credit</div>
+    <div class="pay-sub">Look up customer to apply credit</div>
+    <div class="credit-lookup">
+      <input type="text" placeholder="Customer email or phone" id="creditLookup" oninput="checkCreditLookup()">
+    </div>
+    <div class="credit-bal" id="creditBal">
+      <div style="font-size:11px;color:#67e8f9;text-transform:uppercase;letter-spacing:1px">Available Credit</div>
+      <div style="font-size:24px;font-weight:700;color:#67e8f9;margin-top:4px" id="creditAmount">$150.00</div>
+      <div style="font-size:11px;color:#8b949e;margin-top:4px">Customer: Jane Smith</div>
+    </div>
+    <button class="btn-pay-confirm cyan" onclick="simPayComplete('storecredit','Store Credit','Credit applied','Store credit redemption')" id="btnCreditApply" style="opacity:0.4;pointer-events:none">Apply Store Credit</button>
+    <div class="pay-method-label">POS Pro required</div>
+  </div>
+
+  <!-- Shop Pay Installments -->
+  <div class="pay-screen" id="payInstallments">
+    <div class="pay-title">Shop Pay Installments</div>
+    <div class="pay-sub">Customer pays in 4 interest-free payments</div>
+    <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;width:100%;max-width:280px;box-sizing:border-box">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="background:#5a31f4;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700">shop</div>
+        <div style="font-size:13px;color:#333;font-weight:600">Pay in 4</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0 4px" id="installBreakdown">
+        <div style="text-align:center"><div style="font-size:10px;color:#888">Today</div><div style="font-size:14px;font-weight:700;color:#333" id="inst1">$0</div></div>
+        <div style="text-align:center"><div style="font-size:10px;color:#888">2 wks</div><div style="font-size:14px;font-weight:700;color:#333" id="inst2">$0</div></div>
+        <div style="text-align:center"><div style="font-size:10px;color:#888">4 wks</div><div style="font-size:14px;font-weight:700;color:#333" id="inst3">$0</div></div>
+        <div style="text-align:center"><div style="font-size:10px;color:#888">6 wks</div><div style="font-size:14px;font-weight:700;color:#333" id="inst4">$0</div></div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#8b949e;margin-bottom:12px;max-width:280px">Customer scans QR code with their phone to complete Shop Pay Installments checkout</div>
+    <div style="width:120px;height:120px;background:#fff;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+      <svg width="90" height="90" viewBox="0 0 90 90"><rect width="90" height="90" fill="#fff"/><g fill="#000"><rect x="5" y="5" width="25" height="25"/><rect x="8" y="8" width="19" height="19" fill="#fff"/><rect x="11" y="11" width="13" height="13"/><rect x="60" y="5" width="25" height="25"/><rect x="63" y="8" width="19" height="19" fill="#fff"/><rect x="66" y="11" width="13" height="13"/><rect x="5" y="60" width="25" height="25"/><rect x="8" y="63" width="19" height="19" fill="#fff"/><rect x="11" y="66" width="13" height="13"/><rect x="35" y="5" width="5" height="5"/><rect x="35" y="15" width="5" height="5"/><rect x="45" y="5" width="5" height="5"/><rect x="35" y="35" width="5" height="5"/><rect x="45" y="35" width="5" height="5"/><rect x="55" y="35" width="5" height="5"/><rect x="35" y="45" width="5" height="5"/><rect x="60" y="45" width="5" height="5"/><rect x="70" y="45" width="5" height="5"/><rect x="80" y="45" width="5" height="5"/><rect x="45" y="55" width="5" height="5"/><rect x="60" y="55" width="5" height="5"/><rect x="80" y="55" width="5" height="5"/><rect x="35" y="60" width="5" height="5"/><rect x="45" y="65" width="5" height="5"/><rect x="55" y="65" width="5" height="5"/><rect x="70" y="65" width="5" height="5"/><rect x="35" y="75" width="5" height="5"/><rect x="55" y="75" width="5" height="5"/><rect x="65" y="75" width="5" height="5"/><rect x="80" y="75" width="5" height="5"/><rect x="45" y="80" width="5" height="5"/><rect x="60" y="80" width="5" height="5"/><rect x="80" y="80" width="5" height="5"/></g></svg>
+    </div>
+    <button class="btn-pay-confirm violet" onclick="simPayComplete('installments','Shop Pay Installments','4 payments','Installment plan')">Simulate Approval</button>
+    <div class="pay-method-label">Customer must have Shop Pay account</div>
+  </div>
+
+  <!-- Custom / External Terminal -->
+  <div class="pay-screen" id="payCustom">
+    <div class="pay-title">External Payment</div>
+    <div class="pay-sub">Process on your external terminal, then mark as paid</div>
+    <div style="font-size:48px;margin-bottom:16px">&#x1F4B0;</div>
+    <div class="tap-amount" id="customAmount" style="font-size:28px;color:#fcd34d;margin-bottom:16px">$0.00</div>
+    <div style="font-size:13px;color:#8b949e;max-width:260px;margin-bottom:16px">Process payment on your external card terminal or accept payment via another method, then tap below to record the sale.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:280px;margin-bottom:12px">
+      <select id="customType" style="width:100%;padding:12px;background:#161b22;border:1.5px solid #30363d;border-radius:8px;color:#e6edf3;font-size:14px;font-family:inherit;outline:none">
+        <option>External Card Terminal</option>
+        <option>Wire Transfer</option>
+        <option>Check</option>
+        <option>Money Order</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <button class="btn-pay-confirm yellow" onclick="simPayComplete('custom',$('customType').value,'External','Marked as paid')">Mark as Paid</button>
+    <div class="pay-method-label">No Shopify processing fees</div>
+  </div>
+
+  <!-- Split Payment -->
+  <div class="pay-screen" id="paySplit">
+    <div class="pay-title">Split Payment</div>
+    <div class="pay-sub">Divide across multiple payment methods</div>
+    <div class="tap-amount" id="splitTotal" style="font-size:24px;color:#e6edf3;margin-bottom:16px">$0.00</div>
+    <div style="width:100%;max-width:280px">
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:8px">
+        <div style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Payment 1</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select style="flex:1;padding:10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none">
+            <option>Tap to Pay</option><option>Card Reader</option><option>Cash</option><option>Gift Card</option><option>Store Credit</option>
+          </select>
+          <input type="text" placeholder="$0.00" style="width:80px;padding:10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;text-align:right;box-sizing:border-box">
+        </div>
+      </div>
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px;margin-bottom:8px">
+        <div style="font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Payment 2</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select style="flex:1;padding:10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none">
+            <option>Cash</option><option>Tap to Pay</option><option>Card Reader</option><option>Gift Card</option><option>Store Credit</option>
+          </select>
+          <input type="text" placeholder="$0.00" style="width:80px;padding:10px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;text-align:right;box-sizing:border-box">
+        </div>
+      </div>
+    </div>
+    <button class="btn-pay-confirm" onclick="simPayComplete('split','Split Payment','Multiple methods','Split payment')">Process Split Payment</button>
+    <div class="pay-method-label">Combine any payment methods</div>
+  </div>
+</div>
+
+<!-- P5: POS RECEIPT -->
+<div class="view pos-view" id="p5">
+  <div class="statusbar light"><span>9:41</span><span class="statusbar-icons">&#9679;&#9679;&#9679;</span></div>
+  <div class="pos-rcpt-check"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+  <div class="pos-receipt">
+    <div class="pos-rcpt-body">
+      <h2>Payment Complete</h2>
+      <div class="prs" id="posRcptSub">Card present &middot; NFC tap</div>
+    </div>
+    <div class="pos-rcpt-details">
+      <div class="prd"><span class="prl">Order Number</span><span class="prv" id="posOrderNum">#POS-2026-0213</span></div>
+      <div class="prd"><span class="prl">Items</span><span class="prv" id="posRcptItems">1x Unimate</span></div>
+      <div class="prd"><span class="prl">Payment Method</span><span class="prv" id="posRcptMethod">Tap to Pay (NFC)</span></div>
+      <div class="prd"><span class="prl">Card</span><span class="prv" id="posRcptCard">Visa ****7891</span></div>
+      <div class="prd"><span class="prl">Total</span><span class="prv" id="posRcptTotal" style="color:var(--pos-green);font-weight:700">$59.95</span></div>
+    </div>
+    <!-- Distributor Attribution -->
+    <div class="pos-attrib">
+      <div class="pa-title">Distributor Attribution</div>
+      <div class="pa-row"><span class="pal">Staff PIN</span><span class="pav" id="posAttrPin">W1 / 4821</span></div>
+      <div class="pa-row"><span class="pal">Distributor ID</span><span class="pav" id="posAttrDist">D12345</span></div>
+      <div class="pa-row"><span class="pal">Region</span><span class="pav">West</span></div>
+      <div class="pa-row"><span class="pal">Webhook</span><span class="pav" style="color:var(--pos-green)">orders/create fired</span></div>
+      <div class="pa-row"><span class="pal">Commission</span><span class="pav" style="color:var(--pos-green)">Credited to upline</span></div>
+    </div>
+    <!-- Shopify Fee Breakdown -->
+    <div class="pos-fees">
+      <div class="pf-title">Shopify Payments Fee Breakdown</div>
+      <div class="pf-row"><span class="pfl" id="posFeeLabel">In-person rate (2.15%)</span><span class="pfv" id="posFeeBase">$1.29</span></div>
+      <div class="pf-row"><span class="pfl">Per-transaction</span><span class="pfv" id="posFeePerTxn">$0.30</span></div>
+      <div class="pf-row"><span class="pfl">Variable (0.25%)</span><span class="pfv" id="posFeeVar">$0.15</span></div>
+      <div class="pf-row"><span class="pfl">Total fees</span><span class="pfv" id="posFeeTot">$1.74</span></div>
+      <div class="pf-row net"><span class="pfl">Net payout</span><span class="pfv" id="posFeeNet">$58.21</span></div>
+    </div>
+    <button class="btn-pos-done" onclick="posNewSale()">New Sale</button>
+    <button class="btn-pos-new" onclick="posReset()">Log Out</button>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-ov" id="loadOv"><div class="spinner"></div><div class="lt" id="loadTx">Processing...</div></div>
+
+</div></div></div>
+
+<div class="nav-arrows">
+  <div class="nav-arr" id="navP" onclick="navPrev()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+  <div class="nav-arr" id="navN" onclick="navNext()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+</div>
+<button class="reset-btn" onclick="reset()">&#8634; Reset</button>
+<div class="keys-hint">Arrow keys to navigate &middot; R to reset</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ========== STATE ==========
+let mode='online'; // 'online' or 'pos'
+let cur=1,qty=1,cQty=1,po='onetime',path='none',sPay='card',cust='new';
+const B=59.95,SD=0.15,CODE=[4,8,2,9,1,6];
+const P={apple:[1,2,3,8],shoppay:[1,2,3,4,5,6,8],standard:[1,2,3,7,8]};
+
+// POS state
+let posCur='p1';
+let pinVal='';
+let posCart=[];
+let posStaff='';
+const POS_SCREENS=['p1','p2','p3','p3b','p4','p5'];
+
+// Staff directory for demo
+const STAFF={
+  '4821':{name:'W1',dist:'D12345',region:'West'},
+  '1234':{name:'E1',dist:'D67890',region:'East'},
+  '5678':{name:'S1',dist:'D11111',region:'South'},
+  '9999':{name:'MGR',dist:'D00001',region:'HQ'}
+};
+
+const $=id=>document.getElementById(id);
+
+// ========== MODE SWITCH ==========
+function setMode(m){
+  mode=m;
+  // Toggle mode buttons
+  $('modeOnline').className='mode-btn'+(m==='online'?' active-online':'');
+  $('modePos').className='mode-btn'+(m==='pos'?' active-pos':'');
+  // Toggle controls
+  $('onlineControls').className='online-controls'+(m==='pos'?' hidden':'');
+  $('posControls').className='pos-controls'+(m==='pos'?' show':'');
+  // Phone styling
+  $('phoneFrame').className='phone'+(m==='pos'?' pos-phone':'');
+  // Header
+  $('demoHeader').className='demo-header'+(m==='pos'?' pos-mode':'');
+  if(m==='pos'){
+    $('demoTitle').innerHTML='UNICITY &middot; TAP TO PAY';
+    $('demoSub').textContent='POS simulation &middot; Distributor PIN &middot; NFC contactless';
+  }else{
+    $('demoTitle').innerHTML='UNICITY &middot; SHOPIFY CHECKOUT';
+    $('demoSub').textContent='Interactive demo &middot; Three checkout paths &middot; New & returning customers';
+  }
+  // Hide all views
+  document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active');v.style.transform='';v.style.opacity=''});
+  if(m==='online'){
+    cur=1;path='none';
+    $('v1').classList.add('active');
+  }else{
+    posCur='p1';pinVal='';posCart=[];posStaff='';
+    $('p1').classList.add('active');
+    clearPin();
+    $('posStaffBadge').textContent='Not logged in';
+  }
+  buildDots();updNav();
+}
+
+// ========== ONLINE FUNCTIONS ==========
+function setCust(t){
+  cust=t;
+  $('ctNew').classList.toggle('active',t==='new');
+  $('ctReturn').classList.toggle('active',t==='returning');
+  updCust();
+}
+
+function updCust(){
+  const n=cust==='new';
+  $('spEmail').value=n?'':'howard@unicity.com';
+  $('spTitle').textContent=n?'Welcome':'Welcome back';
+  $('spDesc').textContent=n?'Enter your email to check out faster':'Enter your email to access your saved info';
+  $('spNotice').classList.toggle('show',false);
+  $('spPhoneRow').classList.toggle('show',false);
+  $('spRet').style.display=n?'none':'block';
+  $('spNew').style.display=n?'block':'none';
+  $('expT').textContent=n?'New Checkout':'Express Checkout';
+  $('expS').textContent=n?'Enter your details below':'One tap. You are done.';
+  $('vTitle').textContent=n?'Verify your phone':'Confirm it\'s you';
+  $('vDesc').innerHTML=n?'We sent a 6-digit code to <strong class="phone-mask">(555) 123-4567</strong>':'We sent a 6-digit code to <strong class="phone-mask">(555) ***-4567</strong>';
+  $('vIcon').innerHTML=n?'&#128241;':'&#128272;';
+  $('vIcon').className=n?'verify-icon sms':'verify-icon sms';
+  $('altMethod').classList.toggle('show',!n);
+  $('stdRet').classList.toggle('hide',n);
+  $('stdNew').classList.toggle('show',n);
+  $('createAcct').classList.toggle('show',n);
+  $('apNewNote').classList.toggle('show',n);
+}
+
+function buildDots(){
+  const c=$('dots');c.innerHTML='';
+  if(mode==='pos'){
+    const idx=POS_SCREENS.indexOf(posCur);
+    for(let i=0;i<POS_SCREENS.length;i++){const d=document.createElement('div');d.className='sdot pos-dot'+(i===idx?' active':'');c.appendChild(d)}
+    return;
+  }
+  const s=path!=='none'?P[path]:[1,2,3];const idx=s.indexOf(cur);
+  for(let i=0;i<s.length;i++){const d=document.createElement('div');d.className='sdot'+(i===idx?' active':'');d.onclick=()=>go(s[i]);c.appendChild(d)}
+}
+
+function updBadges(){
+  $('bAp').className='path-badge'+(path==='apple'?' a-ap':'');
+  $('bSp').className='path-badge'+(path==='shoppay'?' a-sp':'');
+  $('bSt').className='path-badge'+(path==='standard'?' a-std':'');
+}
+
+function go(n){
+  if(n<1||n>8||n===cur)return;
+  const p=$('v'+cur),nx=$('v'+n),fw=n>cur;
+  if(fw){nx.style.transition='none';nx.style.transform='translateX(100%)';nx.style.opacity='1';nx.classList.add('active');requestAnimationFrame(()=>{nx.style.transition='';p.style.transform='translateX(-30%)';p.style.opacity='0.5';nx.style.transform='translateX(0)'})}
+  else{nx.style.transition='none';nx.style.transform='translateX(-30%)';nx.style.opacity='0.5';nx.classList.add('active');requestAnimationFrame(()=>{nx.style.transition='';p.style.transform='translateX(100%)';nx.style.transform='translateX(0)';nx.style.opacity='1'})}
+  setTimeout(()=>{p.classList.remove('active');p.style.transform='';p.style.opacity='';nx.scrollTop=0},500);
+  cur=n;buildDots();updNav();updBadges();
+  if(n===4)updCust();if(n===5){altIsEmail=false;updCust();codeAnim()}if(n===6)updExp();if(n===7)updStd();if(n===8)updConf();
+}
+
+function updNav(){
+  if(mode==='pos'){
+    const i=POS_SCREENS.indexOf(posCur);
+    $('navP').classList.toggle('disabled',i<=0);
+    $('navN').classList.toggle('disabled',i>=POS_SCREENS.length-1);
+    return;
+  }
+  const s=path!=='none'?P[path]:[1,2,3];const i=s.indexOf(cur);
+  $('navP').classList.toggle('disabled',i<=0);
+  $('navN').classList.toggle('disabled',i>=s.length-1||cur===8);
+}
+function navPrev(){
+  if(mode==='pos'){const i=POS_SCREENS.indexOf(posCur);if(i>0)posGo(POS_SCREENS[i-1]);return}
+  const s=path!=='none'?P[path]:[1,2,3];const i=s.indexOf(cur);if(i>0)go(s[i-1])
+}
+function navNext(){
+  if(mode==='pos'){const i=POS_SCREENS.indexOf(posCur);if(i<POS_SCREENS.length-1)posGo(POS_SCREENS[i+1]);return}
+  const s=path!=='none'?P[path]:[1,2,3];const i=s.indexOf(cur);if(i<s.length-1)go(s[i+1])
+}
+
+function showLoad(t,dark){$('loadTx').textContent=t||'Processing...';$('loadOv').className='loading-ov show'+(dark?' dark':'')}
+function hideLoad(){$('loadOv').className='loading-ov'}
+
+function chgQty(d){qty=Math.max(1,Math.min(10,qty+d));$('qtyD').textContent=qty}
+function chgCQ(d){cQty=Math.max(1,Math.min(10,cQty+d));$('cqD').textContent=cQty;updPrices()}
+function addCart(){$('cb1').classList.add('show');$('cb2').classList.add('show');cQty=qty;$('cqD').textContent=cQty;updPrices();go(3)}
+
+function selPO(o){
+  po=o;$('poOne').classList.toggle('sel',o==='onetime');$('poSub').classList.toggle('sel',o==='subscribe');
+  $('subDet').classList.toggle('open',o==='subscribe');$('osDiscR').style.display=o==='subscribe'?'flex':'none';updPrices();
+}
+
+function tots(){const it=B*cQty,dc=po==='subscribe'?it*SD:0,sh=po==='subscribe'?0:5,tot=it-dc+sh,sp=it*(1-SD);return{it,dc,sh,tot,sp}}
+function updPrices(){
+  const{it,dc,sh,tot,sp}=tots();
+  $('ciP').textContent='$'+it.toFixed(2);$('prOne').textContent='$'+it.toFixed(2);
+  $('prSub').textContent='$'+sp.toFixed(2);$('prSubLbl').textContent='$'+sp.toFixed(2)+'/month';
+  $('osSub').textContent='$'+it.toFixed(2);$('osDisc').textContent='-$'+dc.toFixed(2);
+  $('osShip').textContent=sh===0?'FREE':'$'+sh.toFixed(2);$('osTot').textContent='$'+tot.toFixed(2);
+  $('apTot').textContent='$'+tot.toFixed(2);
+}
+
+// APPLE PAY
+function startAP(){path='apple';updBadges();updCust();$('apOv').classList.add('show')}
+function closeAP(){$('apOv').classList.remove('show');path='none';updBadges()}
+function confAP(){$('apOv').classList.remove('show');showLoad('Confirming Apple Pay...');setTimeout(()=>{hideLoad();go(8)},1400)}
+
+// SHOP PAY
+function startSP(){path='shoppay';updBadges();buildDots();go(4)}
+function spCont(){
+  if(cust==='new'){const n=$('spNotice'),p=$('spPhoneRow');if(!n.classList.contains('show')){n.classList.add('show');p.classList.add('show');return}}
+  go(5);
+}
+function codeAnim(){
+  const boxes=document.querySelectorAll('#codeRow .code-box');
+  boxes.forEach(b=>{b.textContent='';b.classList.remove('filled')});
+  CODE.forEach((d,i)=>{setTimeout(()=>{boxes[i].textContent=d;boxes[i].classList.add('filled')},400+(i*300))});
+}
+function doVerify(){showLoad('Verifying...');setTimeout(()=>{hideLoad();go(6)},1200)}
+function doResend(){const boxes=document.querySelectorAll('#codeRow .code-box');boxes.forEach(b=>{b.textContent='';b.classList.remove('filled')});setTimeout(codeAnim,500)}
+let altIsEmail=false;
+function toggleAltMethod(){
+  altIsEmail=!altIsEmail;
+  if(altIsEmail){
+    $('vTitle').textContent='Check your email';
+    $('vDesc').innerHTML='We sent a 6-digit code to <strong>howard@unicity.com</strong>';
+    $('vIcon').innerHTML='&#9993;';
+    $('vIcon').className='verify-icon email';
+    $('altMethod').textContent='Send me a code by SMS instead';
+  } else {
+    $('vTitle').textContent='Confirm it\'s you';
+    $('vDesc').innerHTML='We sent a 6-digit code to <strong class="phone-mask">(555) ***-4567</strong>';
+    $('vIcon').innerHTML='&#128272;';
+    $('vIcon').className='verify-icon sms';
+    $('altMethod').textContent='Send me a code by email instead';
+  }
+  const boxes=document.querySelectorAll('#codeRow .code-box');
+  boxes.forEach(b=>{b.textContent='';b.classList.remove('filled')});
+  setTimeout(codeAnim,600);
+}
+
+function updExp(){
+  const{it,dc,sh,tot,sp}=tots();
+  $('eoVar').textContent=po==='subscribe'?'Subscribe & Save 15%':'One-time purchase';
+  $('eoPr').textContent=po==='subscribe'?'$'+sp.toFixed(2):'$'+it.toFixed(2);
+  $('subBdg').classList.toggle('show',po==='subscribe');
+  $('exDiscR').style.display=po==='subscribe'?'flex':'none';
+  $('exSub').textContent='$'+it.toFixed(2);$('exDisc').textContent='-$'+dc.toFixed(2);
+  $('exShip').textContent=sh===0?'FREE':'$'+sh.toFixed(2);$('exTot').textContent='$'+tot.toFixed(2);
+}
+function completeSP(){showLoad('Processing payment...');setTimeout(()=>{hideLoad();go(8)},2000)}
+
+// STANDARD
+function startStd(){path='standard';sPay='card';updBadges();buildDots();go(7)}
+function updStd(){
+  const{it,dc,sh,tot,sp}=tots();
+  $('sEoV').textContent=po==='subscribe'?'Subscribe & Save 15%':'One-time purchase';
+  $('sEoP').textContent=po==='subscribe'?'$'+sp.toFixed(2):'$'+it.toFixed(2);
+  $('sSubBdg').classList.toggle('show',po==='subscribe');
+  $('sDiscR').style.display=po==='subscribe'?'flex':'none';
+  $('sSub').textContent='$'+it.toFixed(2);$('sDisc').textContent='-$'+dc.toFixed(2);
+  $('sShip').textContent=sh===0?'FREE':'$'+sh.toFixed(2);$('sTot').textContent='$'+tot.toFixed(2);
+  selPay('card');updCust();
+}
+function selPay(m){
+  sPay=m;['pmCard','pmAp','pmPp'].forEach(id=>$(id).classList.remove('sel'));
+  $('ccF').classList.remove('open');$('apConf').classList.remove('open');$('ppConf').classList.remove('open');
+  const btn=$('bStd');btn.className='btn-std';
+  switch(m){
+    case'card':$('pmCard').classList.add('sel');$('ccF').classList.add('open');$('bStdIc').innerHTML='&#128274;';$('bStdTx').textContent='Complete Purchase';setTimeout(()=>$('ccN').focus(),400);break;
+    case'apple-pay':$('pmAp').classList.add('sel');$('apConf').classList.add('open');btn.classList.add('apple-mode');$('bStdIc').innerHTML='&#63743;';$('bStdTx').textContent='Pay with Apple Pay';break;
+    case'paypal':$('pmPp').classList.add('sel');$('ppConf').classList.add('open');btn.classList.add('paypal-mode');$('bStdIc').textContent='';$('bStdTx').textContent='Pay with PayPal';break;
+  }
+}
+function completeStd(){const ms={'card':'Authorizing card...','apple-pay':'Confirming Apple Pay...','paypal':'Connecting to PayPal...'};showLoad(ms[sPay]);setTimeout(()=>{hideLoad();go(8)},sPay==='apple-pay'?1400:2000)}
+
+function fmtCard(i){let v=i.value.replace(/\D/g,'').substring(0,16);let f=v.match(/.{1,4}/g);i.value=f?f.join(' '):v}
+function fmtExp(i){let v=i.value.replace(/\D/g,'').substring(0,4);if(v.length>=2)v=v.substring(0,2)+' / '+v.substring(2);i.value=v}
+
+// CONFIRMATION
+function updConf(){
+  const{tot}=tots();const n=cust==='new';
+  $('cTot').textContent='$'+tot.toFixed(2);
+  $('cSubBdg').classList.toggle('show',po==='subscribe');
+  $('cEmail').textContent=n?'customer@email.com':'howard@unicity.com';
+  $('cNew').classList.toggle('show',n);
+  $('cAcct').classList.toggle('show',n);
+  // Show metafields for returning customers (email mapped to DIST_ID)
+  $('cMeta').style.display=n?'none':'block';
+  if(!n){$('cmfEmail').textContent='howard@unicity.com';$('cmfSub').textContent=po==='subscribe'?'True':'False'}
+  const ic=$('cPayIc'),tx=$('cPayTx'),pb=$('cPathB'),st=$('cSub');
+  ic.className='cpb-ic';
+  if(n){
+    if(path==='apple')$('cAcctTxt').textContent='Apple Pay provides shipping and billing info from your Apple Wallet. Shopify creates a guest order linked to your Apple ID email. No Shopify account is created unless you opt in separately.';
+    else if(path==='shoppay')$('cAcctTxt').textContent='Shop Pay created a new account for you using your email and phone number. Your shipping address and payment method are now saved for one-tap checkout on any Shopify store.';
+    else $('cAcctTxt').textContent='Shopify stores your order as a guest checkout. If you checked "Create account," an invitation email is sent so you can track orders and check out faster next time.';
+  }
+  switch(path){
+    case'apple':ic.classList.add('apple');ic.innerHTML='&#63743;';tx.innerHTML='<strong>Paid with Apple Pay</strong>';st.textContent='Paid instantly with Apple Pay';pb.innerHTML='<div class="conf-path p-ap">&#63743; Apple Pay Express</div>';break;
+    case'shoppay':ic.classList.add('visa');ic.textContent='VISA';tx.innerHTML='<strong>Paid with Visa</strong> ending in 4242 via Shop Pay';st.textContent='Processed securely with Shop Pay';pb.innerHTML='<div class="conf-path p-sp">&#9889; Shop Pay'+(n?' (New Account)':' Express')+'</div>';break;
+    case'standard':
+      switch(sPay){case'card':ic.classList.add('visa');ic.textContent='CARD';tx.innerHTML='<strong>Paid with credit card</strong>';break;case'apple-pay':ic.classList.add('apple');ic.innerHTML='&#63743;';tx.innerHTML='<strong>Paid with Apple Pay</strong>';break;case'paypal':ic.classList.add('paypal');ic.textContent='PP';tx.innerHTML='<strong>Paid with PayPal</strong>';break}
+      st.textContent='Processed through Shopify Checkout';pb.innerHTML='<div class="conf-path p-std">&#128722; Standard Checkout</div>';break;
+  }
+}
+
+// ========== POS FUNCTIONS ==========
+
+function posGo(id){
+  const prev=$(posCur),next=$(id);
+  const fw=POS_SCREENS.indexOf(id)>POS_SCREENS.indexOf(posCur);
+  if(fw){next.style.transition='none';next.style.transform='translateX(100%)';next.style.opacity='1';next.classList.add('active');requestAnimationFrame(()=>{next.style.transition='';prev.style.transform='translateX(-30%)';prev.style.opacity='0.5';next.style.transform='translateX(0)'})}
+  else{next.style.transition='none';next.style.transform='translateX(-30%)';next.style.opacity='0.5';next.classList.add('active');requestAnimationFrame(()=>{next.style.transition='';prev.style.transform='translateX(100%)';next.style.transform='translateX(0)';next.style.opacity='1'})}
+  setTimeout(()=>{prev.classList.remove('active');prev.style.transform='';prev.style.opacity='';next.scrollTop=0},500);
+  posCur=id;buildDots();updNav();
+}
+
+// PIN entry
+function pinKey(n){
+  if(pinVal.length>=4)return;
+  pinVal+=n;
+  for(let i=0;i<4;i++){
+    const dot=$('pd'+i);
+    if(i<pinVal.length){dot.textContent=pinVal[i];dot.classList.add('filled')}
+    else{dot.textContent='';dot.classList.remove('filled')}
+  }
+}
+function pinClear(){
+  pinVal='';
+  for(let i=0;i<4;i++){$('pd'+i).textContent='';$('pd'+i).classList.remove('filled')}
+  $('pinStaffLabel').textContent='Enter your 4-digit staff PIN';
+  $('pinStaffLabel').style.color='#484f58';
+}
+function clearPin(){pinClear()}
+function pinEnter(){
+  if(pinVal.length!==4)return;
+  const s=STAFF[pinVal];
+  if(!s){
+    $('pinStaffLabel').textContent='Invalid PIN. Try 4821, 1234, 5678, or 9999';
+    $('pinStaffLabel').style.color='#f85149';
+    pinVal='';
+    for(let i=0;i<4;i++){$('pd'+i).textContent='';$('pd'+i).classList.remove('filled')}
+    return;
+  }
+  posStaff=s;
+  $('posStaffBadge').textContent=s.name+' ('+s.dist+')';
+  $('posStaffName').textContent=s.name;
+  showLoad('Logging in as '+s.name+'...',true);
+  setTimeout(()=>{hideLoad();posGo('p2')},800);
+}
+
+// POS Cart
+function posAdd(name,price){
+  const existing=posCart.find(x=>x.name===name);
+  if(existing){existing.qty++;existing.total=existing.qty*existing.price}
+  else{posCart.push({name,price,qty:1,total:price})}
+  updPosUI();
+}
+function updPosUI(){
+  const total=posCart.reduce((s,x)=>s+x.total,0);
+  const count=posCart.reduce((s,x)=>s+x.qty,0);
+  $('posCartCount').textContent=count;
+  const btn=$('btnPosCheckout');
+  if(count>0){btn.style.opacity='1';btn.style.pointerEvents='auto';btn.textContent='Charge $'+total.toFixed(2)}
+  else{btn.style.opacity='0.4';btn.style.pointerEvents='none';btn.textContent='Charge $0.00'}
+}
+function posGoCart(){
+  // Build cart display
+  const body=$('posCartBody');
+  let html='';
+  const icons={unimate:'&#x1F9E9;',balance:'&#x2696;&#xFE0F;',feelgreat:'&#x1F49A;',reishi:'&#x1F344;',lifiber:'&#x1F33E;'};
+  const names={unimate:'Unimate Yerba Mate',balance:'Balance',feelgreat:'Feel Great Pack',reishi:'Bio Reishi',lifiber:'LiFiber'};
+  posCart.forEach(item=>{
+    html+='<div class="pos-ci"><div class="pos-ci-ic" style="background:#161b22">'+(icons[item.name]||'&#x1F4E6;')+'</div><div class="pos-ci-info"><div class="pcn">'+(names[item.name]||item.name)+'</div><div class="pcq">Qty: '+item.qty+' x $'+item.price.toFixed(2)+'</div></div><div class="pos-ci-price">$'+item.total.toFixed(2)+'</div></div>';
+  });
+  const total=posCart.reduce((s,x)=>s+x.total,0);
+  const tax=total*0.0825;
+  html+='<div class="pos-totals"><div class="pos-tr"><span>Subtotal</span><span>$'+total.toFixed(2)+'</span></div><div class="pos-tr"><span>Tax (8.25%)</span><span>$'+tax.toFixed(2)+'</span></div><div class="pos-tr total"><span>Total</span><span>$'+(total+tax).toFixed(2)+'</span></div></div>';
+  body.innerHTML=html;
+  posGo('p3');
+}
+let posPayMethod='nfc'; // track selected method
+function posGoPaySelect(){
+  const total=posCart.reduce((s,x)=>s+x.total,0);
+  const tax=total*0.0825;
+  const grand=total+tax;
+  $('psTotalLabel').textContent='$'+grand.toFixed(2);
+  posGo('p3b');
+}
+function selectPayMethod(method){
+  posPayMethod=method;
+  const total=posCart.reduce((s,x)=>s+x.total,0);
+  const tax=total*0.0825;
+  const grand=total+tax;
+  // Hide all pay screens
+  document.querySelectorAll('.pay-screen').forEach(s=>s.classList.remove('active'));
+  // Show selected
+  const screenMap={nfc:'payNfc',reader:'payReader',manual:'payManual',cash:'payCash',gift:'payGift',storecredit:'payStoreCredit',installments:'payInstallments',custom:'payCustom',split:'paySplit'};
+  const screen=$(screenMap[method]);
+  if(screen)screen.classList.add('active');
+  // Set amounts
+  const gf='$'+grand.toFixed(2);
+  if(method==='nfc'){
+    $('tapAmount').textContent=gf;
+    $('tapZone').classList.remove('tapped');
+    $('tapInstr').textContent='Hold card near iPhone';
+    $('tapSub').textContent='NFC contactless payment';
+  }
+  if(method==='reader')$('readerAmount').textContent=gf;
+  if(method==='manual')$('motoTotal').textContent=gf;
+  if(method==='cash'){
+    $('cashDue').textContent=gf;
+    $('cashTendered').value='';
+    $('cashChangeBox').classList.remove('show');
+    $('btnCashComplete').style.opacity='0.4';
+    $('btnCashComplete').style.pointerEvents='none';
+    // Build presets
+    const presets=[];
+    const rounded=Math.ceil(grand);
+    presets.push(rounded);
+    if(rounded+5<=grand*3)presets.push(rounded+5);
+    const next10=Math.ceil(grand/10)*10;
+    if(next10>rounded)presets.push(next10);
+    const next20=Math.ceil(grand/20)*20;
+    if(next20>next10)presets.push(next20);
+    presets.push(100);
+    const unique=[...new Set(presets)].sort((a,b)=>a-b).slice(0,5);
+    $('cashPresets').innerHTML=unique.map(v=>'<div class="cash-preset" onclick="setCashPreset('+v+')">$'+v.toFixed(2)+'</div>').join('');
+  }
+  if(method==='custom')$('customAmount').textContent=gf;
+  if(method==='split')$('splitTotal').textContent=gf;
+  if(method==='installments'){
+    const quarter=(grand/4);
+    $('inst1').textContent='$'+quarter.toFixed(2);
+    $('inst2').textContent='$'+quarter.toFixed(2);
+    $('inst3').textContent='$'+quarter.toFixed(2);
+    $('inst4').textContent='$'+quarter.toFixed(2);
+  }
+  // Reset interactive states
+  if(method==='gift'){$('giftCode').value='';$('giftStatus').textContent='';$('btnGiftRedeem').style.opacity='0.4';$('btnGiftRedeem').style.pointerEvents='none'}
+  if(method==='storecredit'){$('creditLookup').value='';$('creditBal').classList.remove('show');$('btnCreditApply').style.opacity='0.4';$('btnCreditApply').style.pointerEvents='none'}
+  posGo('p4');
+}
+// Cash helpers
+function setCashPreset(val){
+  $('cashTendered').value=val.toFixed(2);
+  document.querySelectorAll('.cash-preset').forEach(p=>p.classList.remove('sel'));
+  event.target.classList.add('sel');
+  calcChange();
+}
+function calcChange(){
+  const total=posCart.reduce((s,x)=>s+x.total,0);
+  const tax=total*0.0825;
+  const grand=total+tax;
+  const tendered=parseFloat($('cashTendered').value)||0;
+  const change=tendered-grand;
+  if(tendered>=grand){
+    $('cashChangeBox').classList.add('show');
+    $('cashChangeAmt').textContent='$'+change.toFixed(2);
+    $('btnCashComplete').style.opacity='1';
+    $('btnCashComplete').style.pointerEvents='auto';
+  }else{
+    $('cashChangeBox').classList.remove('show');
+    $('btnCashComplete').style.opacity='0.4';
+    $('btnCashComplete').style.pointerEvents='none';
+  }
+}
+// Gift card check
+function checkGiftCode(){
+  const code=$('giftCode').value.trim();
+  if(code.length>=8){
+    $('giftStatus').textContent='Gift card found: $75.00 balance';
+    $('giftStatus').style.color='#f0abfc';
+    $('btnGiftRedeem').style.opacity='1';
+    $('btnGiftRedeem').style.pointerEvents='auto';
+  }else{
+    $('giftStatus').textContent=code.length>0?'Enter at least 8 characters':'';
+    $('giftStatus').style.color='#8b949e';
+    $('btnGiftRedeem').style.opacity='0.4';
+    $('btnGiftRedeem').style.pointerEvents='none';
+  }
+}
+// Store credit check
+function checkCreditLookup(){
+  const val=$('creditLookup').value.trim();
+  if(val.length>=5){
+    $('creditBal').classList.add('show');
+    $('btnCreditApply').style.opacity='1';
+    $('btnCreditApply').style.pointerEvents='auto';
+  }else{
+    $('creditBal').classList.remove('show');
+    $('btnCreditApply').style.opacity='0.4';
+    $('btnCreditApply').style.pointerEvents='none';
+  }
+}
+// Universal payment completion
+function simPayComplete(method,methodLabel,cardInfo,subLabel){
+  showLoad('Processing payment...',true);
+  setTimeout(()=>{
+    hideLoad();
+    updPosReceipt(method,methodLabel,cardInfo,subLabel);
+    posGo('p5');
+  },1500);
+}
+function doTap(){
+  const tz=$('tapZone');
+  if(tz.classList.contains('tapped'))return;
+  tz.classList.add('tapped');
+  $('tapInstr').textContent='Card detected!';
+  $('tapSub').textContent='Authorizing...';
+  setTimeout(()=>{
+    simPayComplete('nfc','Tap to Pay (NFC)','Visa ****7891','Card present / NFC tap');
+  },600);
+}
+function updPosReceipt(method,methodLabel,cardInfo,subLabel){
+  const total=posCart.reduce((s,x)=>s+x.total,0);
+  const tax=total*0.0825;
+  const grand=total+tax;
+  const names={unimate:'Unimate',balance:'Balance',feelgreat:'Feel Great',reishi:'Bio Reishi',lifiber:'LiFiber'};
+  const items=posCart.map(x=>x.qty+'x '+names[x.name]).join(', ');
+  $('posRcptItems').textContent=items;
+  $('posRcptTotal').textContent='$'+grand.toFixed(2);
+  $('posOrderNum').textContent='#POS-2026-'+String(Math.floor(Math.random()*9000)+1000);
+  $('posRcptSub').textContent=subLabel||'Card present / NFC tap';
+  // Update payment method and card fields in receipt
+  $('posRcptMethod').textContent=methodLabel||'Tap to Pay (NFC)';
+  $('posRcptCard').textContent=cardInfo||'Visa ****7891';
+  // Attribution
+  if(posStaff){
+    $('posAttrPin').textContent=posStaff.name+' / '+pinVal;
+    $('posAttrDist').textContent=posStaff.dist;
+  }
+  // Fee calc: different rates per method
+  let basePercent=0.0215, perTxn=0.30, varPercent=0.0025;
+  let feeLabel='In-person rate (2.15%)';
+  if(method==='manual'){basePercent=0.029;feeLabel='Online/MOTO rate (2.9%)'}
+  if(method==='cash'){basePercent=0;perTxn=0;varPercent=0;feeLabel='No processing fees'}
+  if(method==='gift'){basePercent=0;perTxn=0;varPercent=0;feeLabel='Gift card (no fees)'}
+  if(method==='storecredit'){basePercent=0;perTxn=0;varPercent=0;feeLabel='Store credit (no fees)'}
+  if(method==='custom'){basePercent=0;perTxn=0;varPercent=0;feeLabel='External (no Shopify fees)'}
+  if(method==='installments'){basePercent=0.059;perTxn=0.30;varPercent=0;feeLabel='Installments rate (5.9%)'}
+  const baseFee=grand*basePercent;
+  const variable=grand*varPercent;
+  const totalFee=baseFee+perTxn+variable;
+  const net=grand-totalFee;
+  $('posFeeLabel').textContent=feeLabel;
+  $('posFeeBase').textContent='$'+baseFee.toFixed(2);
+  $('posFeePerTxn').textContent='$'+perTxn.toFixed(2);
+  $('posFeeVar').textContent='$'+variable.toFixed(2);
+  $('posFeeTot').textContent='$'+totalFee.toFixed(2);
+  $('posFeeNet').textContent='$'+net.toFixed(2);
+}
+function posNewSale(){
+  posCart=[];
+  updPosUI();
+  posGo('p2');
+}
+function posReset(){
+  posCart=[];pinVal='';posStaff='';
+  updPosUI();clearPin();
+  $('posStaffBadge').textContent='Not logged in';
+  posGo('p1');
+}
+
+// ========== RESET ==========
+function reset(){
+  if(mode==='pos'){posReset();return}
+  cur=0;qty=1;cQty=1;po='onetime';path='none';sPay='card';
+  document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active');v.style.transform='';v.style.opacity=''});
+  $('v1').classList.add('active');
+  $('cb1').classList.remove('show');$('cb2').classList.remove('show');
+  $('qtyD').textContent='1';$('cqD').textContent='1';
+  $('poOne').classList.add('sel');$('poSub').classList.remove('sel');
+  $('subDet').classList.remove('open');$('osDiscR').style.display='none';
+  $('osSub').textContent='$59.95';$('osShip').textContent='$5.00';$('osTot').textContent='$64.95';
+  $('apOv').classList.remove('show');
+  $('spNotice').classList.remove('show');$('spPhoneRow').classList.remove('show');
+  document.querySelectorAll('#codeRow .code-box').forEach(b=>{b.textContent='';b.classList.remove('filled')});
+  document.querySelectorAll('.f-input:not([readonly])').forEach(f=>f.value='');
+  altIsEmail=false;
+  buildDots();updNav();cur=1;$('v1').classList.add('active');
+}
+
+// ========== KEYBOARD NAV ==========
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight') next();
+  else if(e.key==='ArrowLeft') prev();
+  else if(e.key.toLowerCase()==='r') reset();
+});
+
+// ========== INIT ==========
+buildDots();updNav();
+</script>
+</body>
+</html>

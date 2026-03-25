@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D2D Order Sync — Live Simulation v5.0</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+:root {
+  --bg:#080c14; --surface:#0d1320; --surface2:#151d2e; --surface3:#1a2540;
+  --border:#1e2d4a; --border2:#2a3f66; --text:#e8ecf4; --muted:#6b7a94; --dim:#3a4a66;
+  --blue:#2d7ff9; --blue-glow:rgba(45,127,249,.15); --blue-bright:#5ba0ff;
+  --green:#00d68f; --green-glow:rgba(0,214,143,.12); --green-dim:#0a3d2e;
+  --orange:#ff8c42; --orange-glow:rgba(255,140,66,.12);
+  --purple:#a78bfa; --purple-glow:rgba(167,139,250,.12);
+  --teal:#2dd4bf; --teal-glow:rgba(45,212,191,.12);
+  --red:#f43f5e; --red-glow:rgba(244,63,94,.12);
+  --yellow:#fbbf24; --yellow-glow:rgba(251,191,36,.12);
+  --font:'DM Sans',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--surface)} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.app{display:grid;grid-template-columns:280px 1fr 360px;grid-template-rows:auto 1fr auto;height:100vh;overflow:hidden}
+.header{grid-column:1/-1;grid-row:1;background:linear-gradient(135deg,var(--surface),var(--surface2));border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:17px;font-weight:700;letter-spacing:-.3px;background:linear-gradient(135deg,var(--blue-bright),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .ver{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* Left Panel */
+.left{grid-row:2/4;background:var(--surface);border-right:1px solid var(--border);padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.trigger{width:100%;padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;text-align:left;transition:all .25s;position:relative;overflow:hidden}
+.trigger:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.trigger:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.trigger .t-label{font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:var(--text);position:relative;z-index:2}
+.trigger .t-sub{font-size:11px;color:var(--muted);line-height:1.4;position:relative;z-index:2}
+.trigger .t-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.trigger::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity .3s;z-index:1}
+.trigger:hover::after{opacity:1}
+.t-first .t-dot{background:var(--green)} .t-first:hover{border-color:rgba(0,214,143,.4)} .t-first::after{background:var(--green-glow)}
+.t-renewal .t-dot{background:var(--blue)} .t-renewal:hover{border-color:rgba(45,127,249,.4)} .t-renewal::after{background:var(--blue-glow)}
+.t-refund .t-dot{background:var(--red)} .t-refund:hover{border-color:rgba(244,63,94,.4)} .t-refund::after{background:var(--red-glow)}
+.t-lifecycle .t-dot{background:var(--teal)} .t-lifecycle:hover{border-color:rgba(45,212,191,.4)} .t-lifecycle::after{background:var(--teal-glow)}
+
+.section-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);font-weight:700;padding:4px 0}
+
+/* System cards */
+.sys{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;transition:all .4s}
+.sys.active{border-color:var(--blue);box-shadow:0 0 20px var(--blue-glow)}
+.sys .s-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.sys .s-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);transition:background .3s}
+.sys.active .s-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+.sys .s-status{font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+
+/* Metafield inspector */
+.inspector{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.inspector h4{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:8px;font-weight:700}
+.mf-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;border-bottom:1px solid rgba(30,45,74,.4)}
+.mf-row .k{color:var(--muted);font-family:var(--mono);font-size:10px}
+.mf-row .v{color:var(--dim);font-family:var(--mono);font-size:10px;text-align:right}
+.mf-row .v.set{color:var(--green);text-shadow:0 0 8px var(--green-glow)}
+
+/* Center: Timeline */
+.center{grid-row:2;grid-column:2;overflow-y:auto;padding:20px 24px;position:relative;min-width:0}
+.center::before{content:'';position:absolute;left:39px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--border),transparent);pointer-events:none}
+
+.step{display:flex;gap:14px;margin-bottom:6px;position:relative;cursor:pointer;transition:all .3s}
+.step.pending{opacity:.25;pointer-events:none}
+.step .s-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);flex-shrink:0;border:2px solid var(--border);background:var(--surface);color:var(--muted);transition:all .4s;position:relative;z-index:2}
+.step.done .s-num{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.step.active .s-num{background:var(--blue);border-color:var(--blue-bright);color:#fff;box-shadow:0 0 16px var(--blue-glow);animation:numPulse 2s ease-in-out infinite}
+.step.selected .s-num{border-color:var(--yellow);box-shadow:0 0 12px var(--yellow-glow)}
+@keyframes numPulse{0%,100%{box-shadow:0 0 16px var(--blue-glow)}50%{box-shadow:0 0 28px rgba(45,127,249,.35)}}
+
+.step .s-body{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;transition:all .3s}
+.step.active .s-body{border-color:var(--blue);background:rgba(45,127,249,.04)}
+.step.selected .s-body{border-color:var(--yellow);background:rgba(251,191,36,.03)}
+.step .s-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.step .s-route{font-size:10px;color:var(--muted);font-family:var(--mono);display:flex;align-items:center;gap:4px}
+.step .s-route .arrow{color:var(--dim)}
+.step .s-badge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700;font-family:var(--mono);letter-spacing:.5px;margin-left:auto}
+.step.done .s-badge{background:var(--green-dim);color:var(--green)}
+.step.active .s-badge{background:rgba(45,127,249,.15);color:var(--blue-bright);animation:badgePulse 1.5s ease-in-out infinite}
+@keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Controls bar */
+.controls{display:flex;align-items:center;gap:8px;padding:10px 24px;background:var(--surface);border-top:1px solid var(--border);grid-column:2;grid-row:3}
+.controls button{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font);transition:all .15s}
+.controls button:hover:not(:disabled){background:var(--surface3);border-color:var(--border2)}
+.controls button:disabled{opacity:.3;cursor:not-allowed}
+.controls button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.controls button.primary:hover{background:var(--blue-bright)}
+.progress{flex:1;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin:0 8px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .4s ease;border-radius:2px}
+.step-count{font-size:12px;color:var(--muted);font-family:var(--mono);min-width:70px;text-align:right}
+.status-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;font-family:var(--mono);letter-spacing:.5px}
+
+/* Right Panel: Detail + Log */
+.right{grid-row:2/4;grid-column:3;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border);overflow:hidden;min-width:0}
+.detail{flex:0 0 auto;max-height:50%;overflow-y:auto;overflow-x:hidden;padding:16px;border-bottom:1px solid var(--border)}
+.detail h3{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--blue-bright)}
+.detail .badges{display:flex;gap:6px;margin-bottom:12px}
+.detail .badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--mono)}
+.detail .section{margin-bottom:12px}
+.detail .section h4{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:4px;font-weight:700}
+.detail .section p{font-size:12px;line-height:1.6;color:var(--text)}
+.detail .rule{color:var(--yellow);font-size:12px;line-height:1.5}
+.detail pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:var(--mono);font-size:10px;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;color:var(--blue-bright);max-width:100%}
+.detail .warn{color:var(--orange);font-size:10px;margin-top:4px;font-family:var(--mono)}
+
+.log{flex:1;overflow-y:auto;min-height:0}
+.log-header{padding:10px 16px;font-size:12px;font-weight:700;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;color:var(--muted)}
+.log-entry{padding:8px 16px;border-bottom:1px solid rgba(30,45,74,.3);font-size:11px;line-height:1.5;cursor:pointer;transition:background .2s}
+.log-entry:hover{background:rgba(45,127,249,.04)}
+.log-entry.selected{background:rgba(251,191,36,.05)}
+.log-entry .le-time{font-size:9px;color:var(--dim);font-family:var(--mono)}
+.log-entry .le-title{font-weight:600;margin-top:2px}
+.log-entry .le-route{font-size:10px;color:var(--muted)}
+.log-entry.api{border-left:3px solid var(--blue)}
+.log-entry.decision{border-left:3px solid var(--yellow)}
+.log-entry.data{border-left:3px solid var(--green)}
+.log-entry.error{border-left:3px solid var(--red)}
+
+/* Empty states */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);text-align:center;padding:40px}
+.empty .icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty .msg{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--muted)}
+.empty .sub{font-size:12px;color:var(--dim);max-width:240px;line-height:1.5}
+
+/* Responsive */
+@media(max-width:1100px){.app{grid-template-columns:220px 1fr 280px}}
+@media(max-width:900px){.app{grid-template-columns:200px 1fr 260px}}
+</style>
+
+<!-- BREADCRUMB NAV - INJECTED -->
+<style>
+.payops-breadcrumb-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 99999;
+  background: rgba(7,9,14,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(22,32,49,0.8);
+  padding: 0 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  font-family: 'Space Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 11px;
+}
+.payops-breadcrumb-bar a {
+  color: #00d4ff;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.payops-breadcrumb-bar a:hover { color: #fff; }
+.payops-breadcrumb-bar .bc-sep {
+  color: #2d4459;
+  margin: 0 10px;
+  font-size: 10px;
+}
+.payops-breadcrumb-bar .bc-current {
+  color: #607d94;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
+
+<style>.payops-breadcrumb-bar ~ * { } body { padding-top: 44px !important; }</style>
+</head>
+<body>
+<div style="background:#161b22;border-bottom:1px solid #30363d;padding:8px 32px;display:flex;align-items:center;gap:8px;z-index:9999;position:relative;">
+<a href="index.html" style="color:#58a6ff;text-decoration:none;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">&#x2190; Back to Hub</a>
+</div>
+<div class="payops-breadcrumb-bar">
+  <a href="index.html">Home</a>
+  <span class="bc-sep">&#x25B8;</span>
+  <a href="hub-shopify.html">Shopify Operations</a>
+  <span class="bc-sep">&#x25B8;</span>
+  <span class="bc-current">D2D Order Sync — Live Simulation v5.0</span>
+</div>
+
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useRef,useCallback}=React;
+
+const SYS=[
+  {id:'customer',name:'Customer',color:'var(--muted)',short:'CUST'},
+  {id:'shopify',name:'Shopify POS',color:'var(--green)',short:'SHOPIFY'},
+  {id:'sync',name:'Sync Service',color:'var(--blue)',short:'SYNC'},
+  {id:'json',name:'Sponsor Lookup',color:'var(--purple)',short:'JSON'},
+  {id:'unity',name:'Unity/InfoTrax',color:'var(--orange)',short:'UNITY'},
+  {id:'hydra',name:'Hydra/UI-API',color:'var(--purple)',short:'HYDRA'},
+  {id:'mkt',name:'Mkt Emails',color:'var(--teal)',short:'MKT'},
+];
+const sysMap=Object.fromEntries(SYS.map(s=>[s.id,s]));
+
+const F1=[
+  {id:1,from:'customer',to:'shopify',title:'Customer purchases at the door',
+   detail:'D2D sales rep processes sale on Shopify POS tablet. Customer pays via card reader. Shopify captures payment and stores card for future subscriptions.',
+   rule:'All payment data captured by Shopify/Stripe. Unity never sees the full card number. Partial card data applied to Unity order for audit trail only.',
+   payload:null},
+  {id:2,from:'shopify',to:'shopify',title:'Shopify creates order + sends confirmation email',
+   detail:'Shopify POS creates the order record, processes payment, and sends the order confirmation email to the customer. If subscription selected, subscription contract is also created.',
+   rule:'Shopify sends order confirmation with cooling-off rule language. source.platform = "Shopify", source.agent = "you feel great".',
+   payload:'{\n  "order_id": "5765432",\n  "order_number": "#1025",\n  "email": "jane@example.com",\n  "total_price": "159.00",\n  "total_tax": "12.50",\n  "source_name": "pos",\n  "financial_status": "paid",\n  "line_items": [{ "sku": "FG-US-001", "qty": 1, "price": "159.00" }]\n}'},
+  {id:3,from:'shopify',to:'sync',title:'Webhook fires: ORDERS_CREATE',
+   detail:'Shopify sends ORDERS_CREATE webhook to the sync service endpoint. Sync must respond HTTP 200 within 5 seconds and process asynchronously via queue.',
+   rule:'HMAC validation required (X-Shopify-Hmac-Sha256). If 19 consecutive failures, Shopify auto-removes subscription. Polling fallback every 30 minutes.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/mutations/webhookSubscriptionCreate\n// Registration:\nmutation webhookSubscriptionCreate(\n  $topic: WebhookSubscriptionTopic!\n  $webhookSubscription: WebhookSubscriptionInput!\n) {\n  webhookSubscriptionCreate(\n    topic: $topic\n    webhookSubscription: $webhookSubscription\n  ) {\n    webhookSubscription { id topic uri }\n    userErrors { field message }\n  }\n}\n\nVariables:\n{\n  "topic": "ORDERS_CREATE",\n  "webhookSubscription": {\n    "uri": "https://{sync-service}/webhooks/shopify/orders-create",\n    "format": "JSON"\n  }\n}'},
+  {id:4,from:'sync',to:'shopify',title:'Check customer metafield: new or renewal?',
+   detail:'Sync queries the Shopify customer metafield unicity_customer_id. If EXISTS = renewal (Flow 2). If MISSING = first order (Flow 1). Uses GraphQL field aliases for multiple metafield reads.',
+   rule:'This is the primary detection mechanism. Metafield absence = new customer = Flow 1.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/queries/customer\n// Note: Multiple metafield() calls require GraphQL aliases\nquery GetCustomerMetafields($customerId: ID!) {\n  customer(id: $customerId) {\n    id\n    email\n    firstName\n    lastName\n    customerId: metafield(namespace: "unicity", key: "customer_id") {\n      value\n    }\n    sponsorId: metafield(namespace: "unicity", key: "customer_sponsor_id") {\n      value\n    }\n    status: metafield(namespace: "unicity", key: "customer_status") {\n      value\n    }\n    subscription: metafield(namespace: "unicity", key: "existing_subscription") {\n      value\n    }\n  }\n}\n\nResponse: { customerId: null } // NOT FOUND -> Flow 1'},
+  {id:5,from:'sync',to:'shopify',title:'GraphQL: get staffMember.email (sponsor resolution)',
+   detail:'Sync queries Shopify GraphQL to get the POS staff member email. This is the primary lookup key for sponsor resolution. Requires read_users scope.',
+   rule:'Why email not name? "Chris Comer" vs "Chris Comr" breaks name matching. Email is exact-match and unique.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/objects/StaffMember\n// Required scope: read_users\nquery GetOrderStaffMember($orderId: ID!) {\n  order(id: $orderId) {\n    id\n    sourceName\n    staffMember {\n      id\n      firstName\n      lastName\n      email\n    }\n  }\n}\n\nResponse:\n{\n  "staffMember": {\n    "id": "gid://shopify/StaffMember/12345",\n    "email": "1981orders@gmail.com",\n    "firstName": "Chris",\n    "lastName": "Comer"\n  }\n}'},
+  {id:6,from:'sync',to:'json',title:'Lookup staff email in d2d_sponsor_lookup.json',
+   detail:'Sync checks the staff email against the deployed JSON config. If found and status=active, the distributor_id is used. If not found or status=no_account, orphan tree ID=2.',
+   rule:'NO ORDERS ARE EVER BLOCKED. Orphan tree (ID=2, "Shopify orphan") is the universal catch-all. Every order processes regardless.',
+   payload:'// d2d_sponsor_lookup.json (deployed with sync service)\n{\n  "reps": [\n    {\n      "shopify_staff_email": "1981orders@gmail.com",\n      "staff_name": "Chris Comer",\n      "unicity_dist_id": "271732401",\n      "status": "active"\n    }\n  ]\n}\n\nLookup: 1981orders@gmail.com -> Found, active\nResult: sponsor_id = 271732401'},
+  {id:7,from:'sync',to:'unity',title:'Email dedup: check if customer exists in Unity',
+   detail:'Before creating a new customer, sync checks if the email already exists in Unity. If found, existing account reused. If the existing account has a different active sponsor, the D2D rep does NOT get credit.',
+   rule:'Email-first dedup prevents duplicate customer accounts. Existing customers are never duplicated.',
+   payload:'GET /api/v1/customers?email=jane@example.com\n\nResponse: 404 Not Found -> New customer\n\n// UNITY PLACEHOLDER - Replace with actual InfoTrax API endpoint'},
+  {id:8,from:'sync',to:'unity',title:'Create customer account (status: M)',
+   detail:'Sync creates a new Member customer account. CRITICAL: Customer MUST be created with status "M" (Member). This controls pricing eligibility for PL 27/28/29. Without "M" status, pricing breaks.',
+   rule:'Status "M" set in BOTH Unity (customerType + status fields) AND Shopify (metafield). Both must match. "M" = Member = D2D-acquired customer.',
+   payload:'POST /api/v1/customers\n{\n  "email": "jane@example.com",\n  "firstName": "Jane",\n  "lastName": "Doe",\n  "phone": "+18015551234",\n  "enrollerId": "271732401",\n  "sponsorId": "271732401",\n  "customerType": "M",\n  "status": "M",\n  "source": "shopify_d2d"\n}\n\nResponse: { "unicityCustomerId": "271700501" }\n\n// UNITY PLACEHOLDER - Replace with actual InfoTrax API'},
+  {id:9,from:'sync',to:'sync',title:'Detect order type: OTO vs subscription',
+   detail:'Sync determines if the Shopify order is a one-time purchase (OTO) or subscription first fill (ISO) to apply the correct price level.',
+   rule:'PL 28 (Shopify OTO) = $169, zero PV/CV, $60 retail profit auto-paid. PL 29 (Shopify ISO) = $159, zero PV/CV, $70 retail profit auto-paid.',
+   payload:'if (order has associated subscription contract):\n    priceLevel = 29  // Shopify ISO - $70 retail profit\nelse:\n    priceLevel = 28  // Shopify OTO - $60 retail profit'},
+  {id:10,from:'sync',to:'unity',title:'Create order in Unity (PL 28 or 29, method 65)',
+   detail:'Sync creates the order with Shopify-specific price level. Tax and shipping from Shopify BYPASS Unity validation entirely. Item price overridden from Shopify. channelFlag = "shopify" suppresses Unity emails.',
+   rule:'PL 28/29 = zero PV/CV, retail profit auto-paid via InfoTrax Price 5 field. Payment method 65 = no authorization. Tax/shipping BYPASS (not override). source.platform = "Shopify".',
+   payload:'POST /api/v1/orders\n{\n  "customerId": "271700501",\n  "priceLevel": 29,\n  "paymentMethod": 65,\n  "paymentAmount": "159.00",\n  "orderSource": "shopify_pos",\n  "channelFlag": "shopify",\n  "sourcePlatform": "Shopify",\n  "sourceAgent": "you feel great",\n  "taxOverride": "12.50",\n  "shippingOverride": "0.00",\n  "bypassTaxValidation": true,\n  "bypassShippingValidation": true,\n  "lineItems": [{\n    "sku": "FG-US-001",\n    "quantity": 1,\n    "priceOverride": "159.00"\n  }],\n  "shopifyOrderId": "5765432",\n  "distributorId": "271732401",\n  "suppressTransactionalEmails": true\n}\n\nResponse: { "orderId": "ORD-88234" }\n\n// UNITY PLACEHOLDER - Replace with actual InfoTrax API'},
+  {id:11,from:'sync',to:'shopify',title:'Write-back: set 4 customer metafields (atomic)',
+   detail:'Writes all 4 metafields to Shopify customer in a single atomic mutation. All succeed or all fail. Uses verified metafieldsSet mutation from Shopify docs.',
+   rule:'Retry 3x exponential backoff (2s, 4s, 8s). Max 25 metafields per call. GraphQL aliases required for reads.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/mutations/metafieldsSet\nmutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {\n  metafieldsSet(metafields: $metafields) {\n    metafields {\n      key\n      namespace\n      value\n      createdAt\n      updatedAt\n    }\n    userErrors {\n      field\n      message\n      code\n    }\n  }\n}\n\nVariables:\n{\n  "metafields": [\n    {\n      "key": "customer_id",\n      "namespace": "unicity",\n      "ownerId": "gid://shopify/Customer/789",\n      "type": "single_line_text_field",\n      "value": "271700501"\n    },\n    {\n      "key": "customer_sponsor_id",\n      "namespace": "unicity",\n      "ownerId": "gid://shopify/Customer/789",\n      "type": "single_line_text_field",\n      "value": "271732401"\n    },\n    {\n      "key": "customer_status",\n      "namespace": "unicity",\n      "ownerId": "gid://shopify/Customer/789",\n      "type": "single_line_text_field",\n      "value": "M"\n    },\n    {\n      "key": "existing_subscription",\n      "namespace": "unicity",\n      "ownerId": "gid://shopify/Customer/789",\n      "type": "single_line_text_field",\n      "value": ""\n    }\n  ]\n}'},
+  {id:12,from:'unity',to:'hydra',title:'Order enters Hydra fulfillment queue',
+   detail:'Order automatically released into the Hydra/UI-API fulfillment queue. Products picked, packed, shipped.',
+   rule:'Unity handles all physical fulfillment. Shopify never ships anything directly.',payload:null},
+  {id:13,from:'hydra',to:'sync',title:'Tracking number generated',
+   detail:'Hydra generates tracking number and carrier after shipment. Sync detects and prepares to sync back to Shopify.',
+   rule:'Carrier names must exactly match Shopify list: "UPS", "USPS", "FedEx", "DHL Express".',
+   payload:'{\n  "trackingNumber": "1Z999AA10123456784",\n  "carrier": "UPS",\n  "shipDate": "2026-03-17"\n}'},
+  {id:14,from:'sync',to:'shopify',title:'Sync tracking to Shopify (fulfillmentTrackingInfoUpdate)',
+   detail:'POS orders are auto-fulfilled at creation. Sync UPDATES the existing fulfillment with tracking. Uses fulfillmentTrackingInfoUpdate (not V2, which is deprecated).',
+   rule:'POS orders = fulfillmentTrackingInfoUpdate. Renewals = fulfillmentCreate. Critical distinction.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/mutations/fulfillmentTrackingInfoUpdate\n// Note: fulfillmentTrackingInfoUpdateV2 is DEPRECATED\nmutation FulfillmentTrackingInfoUpdate(\n  $fulfillmentId: ID!\n  $trackingInfoInput: FulfillmentTrackingInput!\n  $notifyCustomer: Boolean\n) {\n  fulfillmentTrackingInfoUpdate(\n    fulfillmentId: $fulfillmentId\n    trackingInfoInput: $trackingInfoInput\n    notifyCustomer: $notifyCustomer\n  ) {\n    fulfillment {\n      id\n      status\n      trackingInfo { company number url }\n    }\n    userErrors { field message }\n  }\n}\n\nVariables:\n{\n  "fulfillmentId": "gid://shopify/Fulfillment/456",\n  "notifyCustomer": true,\n  "trackingInfoInput": {\n    "company": "UPS",\n    "number": "1Z999AA10123456784"\n  }\n}'},
+  {id:15,from:'shopify',to:'customer',title:'Customer receives shipping email with tracking',
+   detail:'Shopify sends shipping confirmation with tracking number and link. This is the ONLY tracking email the customer should receive.',
+   rule:'Unity emails SUPPRESSED (channelFlag: shopify). AfterShip emails TBD - must be consolidated with Michaela.',payload:null},
+];
+
+const F2=[
+  {id:1,from:'shopify',to:'shopify',title:'Day 30: Shopify auto-charges stored card',
+   detail:'Subscription engine charges the customer card on file and creates a renewal order. Shopify sends renewal confirmation email.',
+   rule:'Automatic every 30 days. No human intervention.',payload:null},
+  {id:2,from:'shopify',to:'sync',title:'Webhook fires: ORDERS_CREATE (same as Flow 1)',
+   detail:'Same webhook, same endpoint. Sync must determine this is a RENEWAL, not a first order.',
+   rule:'Detection: check metafield unicity_customer_id. EXISTS = renewal.',payload:null},
+  {id:3,from:'sync',to:'shopify',title:'Check metafield: customer_id EXISTS = renewal',
+   detail:'Sync reads the customer metafield. Finds existing unicity_customer_id, confirming renewal.',
+   rule:'Metafield EXISTS = renewal path (Flow 2). No customer creation needed.',
+   payload:'// Same verified query as Flow 1 Step 4\n// Response: { customerId: { value: "271700501" } }  // EXISTS -> Renewal'},
+  {id:4,from:'sync',to:'unity',title:'Create renewal order (PL 27, full PV/CV)',
+   detail:'Sync creates renewal order with Price Level 27 (Member Wholesale). Generates full PV and CV. Commission distributed to upline. No retail profit on renewals.',
+   rule:'PL 27 requires customer status "M" in Unity. No retail profit on renewals. Standard comp plan only. Tax/shipping bypass same as Flow 1.',
+   payload:'POST /api/v1/orders\n{\n  "customerId": "271700501",\n  "priceLevel": 27,\n  "paymentMethod": 65,\n  "paymentAmount": "159.00",\n  "channelFlag": "shopify",\n  "sourcePlatform": "Shopify",\n  "sourceAgent": "you feel great",\n  "taxOverride": "12.50",\n  "shippingOverride": "0.00",\n  "bypassTaxValidation": true,\n  "bypassShippingValidation": true,\n  "generatePV": true,\n  "generateCV": true,\n  "suppressTransactionalEmails": true\n}\n\n// UNITY PLACEHOLDER - Replace with actual InfoTrax API'},
+  {id:5,from:'unity',to:'hydra',title:'Fulfillment queue -> ship -> tracking',
+   detail:'Same fulfillment process. Product picked, packed, shipped. Tracking generated.',
+   rule:null,payload:null},
+  {id:6,from:'sync',to:'shopify',title:'Sync tracking: fulfillmentCreate (NEW fulfillment)',
+   detail:'Renewal orders are "unfulfilled" in Shopify. Sync CREATES a new fulfillment with tracking. Uses fulfillmentCreate (not V2, deprecated).',
+   rule:'Renewal = fulfillmentCreate. POS first order = fulfillmentTrackingInfoUpdate. Key difference.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/mutations/fulfillmentCreate\nmutation FulfillmentCreate($fulfillment: FulfillmentInput!) {\n  fulfillmentCreate(fulfillment: $fulfillment) {\n    fulfillment {\n      id\n      status\n      trackingInfo { number url company }\n    }\n    userErrors { field message }\n  }\n}\n\nVariables:\n{\n  "fulfillment": {\n    "lineItemsByFulfillmentOrder": [\n      { "fulfillmentOrderId": "gid://shopify/FulfillmentOrder/{id}" }\n    ],\n    "trackingInfo": {\n      "company": "UPS",\n      "number": "1Z999AA10123456784"\n    },\n    "notifyCustomer": true\n  }\n}'},
+  {id:7,from:'shopify',to:'customer',title:'Customer receives tracking email',
+   detail:'Shopify sends shipping confirmation. Unity emails suppressed.',rule:null,payload:null},
+];
+
+const F3=[
+  {id:1,from:'customer',to:'unity',title:'Customer requests refund (contacts CS)',
+   detail:'Customer contacts their D2D sponsor or calls Unicity support. 90-day refund guarantee applies.',
+   rule:'Same 90-day guarantee as standard Unicity orders. Sync does NOT process refunds automatically in Phases 1-3.',payload:null},
+  {id:2,from:'unity',to:'shopify',title:'CS processes refund in Shopify Admin',
+   detail:'Unicity CS agent processes the refund through Shopify Admin (Orders > Find order > Refund). Shopify sends refund confirmation email to customer.',
+   rule:'Refund must be processed in Shopify FIRST. CS must NOT refund in Unity without Shopify refund first.',payload:null},
+  {id:3,from:'shopify',to:'sync',title:'Webhook: REFUNDS_CREATE',
+   detail:'Shopify fires refund webhook with order ID, refund line items, and amounts.',
+   rule:null,
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/objects/Refund\nquery GetRefundDetails($orderId: ID!) {\n  order(id: $orderId) {\n    id\n    name\n    refunds(first: 10) {\n      id\n      createdAt\n      note\n      refundLineItems(first: 50) {\n        edges {\n          node {\n            lineItem { sku title quantity }\n            quantity\n            subtotalSet {\n              shopMoney { amount currencyCode }\n            }\n          }\n        }\n      }\n      totalRefundedSet {\n        shopMoney { amount currencyCode }\n      }\n    }\n  }\n}'},
+  {id:4,from:'sync',to:'unity',title:'Send refund data for commission clawback',
+   detail:'Sync sends refund data to Unity. Clawback mechanism uses existing RMA-based process per David Weinerman. Exact API endpoint TBD.',
+   rule:'If first order (PL 28/29): retail profit reversed. If renewal (PL 27): PV/CV reversed. Void after ship requires RMA to recover product.',
+   payload:'POST /api/v1/refunds\n{\n  "customerId": "271700501",\n  "shopifyOrderId": "5765432",\n  "refundAmount": "159.00",\n  "refundLineItems": [{ "sku": "FG-US-001", "qty": 1 }],\n  "initiateClawback": true\n}\n\n// UNITY PLACEHOLDER - Replace with actual InfoTrax RMA API\n// TBD with David Weinerman'},
+];
+
+const F4=[
+  {id:1,from:'customer',to:'shopify',title:'Customer edits subscription (product/frequency)',
+   detail:'Customer changes product, quantity, or delivery frequency via Shopify subscription manager.',
+   rule:'All subscription management in Shopify. CS must direct D2D customers to Shopify, NOT modify Unity directly.',payload:null},
+  {id:2,from:'shopify',to:'sync',title:'Webhook: SUBSCRIPTION_CONTRACTS_UPDATE',
+   detail:'One webhook handles ALL lifecycle events. Sync reads status and contract details to determine action.',
+   rule:'Single webhook endpoint handles: edit, pause, resume, cancel, reactivate.',
+   payload:'// Verified: shopify.dev/docs/api/admin-graphql/2026-01/objects/SubscriptionContract\nquery GetSubscriptionContract($contractId: ID!) {\n  subscriptionContract(id: $contractId) {\n    id\n    status\n    nextBillingDate\n    customer {\n      id\n      email\n      metafield(namespace: "unicity", key: "customer_id") { value }\n    }\n    billingPolicy { interval intervalCount }\n    deliveryPolicy { interval intervalCount }\n    lines(first: 10) {\n      edges {\n        node { id title quantity sku currentPrice { amount currencyCode } }\n      }\n    }\n  }\n}\n\nStatus values: ACTIVE, PAUSED, CANCELLED, EXPIRED, FAILED'},
+  {id:3,from:'sync',to:'unity',title:'Update Unity order template',
+   detail:'Sync updates the corresponding Unity subscription template with new SKU, quantity, or frequency.',
+   rule:null,payload:'PUT /subscriptions/{unityCustomerId}/template\n{ "lineItems": [...], "frequency": "30 DAY" }\n\n// UNITY PLACEHOLDER'},
+  {id:4,from:'customer',to:'shopify',title:'Customer pauses subscription',
+   detail:'No more charges or shipments until resumed. Shopify does not charge stored card while paused.',
+   rule:null,payload:null},
+  {id:5,from:'sync',to:'unity',title:'Pause Unity subscription record',
+   detail:'Sync pauses Unity record. Updates Shopify metafield existing_subscription to "paused".',
+   rule:'While paused, no Unity renewal orders created.',payload:'POST /subscriptions/{id}/pause\n\n// UNITY PLACEHOLDER'},
+  {id:6,from:'customer',to:'shopify',title:'Customer cancels subscription',
+   detail:'Shopify sends cancellation confirmation email. Subscription ends.',
+   rule:null,payload:null},
+  {id:7,from:'sync',to:'unity',title:'Close Unity subscription record',
+   detail:'Sync closes Unity record. Updates metafield to "cancelled".',
+   rule:null,payload:'POST /subscriptions/{id}/cancel\n\n// UNITY PLACEHOLDER'},
+  {id:8,from:'sync',to:'mkt',title:'Add to Iterable reactivation segment (30-day delay)',
+   detail:'Sync calls Iterable API. Reactivation email fires 30 days after cancel. Links to Unicity Shop, NOT Shopify.',
+   rule:'Reactivation routes to Unicity Shop. If customer repurchases there, they enter Unity ecosystem directly.',
+   payload:'POST https://api.iterable.com/api/lists/{reactivation_list_id}/subscribe\n{\n  "subscribers": [{\n    "email": "jane@example.com",\n    "dataFields": {\n      "cancel_date": "2026-06-15",\n      "reactivation_eligible_date": "2026-07-15",\n      "source_channel": "shopify_d2d",\n      "original_sponsor_id": "271732401",\n      "unicity_customer_id": "271700501"\n    }\n  }]\n}'},
+];
+
+const FLOWS={first:{name:'Flow 1: First Order',steps:F1,color:'var(--green)',desc:'New customer, PL 28/29, zero PV/CV, status M, auto retail profit'},renewal:{name:'Flow 2: Renewal',steps:F2,color:'var(--blue)',desc:'Existing customer, PL 27, full PV/CV, standard comp plan'},refund:{name:'Flow 3: Refund',steps:F3,color:'var(--red)',desc:'90-day guarantee, clawback via RMA, CS processes in Shopify Admin'},lifecycle:{name:'Flow 4: Subscription Lifecycle',steps:F4,color:'var(--teal)',desc:'Edit, pause, cancel, reactivate via single webhook'}};
+
+function App(){
+  const[flow,setFlow]=useState(null);
+  const[step,setStep]=useState(-1);
+  const[sel,setSel]=useState(null);
+  const[logs,setLogs]=useState([]);
+  const[playing,setPlaying]=useState(false);
+  const[paused,setPaused]=useState(false);
+  const timer=useRef(null);
+  const logRef=useRef(null);
+  const stepsRef=useRef(null);
+
+  const steps=flow?FLOWS[flow].steps:[];
+  const finished=step>=0&&step>=steps.length-1;
+
+  const start=useCallback((f)=>{
+    setFlow(f);setStep(0);setSel(null);setPlaying(true);setPaused(false);
+    const s=FLOWS[f].steps[0];
+    setLogs([{time:new Date().toLocaleTimeString(),type:s.payload?'api':s.rule?'decision':'data',from:s.from,to:s.to,text:s.title}]);
+  },[]);
+
+  const advance=useCallback(()=>{
+    if(!flow)return;
+    setStep(p=>{
+      const next=p+1;
+      if(next>=FLOWS[flow].steps.length){setPlaying(false);return p;}
+      const s=FLOWS[flow].steps[next];
+      setLogs(l=>[...l,{time:new Date().toLocaleTimeString(),type:s.payload?'api':s.rule?'decision':'data',from:s.from,to:s.to,text:s.title}]);
+      return next;
+    });
+  },[flow]);
+
+  const back=useCallback(()=>setStep(p=>Math.max(0,p-1)),[]);
+  const pause=useCallback(()=>{setPaused(true);setPlaying(false);clearTimeout(timer.current)},[]);
+  const resume=useCallback(()=>{setPaused(false);setPlaying(true)},[]);
+  const reset=useCallback(()=>{setFlow(null);setStep(-1);setSel(null);setLogs([]);setPlaying(false);setPaused(false);clearTimeout(timer.current)},[]);
+
+  useEffect(()=>{
+    if(!playing||paused||!flow)return;
+    if(step>=FLOWS[flow].steps.length-1){setPlaying(false);return;}
+    timer.current=setTimeout(advance,2200);
+    return()=>clearTimeout(timer.current);
+  },[playing,paused,step,flow,advance]);
+
+  useEffect(()=>{if(logRef.current)logRef.current.scrollTop=logRef.current.scrollHeight},[logs]);
+  useEffect(()=>{
+    if(stepsRef.current&&step>=0){
+      const el=stepsRef.current.children[step];
+      if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  },[step]);
+
+  // Metafield state
+  const mf={customer_id:'--',customer_sponsor_id:'--',customer_status:'--',existing_subscription:'--'};
+  if(flow&&step>=0){
+    for(let i=0;i<=step&&i<steps.length;i++){
+      if(steps[i].title.includes('metafield')&&steps[i].title.includes('Write-back')){
+        mf.customer_id='271700501';mf.customer_sponsor_id='271732401';mf.customer_status='M';mf.existing_subscription='';
+      }
+    }
+  }
+
+  // Active systems
+  const activeSys={};
+  if(step>=0&&steps[step]){activeSys[steps[step].from]=true;activeSys[steps[step].to]=true;}
+
+  const detailStep=sel!==null&&steps[sel]?steps[sel]:(step>=0&&steps[step]?steps[step]:null);
+
+  return React.createElement('div',{className:'app'},
+    React.createElement('div',{className:'header'},
+      React.createElement('div',null,
+        React.createElement('h1',null,'D2D Order Sync \u2014 Live Simulation'),
+        React.createElement('div',{className:'ver'},'v5.0 FINAL \u2022 March 17, 2026 \u2022 PL 28/29/27 \u2022 Status M \u2022 Verified Shopify API')
+      ),
+      flow&&React.createElement('div',{style:{display:'flex',alignItems:'center',gap:10}},
+        React.createElement('div',{style:{fontSize:13,fontWeight:700,color:FLOWS[flow].color}},FLOWS[flow].name),
+        paused&&React.createElement('span',{className:'status-pill',style:{background:'var(--yellow-glow)',color:'var(--yellow)'}},'PAUSED'),
+        finished&&React.createElement('span',{className:'status-pill',style:{background:'var(--green-glow)',color:'var(--green)'}},'COMPLETE'),
+      ),
+    ),
+
+    // Left panel
+    React.createElement('div',{className:'left'},
+      React.createElement('div',{className:'section-label'},'Trigger a flow'),
+      ...Object.entries(FLOWS).map(([k,v])=>
+        React.createElement('button',{key:k,className:`trigger t-${k}`,disabled:!!flow,onClick:()=>start(k)},
+          React.createElement('div',{className:'t-label'},React.createElement('div',{className:'t-dot'}),v.name),
+          React.createElement('div',{className:'t-sub'},v.desc),
+        )
+      ),
+      React.createElement('div',{className:'section-label',style:{marginTop:8}},'System status'),
+      ...SYS.map(s=>
+        React.createElement('div',{key:s.id,className:`sys ${activeSys[s.id]?'active':''}`},
+          React.createElement('div',{className:'s-head'},React.createElement('div',{className:'s-dot'}),s.name),
+          React.createElement('div',{className:'s-status'},activeSys[s.id]?'\u25CF Active':'\u25CB Idle'),
+        )
+      ),
+      React.createElement('div',{className:'inspector'},
+        React.createElement('h4',null,'Shopify customer metafields'),
+        ...['customer_id','customer_sponsor_id','customer_status','existing_subscription'].map(k=>
+          React.createElement('div',{key:k,className:'mf-row'},
+            React.createElement('span',{className:'k'},'unicity.'+k),
+            React.createElement('span',{className:`v ${mf[k]!=='--'?'set':''}`},mf[k]==='--'?'\u2014':mf[k]||'(empty)'),
+          )
+        ),
+      ),
+    ),
+
+    // Center: timeline
+    React.createElement('div',{className:'center',ref:stepsRef},
+      !flow?React.createElement('div',{className:'empty'},
+        React.createElement('div',{className:'icon'},'\u26A1'),
+        React.createElement('div',{className:'msg'},'Select a flow to simulate'),
+        React.createElement('div',{className:'sub'},'Click any trigger on the left. Use Pause to stop at any step. Click steps to inspect API payloads and business rules.'),
+      ):steps.map((s,i)=>{
+        const isDone=i<step;const isActive=i===step;const isPending=i>step;const isSel=sel===i;
+        return React.createElement('div',{key:i,className:`step ${isDone?'done':''} ${isActive?'active':''} ${isPending?'pending':''} ${isSel?'selected':''}`,onClick:()=>{if(!isPending)setSel(isSel?null:i)}},
+          React.createElement('div',{className:'s-num'},isDone?'\u2713':s.id),
+          React.createElement('div',{className:'s-body'},
+            React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8}},
+              React.createElement('div',{className:'s-title'},s.title),
+              React.createElement('div',{className:'s-badge'},isDone?'DONE':isActive?(paused?'PAUSED':'ACTIVE'):''),
+            ),
+            React.createElement('div',{className:'s-route'},
+              React.createElement('span',{style:{color:sysMap[s.from]?.color}},sysMap[s.from]?.short),
+              React.createElement('span',{className:'arrow'},'\u2192'),
+              React.createElement('span',{style:{color:sysMap[s.to]?.color}},sysMap[s.to]?.short),
+            ),
+          ),
+        );
+      }),
+    ),
+
+    // Controls
+    flow&&React.createElement('div',{className:'controls'},
+      React.createElement('button',{onClick:back,disabled:step<=0},'\u25C0 Back'),
+      playing?React.createElement('button',{onClick:pause,className:'primary'},'\u23F8 Pause'):
+        React.createElement('button',{onClick:finished?null:resume,className:'primary',disabled:finished},'\u25B6 Play'),
+      React.createElement('button',{onClick:advance,disabled:finished},'Step \u25B6'),
+      React.createElement('button',{onClick:reset},'\u21BA Reset'),
+      React.createElement('div',{className:'progress'},React.createElement('div',{className:'progress-fill',style:{width:steps.length?((step+1)/steps.length*100)+'%':'0%'}})),
+      React.createElement('div',{className:'step-count'},step>=0?`${step+1} / ${steps.length}`:`0 / ${steps.length}`),
+    ),
+
+    // Right panel
+    React.createElement('div',{className:'right'},
+      detailStep?React.createElement('div',{className:'detail'},
+        React.createElement('h3',null,`Step ${detailStep.id}: ${detailStep.title}`),
+        React.createElement('div',{className:'badges'},
+          React.createElement('span',{className:'badge',style:{background:sysMap[detailStep.from]?.color,color:'#fff'}},sysMap[detailStep.from]?.short),
+          React.createElement('span',{style:{color:'var(--dim)',fontSize:12}},'\u2192'),
+          React.createElement('span',{className:'badge',style:{background:sysMap[detailStep.to]?.color,color:'#fff'}},sysMap[detailStep.to]?.short),
+        ),
+        React.createElement('div',{className:'section'},
+          React.createElement('h4',null,'What happens'),
+          React.createElement('p',null,detailStep.detail),
+        ),
+        detailStep.rule&&React.createElement('div',{className:'section'},
+          React.createElement('h4',null,'Business rule'),
+          React.createElement('p',{className:'rule'},detailStep.rule),
+        ),
+        detailStep.payload&&React.createElement('div',{className:'section'},
+          React.createElement('h4',null,'API payload'),
+          React.createElement('pre',null,detailStep.payload),
+          detailStep.payload.includes('PLACEHOLDER')&&React.createElement('div',{className:'warn'},'\u26A0 Unity/Iterable endpoints are placeholders. Replace with actual API docs.'),
+          detailStep.payload.includes('Verified')&&React.createElement('div',{style:{color:'var(--green)',fontSize:10,marginTop:4,fontFamily:'var(--mono)'}},'\u2713 Verified against Shopify docs (2026-01)'),
+        ),
+      ):React.createElement('div',{className:'empty',style:{flex:'0 0 200px',minHeight:200}},
+        React.createElement('div',{className:'icon'},'\u{1F449}'),
+        React.createElement('div',{className:'msg'},'Click any step to inspect'),
+        React.createElement('div',{className:'sub'},'API payloads, business rules, and system routing'),
+      ),
+      React.createElement('div',{className:'log',ref:logRef},
+        React.createElement('div',{className:'log-header'},React.createElement('span',null,'Event log'),logs.length>0&&React.createElement('span',null,logs.length+' events')),
+        logs.map((l,i)=>
+          React.createElement('div',{key:i,className:`log-entry ${l.type} ${sel===i?'selected':''}`,onClick:()=>setSel(sel===i?null:i)},
+            React.createElement('div',{className:'le-time'},l.time),
+            React.createElement('div',{className:'le-title'},l.text),
+            React.createElement('div',{className:'le-route'},sysMap[l.from]?.short,' \u2192 ',sysMap[l.to]?.short),
+          )
+        ),
+        logs.length===0&&React.createElement('div',{style:{padding:24,color:'var(--dim)',textAlign:'center',fontSize:12}},'Events appear here during simulation'),
+      ),
+    ),
+  );
+}
+
+ReactDOM.render(React.createElement(App),document.getElementById('root'));
+</script>
+</body>
+</html>

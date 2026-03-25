@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify POS Pilot — Configurations Reference</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --orange: #e3894c;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #1a2332 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 24px 32px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  header .logo { font-size: 28px; }
+  header h1 { font-size: 22px; font-weight: 700; color: var(--accent); }
+  header .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  header .badge {
+    margin-left: auto; background: var(--green); color: #000;
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  }
+
+  .legend {
+    display: flex; gap: 16px; padding: 12px 32px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  main { padding: 24px 32px; max-width: 1400px; }
+
+  /* TOC */
+  .toc {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px 24px; margin-bottom: 28px;
+  }
+  .toc h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+  .toc a {
+    color: var(--accent); text-decoration: none; font-size: 13px;
+    padding: 4px 8px; border-radius: 4px; display: block;
+  }
+  .toc a:hover { background: rgba(88,166,255,.1); }
+  .toc .cat { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; padding: 2px 8px; margin-top: 6px; }
+
+  /* Section */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 18px;
+  }
+  .section-num {
+    background: var(--accent); color: #000; width: 28px; height: 28px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+  }
+  .section-title { font-size: 18px; font-weight: 700; }
+  .section-cat { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-left: auto; }
+
+  /* Config card */
+  .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+  .config-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  }
+  .config-card.done { border-left: 4px solid var(--green); }
+  .config-card.warn { border-left: 4px solid var(--yellow); }
+  .config-card.fixed { border-left: 4px solid var(--purple); }
+  .config-card.note { border-left: 4px solid var(--accent); }
+
+  .card-header {
+    padding: 12px 16px; background: var(--surface2);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  }
+  .card-title { font-weight: 700; font-size: 14px; }
+  .card-status {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0;
+  }
+  .status-done { background: rgba(63,185,80,.2); color: var(--green); }
+  .status-warn { background: rgba(210,153,34,.2); color: var(--yellow); }
+  .status-fixed { background: rgba(188,140,255,.2); color: var(--purple); }
+  .status-note { background: rgba(88,166,255,.2); color: var(--accent); }
+
+  .card-body { padding: 14px 16px; }
+
+  .path-row {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    background: var(--bg); border-radius: 4px; padding: 6px 10px;
+    font-family: var(--mono); font-size: 12px;
+  }
+  .path-icon { color: var(--muted); font-size: 11px; }
+  .path-steps { color: var(--accent); }
+  .path-steps .arrow { color: var(--muted); margin: 0 4px; }
+
+  .detail-list { list-style: none; }
+  .detail-list li {
+    padding: 3px 0; font-size: 13px; color: var(--muted);
+    border-bottom: 1px solid rgba(48,54,61,.5);
+    display: flex; gap: 8px;
+  }
+  .detail-list li:last-child { border: none; }
+  .detail-list .key { color: var(--text); min-width: 160px; flex-shrink: 0; font-size: 12px; }
+  .detail-list .val { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  .detail-list .val.green { color: var(--green); }
+  .detail-list .val.yellow { color: var(--yellow); }
+  .detail-list .val.red { color: var(--red); }
+
+  .note-box {
+    margin-top: 10px; padding: 8px 10px;
+    border-radius: 4px; font-size: 12px; line-height: 1.5;
+  }
+  .note-box.warn { background: rgba(210,153,34,.1); border: 1px solid rgba(210,153,34,.3); color: var(--yellow); }
+  .note-box.fix { background: rgba(188,140,255,.1); border: 1px solid rgba(188,140,255,.3); color: var(--purple); }
+  .note-box.info { background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.3); color: var(--accent); }
+  .note-box.success { background: rgba(63,185,80,.1); border: 1px solid rgba(63,185,80,.3); color: var(--green); }
+
+  /* Full-width card variant */
+  .config-card.full { grid-column: 1 / -1; }
+  .permissions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 4px; }
+  .perm { font-size: 12px; font-family: var(--mono); padding: 2px 0; }
+  .perm.on { color: var(--green); }
+  .perm.off { color: var(--muted); text-decoration: line-through; }
+
+  /* Summary bar */
+  .summary-bar {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px; margin-bottom: 28px;
+  }
+  .stat-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .stat-box .num { font-size: 28px; font-weight: 700; }
+  .stat-box .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .stat-box.green .num { color: var(--green); }
+  .stat-box.yellow .num { color: var(--yellow); }
+  .stat-box.purple .num { color: var(--purple); }
+  .stat-box.blue .num { color: var(--accent); }
+
+  footer {
+    text-align: center; padding: 24px; color: var(--muted);
+    font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px;
+  }
+  h2.sub-head {
+    font-size: 13px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1px; margin: 20px 0 10px;
+  }
+</style>
+</head>
+<body>
+<div style="background:#161b22;border-bottom:1px solid #30363d;padding:8px 32px;display:flex;align-items:center;gap:8px;">
+<a href="index.html" style="color:#58a6ff;text-decoration:none;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">&#x2190; Back to Hub</a>
+</div>
+
+<header>
+  <div class="logo">⚙️</div>
+  <div>
+    <h1>Shopify POS Pilot — Configurations Reference</h1>
+    <div class="sub">TKT-5793 · Mississippi Pilot · Unicity International · All tickets closed 02/19/2026</div>
+  </div>
+  <div class="badge">✓ ALL TICKETS CLOSED 02/19</div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Completed &amp; verified</div>
+  <div class="legend-item"><div class="dot" style="background:var(--yellow)"></div> Requires ongoing attention</div>
+  <div class="legend-item"><div class="dot" style="background:var(--purple)"></div> Was broken — fixed in place</div>
+  <div class="legend-item"><div class="dot" style="background:var(--accent)"></div> Informational / platform limitation</div>
+</div>
+
+<main>
+
+<!-- Summary Stats -->
+<div class="summary-bar">
+  <div class="stat-box green"><div class="num">23</div><div class="lbl">Tickets Closed</div></div>
+  <div class="stat-box blue"><div class="num">18</div><div class="lbl">Config Areas Touched</div></div>
+  <div class="stat-box purple"><div class="num">4</div><div class="lbl">Issues Fixed In-Flight</div></div>
+  <div class="stat-box yellow"><div class="num">3</div><div class="lbl">Ongoing Attention</div></div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Jump to Section</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;margin-top:4px;">
+
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);">🖥 POS Setup</div>
+      <a href="#locations" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">1. Locations</a>
+      <a href="#pos-pro" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">2. POS Pro Subscription</a>
+      <a href="#roles" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">3. POS Roles</a>
+      <a href="#staff" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">4. Staff Accounts</a>
+      <a href="#attribution" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">5. Sales Attribution</a>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);">💳 Payments</div>
+      <a href="#payments" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">6. Shopify Payments</a>
+      <a href="#taxes" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">7. Taxes &amp; Duties</a>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);">🌐 Online Store</div>
+      <a href="#password" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">8. Password Protection</a>
+      <a href="#policies" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">9. Store Policies</a>
+      <a href="#customer-accounts" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">10. Customer Accounts</a>
+      <a href="#email-auth" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">11. Email Authentication</a>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);">📦 Products &amp; Catalog</div>
+      <a href="#products" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">12. Products &amp; Pricing</a>
+      <a href="#subscriptions" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">13. Subscriptions / Autoship</a>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);">🔌 API &amp; Integrations</div>
+      <a href="#storefront-api" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">14. Storefront API / Headless</a>
+      <a href="#metafields" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">15. Customer Metafields</a>
+      <a href="#webhooks" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">16. Order Webhooks</a>
+    </div>
+
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);">🗄 Data &amp; Sync</div>
+      <a href="#customer-import" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">17. Customer Migration</a>
+      <a href="#order-sync" style="display:block;color:var(--accent);text-decoration:none;font-size:13px;padding:3px 0;">18. Order Sync Architecture</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== SECTION 1: POS SETUP ======================== -->
+<div class="section" id="pos-setup">
+  <div class="section-header">
+    <div class="section-num">①</div>
+    <div class="section-title">POS Setup</div>
+    <div class="section-cat">Point of Sale</div>
+  </div>
+  <div class="config-grid">
+
+    <!-- Locations -->
+    <div class="config-card done" id="locations">
+      <div class="card-header">
+        <div class="card-title">POS Location</div>
+        <div class="card-status status-done">✓ Done 02/14</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Shopify Admin <span class="arrow">›</span>
+            Settings <span class="arrow">›</span>
+            Locations <span class="arrow">›</span>
+            Add location
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Name</span><span class="val green">US Unicity Pilot Location</span></li>
+          <li><span class="key">Address</span><span class="val">1712 S East Bay Blvd Suite 101</span></li>
+          <li><span class="key">City / State / Zip</span><span class="val">Provo, UT 84606</span></li>
+          <li><span class="key">Fulfill online orders</span><span class="val red">OFF — critical</span></li>
+          <li><span class="key">Purpose</span><span class="val">Ties POS transactions to this location for inventory &amp; reporting</span></li>
+        </ul>
+        <div class="note-box info">Fulfill online orders must stay OFF. If ON, Shopify routes online orders to this location for inventory fulfillment — wrong for pilot.</div>
+      </div>
+    </div>
+
+    <!-- POS Pro -->
+    <div class="config-card done" id="pos-pro">
+      <div class="card-header">
+        <div class="card-title">POS Pro Subscription</div>
+        <div class="card-status status-done">✓ Done 02/14</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Point of Sale <span class="arrow">›</span>
+            [Select location] <span class="arrow">›</span>
+            Upgrade to POS Pro
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Plan</span><span class="val green">POS Pro — included with Shopify Plus</span></li>
+          <li><span class="key">Locations active</span><span class="val">1 of 200 available on Plus</span></li>
+          <li><span class="key">Staff limit</span><span class="val green">Unlimited on Plus (10 distributors + RM = no issue)</span></li>
+          <li><span class="key">Key features unlocked</span><span class="val">Smart grid, role-based access, exchanges, unlimited staff PINs</span></li>
+        </ul>
+        <div class="note-box success">Plus waives the POS Pro add-on fee ($89/mo/location). All 10 distributors count as staff, not seats.</div>
+      </div>
+    </div>
+
+    <!-- Roles -->
+    <div class="config-card done full" id="roles">
+      <div class="card-header">
+        <div class="card-title">POS Roles — Sales Role &amp; Manager Role</div>
+        <div class="card-status status-done">✓ Done 02/14</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Point of Sale <span class="arrow">›</span>
+            Settings <span class="arrow">›</span>
+            Roles and permissions <span class="arrow">›</span>
+            Create role
+          </span>
+        </div>
+        <h2 class="sub-head">Sales Role (10 Distributors) — 5 permissions ON</h2>
+        <div class="permissions-grid">
+          <div class="perm on">✓ Add custom sale amounts</div>
+          <div class="perm on">✓ Apply discount codes</div>
+          <div class="perm on">✓ Manage sales attribution</div>
+          <div class="perm on">✓ Cancel orders</div>
+          <div class="perm on">✓ Log out of POS</div>
+          <div class="perm off">✗ All other 37 perms</div>
+        </div>
+        <h2 class="sub-head">Manager Role (Regional Manager) — 25 permissions ON</h2>
+        <div class="permissions-grid">
+          <div class="perm on">✓ All Sales perms (above 5)</div>
+          <div class="perm on">✓ Ship to customer</div>
+          <div class="perm on">✓ Edit taxes on cart</div>
+          <div class="perm on">✓ Apply custom discounts</div>
+          <div class="perm on">✓ Manage orders (all locations)</div>
+          <div class="perm on">✓ Returns &amp; exchanges</div>
+          <div class="perm on">✓ Unverified returns</div>
+          <div class="perm on">✓ Cancel orders</div>
+          <div class="perm on">✓ Edit customers</div>
+          <div class="perm on">✓ Create customers</div>
+          <div class="perm on">✓ Delete customers</div>
+          <div class="perm on">✓ View customer metafields</div>
+          <div class="perm on">✓ Edit customer metafields</div>
+          <div class="perm on">✓ Apply store credit</div>
+          <div class="perm on">✓ View analytics</div>
+          <div class="perm on">✓ Manage POS staff</div>
+          <div class="perm on">✓ Customize smart grid</div>
+          <div class="perm on">✓ Log out of POS</div>
+          <div class="perm off">✗ 17 remaining perms — OFF</div>
+        </div>
+        <div class="note-box info">Manager hierarchy (who reports to whom) lives in Unity only. Shopify roles just control feature access within the POS app. AJ Pardilla requested Sales role permissions review post-launch.</div>
+      </div>
+    </div>
+
+    <!-- Staff -->
+    <div class="config-card done" id="staff">
+      <div class="card-header">
+        <div class="card-title">Staff Accounts — 10 Distributors + 1 RM</div>
+        <div class="card-status status-done">✓ Done 02/19</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Point of Sale <span class="arrow">›</span>
+            Staff <span class="arrow">›</span>
+            Add staff
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Distributors</span><span class="val green">10 accounts — POS-only staff (no admin)</span></li>
+          <li><span class="key">Regional Manager</span><span class="val green">1 account — Manager role</span></li>
+          <li><span class="key">PIN</span><span class="val">Each staff gets unique 4–6 digit PIN for POS login</span></li>
+          <li><span class="key">Admin access</span><span class="val red">OFF for distributors — POS app only</span></li>
+          <li><span class="key">Staff attribution key</span><span class="val">Shopify records staff name on every POS order — this becomes the distributor lookup key</span></li>
+        </ul>
+        <div class="note-box info">Staff name on order → 10-row mapping table → Unity Distributor ID. PIN distribution to distributors required in training materials.</div>
+      </div>
+    </div>
+
+    <!-- Attribution -->
+    <div class="config-card done" id="attribution">
+      <div class="card-header">
+        <div class="card-title">POS Sales Attribution</div>
+        <div class="card-status status-done">✓ Done 02/19</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Point of Sale <span class="arrow">›</span>
+            Settings <span class="arrow">›</span>
+            Sales attribution
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Attribution method</span><span class="val green">Staff PIN — automatic on login</span></li>
+          <li><span class="key">How it works</span><span class="val">Distributor enters PIN → all sales in that session attributed to that staff member</span></li>
+          <li><span class="key">Order field populated</span><span class="val">attributed_staff (staff name)</span></li>
+          <li><span class="key">Lookup chain</span><span class="val">Staff name → mapping table → Unity Dist ID</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== SECTION 2: PAYMENTS ======================== -->
+<div class="section" id="payments-section">
+  <div class="section-header">
+    <div class="section-num">②</div>
+    <div class="section-title">Payments</div>
+    <div class="section-cat">Settings → Payments</div>
+  </div>
+  <div class="config-grid">
+
+    <!-- Shopify Payments -->
+    <div class="config-card done" id="payments">
+      <div class="card-header">
+        <div class="card-title">Shopify Payments Configuration</div>
+        <div class="card-status status-done">✓ Done 02/14</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Payments <span class="arrow">›</span>
+            Shopify Payments <span class="arrow">›</span>
+            Manage
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">POS (tap/chip/swipe)</span><span class="val green">2.3% + $0.10</span></li>
+          <li><span class="key">Online checkout</span><span class="val green">2.25% + $0.30</span></li>
+          <li><span class="key">Manual card entry</span><span class="val yellow">3.0% + $0.30 — avoid in pilot</span></li>
+          <li><span class="key">International surcharge</span><span class="val">+1.0% (cards issued outside US)</span></li>
+          <li><span class="key">Currency conversion</span><span class="val">1.5% (non-USD purchases)</span></li>
+          <li><span class="key">Shop Pay Installments</span><span class="val red">DISABLED — BNPL inappropriate for health products</span></li>
+          <li><span class="key">3rd-party gateway surcharge</span><span class="val green">WAIVED — Plus with Shopify Payments as primary</span></li>
+          <li><span class="key">Variable platform fee</span><span class="val green">N/A — only applies above ~$625K/mo volume</span></li>
+        </ul>
+        <div class="note-box info">Headless Storefront API checkout uses the same 2.25% online rate. No rate difference for headless vs standard checkout.</div>
+      </div>
+    </div>
+
+    <!-- Taxes -->
+    <div class="config-card warn" id="taxes">
+      <div class="card-header">
+        <div class="card-title">Taxes &amp; Duties</div>
+        <div class="card-status status-warn">⚠ Utah Pending</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Taxes and duties <span class="arrow">›</span>
+            United States
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">All 50 US states</span><span class="val green">Configured — automatic rate calculation</span></li>
+          <li><span class="key">Utah</span><span class="val yellow">Deferred — pending Utah sales tax registration number</span></li>
+          <li><span class="key">Mississippi (pilot state)</span><span class="val green">Active</span></li>
+          <li><span class="key">Tax on shipping</span><span class="val">Per state rules — auto-applied</span></li>
+        </ul>
+        <div class="path-row" style="margin-top:10px;">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Taxes and duties <span class="arrow">›</span>
+            United States <span class="arrow">›</span>
+            Utah <span class="arrow">›</span>
+            Add registration
+          </span>
+        </div>
+        <div class="note-box warn">Utah registration number required to activate Utah tax collection. Obtain from Utah State Tax Commission before activating Utah sales.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== SECTION 3: ONLINE STORE ======================== -->
+<div class="section" id="online-section">
+  <div class="section-header">
+    <div class="section-num">③</div>
+    <div class="section-title">Online Store</div>
+    <div class="section-cat">Online Store + Settings</div>
+  </div>
+  <div class="config-grid">
+
+    <!-- Password -->
+    <div class="config-card fixed" id="password">
+      <div class="card-header">
+        <div class="card-title">Password Protection — Removed</div>
+        <div class="card-status status-fixed">✓ Fixed Pre-Launch</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Online Store <span class="arrow">›</span>
+            Preferences <span class="arrow">›</span>
+            Password protection <span class="arrow">›</span>
+            Disable
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Was blocking</span><span class="val red">All online customer orders</span></li>
+          <li><span class="key">Did NOT block</span><span class="val green">Headless Storefront API, POS — both unaffected</span></li>
+          <li><span class="key">Action taken</span><span class="val green">Removed by Feb 20 deadline</span></li>
+        </ul>
+        <div class="note-box fix">Password protection applies only to the standard Online Store theme/checkout. Colby's headless storefront and all POS transactions are unaffected.</div>
+      </div>
+    </div>
+
+    <!-- Policies -->
+    <div class="config-card done" id="policies">
+      <div class="card-header">
+        <div class="card-title">Store Policies</div>
+        <div class="card-status status-done">✓ Done Pre-Launch</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Policies
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Refund / Return Policy</span><span class="val green">Added</span></li>
+          <li><span class="key">Terms of Service</span><span class="val green">Added</span></li>
+          <li><span class="key">Privacy Policy</span><span class="val green">Added</span></li>
+          <li><span class="key">Shipping Policy</span><span class="val green">Added</span></li>
+          <li><span class="key">Contact Information</span><span class="val green">Added</span></li>
+        </ul>
+        <div class="note-box info">Shopify requires policies to be present before allowing checkout. Missing policies block the store from processing orders.</div>
+      </div>
+    </div>
+
+    <!-- Customer Accounts -->
+    <div class="config-card warn" id="customer-accounts">
+      <div class="card-header">
+        <div class="card-title">Customer Accounts Domain</div>
+        <div class="card-status status-warn">⚠ Needs Attention</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Customer accounts
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Current login URL</span><span class="val yellow">accounts.shopify.com (default — brand inconsistency)</span></li>
+          <li><span class="key">Target login URL</span><span class="val">unicity.com subdomain (e.g. accounts.unicity.com)</span></li>
+          <li><span class="key">Customer account version</span><span class="val">New Customer Accounts (recommended)</span></li>
+        </ul>
+        <div class="note-box warn">Low priority for pilot launch but affects brand trust. Change after pilot stabilizes — requires DNS record update at unicity.com.</div>
+      </div>
+    </div>
+
+    <!-- Email Auth -->
+    <div class="config-card warn" id="email-auth">
+      <div class="card-header">
+        <div class="card-title">Email Authentication (SPF / DKIM / DMARC)</div>
+        <div class="card-status status-warn">⚠ Missing — Fix Post-Launch</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Notifications <span class="arrow">›</span>
+            Email authentication
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">SPF record</span><span class="val red">Missing — order emails may hit spam</span></li>
+          <li><span class="key">DKIM signing</span><span class="val red">Missing — affects deliverability</span></li>
+          <li><span class="key">DMARC policy</span><span class="val red">Missing — no spoofing protection</span></li>
+          <li><span class="key">Fix location</span><span class="val">DNS provider for unicity.com</span></li>
+        </ul>
+        <div class="note-box warn">Without SPF/DKIM, Shopify order confirmation and shipping emails may land in spam. Provide Shopify's DNS records to IT team — values shown in the Email authentication settings page.</div>
+      </div>
+    </div>
+
+    <!-- TLS -->
+    <div class="config-card warn">
+      <div class="card-header">
+        <div class="card-title">TLS / SSL Certificate — unicity.com</div>
+        <div class="card-status status-warn">⚠ Broken — Fix With IT</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Domains <span class="arrow">›</span>
+            unicity.com <span class="arrow">›</span>
+            Fix SSL
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">unicity.com</span><span class="val red">TLS failure — SSL broken</span></li>
+          <li><span class="key">www.unicity.com</span><span class="val red">TLS failure</span></li>
+          <li><span class="key">myshopify.com URL</span><span class="val green">Works fine — no SSL issue</span></li>
+          <li><span class="key">Likely cause</span><span class="val">DNS verification lapsed or cert not issued</span></li>
+        </ul>
+        <div class="note-box warn">Shopify auto-provisions Let's Encrypt SSL for connected domains. If cert failed, click "Re-verify" or remove and re-add the domain. May need IT to confirm DNS A/CNAME records point to Shopify.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== SECTION 4: PRODUCTS ======================== -->
+<div class="section" id="products-section">
+  <div class="section-header">
+    <div class="section-num">④</div>
+    <div class="section-title">Products &amp; Catalog</div>
+    <div class="section-cat">Products + Apps</div>
+  </div>
+  <div class="config-grid">
+
+    <!-- Products -->
+    <div class="config-card done full" id="products">
+      <div class="card-header">
+        <div class="card-title">Pilot Products — Two-Tier Pricing</div>
+        <div class="card-status status-done">✓ Done 02/19</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Products <span class="arrow">›</span>
+            All products <span class="arrow">›</span>
+            Add product
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Products loaded</span><span class="val green">4 pilot products — all active</span></li>
+          <li><span class="key">Pricing tiers</span><span class="val">Wholesale (member) + Retail — separate products per tier</span></li>
+          <li><span class="key">Why duplicate products</span><span class="val">Shopify native customer group pricing can't serve POS + headless storefront simultaneously</span></li>
+          <li><span class="key">POS visibility</span><span class="val green">Wholesale products visible to distributors on POS smart grid</span></li>
+          <li><span class="key">Storefront visibility</span><span class="val">Retail products public; wholesale products filtered by custom JS logic</span></li>
+          <li><span class="key">Feel Great 2.0 bundles</span><span class="val yellow">Blocked — Shopify Bundles app does not support subscriptions</span></li>
+        </ul>
+        <div class="path-row" style="margin-top:10px;">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Products <span class="arrow">›</span>
+            [Product] <span class="arrow">›</span>
+            Sales channels &amp; apps <span class="arrow">›</span>
+            Point of Sale
+          </span>
+        </div>
+        <div class="note-box warn">Each product must be explicitly enabled for the Point of Sale channel. Default is online-only. Check each product's "Sales channels" section — POS must show as active.</div>
+      </div>
+    </div>
+
+    <!-- Subscriptions -->
+    <div class="config-card note" id="subscriptions">
+      <div class="card-header">
+        <div class="card-title">Subscriptions / Autoship</div>
+        <div class="card-status status-note">ℹ Platform Limitation</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Apps <span class="arrow">›</span>
+            Subscriptions <span class="arrow">›</span>
+            Selling plans
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">App installed</span><span class="val green">Shopify native Subscriptions app — active</span></li>
+          <li><span class="key">Online subscriptions</span><span class="val green">Works — customers can enroll via Colby's storefront</span></li>
+          <li><span class="key">POS subscriptions</span><span class="val red">NOT SUPPORTED — POS cannot enroll customers in autoship</span></li>
+          <li><span class="key">Bundles + subscriptions</span><span class="val red">NOT SUPPORTED — Bundles app blocks subscription assignment</span></li>
+          <li><span class="key">Selling plan config path</span><span class="val">Products › [Product] › Purchase options › Add selling plan</span></li>
+        </ul>
+        <div class="note-box warn">Distributors cannot enroll customers in autoship during a face-to-face POS transaction. Customer must visit the online storefront to set up a subscription. Document this clearly in distributor training materials.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== SECTION 5: API & INTEGRATIONS ======================== -->
+<div class="section" id="api-section">
+  <div class="section-header">
+    <div class="section-num">⑤</div>
+    <div class="section-title">API &amp; Integrations</div>
+    <div class="section-cat">Apps + Settings + Admin API</div>
+  </div>
+  <div class="config-grid">
+
+    <!-- Storefront API -->
+    <div class="config-card done full" id="storefront-api">
+      <div class="card-header">
+        <div class="card-title">Storefront API / Headless Channel — Colby's Frontend</div>
+        <div class="card-status status-done">✓ Done 02/14 — Token Sent to Colby</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Shopify App Store <span class="arrow">›</span>
+            Search "Headless" <span class="arrow">›</span>
+            Install Headless channel
+          </span>
+        </div>
+        <div class="note-box fix" style="margin-bottom:12px;">IMPORTANT: Do NOT use the new Developer Dashboard (apps.shopify.com/partners) for Storefront API tokens. That path creates Admin API apps. The Headless channel in the App Store is the correct method for Storefront API tokens on Plus post-January 2026.</div>
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Apps <span class="arrow">›</span>
+            Headless <span class="arrow">›</span>
+            Storefronts <span class="arrow">›</span>
+            Add storefront <span class="arrow">›</span>
+            Configure permissions
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Public access token</span><span class="val green">39cecd7e9fc04be028fb48d01c8072c0</span></li>
+          <li><span class="key">API version</span><span class="val">2024-01 (latest stable)</span></li>
+        </ul>
+        <h2 class="sub-head">Permissions — 5 of 16 enabled for pilot security</h2>
+        <div class="permissions-grid">
+          <div class="perm on">✓ unauthenticated_read_product_listings</div>
+          <div class="perm on">✓ unauthenticated_read_product_tags</div>
+          <div class="perm on">✓ unauthenticated_read_checkouts</div>
+          <div class="perm on">✓ unauthenticated_write_checkouts</div>
+          <div class="perm on">✓ unauthenticated_read_selling_plans</div>
+          <div class="perm off">✗ customer read/write (11 perms off)</div>
+          <div class="perm off">✗ content / bulk ops / bundles</div>
+          <div class="perm off">✗ Shop Pay Installments pricing</div>
+          <div class="perm off">✗ metaobjects read/write</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metafields -->
+    <div class="config-card fixed" id="metafields">
+      <div class="card-header">
+        <div class="card-title">Customer Metafields — Unity Customer ID</div>
+        <div class="card-status status-fixed">✓ Fixed — Type Corrected</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Custom data <span class="arrow">›</span>
+            Customers <span class="arrow">›</span>
+            Add definition
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Namespace</span><span class="val green">custom</span></li>
+          <li><span class="key">Key</span><span class="val green">customer_id</span></li>
+          <li><span class="key">Full reference</span><span class="val green">custom.customer_id</span></li>
+          <li><span class="key">Correct type</span><span class="val green">Integer (or Single line text)</span></li>
+          <li><span class="key">Wrong type (was)</span><span class="val red">ID — expects Shopify GID format, blocked numeric writes</span></li>
+        </ul>
+        <div class="note-box fix">Original definition used "ID" type which expects gid://shopify/Customer/123 format. Unity customer IDs are plain integers. Delete old definition → recreate as Integer. 711 migrated customers already have this metafield populated post-fix.</div>
+      </div>
+    </div>
+
+    <!-- Webhooks -->
+    <div class="config-card done" id="webhooks">
+      <div class="card-header">
+        <div class="card-title">Order Webhooks — Sync Service</div>
+        <div class="card-status status-done">✓ Configured 02/19</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Settings <span class="arrow">›</span>
+            Notifications <span class="arrow">›</span>
+            Webhooks <span class="arrow">›</span>
+            Create webhook
+          </span>
+        </div>
+        <div class="note-box info" style="margin-bottom:10px;">Or register via GraphQL Admin API using register-webhook.js script (preferred — easier to version control).</div>
+        <ul class="detail-list">
+          <li><span class="key">Event</span><span class="val green">orders/create</span></li>
+          <li><span class="key">Format</span><span class="val">JSON</span></li>
+          <li><span class="key">Target (Phase 2A)</span><span class="val">Google Apps Script web app URL</span></li>
+          <li><span class="key">Target (Phase 2B)</span><span class="val">Node.js Express endpoint (Replit / Lambda)</span></li>
+          <li><span class="key">Security</span><span class="val green">HMAC-SHA256 signature verified in sync service</span></li>
+          <li><span class="key">Fallback</span><span class="val">15-min poll via Apps Script trigger (catches missed webhooks)</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== SECTION 6: DATA & SYNC ======================== -->
+<div class="section" id="data-section">
+  <div class="section-header">
+    <div class="section-num">⑥</div>
+    <div class="section-title">Data &amp; Sync</div>
+    <div class="section-cat">SQL + Migration + Order Flow</div>
+  </div>
+  <div class="config-grid">
+
+    <!-- Customer Migration -->
+    <div class="config-card done" id="customer-import">
+      <div class="card-header">
+        <div class="card-title">Customer Migration — Unity → Shopify</div>
+        <div class="card-status status-done">✓ Done 02/19</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Customers <span class="arrow">›</span>
+            Import customers <span class="arrow">›</span>
+            Upload CSV
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Customers migrated</span><span class="val green">711 Mississippi accounts</span></li>
+          <li><span class="key">Source</span><span class="val">UnityDBStage.dbo.Customer WHERE market = Mississippi</span></li>
+          <li><span class="key">Join key preserved</span><span class="val green">custom.customer_id metafield = Unity Customer ID</span></li>
+          <li><span class="key">Email as universal key</span><span class="val green">LOWER(LTRIM(RTRIM(Email))) — normalized on both sides</span></li>
+          <li><span class="key">Data quality handled</span><span class="val">Literal "NULL" strings, whitespace in names, VARCHAR numeric fields</span></li>
+        </ul>
+        <div class="note-box success">Email is the join key between Shopify orders and Unity customers. Shopify never needs to store Unity Distributor IDs — enrichment happens at Unity import time. This eliminated the round-trip sync architecture entirely.</div>
+      </div>
+    </div>
+
+    <!-- Order Sync -->
+    <div class="config-card done full" id="order-sync">
+      <div class="card-header">
+        <div class="card-title">Order Sync Architecture — Shopify → Unity</div>
+        <div class="card-status status-done">✓ Designed &amp; Built</div>
+      </div>
+      <div class="card-body">
+        <h2 class="sub-head">Phase 1 — Manual Daily Process (Launch Feb 21 — ~15–20 min/day)</h2>
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Orders <span class="arrow">›</span>
+            Export <span class="arrow">›</span>
+            Filter by date <span class="arrow">›</span>
+            CSV
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Step 1</span><span class="val">Export previous day's orders from Shopify Admin (Orders › Export)</span></li>
+          <li><span class="key">Step 2</span><span class="val">VLOOKUP staff name → Unity Distributor ID (10-row mapping table)</span></li>
+          <li><span class="key">Step 3</span><span class="val">SQL: match customer email → UnityDBStage.Customer ID</span></li>
+          <li><span class="key">Step 4</span><span class="val">Build enriched CSV with OrderNumber, DistID, CustomerID, Scenario, SKU, Qty, Price</span></li>
+          <li><span class="key">Step 5</span><span class="val">Send to Bryan Simmons → Unity import</span></li>
+          <li><span class="key">Scenario A</span><span class="val green">Email match + has sponsor → auto-import</span></li>
+          <li><span class="key">Scenario B</span><span class="val yellow">Email match + no sponsor (orphan) → CSR queue</span></li>
+          <li><span class="key">Scenario C</span><span class="val">No email match → create new customer in Unity → write ID back to Shopify metafield</span></li>
+        </ul>
+        <h2 class="sub-head">Phase 2A — Google Apps Script Automation (Target: Mar 3–7)</h2>
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Google Sheets <span class="arrow">›</span>
+            Extensions <span class="arrow">›</span>
+            Apps Script <span class="arrow">›</span>
+            Deploy as web app
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Trigger</span><span class="val">Shopify Flow: orders/create → POST to Apps Script URL</span></li>
+          <li><span class="key">Fallback</span><span class="val">15-min time-based trigger on processNewOrders()</span></li>
+          <li><span class="key">Setup effort</span><span class="val green">1–2 days Howard — no developer required</span></li>
+          <li><span class="key">Script file</span><span class="val">google-apps-script-sync.js in project files</span></li>
+        </ul>
+        <h2 class="sub-head">Phase 2B — Node.js Webhook Service (Target: Mar 10–21)</h2>
+        <ul class="detail-list">
+          <li><span class="key">Deploy target</span><span class="val">Replit / AWS Lambda / VPS</span></li>
+          <li><span class="key">Dev effort</span><span class="val">3–5 days Colby + Bryan</span></li>
+          <li><span class="key">Script file</span><span class="val">shopify-unity-sync-service.js in project files (500+ lines)</span></li>
+          <li><span class="key">Security</span><span class="val green">HMAC-SHA256 webhook signature verification</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Distributor Mapping -->
+    <div class="config-card done" id="dist-mapping">
+      <div class="card-header">
+        <div class="card-title">Distributor Mapping Table</div>
+        <div class="card-status status-done">✓ Done 02/19</div>
+      </div>
+      <div class="card-body">
+        <div class="path-row">
+          <span class="path-icon">🔗</span>
+          <span class="path-steps">
+            Google Sheets (Phase 1) <span class="arrow">›</span>
+            DistributorMap tab
+          </span>
+        </div>
+        <ul class="detail-list">
+          <li><span class="key">Rows</span><span class="val green">10 rows — one per pilot distributor</span></li>
+          <li><span class="key">Column A</span><span class="val">Shopify staff name (exact match to POS order)</span></li>
+          <li><span class="key">Column B</span><span class="val">Unity Distributor ID</span></li>
+          <li><span class="key">Phase 2 upgrade</span><span class="val">Shopify Flow + Google Sheets (Weeks 2–3) → API pull at scale</span></li>
+        </ul>
+        <div class="note-box info">Staff name on Shopify order must exactly match Column A. Case-sensitive. Confirm staff account display names match during onboarding.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Quick Reference -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">⑦</div>
+    <div class="section-title">Quick Reference — All Paths</div>
+    <div class="section-cat">Admin Navigation</div>
+  </div>
+  <div class="config-card done full">
+    <div class="card-header">
+      <div class="card-title">Every Admin Path Used in This Pilot</div>
+      <div class="card-status status-done">Reference</div>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:8px;margin-top:4px;">
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Locations</span> — POS location setup</div>
+        <div class="path-row">Point of Sale <span class="arrow" style="color:var(--muted)">›</span> [Location] <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Upgrade to POS Pro</span></div>
+        <div class="path-row">Point of Sale <span class="arrow" style="color:var(--muted)">›</span> Settings <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Roles and permissions</span></div>
+        <div class="path-row">Point of Sale <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Staff</span> — add distributor accounts</div>
+        <div class="path-row">Point of Sale <span class="arrow" style="color:var(--muted)">›</span> Settings <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Sales attribution</span></div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> Payments <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Shopify Payments › Manage</span></div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> Taxes and duties <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">United States</span></div>
+        <div class="path-row">Online Store <span class="arrow" style="color:var(--muted)">›</span> Preferences <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Password protection</span></div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Policies</span> — return, TOS, privacy, shipping</div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Customer accounts</span> — login URL</div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> Notifications <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Email authentication</span></div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> Domains <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">unicity.com › Fix SSL</span></div>
+        <div class="path-row">Products <span class="arrow" style="color:var(--muted)">›</span> [Product] <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Sales channels › Point of Sale</span></div>
+        <div class="path-row">Products <span class="arrow" style="color:var(--muted)">›</span> [Product] <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Purchase options › Selling plans</span></div>
+        <div class="path-row">Apps <span class="arrow" style="color:var(--muted)">›</span> Shopify App Store <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Headless</span> — Storefront API token</div>
+        <div class="path-row">Apps <span class="arrow" style="color:var(--muted)">›</span> Headless <span class="arrow" style="color:var(--muted)">›</span> Storefronts <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Permissions</span></div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> Custom data <span class="arrow" style="color:var(--muted)">›</span> Customers <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Add definition</span></div>
+        <div class="path-row">Settings <span class="arrow" style="color:var(--muted)">›</span> Notifications <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Webhooks</span></div>
+        <div class="path-row">Customers <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Import customers</span> — bulk CSV upload</div>
+        <div class="path-row">Orders <span class="arrow" style="color:var(--muted)">›</span> <span style="color:var(--accent)">Export</span> — daily order CSV</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<a href="#" id="top-btn" title="Back to top" style="
+  position:fixed;bottom:28px;right:28px;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--accent);color:#000;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:700;text-decoration:none;
+  box-shadow:0 4px 16px rgba(88,166,255,.4);
+  opacity:0;transition:opacity .25s;
+  z-index:999;line-height:1;
+">↑</a>
+
+<script>
+  const btn = document.getElementById('top-btn');
+  window.addEventListener('scroll', () => {
+    btn.style.opacity = window.scrollY > 300 ? '1' : '0';
+    btn.style.pointerEvents = window.scrollY > 300 ? 'auto' : 'none';
+  });
+</script>
+
+<footer>
+  Shopify POS Pilot — Configurations Reference · TKT-5793 · All 23 tickets closed 02/19/2026 · unicity-international-2.myshopify.com
+</footer>
+
+</body>
+</html>
