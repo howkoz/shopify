@@ -1234,8 +1234,63 @@
                     </div>
                 </div>
 
+                <h3>GMV-Based Platform Fees (Validated March 2026)</h3>
                 <div class="highlight warning">
-                    <strong>ROI Consideration:</strong> Expansion stores justify cost through incremental revenue. A 3-store setup costs ~$37K annually in platform fees. Calculate payback based on expected revenue per market. Typical breakeven is 3-6 months of operations per store.
+                    <strong>Important:</strong> Once monthly GMV exceeds $800K, Shopify charges an additional 0.25% (3-year contract) or 0.40% (1-year contract) on volume above that threshold. This fee caps at $40,000/month regardless of volume.
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line Item</th>
+                            <th>1 Account + Expansion Stores</th>
+                            <th>3 Separate Accounts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Base Platform</strong></td>
+                            <td>$3,100/mo ($2,500 + $300 + $300)</td>
+                            <td>$7,500/mo ($2,500 x 3)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>US GMV Fee</strong> ($4M/mo)</td>
+                            <td rowspan="3">Combined: ($8.5M - $800K) x 0.25% = $19,250/mo</td>
+                            <td>($4M - $800K) x 0.25% = $8,000/mo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EU GMV Fee</strong> ($1.5M/mo)</td>
+                            <td>($1.5M - $800K) x 0.25% = $1,750/mo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Japan GMV Fee</strong> ($3M/mo)</td>
+                            <td>($3M - $800K) x 0.25% = $5,500/mo</td>
+                        </tr>
+                        <tr style="background: rgba(63,185,80,0.1);">
+                            <td><strong>Total Monthly</strong></td>
+                            <td><strong>$22,350/mo</strong></td>
+                            <td><strong>$22,750/mo</strong></td>
+                        </tr>
+                        <tr style="background: rgba(63,185,80,0.1);">
+                            <td><strong>Total Annual</strong></td>
+                            <td><strong>~$268,200</strong></td>
+                            <td><strong>~$273,000</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight success">
+                    <strong>Bottom Line:</strong> One account saves ~$4,800/year on platform fees alone. The real savings come from apps ($6-24K/year), single integration architecture, and 10+ hours/week of staff time managing one dashboard instead of three. Realistic total savings: $30,000-60,000+/year. <a href="enterprise-justification.html" style="color: var(--accent);">See full Enterprise Account Strategy document →</a>
+                </div>
+
+                <h3>Will Unicity Outgrow Shopify Plus?</h3>
+                <div class="highlight success">
+                    <strong>No.</strong> Shopify Plus has no hard revenue cap. The platform fee caps at $40,000/month regardless of volume. Merchants doing $500M+/year operate on Plus (Gymshark, SKIMS, Fashion Nova, Pepsi, Estee Lauder, Mattel). Unicity's projected $102M/year (~$8.5M/mo combined) is well within range. The infrastructure handles 10,000+ checkouts per minute with 99.99% uptime.
+                </div>
+
+                <h3>Europe: One Store Covers All 27 Countries</h3>
+                <div class="highlight success">
+                    <strong>Validated:</strong> Unicity does NOT need a separate store per EU country. One EU expansion store with Shopify Markets handles per-country language, currency, VAT rates, and payment methods. The EU One-Stop Shop (OSS) VAT scheme lets you register in one country and cover all 27 member states with a single quarterly filing. EU consumer law actually discourages separate stores by requiring non-discrimination across countries. <a href="markets-configuration.html" style="color: var(--accent);">See Markets Configuration Guide →</a>
                 </div>
             </div>
         </div>
@@ -1338,5 +1393,6 @@
             section.classList.remove('collapsed');
         });
     </script>
+<script src="sidebar.js"></script>
 </body>
 </html>
