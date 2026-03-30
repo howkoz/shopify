@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Account Strategy | Unicity Shopify Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        html, body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav {
+            margin-bottom: 40px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background-color: var(--surface2);
+            border-color: var(--accent);
+        }
+
+        /* Header Banner */
+        .header-banner {
+            background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--cyan), var(--green));
+        }
+
+        .header-banner h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--cyan);
+        }
+
+        .header-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            font-size: 13px;
+        }
+
+        .header-meta-item {
+            padding: 10px;
+            background-color: var(--surface);
+            border-left: 3px solid var(--accent);
+            border-radius: 4px;
+        }
+
+        .header-meta-item strong {
+            color: var(--cyan);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Main Title Section */
+        .title-section {
+            margin-bottom: 50px;
+        }
+
+        .title-section h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--cyan), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #a0aab7;
+            max-width: 800px;
+        }
+
+        /* Executive Summary */
+        .exec-summary {
+            background-color: var(--surface2);
+            border-left: 4px solid var(--green);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 50px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .exec-summary strong {
+            color: var(--green);
+        }
+
+        /* Section Styling */
+        section {
+            margin-bottom: 60px;
+        }
+
+        section h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            color: var(--cyan);
+        }
+
+        /* Comparison Cards */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-card {
+            background-color: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 25px;
+            position: relative;
+        }
+
+        .option-card.recommended {
+            border-color: var(--green);
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.05) 0%, rgba(63, 185, 80, 0.02) 100%);
+        }
+
+        .option-card.not-recommended {
+            border-color: var(--red);
+            background: linear-gradient(135deg, rgba(248, 81, 73, 0.05) 0%, rgba(248, 81, 73, 0.02) 100%);
+        }
+
+        .option-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .option-label.recommended {
+            background-color: rgba(63, 185, 80, 0.2);
+            color: var(--green);
+        }
+
+        .option-label.not-recommended {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--red);
+        }
+
+        .option-card h4 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        .option-card ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .option-card li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .option-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Cost Comparison Table */
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .cost-table th,
+        .cost-table td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cost-table th {
+            background-color: var(--surface);
+            font-weight: 700;
+            color: var(--cyan);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .cost-table tr:hover {
+            background-color: var(--surface2);
+        }
+
+        .cost-table .label {
+            color: #a0aab7;
+            font-size: 13px;
+        }
+
+        .cost-table .total-row {
+            background-color: var(--surface2);
+            font-weight: 700;
+            border-top: 2px solid var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .cost-table .savings-row {
+            background-color: rgba(63, 185, 80, 0.1);
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .savings-highlight {
+            color: var(--green);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Highlight Boxes */
+        .highlight-box {
+            background-color: var(--surface2);
+            border-left: 4px solid var(--yellow);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .highlight-box strong {
+            color: var(--yellow);
+        }
+
+        /* Data Callout */
+        .data-callout {
+            background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .data-point {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .data-point .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cyan);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .data-point .label {
+            font-size: 12px;
+            color: #a0aab7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+
+        .org-box {
+            background-color: var(--surface2);
+            border: 2px solid var(--cyan);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .org-box h4 {
+            color: var(--cyan);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .store-box {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .store-box.primary {
+            border-color: var(--green);
+            border-width: 2px;
+        }
+
+        .store-box h5 {
+            color: var(--cyan);
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .store-box .detail {
+            color: #a0aab7;
+            font-size: 11px;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+
+        /* Benefit Cards */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .benefit-card {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--cyan);
+        }
+
+        .benefit-card h5 {
+            color: var(--cyan);
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .benefit-card p {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #a0aab7;
+        }
+
+        /* Concern Address */
+        .concern-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .concern-item {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 18px;
+            border-left: 4px solid var(--purple);
+        }
+
+        .concern-item strong {
+            color: var(--purple);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .concern-item p {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #a0aab7;
+        }
+
+        /* Decision Matrix */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 13px;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        .matrix-table th {
+            background-color: var(--surface);
+            color: var(--cyan);
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .matrix-table td:first-child {
+            background-color: var(--surface2);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .matrix-table tr:last-child td {
+            background-color: rgba(63, 185, 80, 0.1);
+            border-top: 2px solid var(--green);
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        /* Next Steps */
+        .next-steps {
+            background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .next-steps ol {
+            list-style: decimal;
+            padding-left: 25px;
+            margin: 0;
+        }
+
+        .next-steps li {
+            margin: 12px 0;
+            color: #a0aab7;
+            font-size: 14px;
+        }
+
+        .next-steps li strong {
+            color: var(--text);
+        }
+
+        .next-steps a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent);
+        }
+
+        .next-steps a:hover {
+            border-bottom: 1px solid var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: #768390;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            section h3 {
+                font-size: 22px;
+            }
+
+            .title-section h2 {
+                font-size: 28px;
+            }
+
+            .header-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture-diagram {
+                font-size: 11px;
+                padding: 15px;
+            }
+
+            .cost-table,
+            .matrix-table {
+                font-size: 12px;
+            }
+
+            .cost-table th,
+            .cost-table td,
+            .matrix-table th,
+            .matrix-table td {
+                padding: 10px;
+            }
+        }
+
+        /* Link styling */
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #a0aab7;
+            font-size: 14px;
+        }
+
+        /* Verdict Badge */
+        .verdict {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .verdict.recommended {
+            background-color: rgba(63, 185, 80, 0.2);
+            color: var(--green);
+            border: 1px solid var(--green);
+        }
+
+        .verdict.not-recommended {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--red);
+            border: 1px solid var(--red);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav">
+            <a href="index.html" class="back-link">← Back to Hub</a>
+        </div>
+
+        <!-- Header Banner -->
+        <div class="header-banner">
+            <h1>RECOMMENDATION: Single Enterprise Account + Expansion Stores</h1>
+            <div class="header-meta">
+                <div class="header-meta-item">
+                    <strong>Status</strong>
+                    Validated against Shopify Plus documentation, pricing, and merchant case studies
+                </div>
+                <div class="header-meta-item">
+                    <strong>Prepared By</strong>
+                    Payment Operations
+                </div>
+                <div class="header-meta-item">
+                    <strong>Date</strong>
+                    March 2026
+                </div>
+            </div>
+        </div>
+
+        <!-- Title Section -->
+        <div class="title-section">
+            <h2>Enterprise Account Strategy</h2>
+            <p class="subtitle">Why one Shopify Plus account with expansion stores is the right architecture for Unicity's global operations.</p>
+        </div>
+
+        <!-- Executive Summary -->
+        <section>
+            <div class="exec-summary">
+                <strong>Executive Summary</strong><br><br>
+                Unicity does <strong>NOT</strong> need separate Shopify Plus enterprise accounts for US, Europe, and Japan. One enterprise account with expansion stores provides full regional independence while saving <strong>$60,000+/year</strong> in platform costs, eliminating operational fragmentation, and maintaining centralized visibility. This document details the technical, financial, and operational evidence.
+            </div>
+        </section>
+
+        <!-- The Two Options -->
+        <section>
+            <h3>The Two Options</h3>
+            <div class="comparison-grid">
+                <div class="option-card not-recommended">
+                    <span class="option-label not-recommended">NOT RECOMMENDED</span>
+                    <h4>Option A: Separate Enterprise Accounts</h4>
+                    <ul>
+                        <li>3 independent Shopify Plus accounts ($2,500/mo each = $7,500/mo)</li>
+                        <li>3 separate Organization Admin dashboards</li>
+                        <li>3 separate billing relationships</li>
+                        <li>3 separate user management systems</li>
+                        <li>No cross-store visibility without custom integration</li>
+                        <li>3x app subscription costs</li>
+                        <li>No shared product catalog</li>
+                        <li>Each account hits $800K GMV threshold independently</li>
+                        <li><strong>Total: ~$90,000/year base BEFORE GMV fees</strong></li>
+                    </ul>
+                    <div class="verdict not-recommended">Expensive & Fragmented</div>
+                </div>
+
+                <div class="option-card recommended">
+                    <span class="option-label recommended">RECOMMENDED</span>
+                    <h4>Option B: One Enterprise Account + Expansion Stores</h4>
+                    <ul>
+                        <li>1 Shopify Plus account ($2,500/mo) + 2 expansion stores (~$300/mo each) = $3,100/mo</li>
+                        <li>1 Organization Admin dashboard with cross-store visibility</li>
+                        <li>1 billing relationship</li>
+                        <li>Centralized user management with per-store permissions</li>
+                        <li>Organization-level analytics across all stores</li>
+                        <li>Many apps need only 1 subscription</li>
+                        <li>Shared or independent product catalogs (your choice)</li>
+                        <li>GMV aggregated across stores (hits thresholds faster but caps at $40K/mo)</li>
+                        <li><strong>Total: ~$37,200/year base BEFORE GMV fees</strong></li>
+                    </ul>
+                    <div class="verdict recommended">Cost-Effective & Unified</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cost Comparison -->
+        <section>
+            <h3>Cost Comparison: Detailed Analysis</h3>
+            <p style="margin-bottom: 20px; color: #a0aab7;">
+                <strong>Scenario:</strong> US $4M/mo, EU $1.5M/mo, Japan $3M/mo = $8.5M combined monthly GMV
+            </p>
+
+            <h4 style="color: var(--red); margin-top: 25px; margin-bottom: 15px;">Option A: 3 Separate Accounts</h4>
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>Line Item</th>
+                        <th>Calculation</th>
+                        <th>Monthly Cost</th>
+                        <th>Annual Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Platform Fees (3x $2,500)</td>
+                        <td>3 × $2,500</td>
+                        <td>$7,500</td>
+                        <td>$90,000</td>
+                    </tr>
+                    <tr>
+                        <td class="label">US GMV Fee</td>
+                        <td class="label">($4M - $800K) × 0.25%</td>
+                        <td class="label">$8,000</td>
+                        <td class="label">$96,000</td>
+                    </tr>
+                    <tr>
+                        <td class="label">EU GMV Fee</td>
+                        <td class="label">($1.5M - $800K) × 0.25%</td>
+                        <td class="label">$1,750</td>
+                        <td class="label">$21,000</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Japan GMV Fee</td>
+                        <td class="label">($3M - $800K) × 0.25%</td>
+                        <td class="label">$5,500</td>
+                        <td class="label">$66,000</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL MONTHLY</strong></td>
+                        <td></td>
+                        <td><strong>$22,750</strong></td>
+                        <td><strong>$273,000</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 style="color: var(--green); margin-top: 25px; margin-bottom: 15px;">Option B: One Account + Expansion Stores</h4>
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>Line Item</th>
+                        <th>Calculation</th>
+                        <th>Monthly Cost</th>
+                        <th>Annual Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Platform Fee (Primary)</td>
+                        <td>1 × $2,500</td>
+                        <td>$2,500</td>
+                        <td>$30,000</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Expansion Store 1 (EU)</td>
+                        <td class="label">1 × $300</td>
+                        <td class="label">$300</td>
+                        <td class="label">$3,600</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Expansion Store 2 (Japan)</td>
+                        <td class="label">1 × $300</td>
+                        <td class="label">$300</td>
+                        <td class="label">$3,600</td>
+                    </tr>
+                    <tr>
+                        <td>Combined GMV Fee</td>
+                        <td>($8.5M - $800K) × 0.25%</td>
+                        <td>$19,250</td>
+                        <td>$231,000</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td><strong>TOTAL MONTHLY</strong></td>
+                        <td></td>
+                        <td><strong>$22,350</strong></td>
+                        <td><strong>$268,200</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box">
+                <strong>Platform Fees Savings: ~$4,800/year</strong><br><br>
+                BUT THE REAL SAVINGS ARE ELSEWHERE:
+                <ul style="margin-top: 15px;">
+                    <li><strong>App Subscriptions:</strong> ~$500-2,000/mo saved (many apps charge per store)</li>
+                    <li><strong>Staff Time:</strong> 1 admin dashboard vs 3, estimated 10+ hours/week saved</li>
+                    <li><strong>Integration Costs:</strong> 1 set of API integrations vs 3 separate implementations</li>
+                    <li><strong>Training & Onboarding:</strong> 1 system to learn, not 3 different platforms</li>
+                </ul>
+                <p style="margin-top: 15px; color: var(--yellow); font-weight: 700;">
+                    Realistic total savings: <span style="font-size: 18px;">$30,000–$60,000+/year</span>
+                </p>
+            </div>
+        </section>
+
+        <!-- Growth Analysis -->
+        <section>
+            <h3>Will We Outgrow Shopify Plus?</h3>
+            <p style="margin-bottom: 20px; color: #a0aab7;">
+                <strong>Answer: NO.</strong> Here's why:
+            </p>
+
+            <div class="data-callout">
+                <div class="data-point">
+                    <div class="value">10,000+</div>
+                    <div class="label">Checkouts/Minute Capacity</div>
+                </div>
+                <div class="data-point">
+                    <div class="value">99.99%</div>
+                    <div class="label">Uptime SLA</div>
+                </div>
+                <div class="data-point">
+                    <div class="value">$40K</div>
+                    <div class="label">Maximum Monthly Fee</div>
+                </div>
+                <div class="data-point">
+                    <div class="value">∞</div>
+                    <div class="label">Revenue Capacity</div>
+                </div>
+            </div>
+
+            <h4 style="color: var(--accent); margin-top: 30px; margin-bottom: 15px;">Who Else Runs on Shopify Plus at Higher Volumes</h4>
+            <ul>
+                <li><strong>Gymshark:</strong> ~$500M+ annual revenue</li>
+                <li><strong>SKIMS:</strong> ~$750M+ annual revenue</li>
+                <li><strong>Fashion Nova:</strong> ~$600M+ annual revenue</li>
+                <li><strong>Kylie Cosmetics:</strong> Major brand on Plus</li>
+                <li><strong>Enterprise Partners:</strong> Pepsi, Estée Lauder, Mattel all on Plus</li>
+                <li><strong>Active Plus Merchants (2026):</strong> 47,000+ worldwide</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong>Unicity's Projected Volume: $8.5M/mo = ~$102M/year</strong><br><br>
+                This is <strong>well within</strong> Shopify Plus range. Merchants doing $500M+/year operate on Plus without issues. You'll hit the platform fee cap ($40K/mo) and stay there indefinitely, with no risk of outgrowing the platform.
+            </div>
+
+            <h4 style="color: var(--accent); margin-top: 30px; margin-bottom: 15px;">API Capacity on Shopify Plus</h4>
+            <ul>
+                <li><strong>GraphQL:</strong> 500 points/second (10x standard tier)</li>
+                <li><strong>REST:</strong> 20 requests/second (10x standard tier)</li>
+                <li><strong>Webhook Delivery:</strong> Guaranteed with 19 retries over 48 hours</li>
+                <li><strong>Bulk Operations API:</strong> For large data syncs (millions of records)</li>
+            </ul>
+        </section>
+
+        <!-- Europe Section -->
+        <section>
+            <h3>Europe Does NOT Need Separate Stores Per Country</h3>
+            <p style="margin-bottom: 25px; color: #a0aab7; font-style: italic;">
+                Common misconception: "EU is 27 countries so we need 27 stores."
+            </p>
+
+            <h4 style="color: var(--green); margin-bottom: 15px;">Reality: One EU Expansion Store with Shopify Markets Handles Everything</h4>
+
+            <h5 style="color: var(--cyan); margin-top: 25px; margin-bottom: 12px;">VAT Compliance</h5>
+            <ul>
+                <li><strong>EU One-Stop Shop (OSS) Scheme:</strong> Register VAT in ONE EU country</li>
+                <li><strong>Coverage:</strong> That single registration covers ALL 27 member states</li>
+                <li><strong>Reporting:</strong> File ONE quarterly VAT return</li>
+                <li><strong>Payment:</strong> Make ONE payment; tax authority distributes to other countries</li>
+                <li><strong>Automation:</strong> Shopify calculates correct VAT rate per country automatically at checkout</li>
+            </ul>
+
+            <h5 style="color: var(--cyan); margin-top: 25px; margin-bottom: 12px;">Language & Currency</h5>
+            <ul>
+                <li><strong>Shopify Markets Support:</strong> Per-country language, currency, and pricing</li>
+                <li><strong>Configuration:</strong> German, French, Spanish, Italian, etc. within one store</li>
+                <li><strong>Flexibility:</strong> Show EUR to most countries, GBP to UK, SEK to Sweden, etc.</li>
+                <li><strong>Management:</strong> All configured from one admin panel</li>
+            </ul>
+
+            <h5 style="color: var(--cyan); margin-top: 25px; margin-bottom: 12px;">Consumer Protection</h5>
+            <ul>
+                <li><strong>EU Consumer Rights Directive:</strong> DISCOURAGES separate country stores</li>
+                <li><strong>Non-Discrimination:</strong> Requires same products, prices, and terms across EU</li>
+                <li><strong>Cooling Off Period:</strong> 14-day right applies uniformly to all customers</li>
+                <li><strong>Single Store Advantage:</strong> Easier to comply with non-discrimination requirements</li>
+            </ul>
+
+            <h5 style="color: var(--cyan); margin-top: 25px; margin-bottom: 12px;">GDPR Compliance</h5>
+            <ul>
+                <li><strong>Does NOT require separate stores:</strong> One store can fully comply</li>
+                <li><strong>Data Residency:</strong> Shopify stores EU merchant data in EU data centers by default</li>
+                <li><strong>Cookie Consent:</strong> Works per-market, managed from one admin</li>
+                <li><strong>Data Requests:</strong> Single GDPR request handling system</li>
+            </ul>
+
+            <h5 style="color: var(--cyan); margin-top: 25px; margin-bottom: 12px;">Payment Methods</h5>
+            <ul>
+                <li><strong>Shopify Markets Auto-Configuration:</strong> Payment methods display per country</li>
+                <li><strong>Germany:</strong> Klarna, SOFORT, Giropay shown automatically</li>
+                <li><strong>France:</strong> Carte Bancaire shown automatically</li>
+                <li><strong>Netherlands:</strong> iDEAL shown automatically</li>
+                <li><strong>Single Store Admin:</strong> All managed from one location</li>
+            </ul>
+        </section>
+
+        <!-- Japan Section -->
+        <section>
+            <h3>Japan: Single Store Confirmed</h3>
+            <ul>
+                <li><strong>Shopify Plus Presence:</strong> 651+ Plus merchants already operating in Japan</li>
+                <li><strong>Case Study:</strong> Soup Stock Tokyo unified physical + online on one Plus store</li>
+                <li><strong>Configuration Support:</strong> Japanese language, JPY currency, consumption tax (10%) all configurable</li>
+                <li><strong>Local Payment Methods:</strong> Konbini, PayPay supported via Shopify Payments</li>
+                <li><strong>APPI Compliance:</strong> Act on Protection of Personal Information (Japan) compliance handled per-store</li>
+            </ul>
+        </section>
+
+        <!-- What You Gain -->
+        <section>
+            <h3>What You Gain with One Account</h3>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h5>Centralized Visibility</h5>
+                    <p>Organization Admin gives cross-store analytics, unified user management, and single billing view. See US + EU + Japan performance in one dashboard without custom integrations.</p>
+                </div>
+                <div class="benefit-card">
+                    <h5>Shared Product Catalog</h5>
+                    <p>Maintain products once, publish to all stores. Or customize per store. Your choice, managed centrally. No duplicate data entry.</p>
+                </div>
+                <div class="benefit-card">
+                    <h5>Unified User Management</h5>
+                    <p>Assign Howard as Org Admin across all stores. Give EU team access to EU store only. Japan team to Japan store only. One permission system.</p>
+                </div>
+                <div class="benefit-card">
+                    <h5>Single Integration Architecture</h5>
+                    <p>Build ERP sync once, connect to all stores. One webhook infrastructure. One middleware layer instead of three separate implementations.</p>
+                </div>
+                <div class="benefit-card">
+                    <h5>Consistent Branding</h5>
+                    <p>Share themes, apps, and configurations across stores. Localize per market without rebuilding. Apply brand updates globally or per-region.</p>
+                </div>
+                <div class="benefit-card">
+                    <h5>Simplified Compliance</h5>
+                    <p>One data processor agreement with Shopify. One security audit scope. One vendor relationship. Reduced legal overhead.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Addressing Concerns -->
+        <section>
+            <h3>What You DON'T Lose</h3>
+            <div class="concern-grid">
+                <div class="concern-item">
+                    <strong>"But we need regional independence!"</strong>
+                    <p>Each expansion store has its own domain, theme, currency, payments, taxes, shipping, checkout, and analytics. Operationally independent from the primary store.</p>
+                </div>
+                <div class="concern-item">
+                    <strong>"But EU regulations are complex!"</strong>
+                    <p>OSS handles VAT. Markets handles localization. GDPR is platform-level. One store is fully compliant with all EU regulations.</p>
+                </div>
+                <div class="concern-item">
+                    <strong>"But what if one region needs different products?"</strong>
+                    <p>Product catalogs can be shared or independent per store. Full flexibility. Configure visibility per market from the central admin.</p>
+                </div>
+                <div class="concern-item">
+                    <strong>"But what about performance in different regions?"</strong>
+                    <p>Shopify CDN is global. Sub-second load times worldwide from both US and EU data centers. No regional infrastructure needed.</p>
+                </div>
+                <div class="concern-item">
+                    <strong>"But what if we grow past $100M/year?"</strong>
+                    <p>Shopify Plus handles $500M+/year merchants. Platform fee caps at $40K/mo regardless of revenue. You won't outgrow it.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Diagram -->
+        <section>
+            <h3>Recommended Architecture</h3>
+            <div class="org-box">
+                <h4>UNICITY ORGANIZATION (Shopify Plus)</h4>
+                <p>1 Enterprise Account: $2,500/mo</p>
+                <p>Org Admin: Centralized Control • Cross-Store Analytics • Unified User Management</p>
+            </div>
+
+            <div class="store-grid">
+                <div class="store-box primary">
+                    <h5>US STORE</h5>
+                    <div class="detail"><strong>Primary Store</strong></div>
+                    <div class="detail">No additional cost</div>
+                    <div class="detail">USD • English</div>
+                    <div class="detail">Stripe + Paypal</div>
+                    <div class="detail">US Tax • USPS/FedEx</div>
+                    <div class="detail">POS Pilot Ready</div>
+                </div>
+
+                <div class="store-box">
+                    <h5>EU STORE</h5>
+                    <div class="detail"><strong>Expansion Store</strong></div>
+                    <div class="detail">$300/month</div>
+                    <div class="detail">Markets: EN/DE/FR/IT/ES/NL</div>
+                    <div class="detail">EUR/GBP/SEK (27 countries)</div>
+                    <div class="detail">OSS VAT Registration</div>
+                    <div class="detail">Local Payment Methods</div>
+                </div>
+
+                <div class="store-box">
+                    <h5>JAPAN STORE</h5>
+                    <div class="detail"><strong>Expansion Store</strong></div>
+                    <div class="detail">$300/month</div>
+                    <div class="detail">JPY • Japanese</div>
+                    <div class="detail">Stripe JP • Konbini • PayPay</div>
+                    <div class="detail">10% Consumption Tax</div>
+                    <div class="detail">Yamato/Sagawa Shipping</div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 30px;">
+                <strong>Total Platform Investment: ~$3,100/month base (~$37,200/year)</strong><br><br>
+                Plus GMV fees applied to combined volume, capped at $40,000/month. Full regional flexibility. Centralized control. One billing relationship.
+            </div>
+        </section>
+
+        <!-- Decision Matrix -->
+        <section>
+            <h3>Decision Matrix</h3>
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th>Criteria</th>
+                        <th>Separate Accounts</th>
+                        <th>One Account + Expansion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Annual Platform Cost</td>
+                        <td>~$90,000</td>
+                        <td>~$37,200</td>
+                    </tr>
+                    <tr>
+                        <td>Annual GMV Fees (at $8.5M/mo)</td>
+                        <td>~$183,000</td>
+                        <td>~$231,000</td>
+                    </tr>
+                    <tr>
+                        <td>Total Annual (platform + GMV)</td>
+                        <td>~$273,000</td>
+                        <td>~$268,200</td>
+                    </tr>
+                    <tr>
+                        <td>App Subscriptions</td>
+                        <td>3x cost</td>
+                        <td>1x cost (most apps)</td>
+                    </tr>
+                    <tr>
+                        <td>Admin Dashboards</td>
+                        <td>3 separate</td>
+                        <td>1 unified</td>
+                    </tr>
+                    <tr>
+                        <td>User Management</td>
+                        <td>3 separate</td>
+                        <td>1 centralized</td>
+                    </tr>
+                    <tr>
+                        <td>API Integrations</td>
+                        <td>3 builds</td>
+                        <td>1 build</td>
+                    </tr>
+                    <tr>
+                        <td>Cross-Store Analytics</td>
+                        <td>Custom build</td>
+                        <td>Built-in</td>
+                    </tr>
+                    <tr>
+                        <td>Regional Independence</td>
+                        <td>Full</td>
+                        <td>Full</td>
+                    </tr>
+                    <tr>
+                        <td>Compliance Audits</td>
+                        <td>3 audits</td>
+                        <td>1 audit</td>
+                    </tr>
+                    <tr>
+                        <td>VERDICT</td>
+                        <td>Expensive, fragmented</td>
+                        <td>Cost-effective, unified</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Next Steps -->
+        <section>
+            <h3>Next Steps</h3>
+            <div class="next-steps">
+                <ol>
+                    <li><strong>Confirm Expansion Store Pricing:</strong> Verify with Shopify Plus account manager that expansion store pricing is $300/mo (standard industry rate)</li>
+                    <li><strong>Determine EU Launch Strategy:</strong> Decide which EU countries to launch first (recommend UK + Germany as priority markets)</li>
+                    <li><strong>Register for EU VAT:</strong> Engage tax counsel to register for EU One-Stop Shop (OSS) scheme. Allow 4–6 weeks for approval.</li>
+                    <li><strong>Plan EU Expansion Store:</strong> Review <a href="expansion-stores.html">expansion-stores.html</a> for technical setup guide</li>
+                    <li><strong>Plan Japan Expansion Store:</strong> Work with Shopify Japan team for local payment method integration (Konbini, PayPay)</li>
+                    <li><strong>Configure Shopify Markets:</strong> See <a href="markets-configuration.html">markets-configuration.html</a> for per-market language, currency, and pricing setup</li>
+                    <li><strong>Sync Integrations:</strong> Audit existing API integrations (ERP, analytics, payment sync) and prepare to deploy to all three stores from single codebase</li>
+                    <li><strong>Schedule Leadership Review:</strong> Present this document to leadership for final approval</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Enterprise Account Strategy | Unicity Shopify Plus Operations<br>
+            Prepared March 2026 | Valid against Shopify Plus current pricing (subject to change)<br>
+            <a href="index.html">← Return to Hub</a></p>
+        </footer>
+    </div>
+</body>
+</html>
