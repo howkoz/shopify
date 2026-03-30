@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Pay Customer Experience Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --shop-purple: #5a31f4;
+            --shop-purple-dark: #4a28c9;
+            --shop-purple-light: #7c5af5;
+            --shop-black: #1a1a1a;
+            --shop-gray-900: #2d2d2d;
+            --shop-gray-700: #4a4a4a;
+            --shop-gray-500: #717171;
+            --shop-gray-300: #b3b3b3;
+            --shop-gray-100: #f5f5f5;
+            --shop-white: #ffffff;
+            --shop-green: #00875a;
+            --shop-green-light: #e6f4ed;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8f6ff 0%, #f0f4ff 50%, #fafafa 100%);
+            min-height: 100vh;
+            color: var(--shop-black);
+        }
+
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .demo-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--shop-black);
+            margin-bottom: 12px;
+        }
+
+        .demo-header p {
+            color: var(--shop-gray-500);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .flow-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--shop-white);
+            border-radius: 50px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .flow-step.active {
+            background: var(--shop-purple);
+            color: white;
+            box-shadow: 0 4px 20px rgba(90, 49, 244, 0.3);
+        }
+
+        .flow-step.completed {
+            background: var(--shop-green-light);
+            color: var(--shop-green);
+        }
+
+        .flow-step .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--shop-gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .flow-step.active .step-num {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .flow-step.completed .step-num {
+            background: var(--shop-green);
+            color: white;
+        }
+
+        .phone-container {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .phone-wrapper {
+            position: relative;
+        }
+
+        .phone-label {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--shop-gray-700);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 780px;
+            background: var(--shop-black);
+            border-radius: 55px;
+            padding: 12px;
+            box-shadow: 
+                0 50px 100px rgba(0,0,0,0.15),
+                0 20px 60px rgba(0,0,0,0.1),
+                inset 0 0 0 2px rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--shop-white);
+            border-radius: 45px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 32px;
+            background: var(--shop-black);
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+
+        .screen-content {
+            height: 100%;
+            overflow-y: auto;
+            padding-top: 40px;
+        }
+
+        /* Store Screen */
+        .store-header {
+            padding: 16px 20px;
+            background: var(--shop-white);
+            border-bottom: 1px solid var(--shop-gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .store-logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--shop-black);
+        }
+
+        .cart-icon {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: var(--shop-gray-100);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            background: var(--shop-purple);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-card {
+            padding: 20px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            top: 20%;
+            left: 20%;
+        }
+
+        .product-image-icon {
+            font-size: 4rem;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--shop-green);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .product-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .product-subtitle {
+            color: var(--shop-gray-500);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .product-price {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--shop-black);
+        }
+
+        .product-price-original {
+            font-size: 1rem;
+            color: var(--shop-gray-500);
+            text-decoration: line-through;
+        }
+
+        .installment-preview {
+            background: linear-gradient(135deg, #f8f6ff 0%, #f0eeff 100%);
+            border: 1px solid rgba(90, 49, 244, 0.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .shop-logo-small {
+            width: 60px;
+            height: 24px;
+            background: var(--shop-purple);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.65rem;
+            letter-spacing: 0.5px;
+        }
+
+        .installment-text {
+            font-size: 0.85rem;
+            color: var(--shop-gray-700);
+        }
+
+        .installment-text strong {
+            color: var(--shop-purple);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--shop-black);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .add-to-cart-btn:hover {
+            background: var(--shop-gray-900);
+            transform: translateY(-2px);
+        }
+
+        .shop-pay-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--shop-purple);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .shop-pay-btn:hover {
+            background: var(--shop-purple-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(90, 49, 244, 0.3);
+        }
+
+        .shop-pay-logo {
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--shop-purple);
+            letter-spacing: 0.5px;
+        }
+
+        /* Cart Screen */
+        .cart-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--shop-gray-100);
+        }
+
+        .cart-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .cart-items {
+            padding: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--shop-gray-100);
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-variant {
+            color: var(--shop-gray-500);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--shop-gray-300);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cart-item-price {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .cart-summary {
+            padding: 20px;
+            background: var(--shop-gray-100);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding-top: 12px;
+            border-top: 1px solid var(--shop-gray-300);
+        }
+
+        .express-checkout {
+            padding: 20px;
+            border-bottom: 1px solid var(--shop-gray-100);
+        }
+
+        .express-label {
+            text-align: center;
+            color: var(--shop-gray-500);
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+
+        .express-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .express-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .express-btn.shop-pay {
+            background: var(--shop-purple);
+            color: white;
+        }
+
+        .express-btn.apple-pay {
+            background: var(--shop-black);
+            color: white;
+        }
+
+        .express-btn.google-pay {
+            background: white;
+            border: 1px solid var(--shop-gray-300);
+        }
+
+        /* Shop Pay Auth Screen */
+        .auth-screen {
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .auth-logo {
+            width: 100px;
+            height: 40px;
+            background: var(--shop-purple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin: 0 auto 32px;
+        }
+
+        .auth-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .auth-subtitle {
+            color: var(--shop-gray-500);
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .auth-input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--shop-gray-700);
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--shop-gray-300);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--shop-purple);
+        }
+
+        .auth-input.filled {
+            border-color: var(--shop-green);
+            background: var(--shop-green-light);
+        }
+
+        .auth-continue-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--shop-purple);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            color: var(--shop-gray-500);
+            font-size: 0.85rem;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--shop-gray-300);
+        }
+
+        /* OTP Screen */
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 32px 0;
+        }
+
+        .otp-input {
+            width: 52px;
+            height: 64px;
+            border: 2px solid var(--shop-gray-300);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--shop-purple);
+            box-shadow: 0 0 0 4px rgba(90, 49, 244, 0.1);
+        }
+
+        .otp-input.filled {
+            border-color: var(--shop-purple);
+            background: rgba(90, 49, 244, 0.05);
+        }
+
+        .resend-link {
+            color: var(--shop-purple);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Checkout Review Screen */
+        .checkout-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--shop-gray-100);
+        }
+
+        .checkout-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .checkout-section-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-check {
+            width: 20px;
+            height: 20px;
+            background: var(--shop-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .edit-link {
+            color: var(--shop-purple);
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .saved-info {
+            background: var(--shop-gray-100);
+            padding: 14px 16px;
+            border-radius: 10px;
+        }
+
+        .saved-info-line {
+            font-size: 0.9rem;
+            color: var(--shop-gray-700);
+            margin-bottom: 4px;
+        }
+
+        .saved-info-line:last-child {
+            margin-bottom: 0;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--shop-gray-100);
+            padding: 14px 16px;
+            border-radius: 10px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 32px;
+            background: linear-gradient(135deg, #1a1f71 0%, #2d357a 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.6rem;
+        }
+
+        .card-details {
+            flex: 1;
+        }
+
+        .card-number {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .card-expiry {
+            color: var(--shop-gray-500);
+            font-size: 0.8rem;
+        }
+
+        .pay-now-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--shop-purple);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pay-now-btn:hover {
+            background: var(--shop-purple-dark);
+        }
+
+        /* Confirmation Screen */
+        .confirmation-screen {
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--shop-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2.5rem;
+            color: white;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .confirmation-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .confirmation-order {
+            color: var(--shop-gray-500);
+            margin-bottom: 32px;
+        }
+
+        .tracking-card {
+            background: var(--shop-gray-100);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .tracking-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .tracking-status {
+            color: var(--shop-green);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .tracking-progress {
+            height: 4px;
+            background: var(--shop-gray-300);
+            border-radius: 2px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .tracking-progress-fill {
+            height: 100%;
+            width: 25%;
+            background: var(--shop-green);
+            border-radius: 2px;
+            animation: progressFill 1s ease;
+        }
+
+        @keyframes progressFill {
+            0% { width: 0; }
+            100% { width: 25%; }
+        }
+
+        .tracking-steps {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--shop-gray-500);
+        }
+
+        .tracking-steps span:first-child {
+            color: var(--shop-green);
+            font-weight: 600;
+        }
+
+        .shop-app-promo {
+            background: linear-gradient(135deg, var(--shop-purple) 0%, var(--shop-purple-dark) 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            text-align: left;
+        }
+
+        .promo-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .promo-text {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .promo-btn {
+            background: white;
+            color: var(--shop-purple);
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Navigation buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-btn.primary {
+            background: var(--shop-purple);
+            color: white;
+            border: none;
+        }
+
+        .nav-btn.primary:hover {
+            background: var(--shop-purple-dark);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.secondary {
+            background: white;
+            color: var(--shop-gray-700);
+            border: 1px solid var(--shop-gray-300);
+        }
+
+        .nav-btn.secondary:hover {
+            border-color: var(--shop-gray-500);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .info-panel h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--shop-gray-100);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .info-card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .info-card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 0.85rem;
+            color: var(--shop-gray-500);
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .phone-frame {
+                width: 100%;
+                max-width: 375px;
+                height: 700px;
+                border-radius: 40px;
+            }
+            
+            .phone-screen {
+                border-radius: 32px;
+            }
+            
+            .demo-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🛒 Shop Pay Customer Experience</h1>
+            <p>Interactive demo showing the complete checkout journey from a shopper's perspective on a Shopify store</p>
+        </div>
+
+        <div class="flow-indicator">
+            <div class="flow-step active" data-step="1" onclick="goToStep(1)">
+                <span class="step-num">1</span>
+                <span>Browse</span>
+            </div>
+            <div class="flow-step" data-step="2" onclick="goToStep(2)">
+                <span class="step-num">2</span>
+                <span>Cart</span>
+            </div>
+            <div class="flow-step" data-step="3" onclick="goToStep(3)">
+                <span class="step-num">3</span>
+                <span>Auth</span>
+            </div>
+            <div class="flow-step" data-step="4" onclick="goToStep(4)">
+                <span class="step-num">4</span>
+                <span>Verify</span>
+            </div>
+            <div class="flow-step" data-step="5" onclick="goToStep(5)">
+                <span class="step-num">5</span>
+                <span>Review</span>
+            </div>
+            <div class="flow-step" data-step="6" onclick="goToStep(6)">
+                <span class="step-num">6</span>
+                <span>Complete</span>
+            </div>
+        </div>
+
+        <div class="phone-container">
+            <div class="phone-wrapper">
+                <div class="phone-label">Customer Mobile View</div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="phone-notch"></div>
+                        
+                        <!-- Step 1: Product Page -->
+                        <div class="screen-content" id="step1">
+                            <div class="store-header">
+                                <div class="store-logo">Unicity Wellness</div>
+                                <div class="cart-icon" onclick="goToStep(2)">
+                                    🛒
+                                    <span class="cart-badge">0</span>
+                                </div>
+                            </div>
+                            <div class="product-card fade-in">
+                                <div class="product-image">
+                                    <span class="product-badge">Best Seller</span>
+                                    <span class="product-image-icon">🧬</span>
+                                </div>
+                                <h2 class="product-title">Unimate Lemon</h2>
+                                <p class="product-subtitle">Premium yerba mate drink for mental clarity, energy, and focus. 30 sachets per box.</p>
+                                <div class="product-price-row">
+                                    <span class="product-price">$89.00</span>
+                                    <span class="product-price-original">$109.00</span>
+                                </div>
+                                <div class="installment-preview">
+                                    <span class="shop-logo-small">shop</span>
+                                    <span class="installment-text">Pay in 4 interest-free payments of <strong>$22.25</strong></span>
+                                </div>
+                                <button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
+                                <button class="shop-pay-btn" onclick="goToStep(3)">
+                                    Buy now with <span class="shop-pay-logo">shop pay</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Cart -->
+                        <div class="screen-content hidden" id="step2">
+                            <div class="cart-header">
+                                <h2>Your Cart</h2>
+                            </div>
+                            <div class="express-checkout">
+                                <div class="express-label">Express checkout</div>
+                                <div class="express-buttons">
+                                    <button class="express-btn shop-pay" onclick="goToStep(3)">shop pay</button>
+                                    <button class="express-btn apple-pay">Apple Pay</button>
+                                    <button class="express-btn google-pay">G Pay</button>
+                                </div>
+                            </div>
+                            <div class="cart-items">
+                                <div class="cart-item fade-in">
+                                    <div class="cart-item-image">🧬</div>
+                                    <div class="cart-item-details">
+                                        <div class="cart-item-title">Unimate Lemon</div>
+                                        <div class="cart-item-variant">30 Sachets</div>
+                                        <div class="cart-item-qty">
+                                            <button class="qty-btn">−</button>
+                                            <span>1</span>
+                                            <button class="qty-btn">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="cart-item-price">$89.00</div>
+                                </div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span>$89.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping</span>
+                                    <span>Calculated at checkout</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total</span>
+                                    <span>$89.00</span>
+                                </div>
+                            </div>
+                            <div style="padding: 20px;">
+                                <button class="shop-pay-btn" onclick="goToStep(3)">
+                                    Checkout with <span class="shop-pay-logo">shop pay</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Shop Pay Auth -->
+                        <div class="screen-content hidden" id="step3">
+                            <div class="auth-screen fade-in">
+                                <div class="auth-logo">shop pay</div>
+                                <h2 class="auth-title">Welcome back</h2>
+                                <p class="auth-subtitle">Enter your email or phone to use your saved information for faster checkout</p>
+                                <div class="auth-input-group">
+                                    <label class="auth-label">Email or mobile phone number</label>
+                                    <input type="text" class="auth-input filled" value="howard@unicity.com" readonly>
+                                </div>
+                                <button class="auth-continue-btn" onclick="goToStep(4)">Continue</button>
+                                <div class="auth-divider">or</div>
+                                <p style="color: var(--shop-gray-500); font-size: 0.85rem;">New to Shop Pay? We'll create an account and save your info for next time.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: OTP Verification -->
+                        <div class="screen-content hidden" id="step4">
+                            <div class="auth-screen fade-in">
+                                <div class="auth-logo">shop pay</div>
+                                <h2 class="auth-title">Enter verification code</h2>
+                                <p class="auth-subtitle">We sent a 6-digit code to<br><strong>howard@unicity.com</strong></p>
+                                <div class="otp-container">
+                                    <input type="text" class="otp-input filled" value="4" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="8" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="2" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="7" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="1" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="9" maxlength="1" readonly>
+                                </div>
+                                <button class="auth-continue-btn" onclick="goToStep(5)">Verify</button>
+                                <p style="margin-top: 20px; color: var(--shop-gray-500); font-size: 0.85rem;">
+                                    Didn't receive code? <a href="#" class="resend-link">Resend</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Review & Pay -->
+                        <div class="screen-content hidden" id="step5">
+                            <div class="store-header">
+                                <div class="store-logo">🔒 Secure Checkout</div>
+                            </div>
+                            <div class="checkout-section fade-in">
+                                <div class="checkout-section-header">
+                                    <span class="checkout-section-title">
+                                        <span class="section-check">✓</span>
+                                        Contact
+                                    </span>
+                                    <a href="#" class="edit-link">Change</a>
+                                </div>
+                                <div class="saved-info">
+                                    <div class="saved-info-line">howard@unicity.com</div>
+                                </div>
+                            </div>
+                            <div class="checkout-section fade-in" style="animation-delay: 0.1s;">
+                                <div class="checkout-section-header">
+                                    <span class="checkout-section-title">
+                                        <span class="section-check">✓</span>
+                                        Ship to
+                                    </span>
+                                    <a href="#" class="edit-link">Change</a>
+                                </div>
+                                <div class="saved-info">
+                                    <div class="saved-info-line"><strong>Howard S.</strong></div>
+                                    <div class="saved-info-line">1201 N Market St</div>
+                                    <div class="saved-info-line">Wilmington, DE 19801</div>
+                                    <div class="saved-info-line">United States</div>
+                                </div>
+                            </div>
+                            <div class="checkout-section fade-in" style="animation-delay: 0.2s;">
+                                <div class="checkout-section-header">
+                                    <span class="checkout-section-title">
+                                        <span class="section-check">✓</span>
+                                        Payment
+                                    </span>
+                                    <a href="#" class="edit-link">Change</a>
+                                </div>
+                                <div class="payment-method">
+                                    <div class="card-icon">VISA</div>
+                                    <div class="card-details">
+                                        <div class="card-number">•••• •••• •••• 4242</div>
+                                        <div class="card-expiry">Expires 12/27</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row">
+                                    <span>Unimate Lemon × 1</span>
+                                    <span>$89.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping</span>
+                                    <span>$5.99</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax</span>
+                                    <span>$7.60</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total</span>
+                                    <span>$102.59</span>
+                                </div>
+                            </div>
+                            <div style="padding: 20px;">
+                                <button class="pay-now-btn" onclick="goToStep(6)">
+                                    Pay $102.59
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 6: Confirmation -->
+                        <div class="screen-content hidden" id="step6">
+                            <div class="confirmation-screen fade-in">
+                                <div class="success-icon">✓</div>
+                                <h2 class="confirmation-title">Thank you!</h2>
+                                <p class="confirmation-order">Order #UNI-78432</p>
+                                
+                                <div class="tracking-card">
+                                    <div class="tracking-header">
+                                        <span><strong>Estimated delivery</strong></span>
+                                        <span class="tracking-status">Processing</span>
+                                    </div>
+                                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 16px;">Jan 29 - Jan 31</div>
+                                    <div class="tracking-progress">
+                                        <div class="tracking-progress-fill"></div>
+                                    </div>
+                                    <div class="tracking-steps">
+                                        <span>Ordered</span>
+                                        <span>Shipped</span>
+                                        <span>In Transit</span>
+                                        <span>Delivered</span>
+                                    </div>
+                                </div>
+
+                                <div class="shop-app-promo">
+                                    <div class="promo-title">Track with Shop app</div>
+                                    <p class="promo-text">Get real-time tracking updates and manage all your orders in one place.</p>
+                                    <button class="promo-btn">Open in Shop</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn secondary" id="prevBtn" onclick="prevStep()" disabled>← Previous</button>
+            <button class="nav-btn primary" id="nextBtn" onclick="nextStep()">Next Step →</button>
+        </div>
+
+        <div class="info-panel">
+            <h3>📊 What's Happening at This Step</h3>
+            <div class="info-grid" id="stepInfo">
+                <div class="info-card">
+                    <div class="info-card-icon">🏪</div>
+                    <h4>Product Discovery</h4>
+                    <p>Customer browses products on your Shopify storefront. Shop Pay button appears showing installment option for orders $50-$3000.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">⚡</div>
+                    <h4>Express Checkout</h4>
+                    <p>Shop Pay enables one-tap checkout. Customer can skip cart and buy immediately, reducing checkout time by 4x.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🔐</div>
+                    <h4>Secure by Default</h4>
+                    <p>Payment info tokenized by Shopify Payments (Stripe). Merchant never handles raw card data. PCI compliance maintained.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 6;
+
+        const stepInfoContent = {
+            1: [
+                { icon: '🏪', title: 'Product Discovery', text: 'Customer browses products on your Shopify storefront. Shop Pay button appears showing installment option for orders $50-$3000.' },
+                { icon: '⚡', title: 'Express Checkout', text: 'Shop Pay enables one-tap checkout. Customer can skip cart and buy immediately, reducing checkout time by 4x.' },
+                { icon: '🔐', title: 'Secure by Default', text: 'Payment info tokenized by Shopify Payments (Stripe). Merchant never handles raw card data. PCI compliance maintained.' }
+            ],
+            2: [
+                { icon: '🛒', title: 'Cart Review', text: 'Customer reviews items before checkout. Express checkout buttons appear at top for fastest path to purchase.' },
+                { icon: '💳', title: 'Multiple Options', text: 'Shop Pay, Apple Pay, and Google Pay all available. Shop Pay has highest conversion rate (91% vs 47% industry average).' },
+                { icon: '📱', title: 'Mobile Optimized', text: 'Shop Pay wallet remembered across 100M+ buyers. Returning customers complete purchase in seconds.' }
+            ],
+            3: [
+                { icon: '🔑', title: 'Shop Pay Authentication', text: 'Customer enters email linked to their Shop Pay account. System checks for existing saved information across Shopify network.' },
+                { icon: '🌐', title: 'Network Effect', text: 'Shop Pay recognizes returning customers from ANY Shopify store. One-time registration works everywhere.' },
+                { icon: '👤', title: 'New Users', text: 'First-time users create Shop Pay account during checkout. Info saved for future purchases at any Shopify merchant.' }
+            ],
+            4: [
+                { icon: '📲', title: 'OTP Verification', text: 'Six-digit code sent via email or SMS. Verifies customer identity without password. Code expires in 10 minutes.' },
+                { icon: '🛡️', title: 'Security Layer', text: 'Passwordless authentication prevents credential theft. Each login requires fresh verification code.' },
+                { icon: '✨', title: 'Frictionless', text: 'Most customers complete verification in under 30 seconds. Code auto-fills on mobile devices.' }
+            ],
+            5: [
+                { icon: '📋', title: 'Pre-filled Information', text: 'Shipping address, contact info, and payment method auto-populated from Shop Pay wallet. No typing required.' },
+                { icon: '🔄', title: 'Easy Edits', text: 'Customer can change any saved info with one tap. Updates saved back to Shop Pay for next time.' },
+                { icon: '💰', title: 'Transparent Pricing', text: 'Full order breakdown shown: product, shipping, tax. No hidden fees. Total matches what customer pays.' }
+            ],
+            6: [
+                { icon: '✅', title: 'Order Confirmed', text: 'Payment processed instantly through Shopify Payments. Merchant receives funds per normal settlement schedule (2-3 business days).' },
+                { icon: '📦', title: 'Shop App Tracking', text: 'Customer can track order in Shop app with push notifications. Builds brand loyalty through post-purchase engagement.' },
+                { icon: '🔄', title: 'Easy Returns', text: 'Shop app provides unified return initiation. Customer history preserved for future purchases and recommendations.' }
+            ]
+        };
+
+        function goToStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            
+            // Hide all screens
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`step${i}`).classList.add('hidden');
+            }
+            
+            // Show target screen
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            
+            // Update flow indicators
+            document.querySelectorAll('.flow-step').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < step) {
+                    el.classList.add('completed');
+                } else if (index + 1 === step) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // Update buttons
+            document.getElementById('prevBtn').disabled = step === 1;
+            document.getElementById('nextBtn').textContent = step === totalSteps ? 'Restart Demo' : 'Next Step →';
+            
+            // Update info panel
+            updateInfoPanel(step);
+            
+            currentStep = step;
+        }
+
+        function nextStep() {
+            if (currentStep === totalSteps) {
+                goToStep(1);
+            } else {
+                goToStep(currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            goToStep(currentStep - 1);
+        }
+
+        function addToCart() {
+            const badge = document.querySelector('.cart-badge');
+            badge.textContent = '1';
+            badge.style.animation = 'scaleIn 0.3s ease';
+            setTimeout(() => goToStep(2), 500);
+        }
+
+        function updateInfoPanel(step) {
+            const content = stepInfoContent[step];
+            const grid = document.getElementById('stepInfo');
+            grid.innerHTML = content.map(item => `
+                <div class="info-card">
+                    <div class="info-card-icon">${item.icon}</div>
+                    <h4>${item.title}</h4>
+                    <p>${item.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        updateInfoPanel(1);
+    </script>
+</body>
+</html>

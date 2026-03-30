@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data & Tools - Unicity Shopify Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-alt: #21262d;
+            --text: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --purple: #bc8cff;
+            --green: #3fb950;
+            --border: #30363d;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            padding: 8px 16px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background-color: var(--surface-alt);
+            border-color: var(--accent);
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            max-width: 800px;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--purple);
+            border-radius: 4px;
+            color: var(--bg);
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        /* SQL Query Card */
+        .sql-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .sql-card:hover {
+            border-color: var(--accent);
+            background-color: var(--surface-alt);
+        }
+
+        .query-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .query-filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95em;
+            color: var(--green);
+            font-weight: 600;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .query-version {
+            background-color: var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        .query-description {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-bottom: 16px;
+        }
+
+        .query-code-block {
+            background-color: #010409;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            margin-top: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .query-code-block code {
+            color: #79c0ff;
+        }
+
+        /* Utility Card */
+        .utility-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .utility-card:hover {
+            border-color: var(--purple);
+            background-color: var(--surface-alt);
+        }
+
+        .utility-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95em;
+            color: var(--purple);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .utility-description {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+
+        .utility-size {
+            display: inline-block;
+            background-color: var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Dashboard Card (Clickable) */
+        .dashboard-card {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(188, 140, 255, 0.1));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(188, 140, 255, 0.15));
+            transform: translateY(-2px);
+        }
+
+        .dashboard-icon {
+            font-size: 2em;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .dashboard-description {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-size {
+            display: inline-block;
+            background-color: var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Data File Card */
+        .data-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .data-card:hover {
+            border-color: var(--green);
+            background-color: var(--surface-alt);
+        }
+
+        .data-icon {
+            font-size: 1.5em;
+            margin-bottom: 12px;
+        }
+
+        .data-filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95em;
+            color: var(--green);
+            font-weight: 600;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .data-description {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+
+        .data-size {
+            display: inline-block;
+            background-color: var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .query-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .query-version {
+                margin-left: 0;
+            }
+        }
+
+        /* Code highlighting */
+        .comment { color: #7d8590; }
+        .keyword { color: #ff7b72; }
+        .function { color: #d2a8ff; }
+        .string { color: #a5d6ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <a href="index.html" class="nav-link">← Back to Hub</a>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>Data & Tools</h1>
+            <p>SQL queries for customer import and matching, CSV dashboard builders, and data export utilities for the Shopify migration.</p>
+        </div>
+
+        <!-- SQL Query Library Section -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon">💾</div>
+                SQL Query Library
+            </div>
+            <div class="cards-grid">
+                <!-- v1.2 (latest active-ms) -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-usa-active-ms-customers-v1.2.sql</div>
+                        <div class="query-version">v1.2</div>
+                    </div>
+                    <div class="query-description">Latest version with refined criteria for active Mississippi customers eligible for Shopify import.</div>
+                    <div class="query-code-block"><code><span class="comment">/* =====================================================================
+   Query Name: Shopify USA Customer Prep - Active MS Accounts
+   Version: 1.2.0
+   Created: 2026-02-15
+
+   Purpose: Find all active accounts in Mississippi (USA) that placed
+            an order in the last 6 months. Outputs columns matching
+            Shopify customer export format for US pilot prep.
+
+   Key Features:
+   - Starts from DW.DST (DIST_ID, DIST_STATUS, name fallback)
+   - Joins UnityDBStage.Customer for demographics and address
+   - Joins UnityDBStage.Order for 6-month activity filter
+   - Market mapping via comma-separated @MarketIdList
+   - State filter via @MainAddress_State on Customer table
+   - Aggregates order stats per customer</span>
+
+   Parameters:
+   @MarketIdList  - Comma-separated DW market codes (default '01' = USA)
+   @MainAddress_State - UnityDBStage Customer state filter (default 'MS')
+   @LookbackMonths - Order recency window (default 6)
+*/</code></div>
+                </div>
+
+                <!-- v1.1 -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-usa-active-ms-customers-v1.1.sql</div>
+                        <div class="query-version">v1.1</div>
+                    </div>
+                    <div class="query-description">Added columns/filters with name fallback and cast fixes from v1.0.</div>
+                </div>
+
+                <!-- v1.0 -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-usa-active-ms-customers.sql</div>
+                        <div class="query-version">v1.0</div>
+                    </div>
+                    <div class="query-description">Base query for active Mississippi customers eligible for Shopify import.</div>
+                </div>
+
+                <!-- v1.3.2 (latest import) -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-usa-import-ms-v1.3.2.sql</div>
+                        <div class="query-version">v1.3.2</div>
+                    </div>
+                    <div class="query-description">Latest import query version with refined criteria. Generates Shopify customer import CSV with metafield columns matching NZL store structure.</div>
+                    <div class="query-code-block"><code><span class="comment">/* =====================================================================
+   Query Name: Shopify USA Customer Import - MS Active Accounts
+   Version: 1.3.2
+   Created: 2026-02-15
+
+   Purpose: Generate Shopify customer import CSV for Mississippi pilot.
+            Output matches exact Shopify CSV import format including
+            metafield columns matching NZL store structure.
+
+   Key Features:
+   - Output columns match Shopify customer import CSV headers exactly
+   - Four metafields under account_info namespace (matches NZL store)
+   - Name parsing from DST.ROMAN_NAME_1 (Last, First format)
+   - Market mapping via comma-separated @MarketIdList
+   - Active accounts with orders in last 6 months
+
+   Shopify Metafield Setup Required (before import):
+   Namespace: account_info
+   • unicity_id (Single line text)
+   • unicity_customer_status (Single line text)
+   • existing_subscription (True or false)
+   • origin (Single line text)</span>
+*/</code></div>
+                </div>
+
+                <!-- v1.3.1 -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-usa-import-ms-v1.3.1.sql</div>
+                        <div class="query-version">v1.3.1</div>
+                    </div>
+                    <div class="query-description">Minor fixes and refinements to the v1.3 import query.</div>
+                </div>
+
+                <!-- v1.3 -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-usa-import-ms-v1.3.sql</div>
+                        <div class="query-version">v1.3</div>
+                    </div>
+                    <div class="query-description">Mississippi customer import query with metafield structure.</div>
+                </div>
+
+                <!-- NZL Match -->
+                <div class="sql-card">
+                    <div class="query-header">
+                        <div class="query-filename">shopify-nzl-customer-match.sql</div>
+                        <div class="query-version">v1.0</div>
+                    </div>
+                    <div class="query-description">New Zealand customer matching between Shopify and Unity database. Validates column mapping for US pilot.</div>
+                    <div class="query-code-block"><code><span class="comment">/* =====================================================================
+   Query Name: Shopify NZL Customer Match - Unity Database Lookup
+   Version: 1.0.0
+   Created: 2026-02-15
+
+   Purpose: Pull Unity database values matching Shopify customer export
+            columns for NZL market. Prepares column mapping for US pilot
+            by validating what data exists in DW.DST + UnityDBStage.
+
+   Key Features:
+   - Starts from DW server (DST table) for DIST_ID and DIST_STATUS
+   - Joins to UnityDBStage.Customer for name, email, address, phone
+   - Column aliases match Shopify export headers exactly
+   - NZL market filter via Customer.MainAddress_Country
+
+   Column Mapping:
+   Shopify Column                    | Unity Source
+   ----------------------------------|------------------</span>
+*/</code></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Builders Section -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon">⚙️</div>
+                Dashboard Builders
+            </div>
+            <div class="cards-grid">
+                <div class="utility-card">
+                    <div class="utility-name">build-pos-csv-dashboard.py</div>
+                    <div class="utility-description">Python script that converts POS CSV exports into interactive HTML dashboards. Drag-and-drop workflow with built-in data validation.</div>
+                    <div class="utility-size">45 KB</div>
+                </div>
+
+                <div class="utility-card">
+                    <div class="utility-name">run-pos-csv-dashboard.bat</div>
+                    <div class="utility-description">Windows BAT launcher for the Python builder. Double-click to run. Automatically launches the Python dashboard generator.</div>
+                    <div class="utility-size">2 KB</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Exports & Dashboards Section -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon">📊</div>
+                Data Exports & Dashboards
+            </div>
+            <div class="cards-grid">
+                <a href="orders_export_1-dashboard.html" class="dashboard-card" target="_blank">
+                    <div class="dashboard-icon">📈</div>
+                    <div class="dashboard-name">Orders Export Dashboard</div>
+                    <div class="dashboard-description">Generated dashboard from orders_export_1.csv. Interactive visualization of Shopify orders with filtering and trends.</div>
+                    <div class="dashboard-size">32 KB</div>
+                </a>
+
+                <a href="pos-sales-dashboard.html" class="dashboard-card" target="_blank">
+                    <div class="dashboard-icon">💰</div>
+                    <div class="dashboard-name">POS Sales Dashboard</div>
+                    <div class="dashboard-description">POS sales visualization with time-series analytics, regional breakdown, and revenue metrics.</div>
+                    <div class="dashboard-size">59 KB</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Source Data Section -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-icon">📁</div>
+                Source Data
+            </div>
+            <div class="cards-grid">
+                <div class="data-card">
+                    <div class="data-icon">📄</div>
+                    <div class="data-filename">orders_export_1.csv</div>
+                    <div class="data-description">Raw Shopify orders export. Contains complete order history, line items, customer references, and transaction metadata.</div>
+                    <div class="data-size">67 KB</div>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-icon">📄</div>
+                    <div class="data-filename">ms-shopify-import-final.csv</div>
+                    <div class="data-description">Final Mississippi customer import file for Shopify. Pre-validated and formatted for direct Shopify API ingestion.</div>
+                    <div class="data-size">123 KB</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 60px; padding-top: 32px; border-top: 1px solid var(--border);">
+            <p style="color: var(--text-secondary); font-size: 0.95em;">
+                <strong>Last updated:</strong> 2026-02-15 |
+                <strong>Shopify Hub Version:</strong> 1.0.0 |
+                <a href="index.html" style="color: var(--accent); text-decoration: none;">← Return to Hub</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

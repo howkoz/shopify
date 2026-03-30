@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Integration Map - Unicity International Shopify Plus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: var(--surface2);
+            border-color: var(--accent);
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text);
+            opacity: 0.8;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            background: var(--surface2);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        /* Architecture Diagram */
+        .diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: max-content;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            white-space: nowrap;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .flow-box.source {
+            border-color: var(--green);
+            background: rgba(63, 185, 80, 0.1);
+        }
+
+        .flow-box.middleware {
+            border-color: var(--yellow);
+            background: rgba(210, 153, 34, 0.1);
+        }
+
+        .flow-box.target {
+            border-color: var(--cyan);
+            background: rgba(57, 210, 192, 0.1);
+        }
+
+        .arrow {
+            color: var(--accent);
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        /* Advantages Section */
+        .advantages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .advantage-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .advantage-card:hover {
+            border-color: var(--accent);
+            background: var(--surface2);
+        }
+
+        .advantage-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .advantage-card p {
+            color: var(--text);
+            opacity: 0.85;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Webhook Topics */
+        .topics-container {
+            display: grid;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .topic-domain {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .domain-header {
+            background: var(--surface2);
+            border-bottom: 2px solid var(--border);
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .domain-header:hover {
+            background: rgba(88, 166, 255, 0.1);
+        }
+
+        .domain-header.collapsed::before {
+            content: '▶';
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .domain-header.expanded::before {
+            content: '▼';
+            display: inline-block;
+            transform: rotate(0);
+        }
+
+        .domain-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .domain-content.collapsed {
+            max-height: 0;
+        }
+
+        .topic-item {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .topic-item:first-child {
+            border-top: none;
+        }
+
+        .topic-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .topic-description {
+            color: var(--text);
+            opacity: 0.85;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .topic-usecase {
+            background: rgba(88, 166, 255, 0.05);
+            border-left: 3px solid var(--accent);
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--text);
+            opacity: 0.85;
+        }
+
+        .topic-usecase strong {
+            color: var(--accent);
+        }
+
+        /* Integration Map */
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .integration-path {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .integration-path:hover {
+            border-color: var(--accent);
+            background: var(--surface2);
+            transform: translateY(-4px);
+        }
+
+        .integration-target {
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .integration-target::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .topic-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .topic-list li {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text);
+            opacity: 0.8;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .topic-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--green);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .code-label {
+            color: var(--yellow);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        code {
+            color: var(--cyan);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .keyword {
+            color: var(--purple);
+        }
+
+        .string {
+            color: var(--green);
+        }
+
+        .number {
+            color: var(--orange);
+        }
+
+        .comment {
+            color: var(--text);
+            opacity: 0.5;
+        }
+
+        /* Tables */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: var(--surface2);
+            border-bottom: 2px solid var(--border);
+            padding: 1rem;
+            text-align: left;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .metric-good {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .metric-limit {
+            color: var(--orange);
+        }
+
+        /* Content Section */
+        .content-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            line-height: 1.7;
+        }
+
+        .content-box h4 {
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            font-size: 1.05rem;
+        }
+
+        .content-box p {
+            color: var(--text);
+            opacity: 0.85;
+            margin-bottom: 0.75rem;
+        }
+
+        .content-box ul {
+            margin-left: 1.5rem;
+            color: var(--text);
+            opacity: 0.85;
+        }
+
+        .content-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .best-practice {
+            background: rgba(63, 185, 80, 0.1);
+            border-left: 4px solid var(--green);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .best-practice strong {
+            color: var(--green);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            .advantages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .integration-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem;
+            }
+        }
+
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <div class="header">
+            <h1>Webhook Integration Map</h1>
+            <p class="subtitle">Event-driven architecture connecting Shopify to ERP, fulfillment, CRM, and payment systems across all markets.</p>
+        </div>
+
+        <!-- Section 1: Architecture Overview -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">1</div>
+                Webhook Architecture Overview
+            </div>
+            <div class="diagram">
+                <div class="flow-diagram">
+                    <div class="flow-box source">Shopify Store</div>
+                    <div class="arrow">→</div>
+                    <div class="flow-box">Webhook Events</div>
+                    <div class="arrow">→</div>
+                    <div class="flow-box middleware">API Gateway</div>
+                    <div class="arrow">→</div>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box target">ERP</div>
+                    <div class="flow-box target">CRM</div>
+                    <div class="flow-box target">Fulfillment</div>
+                    <div class="flow-box target">Analytics</div>
+                    <div class="flow-box target">Slack</div>
+                </div>
+            </div>
+            <div class="content-box">
+                <p>This event-driven architecture enables real-time synchronization between Shopify and downstream systems. All webhook events flow through a centralized API Gateway middleware that:</p>
+                <ul>
+                    <li>Validates HMAC signatures for security</li>
+                    <li>Routes events to appropriate target systems</li>
+                    <li>Implements retry logic and dead-letter queues</li>
+                    <li>Provides audit logging and monitoring</li>
+                    <li>Handles rate limiting and throttling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 2: Shopify Plus Advantages -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">2</div>
+                Shopify Plus API Advantages
+            </div>
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <h4>GraphQL Admin API</h4>
+                    <p><strong>500 points/second</strong> rate limit (vs 50 for standard plans). Efficient query structure reduces overhead for complex data operations.</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>REST Admin API</h4>
+                    <p><strong>20 requests/second</strong> rate limit (vs 2 for standard plans). Flexible bucket model with 40-request burst capacity.</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>Webhook Delivery</h4>
+                    <p>Guaranteed delivery with <strong>19 automatic retries over 48 hours</strong>. Exponential backoff between retries ensures reliable event processing.</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>Mandatory Webhooks</h4>
+                    <p>Certain webhook topics are required for app compliance. Shopify enforces subscription to critical events for data consistency.</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>HMAC Verification</h4>
+                    <p>SHA-256 signature validation included in every webhook. <code style="color: var(--accent);">X-Shopify-Hmac-SHA256</code> header authenticates event source.</p>
+                </div>
+                <div class="advantage-card">
+                    <h4>API Versioning</h4>
+                    <p>Pin webhooks to specific API versions (e.g., 2024-01). Automatic migration support when upgrading versions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Complete Webhook Topic Reference -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">3</div>
+                Complete Webhook Topic Reference
+            </div>
+
+            <div class="topics-container">
+                <!-- ORDERS Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>📦 ORDERS (Most Critical)</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">orders/create</div>
+                            <div class="topic-description">New order placed in Shopify store.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync to ERP, trigger fulfillment, notify distributor network, append distributor attribution</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">orders/updated</div>
+                            <div class="topic-description">Order modified (customer info, line items, shipping, etc.).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Update ERP records, adjust inventory allocations, sync shipping changes</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">orders/paid</div>
+                            <div class="topic-description">Payment captured and confirmed.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Trigger fulfillment workflow, update accounting system, notify warehouse</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">orders/fulfilled</div>
+                            <div class="topic-description">Order completely shipped and delivered.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Send tracking to customer, update ERP fulfillment status, trigger commission calculations</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">orders/cancelled</div>
+                            <div class="topic-description">Order cancelled by customer or merchant.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Reverse inventory allocation, process refunds, update distributor records</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">orders/partially_fulfilled</div>
+                            <div class="topic-description">Partial shipment processed (some items sent).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Update customer with partial tracking, manage split fulfillment, sync ERP staging status</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">refunds/create</div>
+                            <div class="topic-description">Refund issued for order or line items.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Update financial records, notify finance team, reverse commission, trigger refund workflow</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CUSTOMERS Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>👤 CUSTOMERS</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">customers/create</div>
+                            <div class="topic-description">New customer registered or created in store.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync to CRM, add to distributor list, trigger welcome email flow</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">customers/update</div>
+                            <div class="topic-description">Customer profile information changed.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync updated info to CRM, update distributor network, adjust market segments</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">customers/delete</div>
+                            <div class="topic-description">Customer account removed from store.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> GDPR compliance, remove from CRM, purge from marketing lists</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">customers/data_request</div>
+                            <div class="topic-description">Customer requests their personal data (GDPR).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Trigger compliance workflow, gather data from all systems, prepare export</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">customers/redact</div>
+                            <div class="topic-description">Customer requests deletion of personal data (GDPR).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Purge from all systems, trigger irreversible deletion, maintain compliance audit trail</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCTS Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>🛍️ PRODUCTS</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">products/create</div>
+                            <div class="topic-description">New product added to store catalog.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync to marketplace listings, update external catalogs, initialize pricing</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">products/update</div>
+                            <div class="topic-description">Product details modified (name, description, price, images).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync price/description changes, update marketplace listings, refresh catalog</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">products/delete</div>
+                            <div class="topic-description">Product removed from store.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Remove from external listings, archive in ERP, update inventory systems</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INVENTORY Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>📊 INVENTORY</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">inventory_levels/update</div>
+                            <div class="topic-description">Stock level changed at a location.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync to ERP, trigger low-stock alerts, update warehouse management systems</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">inventory_levels/connect</div>
+                            <div class="topic-description">New location connected to inventory tracking.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Multi-location setup, initialize WMS, configure distribution network</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">inventory_items/create</div>
+                            <div class="topic-description">New inventory item created (SKU tracking).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Warehouse setup, initialize tracking, configure stock levels</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">inventory_items/update</div>
+                            <div class="topic-description">Inventory item details modified.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync to WMS, update tracking info, refresh warehouse database</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FULFILLMENT Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>🚚 FULFILLMENT</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">fulfillments/create</div>
+                            <div class="topic-description">Shipment created and ready for dispatch.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Tracking notification, warehouse confirmation, update shipping carriers</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">fulfillments/update</div>
+                            <div class="topic-description">Shipment status updated (in transit, delivered, etc.).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Tracking updates, customer notifications, delivery confirmations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHECKOUT Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>🛒 CHECKOUT</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">checkouts/create</div>
+                            <div class="topic-description">Customer starts checkout process.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Abandoned cart tracking, analytics, trigger email recovery campaigns</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">checkouts/update</div>
+                            <div class="topic-description">Checkout cart modified (items added/removed).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Real-time analytics, funnel tracking, inventory hold management</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APP & SHOP Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>⚙️ APP & SHOP</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">app/uninstalled</div>
+                            <div class="topic-description">App removed from store.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Cleanup, remove webhooks, archive configurations, purge data</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">shop/update</div>
+                            <div class="topic-description">Store settings changed (name, currency, domains).</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Configuration audit, validate settings, sync store metadata</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B2B Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>🏢 B2B</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">companies/create</div>
+                            <div class="topic-description">B2B company account created.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Sync to distributor management system, setup credit terms, initialize accounts</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">companies/update</div>
+                            <div class="topic-description">Company profile or settings modified.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Update distributor records, sync account changes, refresh company info</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBSCRIPTIONS Domain -->
+                <div class="topic-domain">
+                    <div class="domain-header expanded">
+                        <span>🔄 SUBSCRIPTIONS</span>
+                    </div>
+                    <div class="domain-content">
+                        <div class="topic-item">
+                            <div class="topic-name">subscription_contracts/create</div>
+                            <div class="topic-description">New subscription contract created.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Recurring billing setup, initialize subscription in accounting, setup dunning rules</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">subscription_billing_attempts/success</div>
+                            <div class="topic-description">Subscription payment charged successfully.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Confirm renewal, update accounting records, trigger fulfillment</div>
+                        </div>
+                        <div class="topic-item">
+                            <div class="topic-name">subscription_billing_attempts/failure</div>
+                            <div class="topic-description">Subscription payment failed.</div>
+                            <div class="topic-usecase"><strong>Use:</strong> Dunning workflow, customer notification, retry scheduling</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 4: Unicity Integration Map -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">4</div>
+                Unicity Integration Map
+            </div>
+            <p style="color: var(--text); opacity: 0.85; margin-bottom: 1.5rem;">Visual topology showing which webhooks connect to which downstream systems:</p>
+
+            <div class="integration-grid">
+                <div class="integration-path">
+                    <div class="integration-target">Unity ERP</div>
+                    <ul class="topic-list">
+                        <li>orders/create</li>
+                        <li>orders/updated</li>
+                        <li>orders/fulfilled</li>
+                        <li>orders/cancelled</li>
+                        <li>refunds/create</li>
+                        <li>inventory_levels/update</li>
+                        <li>subscription_contracts/create</li>
+                    </ul>
+                </div>
+
+                <div class="integration-path">
+                    <div class="integration-target">CRM & Distributor System</div>
+                    <ul class="topic-list">
+                        <li>customers/create</li>
+                        <li>customers/update</li>
+                        <li>companies/create</li>
+                        <li>companies/update</li>
+                        <li>orders/create (attribution)</li>
+                    </ul>
+                </div>
+
+                <div class="integration-path">
+                    <div class="integration-target">Fulfillment & Warehouse</div>
+                    <ul class="topic-list">
+                        <li>orders/paid</li>
+                        <li>orders/updated</li>
+                        <li>fulfillments/create</li>
+                        <li>fulfillments/update</li>
+                        <li>inventory_levels/update</li>
+                    </ul>
+                </div>
+
+                <div class="integration-path">
+                    <div class="integration-target">Finance & Accounting</div>
+                    <ul class="topic-list">
+                        <li>orders/paid</li>
+                        <li>orders/fulfilled</li>
+                        <li>refunds/create</li>
+                        <li>subscription_billing_attempts/*</li>
+                    </ul>
+                </div>
+
+                <div class="integration-path">
+                    <div class="integration-target">Slack Notifications</div>
+                    <ul class="topic-list">
+                        <li>orders/create (high value)</li>
+                        <li>orders/paid</li>
+                        <li>refunds/create</li>
+                        <li>inventory low alerts</li>
+                    </ul>
+                </div>
+
+                <div class="integration-path">
+                    <div class="integration-target">Analytics & BI</div>
+                    <ul class="topic-list">
+                        <li>checkouts/create</li>
+                        <li>checkouts/update</li>
+                        <li>orders/create</li>
+                        <li>customers/create</li>
+                        <li>products/update</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Webhook Configuration -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">5</div>
+                Webhook Configuration
+            </div>
+
+            <div class="content-box">
+                <h4>Configuration Steps</h4>
+                <ol class="step-list">
+                    <li>Navigate to <strong>Shopify Admin</strong> → <strong>Settings</strong> → <strong>Notifications</strong></li>
+                    <li>Scroll to <strong>Webhooks</strong> section</li>
+                    <li>Click <strong>Create webhook</strong></li>
+                    <li>Select webhook topic (e.g., <code style="color: var(--accent);">orders/create</code>)</li>
+                    <li>Enter webhook endpoint URL (must be HTTPS)</li>
+                    <li>Select format: <strong>JSON</strong> (recommended) or XML</li>
+                    <li>Verify API version is pinned (e.g., <strong>2024-01</strong>)</li>
+                    <li>Click <strong>Save webhook</strong></li>
+                </ol>
+            </div>
+
+            <p style="color: var(--text); opacity: 0.85; margin: 1.5rem 0;"><strong>Alternative:</strong> Configure via GraphQL API using the <code style="color: var(--accent);">webhookSubscriptionCreate</code> mutation.</p>
+
+            <div class="code-block">
+                <span class="code-label">GraphQL Webhook Subscription Mutation</span>
+                <code><span class="keyword">mutation</span> CreateWebhook {
+  webhookSubscriptionCreate(
+    topic: <span class="string">ORDERS_CREATE</span>
+    webhookSubscription: {
+      callbackUrl: <span class="string">"https://api.example.com/webhooks/orders"</span>
+      format: <span class="string">JSON</span>
+    }
+  ) {
+    userErrors {
+      field
+      message
+    }
+    webhookSubscription {
+      id
+      topic
+      format
+      callbackUrl
+      createdAt
+    }
+  }
+}</code>
+            </div>
+
+            <div class="best-practice">
+                <strong>Best Practice:</strong> Always pin API versions in webhook configurations. This ensures your webhook handler receives consistent schema versions even when Shopify updates the API. Example: API version <code style="color: var(--accent);">2024-01</code> remains stable regardless of current platform version.
+            </div>
+        </div>
+
+        <!-- Section 6: Security & Verification -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">6</div>
+                Security & Verification
+            </div>
+
+            <div class="content-box">
+                <h4>HMAC Verification</h4>
+                <p>Every webhook includes the <code style="color: var(--accent);">X-Shopify-Hmac-SHA256</code> header containing a SHA-256 HMAC signature. Verify this signature using your webhook endpoint's shared secret to confirm the request originated from Shopify.</p>
+            </div>
+
+            <p style="color: var(--text); opacity: 0.85; margin: 1.5rem 0;"><strong>Python Example:</strong></p>
+            <div class="code-block">
+                <span class="code-label">Python - HMAC Verification</span>
+                <code><span class="keyword">import</span> hmac
+<span class="keyword">import</span> hashlib
+<span class="keyword">import</span> base64
+
+<span class="keyword">def</span> verify_webhook(data, hmac_header, secret):
+    <span class="comment"># Compute HMAC-SHA256 of request body</span>
+    computed = base64.b64encode(
+        hmac.new(
+            secret.encode(),
+            data,
+            hashlib.sha256
+        ).digest()
+    ).decode()
+    
+    <span class="comment"># Compare with header (constant-time comparison)</span>
+    <span class="keyword">return</span> hmac.compare_digest(computed, hmac_header)
+
+<span class="comment"># Usage in Flask:</span>
+<span class="keyword">@app</span>.route(<span class="string">'/webhooks/orders'</span>, methods=[<span class="string">'POST'</span>])
+<span class="keyword">def</span> handle_webhook():
+    data = request.get_data()
+    hmac_header = request.headers.get(<span class="string">'X-Shopify-Hmac-SHA256'</span>)
+    
+    <span class="keyword">if</span> <span class="keyword">not</span> verify_webhook(data, hmac_header, WEBHOOK_SECRET):
+        <span class="keyword">return</span> <span class="string">'Unauthorized'</span>, <span class="number">401</span>
+    
+    <span class="comment"># Process webhook...</span>
+    <span class="keyword">return</span> <span class="string">''</span>, <span class="number">200</span></code>
+            </div>
+
+            <p style="color: var(--text); opacity: 0.85; margin: 1.5rem 0;"><strong>Node.js Example:</strong></p>
+            <div class="code-block">
+                <span class="code-label">Node.js - HMAC Verification</span>
+                <code><span class="keyword">const</span> crypto = <span class="keyword">require</span>(<span class="string">'crypto'</span>);
+
+<span class="keyword">function</span> verifyWebhook(data, hmacHeader, secret) {
+  <span class="comment">// Compute HMAC-SHA256 of request body</span>
+  <span class="keyword">const</span> computed = crypto
+    .createHmac(<span class="string">'sha256'</span>, secret)
+    .update(data, <span class="string">'utf8'</span>)
+    .digest(<span class="string">'base64'</span>);
+  
+  <span class="comment">// Compare with header (constant-time comparison)</span>
+  <span class="keyword">return</span> crypto.timingSafeEqual(
+    Buffer.from(computed),
+    Buffer.from(hmacHeader)
+  );
+}
+
+<span class="comment">// Usage in Express:</span>
+app.post(<span class="string">'/webhooks/orders'</span>, (req, res) => {
+  <span class="keyword">const</span> hmacHeader = req.headers[<span class="string">'x-shopify-hmac-sha256'</span>];
+  
+  <span class="keyword">if</span> (!verifyWebhook(req.rawBody, hmacHeader, WEBHOOK_SECRET)) {
+    <span class="keyword">return</span> res.status(<span class="number">401</span>).send(<span class="string">'Unauthorized'</span>);
+  }
+  
+  <span class="comment">// Process webhook...</span>
+  res.status(<span class="number">200</span>).send(<span class="string">''</span>);
+});</code>
+            </div>
+
+            <div class="best-practice">
+                <strong>Security Requirements:</strong>
+                <ul>
+                    <li><strong>HTTPS Only:</strong> All webhook endpoints must use HTTPS (TLS 1.2+)</li>
+                    <li><strong>Timeout:</strong> Respond with HTTP 200 within 5 seconds</li>
+                    <li><strong>Async Processing:</strong> Queue webhooks and process asynchronously to avoid timeout</li>
+                    <li><strong>Idempotency:</strong> Implement idempotent handlers (webhooks may retry)</li>
+                    <li><strong>HMAC Verification:</strong> Always verify X-Shopify-Hmac-SHA256 header</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7: Error Handling & Retries -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">7</div>
+                Error Handling & Retries
+            </div>
+
+            <div class="content-box">
+                <h4>Shopify Retry Policy</h4>
+                <p>When your webhook endpoint fails to respond with HTTP 200 within 5 seconds, Shopify automatically retries delivery:</p>
+                <ul>
+                    <li><strong>19 automatic retries</strong> over 48 hours</li>
+                    <li><strong>Exponential backoff</strong> between retry attempts (15 min, 30 min, 1 hour, etc.)</li>
+                    <li>After 19 failures: Webhook marked as "removed" (requires manual re-registration)</li>
+                </ul>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Retry Attempt</th>
+                        <th>Time After Initial Failure</th>
+                        <th>Cumulative Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Attempt 1 (Initial)</td>
+                        <td>Immediate</td>
+                        <td>0 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Attempt 2</td>
+                        <td>~1 minute</td>
+                        <td>1 minute</td>
+                    </tr>
+                    <tr>
+                        <td>Attempt 3</td>
+                        <td>~2 minutes</td>
+                        <td>3 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Attempt 4</td>
+                        <td>~5 minutes</td>
+                        <td>8 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Attempt 5</td>
+                        <td>~15 minutes</td>
+                        <td>23 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>Attempts 6-20</td>
+                        <td>Increasing intervals</td>
+                        <td>Up to 48 hours</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="content-box">
+                <h4>Monitoring & Dead-Letter Queues</h4>
+                <ul>
+                    <li><strong>Check Status:</strong> Admin → Settings → Notifications → view webhook delivery status</li>
+                    <li><strong>Event Logs:</strong> GraphQL API provides webhook event delivery history</li>
+                    <li><strong>Dead-Letter Queue:</strong> Implement separate queue for events that fail all retries</li>
+                    <li><strong>Alerts:</strong> Monitor failed webhook delivery and trigger alerts for manual intervention</li>
+                    <li><strong>Idempotency:</strong> Track processed event IDs to handle duplicate deliveries</li>
+                </ul>
+            </div>
+
+            <div class="best-practice">
+                <strong>Best Practice:</strong> Implement a message queue (Redis, RabbitMQ, AWS SQS) between your webhook endpoint and processing logic. Respond immediately with 200 to Shopify, then queue the event for asynchronous processing. This prevents timeout failures and ensures reliable event handling.
+            </div>
+        </div>
+
+        <!-- Section 8: Rate Limits -->
+        <div class="section">
+            <div class="section-title">
+                <div class="section-num">8</div>
+                Rate Limits for Shopify Plus
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>API Type</th>
+                        <th>Shopify Plus Limit</th>
+                        <th>Standard Plan Limit</th>
+                        <th>Limiting Model</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>GraphQL API</strong></td>
+                        <td><span class="metric-good">500 points/second</span></td>
+                        <td>50 points/second</td>
+                        <td>Query cost model (each field has point value)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>REST API</strong></td>
+                        <td><span class="metric-good">20 requests/second</span></td>
+                        <td>2 requests/second</td>
+                        <td>Token bucket (40-token burst)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Webhook Delivery</strong></td>
+                        <td colspan="2"><span class="metric-good">No explicit limit</span></td>
+                        <td>Unlimited incoming webhooks</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bulk Operations</strong></td>
+                        <td colspan="2"><span class="metric-good">10 concurrent jobs</span></td>
+                        <td>Ideal for large data syncs (products, orders, customers)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="content-box">
+                <h4>Rate Limit Strategies</h4>
+                <ul>
+                    <li><strong>GraphQL Efficiency:</strong> Query exactly the fields you need to minimize point cost</li>
+                    <li><strong>Batch Operations:</strong> Use Bulk Query API for large data exports (free of rate limits)</li>
+                    <li><strong>Pagination:</strong> Use cursor pagination to avoid repeated large queries</li>
+                    <li><strong>Webhook Processing:</strong> No rate limits on receiving webhooks; process asynchronously</li>
+                    <li><strong>Token Bucket:</strong> For REST API, use exponential backoff when approaching limits</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+                <span class="code-label">GraphQL Query Cost Example</span>
+                <code><span class="comment"># This query costs ~10 points</span>
+<span class="keyword">query</span> {
+  orders(first: <span class="number">10</span>) {
+    <span class="comment"># Each order node + connection = cost</span>
+    edges {
+      node {
+        id              <span class="comment"># 1 point</span>
+        name            <span class="comment"># 1 point</span>
+        customer {      <span class="comment"># nested field = higher cost</span>
+          email         <span class="comment"># 2 points</span>
+          firstName     <span class="comment"># 1 point</span>
+        }
+        lineItems(first: <span class="number">5</span>) {
+          edges {
+            node {
+              sku       <span class="comment"># 1 point</span>
+              quantity  <span class="comment"># 1 point</span>
+            }
+          }
+        }
+      }
+    }
+  }
+}</code>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div style="text-align: center; color: var(--text); opacity: 0.7; margin-top: 3rem; padding: 2rem 0;">
+            <p>Last updated: March 2026 | Shopify Plus API v2024-01</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;">For questions, contact the Unicity Integration team</p>
+        </div>
+    </div>
+
+    <script>
+        // Collapsible domain headers
+        document.querySelectorAll('.domain-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const isCollapsed = content.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    content.classList.remove('collapsed');
+                    this.classList.remove('collapsed');
+                    this.classList.add('expanded');
+                } else {
+                    content.classList.add('collapsed');
+                    this.classList.remove('expanded');
+                    this.classList.add('collapsed');
+                }
+            });
+        });
+
+        // Smooth scroll for back link
+        document.querySelector('.back-link').addEventListener('click', function(e) {
+            if (this.getAttribute('href') === 'index.html') {
+                // Normal navigation
+                return true;
+            }
+        });
+    </script>
+</body>
+</html>

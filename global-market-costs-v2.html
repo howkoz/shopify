@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify Global Cost Calculator | Unicity</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --surface3: #1e293b;
+  --border: #1e293b;
+  --border-bright: #334155;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #22d3ee;
+  --accent-dim: rgba(34,211,238,0.15);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.15);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.15);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.15);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+.header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.header h1 { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+.header h1 span { color:var(--accent); }
+.header .sub { color:var(--text-dim); font-size:13px; margin-top:4px; }
+
+.source-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.source-bar .tag {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.source-bar .tag-cyan { background:var(--accent-dim); color:var(--accent); }
+.source-bar .tag-amber { background:var(--amber-dim); color:var(--amber); }
+.source-bar .tag-green { background:var(--green-dim); color:var(--green); }
+
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.tab:hover { color:var(--text-dim); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+.panel { display:none; padding:24px; max-width:1400px; }
+.panel.active { display:block; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card h3 { font-size:15px; font-weight:600; margin-bottom:12px; }
+.card h4 { font-size:13px; font-weight:600; margin-bottom:8px; color:var(--text-dim); }
+
+table { width:100%; border-collapse:collapse; font-size:12.5px; }
+th { text-align:left; padding:10px 12px; border-bottom:2px solid var(--border-bright); color:var(--text-muted); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+td { padding:9px 12px; border-bottom:1px solid var(--border); }
+tr:hover { background:rgba(255,255,255,0.02); }
+
+.badge { display:inline-block; padding:2px 8px; border-radius:3px; font-size:11px; font-weight:600; }
+.badge-green { background:var(--green-dim); color:var(--green); }
+.badge-amber { background:var(--amber-dim); color:var(--amber); }
+.badge-red { background:var(--red-dim); color:var(--red); }
+.badge-blue { background:var(--blue-dim); color:var(--blue); }
+.badge-purple { background:var(--purple-dim); color:var(--purple); }
+.badge-cyan { background:var(--accent-dim); color:var(--accent); }
+
+.filter-bar {
+  display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;
+}
+.filter-btn {
+  padding:6px 14px; border-radius:5px; font-size:12px; font-weight:500;
+  background:var(--surface2); color:var(--text-dim); border:1px solid var(--border);
+  cursor:pointer; transition:all 0.15s;
+}
+.filter-btn:hover { border-color:var(--border-bright); color:var(--text); }
+.filter-btn.active { background:var(--accent-dim); color:var(--accent); border-color:var(--accent); }
+
+/* Calculator */
+.calc-layout { display:grid; grid-template-columns:380px 1fr; gap:20px; }
+@media(max-width:900px) { .calc-layout { grid-template-columns:1fr; } }
+
+.calc-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.calc-sidebar label {
+  display:block; font-size:12px; font-weight:500; color:var(--text-dim);
+  margin-bottom:4px; margin-top:14px;
+}
+.calc-sidebar label:first-child { margin-top:0; }
+.calc-sidebar select, .calc-sidebar input {
+  width:100%; padding:9px 12px; border-radius:6px; font-size:13px;
+  background:var(--surface2); color:var(--text); border:1px solid var(--border);
+  font-family:'Outfit',sans-serif;
+}
+.calc-sidebar select:focus, .calc-sidebar input:focus {
+  outline:none; border-color:var(--accent);
+}
+.calc-sidebar .hint {
+  font-size:11px; color:var(--text-muted); margin-top:3px;
+}
+
+.result-panel {
+  display:flex; flex-direction:column; gap:16px;
+}
+
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.result-card.highlight {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(34,211,238,0.03) 0%, var(--surface) 100%);
+}
+
+.result-big {
+  font-family:'JetBrains Mono',monospace;
+  font-size:28px; font-weight:700;
+}
+.result-label {
+  font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;
+}
+
+.fee-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 0; border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.fee-row:last-child { border-bottom:none; }
+.fee-name { color:var(--text-dim); }
+.fee-val { font-family:'JetBrains Mono',monospace; font-weight:600; }
+.fee-chip {
+  display:inline-block; padding:1px 6px; border-radius:3px;
+  font-size:10px; font-weight:600; margin-left:6px;
+}
+
+.scenario-tag {
+  display:inline-block; padding:3px 10px; border-radius:4px;
+  font-size:11px; font-weight:600; margin-right:6px; margin-bottom:6px;
+}
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+@media(max-width:800px) { .grid2,.grid3 { grid-template-columns:1fr; } }
+
+.compare-row {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;
+}
+@media(max-width:800px) { .compare-row { grid-template-columns:1fr; } }
+
+.info-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.info-box strong { color:var(--text); }
+
+.vol-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px;
+}
+@media(max-width:700px) { .vol-grid { grid-template-columns:1fr 1fr; } }
+.vol-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:6px;
+  padding:12px; text-align:center;
+}
+.vol-card .vol-label { font-size:11px; color:var(--text-muted); margin-bottom:4px; }
+.vol-card .vol-val { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; }
+.vol-card .vol-sub { font-size:11px; color:var(--text-dim); margin-top:4px; }
+
+.insight-strip {
+  display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Shopify <span>Global Cost Calculator</span></h1>
+  <div class="sub">Universal fee analyzer for any store entity + customer origin combination across 33 Shopify Payments countries</div>
+</div>
+
+<div class="source-bar">
+  <span>Sources:</span>
+  <span class="tag tag-cyan">US rates verified from admin settings (Feb 2026)</span>
+  <span class="tag tag-green">EU/APAC rates from Shopify published docs</span>
+  <span class="tag tag-amber">Plus rates are negotiable. Contact Shopify sales for exact quotes.</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-panel="calculator">Cost Calculator</div>
+  <div class="tab" data-panel="compare">Compare Scenarios</div>
+  <div class="tab" data-panel="countries">33 Countries</div>
+  <div class="tab" data-panel="rules">Fee Rules Engine</div>
+  <div class="tab" data-panel="volume">Volume Analysis</div>
+</div>
+
+<!-- ==================== TAB 1: UNIVERSAL CALCULATOR ==================== -->
+<div class="panel active" id="panel-calculator">
+  <h2 style="margin-bottom:4px;">Universal Cost Calculator</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">Select any store entity country and any customer origin. The calculator auto-detects cross-border status, EU card treatment, FX requirements, and all fee layers.</p>
+
+  <div class="calc-layout">
+    <div class="calc-sidebar">
+      <h4 style="color:var(--accent);margin-bottom:12px;">Transaction Setup</h4>
+
+      <label>Transaction Amount (USD equivalent)</label>
+      <input type="number" id="calcAmount" value="100" min="1" step="0.01">
+
+      <label>Your Store Entity Country</label>
+      <select id="storeCountry"></select>
+      <div class="hint" id="storeHint"></div>
+
+      <label>Payout Currency</label>
+      <select id="payoutCcy"></select>
+      <div class="hint" id="payoutHint"></div>
+
+      <label>Customer Card Origin</label>
+      <select id="custCountry"></select>
+      <div class="hint" id="custHint"></div>
+
+      <label>Payment Currency (what customer pays in)</label>
+      <select id="payCcy"></select>
+      <div class="hint" id="payCcyHint"></div>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+        <h4 style="color:var(--purple);margin-bottom:10px;">Quick Scenarios</h4>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="filter-btn" onclick="loadScenario('us-us')">US store, US customer</button>
+          <button class="filter-btn" onclick="loadScenario('us-eu')">US store, EU customer</button>
+          <button class="filter-btn" onclick="loadScenario('de-fr')">Germany store, France customer</button>
+          <button class="filter-btn" onclick="loadScenario('de-us')">Germany store, US customer</button>
+          <button class="filter-btn" onclick="loadScenario('hu-de')">Hungary store (EUR), Germany cust</button>
+          <button class="filter-btn" onclick="loadScenario('uk-eu')">UK store, EU customer</button>
+          <button class="filter-btn" onclick="loadScenario('jp-us')">Japan store, US customer</button>
+          <button class="filter-btn" onclick="loadScenario('au-au')">Australia store, AU customer</button>
+          <button class="filter-btn" onclick="loadScenario('ca-us')">Canada store, US customer</button>
+          <button class="filter-btn" onclick="loadScenario('sg-jp')">Singapore store, Japan customer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-panel">
+      <!-- Scenario detection -->
+      <div class="result-card" id="scenarioDetection">
+        <div class="result-label">Detected Scenario</div>
+        <div id="scenarioTags" style="margin-top:6px;"></div>
+        <div id="scenarioDesc" style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6;"></div>
+      </div>
+
+      <!-- Big numbers -->
+      <div class="result-card highlight">
+        <div class="grid3">
+          <div>
+            <div class="result-label">Base Card Rate</div>
+            <div class="result-big" id="resBase" style="color:var(--blue);">0.00%</div>
+            <div style="font-size:11px;color:var(--text-muted);" id="resBaseNote"></div>
+          </div>
+          <div>
+            <div class="result-label">Additional Fees</div>
+            <div class="result-big" id="resAdditional" style="color:var(--amber);">0.00%</div>
+            <div style="font-size:11px;color:var(--text-muted);" id="resAdditionalNote"></div>
+          </div>
+          <div>
+            <div class="result-label">Total Effective Rate</div>
+            <div class="result-big" id="resTotal" style="color:var(--accent);">0.00%</div>
+            <div style="font-size:11px;color:var(--text-muted);" id="resTotalNote"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fee breakdown -->
+      <div class="result-card">
+        <h4>Fee Layer Breakdown</h4>
+        <div id="feeBreakdown"></div>
+      </div>
+
+      <!-- Explanation -->
+      <div class="result-card">
+        <h4>Why These Fees Apply</h4>
+        <div id="feeExplanation" style="font-size:12.5px;color:var(--text-dim);line-height:1.7;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: COMPARE ==================== -->
+<div class="panel" id="panel-compare">
+  <h2 style="margin-bottom:4px;">Side-by-Side Comparison</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">Compare the cost of selling to the same customer from different store entity locations. Shows savings and breakeven volume.</p>
+
+  <div class="card">
+    <h4>Compare: Same customer, different store entities</h4>
+    <div class="grid3" style="margin-top:12px;">
+      <div>
+        <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px;">Customer Country</label>
+        <select id="cmpCustCountry" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;"></select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px;">Payment Currency</label>
+        <select id="cmpPayCcy" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;"></select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px;">Monthly Volume (USD)</label>
+        <input type="number" id="cmpVolume" value="50000" min="100" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;">
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="filter-btn active" onclick="runComparison()" style="padding:8px 20px;">Run Comparison</button>
+    </div>
+  </div>
+
+  <div id="comparisonResults"></div>
+</div>
+
+<!-- ==================== TAB 3: COUNTRIES ==================== -->
+<div class="panel" id="panel-countries">
+  <h2 style="margin-bottom:4px;">All 33 Shopify Payments Countries</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Complete reference table with base rates, domestic currencies, EU card treatment, and dual domestic status.</p>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCountries('all',this)">All (33)</button>
+    <button class="filter-btn" onclick="filterCountries('eu-eur',this)">EU Eurozone (18)</button>
+    <button class="filter-btn" onclick="filterCountries('eu-local',this)">EU Non-EUR (6)</button>
+    <button class="filter-btn" onclick="filterCountries('eea',this)">EEA/Other (4)</button>
+    <button class="filter-btn" onclick="filterCountries('apac',this)">APAC (5)</button>
+    <button class="filter-btn" onclick="filterCountries('americas',this)">Americas (3)</button>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Region</th>
+          <th>Currency</th>
+          <th>Plus Base Rate</th>
+          <th>Fixed Fee</th>
+          <th>EU Domestic</th>
+          <th>Dual Domestic</th>
+          <th>FX Conv.</th>
+        </tr>
+      </thead>
+      <tbody id="countryBody"></tbody>
+    </table>
+  </div>
+
+  <div class="info-box" style="margin-top:16px;">
+    <strong>EU Card Treatment:</strong> Under PSD2/interchange regulation, any EU/EEA-issued card is treated as domestic within any EU store. A French Visa used in a German Shopify store incurs no cross-border surcharge. Post-Brexit, UK cards are cross-border in EU stores and vice versa.
+    <br><br>
+    <strong>Dual Domestic:</strong> Some countries allow multiple domestic payout currencies. Hungary confirms both EUR and HUF as domestic. Canada confirms both CAD and USD. Others marked "Verify TOS" may also qualify.
+  </div>
+</div>
+
+<!-- ==================== TAB 4: FEE RULES ==================== -->
+<div class="panel" id="panel-rules">
+  <h2 style="margin-bottom:4px;">Fee Rules Engine</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">The logic the calculator uses to determine which fees apply. All rules are derived from Shopify Payments documentation.</p>
+
+  <div class="card">
+    <h3>1. Base Card Processing Rate</h3>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+      Determined by <strong>store entity country</strong> and Shopify plan tier. Each country has a published rate. Plus plan rates are lower than Basic/Shopify/Advanced. Rates shown in this tool are Plus rates (negotiable with Shopify sales).
+    </div>
+    <table style="margin-top:12px;">
+      <thead><tr><th>Region</th><th>Plus Base Rate (approx)</th><th>Fixed Fee</th></tr></thead>
+      <tbody>
+        <tr><td>US</td><td class="mono">2.25%</td><td class="mono">$0.30</td></tr>
+        <tr><td>EU Eurozone</td><td class="mono">~1.30%</td><td class="mono">€0.30</td></tr>
+        <tr><td>EU Non-EUR</td><td class="mono">~1.30%</td><td class="mono">local equiv.</td></tr>
+        <tr><td>UK</td><td class="mono">~1.50%</td><td class="mono">£0.25</td></tr>
+        <tr><td>Canada</td><td class="mono">~2.15%</td><td class="mono">C$0.30</td></tr>
+        <tr><td>Australia</td><td class="mono">~1.60%</td><td class="mono">A$0.30</td></tr>
+        <tr><td>Japan</td><td class="mono">~3.25%</td><td class="mono">¥0</td></tr>
+        <tr><td>Singapore</td><td class="mono">~2.60%</td><td class="mono">S$0.50</td></tr>
+        <tr><td>Hong Kong</td><td class="mono">~2.40%</td><td class="mono">HK$2.35</td></tr>
+        <tr><td>New Zealand</td><td class="mono">~1.70%</td><td class="mono">NZ$0.30</td></tr>
+        <tr><td>Mexico</td><td class="mono">~3.30%</td><td class="mono">MX$5.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>2. Cross-Border / International Card Surcharge</h3>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+      <strong>+1.0%</strong> applies when the customer's card is issued in a different region than the store entity.
+      <br><br>
+      <strong>Exception:</strong> EU/EEA cards used in EU/EEA stores are NOT cross-border. This is the biggest cost advantage of having an EU entity. A French card used in a German store = domestic. But a UK card in a German store = cross-border (post-Brexit).
+      <br><br>
+      <strong>Same-country rule:</strong> If card country = store country, always domestic regardless of region.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>3. Currency Conversion Fee (FX)</h3>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+      <strong>+1.5%</strong> applies when the payment currency differs from the payout currency.
+      <br><br>
+      Example: Customer pays in GBP but your store settles in EUR. Shopify converts and charges 1.5%. If customer pays EUR and you settle EUR = no FX fee.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>4. Multi-Currency Payout (MCP) Fee</h3>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+      <strong>+1.5%</strong> applies when your payout currency is NOT a domestic currency for your store country.
+      <br><br>
+      <strong>Dual domestic exemption:</strong> Some countries have two domestic currencies. Hungary accepts both EUR and HUF as domestic. Canada accepts both CAD and USD. If your payout is one of these, no MCP fee.
+      <br><br>
+      <strong>Important:</strong> MCP is separate from FX conversion. You can owe FX without MCP (dual domestic scenario) or MCP without FX (settling in non-domestic currency that matches payment currency).
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>5. Shopify Plus Platform Fee</h3>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+      <strong>$2,500/month</strong> base platform fee (applies once, not per-transaction). Variable processing fees of <strong>0.40% online</strong> and <strong>0.25% POS</strong> apply above $625K/month threshold. Expansion stores (up to 9 included with Plus) can each activate local Shopify Payments.
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 5: VOLUME ANALYSIS ==================== -->
+<div class="panel" id="panel-volume">
+  <h2 style="margin-bottom:4px;">Volume Impact Analysis</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:20px;">See monthly costs at different volume levels for various entity configurations.</p>
+
+  <div class="card">
+    <h4>Monthly Cost at Different Volumes</h4>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">Based on $100 average transaction. Includes base rate + fixed fees + applicable surcharges.</div>
+
+    <div style="overflow-x:auto;">
+      <table id="volumeTable">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Eff. Rate</th>
+            <th style="text-align:right;">$10K/mo</th>
+            <th style="text-align:right;">$25K/mo</th>
+            <th style="text-align:right;">$50K/mo</th>
+            <th style="text-align:right;">$100K/mo</th>
+            <th style="text-align:right;">$250K/mo</th>
+          </tr>
+        </thead>
+        <tbody id="volumeBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Custom Volume Calculator</h4>
+    <div class="grid3" style="margin-top:8px;">
+      <div>
+        <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px;">Store Entity</label>
+        <select id="volStore" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;"></select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px;">Customer Region</label>
+        <select id="volCust" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;"></select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-dim);display:block;margin-bottom:4px;">Monthly Volume (USD)</label>
+        <input type="number" id="volAmount" value="50000" min="100" style="width:100%;padding:8px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:13px;font-family:'Outfit',sans-serif;">
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <button class="filter-btn active" onclick="calcVolume()" style="padding:8px 20px;">Calculate</button>
+    </div>
+    <div id="volResult" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<script>
+// ======================== COUNTRY DATA ========================
+// All 33 Shopify Payments countries + customer-only countries
+const SP_COUNTRIES = [
+  // EU Eurozone
+  { code:'AT', name:'Austria', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'BE', name:'Belgium', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'HR', name:'Croatia', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'EE', name:'Estonia', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'FI', name:'Finland', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'FR', name:'France', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'DE', name:'Germany', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'GR', name:'Greece', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'IE', name:'Ireland', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'IT', name:'Italy', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'LV', name:'Latvia', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'LT', name:'Lithuania', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'LU', name:'Luxembourg', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'MT', name:'Malta', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'NL', name:'Netherlands', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'PT', name:'Portugal', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  { code:'SI', name:'Slovenia', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'New 2025' },
+  { code:'ES', name:'Spain', region:'eu-eur', ccy:'EUR', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:[], note:'' },
+  // EU Non-EUR
+  { code:'CZ', name:'Czechia', region:'eu-local', ccy:'CZK', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:['CZK'], note:'New 2025. Verify EUR dual domestic' },
+  { code:'DK', name:'Denmark', region:'eu-local', ccy:'DKK', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:['DKK'], note:'Verify EUR dual domestic' },
+  { code:'HU', name:'Hungary', region:'eu-local', ccy:'HUF', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:['HUF','EUR'], note:'EUR+HUF dual domestic confirmed' },
+  { code:'PL', name:'Poland', region:'eu-local', ccy:'PLN', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:['PLN'], note:'New 2025. Verify EUR dual domestic' },
+  { code:'RO', name:'Romania', region:'eu-local', ccy:'RON', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:['RON'], note:'New 2025. Verify EUR dual domestic' },
+  { code:'SE', name:'Sweden', region:'eu-local', ccy:'SEK', basePct:1.30, fixedUSD:0.33, euDomestic:true, dualDom:['SEK'], note:'Verify EUR dual domestic' },
+  // EEA / Other Europe
+  { code:'LI', name:'Liechtenstein', region:'eea', ccy:'CHF', basePct:1.40, fixedUSD:0.33, euDomestic:false, dualDom:['CHF'], note:'EEA but not EU' },
+  { code:'NO', name:'Norway', region:'eea', ccy:'NOK', basePct:1.40, fixedUSD:0.33, euDomestic:false, dualDom:['NOK'], note:'EEA but not EU. New 2025' },
+  { code:'CH', name:'Switzerland', region:'eea', ccy:'CHF', basePct:1.40, fixedUSD:0.33, euDomestic:false, dualDom:['CHF'], note:'Not EU or EEA' },
+  { code:'GB', name:'United Kingdom', region:'eea', ccy:'GBP', basePct:1.50, fixedUSD:0.30, euDomestic:false, dualDom:['GBP'], note:'Post-Brexit: cross-border with EU' },
+  // APAC
+  { code:'AU', name:'Australia', region:'apac', ccy:'AUD', basePct:1.60, fixedUSD:0.22, euDomestic:false, dualDom:['AUD'], note:'' },
+  { code:'HK', name:'Hong Kong', region:'apac', ccy:'HKD', basePct:2.40, fixedUSD:0.30, euDomestic:false, dualDom:['HKD'], note:'' },
+  { code:'JP', name:'Japan', region:'apac', ccy:'JPY', basePct:3.25, fixedUSD:0.00, euDomestic:false, dualDom:['JPY'], note:'No fixed fee' },
+  { code:'NZ', name:'New Zealand', region:'apac', ccy:'NZD', basePct:1.70, fixedUSD:0.20, euDomestic:false, dualDom:['NZD'], note:'' },
+  { code:'SG', name:'Singapore', region:'apac', ccy:'SGD', basePct:2.60, fixedUSD:0.38, euDomestic:false, dualDom:['SGD'], note:'' },
+  // Americas
+  { code:'CA', name:'Canada', region:'americas', ccy:'CAD', basePct:2.15, fixedUSD:0.22, euDomestic:false, dualDom:['CAD','USD'], note:'CAD+USD dual domestic confirmed' },
+  { code:'MX', name:'Mexico', region:'americas', ccy:'MXN', basePct:3.30, fixedUSD:0.29, euDomestic:false, dualDom:['MXN'], note:'New 2025' },
+  { code:'US', name:'United States', region:'americas', ccy:'USD', basePct:2.25, fixedUSD:0.30, euDomestic:false, dualDom:['USD'], note:'Rate verified from admin (Feb 2026)' },
+];
+
+// Non-Shopify-Payments countries (customer origin only)
+const CUST_ONLY = [
+  { code:'BR', name:'Brazil', region:'latam', ccy:'BRL' },
+  { code:'CN', name:'China', region:'apac', ccy:'CNY' },
+  { code:'IN', name:'India', region:'apac', ccy:'INR' },
+  { code:'KR', name:'South Korea', region:'apac', ccy:'KRW' },
+  { code:'TW', name:'Taiwan', region:'apac', ccy:'TWD' },
+  { code:'TH', name:'Thailand', region:'apac', ccy:'THB' },
+  { code:'MY', name:'Malaysia', region:'apac', ccy:'MYR' },
+  { code:'PH', name:'Philippines', region:'apac', ccy:'PHP' },
+  { code:'ID', name:'Indonesia', region:'apac', ccy:'IDR' },
+  { code:'AE', name:'UAE', region:'mena', ccy:'AED' },
+  { code:'SA', name:'Saudi Arabia', region:'mena', ccy:'SAR' },
+  { code:'IL', name:'Israel', region:'mena', ccy:'ILS' },
+  { code:'ZA', name:'South Africa', region:'africa', ccy:'ZAR' },
+  { code:'NG', name:'Nigeria', region:'africa', ccy:'NGN' },
+  { code:'AR', name:'Argentina', region:'latam', ccy:'ARS' },
+  { code:'CL', name:'Chile', region:'latam', ccy:'CLP' },
+  { code:'CO', name:'Colombia', region:'latam', ccy:'COP' },
+  { code:'TR', name:'Turkey', region:'mena', ccy:'TRY' },
+  { code:'RU', name:'Russia', region:'other', ccy:'RUB' },
+  { code:'UA', name:'Ukraine', region:'other', ccy:'UAH' },
+  { code:'XX', name:'Other International', region:'other', ccy:'OTHER' },
+];
+
+const ALL_CUSTOMERS = [...SP_COUNTRIES, ...CUST_ONLY];
+
+// Currency list for dropdowns
+function getAllCurrencies() {
+  const ccys = new Set();
+  SP_COUNTRIES.forEach(c => { ccys.add(c.ccy); c.dualDom.forEach(d => ccys.add(d)); });
+  ALL_CUSTOMERS.forEach(c => ccys.add(c.ccy));
+  return [...ccys].filter(c => c && c !== 'OTHER').sort();
+}
+
+// ======================== FEE CALCULATION ENGINE ========================
+function isEU(code) {
+  const c = SP_COUNTRIES.find(x => x.code === code) || ALL_CUSTOMERS.find(x => x.code === code);
+  if (!c) return false;
+  return c.region === 'eu-eur' || c.region === 'eu-local';
+}
+
+function isEEA(code) {
+  if (isEU(code)) return true;
+  return ['NO','LI','IS'].includes(code); // Iceland not in SP but part of EEA
+}
+
+function getCountry(code) {
+  return SP_COUNTRIES.find(x => x.code === code) || ALL_CUSTOMERS.find(x => x.code === code);
+}
+
+function calculateFees(storeCode, custCode, payCcy, payoutCcy, amount) {
+  const store = SP_COUNTRIES.find(x => x.code === storeCode);
+  if (!store) return null;
+  const cust = getCountry(custCode);
+
+  const result = {
+    basePct: store.basePct,
+    fixedUSD: store.fixedUSD,
+    crossBorderPct: 0,
+    fxPct: 0,
+    mcpPct: 0,
+    tags: [],
+    explanations: [],
+  };
+
+  // 1. Cross-border detection
+  if (storeCode === custCode) {
+    result.tags.push({ text:'Domestic', color:'green' });
+    result.explanations.push('Card country matches store country. No cross-border surcharge.');
+  } else if (isEU(storeCode) && isEU(custCode)) {
+    result.tags.push({ text:'EU Intra-Community', color:'green' });
+    result.explanations.push('Both store and card are EU-issued. Under interchange regulation, EU cards are treated as domestic in EU stores. No cross-border surcharge.');
+  } else if (isEEA(storeCode) && isEEA(custCode)) {
+    result.tags.push({ text:'EEA Domestic', color:'green' });
+    result.explanations.push('Both store and card are within EEA. Treated as domestic (partial benefit). No cross-border surcharge.');
+  } else {
+    result.crossBorderPct = 1.0;
+    result.tags.push({ text:'Cross-Border +1.0%', color:'red' });
+    let reason = `Card issued in ${cust ? cust.name : 'another country'}, store entity in ${store.name}. Different regions = +1.0% cross-border surcharge.`;
+    if ((storeCode === 'GB' && isEU(custCode)) || (isEU(storeCode) && custCode === 'GB')) {
+      reason += ' UK is no longer EU post-Brexit, so UK/EU transactions are cross-border.';
+    }
+    result.explanations.push(reason);
+  }
+
+  // 2. FX conversion
+  if (payCcy === payoutCcy) {
+    result.tags.push({ text:'Same Currency', color:'green' });
+    result.explanations.push(`Payment and payout both in ${payCcy}. No currency conversion needed.`);
+  } else {
+    result.fxPct = 1.5;
+    result.tags.push({ text:'FX +1.5%', color:'amber' });
+    result.explanations.push(`Customer pays in ${payCcy} but store settles in ${payoutCcy}. Shopify converts and charges 1.5% FX fee.`);
+  }
+
+  // 3. MCP (Multi-Currency Payout)
+  const isDomesticPayout = store.dualDom.includes(payoutCcy) || payoutCcy === store.ccy;
+  if (isDomesticPayout) {
+    result.tags.push({ text:'Domestic Payout', color:'green' });
+    if (payoutCcy !== store.ccy && store.dualDom.includes(payoutCcy)) {
+      result.explanations.push(`${payoutCcy} is a dual domestic currency for ${store.name}. No MCP fee.`);
+    } else {
+      result.explanations.push(`Settling in ${payoutCcy}, which is ${store.name}'s domestic currency. No MCP fee.`);
+    }
+  } else {
+    result.mcpPct = 1.5;
+    result.tags.push({ text:'MCP +1.5%', color:'red' });
+    result.explanations.push(`Payout currency ${payoutCcy} is NOT a domestic currency for ${store.name} (domestic: ${[store.ccy,...store.dualDom.filter(d=>d!==store.ccy)].join(', ')}). Multi-Currency Payout fee of 1.5% applies.`);
+  }
+
+  // Totals
+  result.additionalPct = result.crossBorderPct + result.fxPct + result.mcpPct;
+  result.totalPct = result.basePct + result.additionalPct;
+  result.fixedAmount = result.fixedUSD;
+  result.totalAmount = (amount * result.totalPct / 100) + result.fixedAmount;
+  result.effectiveRate = (result.totalAmount / amount) * 100;
+
+  return result;
+}
+
+// ======================== UI RENDERING ========================
+function populateDropdowns() {
+  const storeEl = document.getElementById('storeCountry');
+  const custEl = document.getElementById('custCountry');
+  const ccyEls = ['payoutCcy','payCcy','cmpPayCcy'];
+  const cmpCustEl = document.getElementById('cmpCustCountry');
+  const volStoreEl = document.getElementById('volStore');
+  const volCustEl = document.getElementById('volCust');
+
+  // Store dropdowns (only SP countries)
+  const storeGroups = {
+    'Americas': SP_COUNTRIES.filter(c=>c.region==='americas'),
+    'EU Eurozone': SP_COUNTRIES.filter(c=>c.region==='eu-eur'),
+    'EU Non-EUR': SP_COUNTRIES.filter(c=>c.region==='eu-local'),
+    'EEA / Other Europe': SP_COUNTRIES.filter(c=>c.region==='eea'),
+    'Asia-Pacific': SP_COUNTRIES.filter(c=>c.region==='apac'),
+  };
+
+  [storeEl, volStoreEl].forEach(el => {
+    el.innerHTML = '';
+    Object.entries(storeGroups).forEach(([label, items]) => {
+      const og = document.createElement('optgroup');
+      og.label = label;
+      items.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.code;
+        o.textContent = `${c.name} (${c.ccy})`;
+        og.appendChild(o);
+      });
+      el.appendChild(og);
+    });
+  });
+
+  // Customer dropdowns (all countries)
+  const custGroups = {
+    'Americas': ALL_CUSTOMERS.filter(c=>c.region==='americas'||c.region==='latam'),
+    'EU Eurozone': ALL_CUSTOMERS.filter(c=>c.region==='eu-eur'),
+    'EU Non-EUR': ALL_CUSTOMERS.filter(c=>c.region==='eu-local'),
+    'EEA / Other Europe': ALL_CUSTOMERS.filter(c=>c.region==='eea'||c.region==='other'),
+    'Asia-Pacific': ALL_CUSTOMERS.filter(c=>c.region==='apac'),
+    'Middle East / Africa': ALL_CUSTOMERS.filter(c=>c.region==='mena'||c.region==='africa'),
+  };
+
+  [custEl, cmpCustEl, volCustEl].forEach(el => {
+    el.innerHTML = '';
+    Object.entries(custGroups).forEach(([label, items]) => {
+      if (items.length === 0) return;
+      const og = document.createElement('optgroup');
+      og.label = label;
+      items.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.code;
+        o.textContent = `${c.name} (${c.ccy})`;
+        og.appendChild(o);
+      });
+      el.appendChild(og);
+    });
+  });
+
+  // Currency dropdowns
+  const allCcys = getAllCurrencies();
+  ccyEls.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = allCcys.map(c => `<option value="${c}">${c}</option>`).join('');
+  });
+
+  // Defaults
+  storeEl.value = 'US';
+  custEl.value = 'US';
+  volStoreEl.value = 'US';
+  volCustEl.value = 'US';
+  updatePayoutOptions();
+  updatePayCcyDefault();
+}
+
+function updatePayoutOptions() {
+  const storeCode = document.getElementById('storeCountry').value;
+  const store = SP_COUNTRIES.find(x => x.code === storeCode);
+  if (!store) return;
+
+  const payoutEl = document.getElementById('payoutCcy');
+  const options = [store.ccy, ...store.dualDom.filter(d => d !== store.ccy)];
+  payoutEl.innerHTML = options.map(c =>
+    `<option value="${c}">${c}${c === store.ccy ? ' (primary domestic)' : ' (dual domestic)'}</option>`
+  ).join('');
+
+  // Hint
+  const hint = document.getElementById('storeHint');
+  hint.textContent = `Base rate: ${store.basePct}% + ~$${store.fixedUSD.toFixed(2)} fixed. ${store.note || ''}`;
+
+  const payoutHint = document.getElementById('payoutHint');
+  if (store.dualDom.length > 1) {
+    payoutHint.innerHTML = `<span style="color:var(--green);">Dual domestic: ${store.dualDom.join(' + ')} (no MCP fee on either)</span>`;
+  } else {
+    payoutHint.textContent = `Domestic currency: ${store.ccy}`;
+  }
+}
+
+function updatePayCcyDefault() {
+  const custCode = document.getElementById('custCountry').value;
+  const cust = getCountry(custCode);
+  if (!cust) return;
+
+  const payCcyEl = document.getElementById('payCcy');
+  payCcyEl.value = cust.ccy !== 'OTHER' ? cust.ccy : 'USD';
+
+  const hint = document.getElementById('custHint');
+  const spCountry = SP_COUNTRIES.find(x => x.code === custCode);
+  hint.textContent = spCountry ? `Shopify Payments country. Card domestic: ${cust.ccy}` :
+    `No Shopify Payments. Card always international for any store.`;
+
+  const payCcyHint = document.getElementById('payCcyHint');
+  payCcyHint.textContent = `Typically ${cust.ccy !== 'OTHER' ? cust.ccy : 'varies'}. Change to test multi-currency scenarios.`;
+}
+
+function renderCalculation() {
+  const amount = parseFloat(document.getElementById('calcAmount').value) || 100;
+  const storeCode = document.getElementById('storeCountry').value;
+  const custCode = document.getElementById('custCountry').value;
+  const payCcy = document.getElementById('payCcy').value;
+  const payoutCcy = document.getElementById('payoutCcy').value;
+
+  const r = calculateFees(storeCode, custCode, payCcy, payoutCcy, amount);
+  if (!r) return;
+
+  // Tags
+  document.getElementById('scenarioTags').innerHTML = r.tags.map(t =>
+    `<span class="scenario-tag" style="background:var(--${t.color}-dim);color:var(--${t.color});">${t.text}</span>`
+  ).join('');
+
+  const store = SP_COUNTRIES.find(x => x.code === storeCode);
+  const cust = getCountry(custCode);
+  document.getElementById('scenarioDesc').textContent =
+    `${store.name} entity → ${cust ? cust.name : 'Unknown'} customer. Payment: ${payCcy}, Payout: ${payoutCcy}.`;
+
+  // Big numbers
+  document.getElementById('resBase').textContent = r.basePct.toFixed(2) + '%';
+  document.getElementById('resBaseNote').textContent = `+ $${r.fixedUSD.toFixed(2)} fixed per txn`;
+  document.getElementById('resAdditional').textContent = r.additionalPct.toFixed(2) + '%';
+  document.getElementById('resAdditionalNote').textContent = r.additionalPct === 0 ? 'No additional fees' :
+    [r.crossBorderPct ? 'Cross-border' : '', r.fxPct ? 'FX' : '', r.mcpPct ? 'MCP' : ''].filter(Boolean).join(' + ');
+  document.getElementById('resTotal').textContent = r.effectiveRate.toFixed(2) + '%';
+  document.getElementById('resTotal').style.color = r.effectiveRate < 2.0 ? 'var(--green)' :
+    r.effectiveRate < 3.5 ? 'var(--accent)' : r.effectiveRate < 5.0 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('resTotalNote').textContent = `$${r.totalAmount.toFixed(2)} on $${amount.toFixed(2)}`;
+
+  // Fee breakdown
+  const fees = [
+    { name:'Base card processing', val:r.basePct, color:'blue', note:`${store.name} Plus rate` },
+    { name:'Fixed per-transaction fee', val:null, display:`$${r.fixedUSD.toFixed(2)}`, color:'blue', note:'Per transaction' },
+  ];
+  if (r.crossBorderPct > 0) fees.push({ name:'Cross-border surcharge', val:r.crossBorderPct, color:'red', note:'International card' });
+  if (r.fxPct > 0) fees.push({ name:'Currency conversion (FX)', val:r.fxPct, color:'amber', note:`${payCcy} → ${payoutCcy}` });
+  if (r.mcpPct > 0) fees.push({ name:'Multi-Currency Payout (MCP)', val:r.mcpPct, color:'red', note:`${payoutCcy} not domestic for ${store.name}` });
+  fees.push({ name:'TOTAL EFFECTIVE', val:null, display:r.effectiveRate.toFixed(2)+'%', color:'accent', note:`$${r.totalAmount.toFixed(2)} on $${amount.toFixed(2)}`, bold:true });
+
+  document.getElementById('feeBreakdown').innerHTML = fees.map(f => `
+    <div class="fee-row" ${f.bold ? 'style="border-top:2px solid var(--border-bright);padding-top:12px;margin-top:4px;"' : ''}>
+      <span class="fee-name" ${f.bold ? 'style="font-weight:700;color:var(--text);"' : ''}>${f.name}</span>
+      <span>
+        <span class="fee-val" style="color:var(--${f.color});">${f.val !== null ? f.val.toFixed(2)+'%' : f.display}</span>
+        <span class="fee-chip" style="background:var(--${f.color}-dim);color:var(--${f.color});">${f.note}</span>
+      </span>
+    </div>
+  `).join('');
+
+  // Explanations
+  document.getElementById('feeExplanation').innerHTML = r.explanations.map((e,i) =>
+    `<div style="margin-bottom:8px;"><strong style="color:var(--text);">${i+1}.</strong> ${e}</div>`
+  ).join('');
+}
+
+// ======================== SCENARIOS ========================
+function loadScenario(id) {
+  const s = {
+    'us-us': { store:'US', cust:'US', pay:'USD', payout:'USD' },
+    'us-eu': { store:'US', cust:'DE', pay:'EUR', payout:'USD' },
+    'de-fr': { store:'DE', cust:'FR', pay:'EUR', payout:'EUR' },
+    'de-us': { store:'DE', cust:'US', pay:'USD', payout:'EUR' },
+    'hu-de': { store:'HU', cust:'DE', pay:'EUR', payout:'EUR' },
+    'uk-eu': { store:'GB', cust:'FR', pay:'EUR', payout:'GBP' },
+    'jp-us': { store:'JP', cust:'US', pay:'USD', payout:'JPY' },
+    'au-au': { store:'AU', cust:'AU', pay:'AUD', payout:'AUD' },
+    'ca-us': { store:'CA', cust:'US', pay:'USD', payout:'USD' },
+    'sg-jp': { store:'SG', cust:'JP', pay:'JPY', payout:'SGD' },
+  }[id];
+  if (!s) return;
+
+  document.getElementById('storeCountry').value = s.store;
+  updatePayoutOptions();
+  document.getElementById('payoutCcy').value = s.payout;
+  document.getElementById('custCountry').value = s.cust;
+  document.getElementById('payCcy').value = s.pay;
+  updatePayCcyDefault();
+  document.getElementById('payCcy').value = s.pay; // override after default
+  renderCalculation();
+}
+
+// ======================== COMPARISON ========================
+function runComparison() {
+  const custCode = document.getElementById('cmpCustCountry').value;
+  const payCcy = document.getElementById('cmpPayCcy').value;
+  const vol = parseFloat(document.getElementById('cmpVolume').value) || 50000;
+  const cust = getCountry(custCode);
+  const txnCount = Math.round(vol / 100); // assume $100 avg
+
+  const results = SP_COUNTRIES.map(store => {
+    // Find best payout for this store
+    const payoutOptions = [store.ccy, ...store.dualDom.filter(d => d !== store.ccy)];
+    let bestResult = null;
+    let bestPayout = store.ccy;
+
+    payoutOptions.forEach(po => {
+      const r = calculateFees(store.code, custCode, payCcy, po, 100);
+      if (!r) return;
+      if (!bestResult || r.effectiveRate < bestResult.effectiveRate) {
+        bestResult = r;
+        bestPayout = po;
+      }
+    });
+
+    return { store, result:bestResult, payout:bestPayout };
+  }).filter(x => x.result).sort((a,b) => a.result.effectiveRate - b.result.effectiveRate);
+
+  const container = document.getElementById('comparisonResults');
+  const best = results[0];
+
+  container.innerHTML = `
+    <div class="card" style="margin-top:16px;">
+      <h4>Results: Selling to ${cust ? cust.name : 'Unknown'} customer (paying ${payCcy}) at $${vol.toLocaleString()}/mo</h4>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">Sorted by lowest effective rate. Shows optimal payout currency for each store entity. Assumes $100 avg transaction.</div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Store Entity</th>
+              <th>Region</th>
+              <th>Payout</th>
+              <th>Base</th>
+              <th>Cross-Border</th>
+              <th>FX</th>
+              <th>MCP</th>
+              <th>Eff. Rate</th>
+              <th style="text-align:right;">Monthly Cost</th>
+              <th style="text-align:right;">vs Best</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${results.slice(0,20).map((x,i) => {
+              const r = x.result;
+              const monthlyCost = (vol * r.effectiveRate / 100);
+              const bestCost = (vol * best.result.effectiveRate / 100);
+              const diff = monthlyCost - bestCost;
+              const rateColor = r.effectiveRate < 2.0 ? 'green' : r.effectiveRate < 3.5 ? 'accent' : r.effectiveRate < 5.0 ? 'amber' : 'red';
+              const regionLabel = {'eu-eur':'EU (EUR)','eu-local':'EU (Local)','eea':'EEA/Other','apac':'APAC','americas':'Americas'}[x.store.region];
+              return `<tr ${i===0?'style="background:var(--green-dim);"':''}>
+                <td class="mono">${i+1}</td>
+                <td><strong>${x.store.name}</strong></td>
+                <td><span class="badge badge-${x.store.region.startsWith('eu')?'blue':x.store.region==='eea'?'purple':x.store.region==='apac'?'cyan':'amber'}">${regionLabel}</span></td>
+                <td class="mono">${x.payout}</td>
+                <td class="mono">${r.basePct.toFixed(2)}%</td>
+                <td class="mono" style="color:${r.crossBorderPct?'var(--red)':'var(--green)'};">${r.crossBorderPct?'+1.00%':'0'}</td>
+                <td class="mono" style="color:${r.fxPct?'var(--amber)':'var(--green)'};">${r.fxPct?'+1.50%':'0'}</td>
+                <td class="mono" style="color:${r.mcpPct?'var(--red)':'var(--green)'};">${r.mcpPct?'+1.50%':'0'}</td>
+                <td class="mono" style="color:var(--${rateColor});font-weight:700;">${r.effectiveRate.toFixed(2)}%</td>
+                <td class="mono" style="text-align:right;">$${monthlyCost.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</td>
+                <td class="mono" style="text-align:right;color:${diff===0?'var(--green)':'var(--red)'};">${diff===0?'BEST':'+$'+diff.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:16px;">
+      <div class="card" style="border-color:var(--green);">
+        <h4 style="color:var(--green);">Best Option: ${best.store.name}</h4>
+        <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-top:8px;">
+          Effective rate: <span class="mono" style="color:var(--green);font-weight:700;">${best.result.effectiveRate.toFixed(2)}%</span><br>
+          Monthly cost at $${vol.toLocaleString()}: <span class="mono" style="color:var(--green);font-weight:700;">$${(vol*best.result.effectiveRate/100).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</span><br>
+          Payout: ${best.payout}<br>
+          ${best.result.tags.map(t => `<span class="scenario-tag" style="background:var(--${t.color}-dim);color:var(--${t.color});">${t.text}</span>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <h4>Savings vs US Entity</h4>
+        <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-top:8px;">
+          ${(() => {
+            const usResult = results.find(x => x.store.code === 'US');
+            if (!usResult) return 'US not applicable for this scenario.';
+            const usCost = vol * usResult.result.effectiveRate / 100;
+            const bestCost = vol * best.result.effectiveRate / 100;
+            const savings = usCost - bestCost;
+            return `US entity rate: <span class="mono" style="color:var(--amber);">${usResult.result.effectiveRate.toFixed(2)}%</span> ($${usCost.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')} /mo)<br>
+            Best option saves: <span class="mono" style="color:var(--green);font-weight:700;">$${savings.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')} /mo</span><br>
+            Annual savings: <span class="mono" style="color:var(--green);font-weight:700;">$${(savings*12).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')} /yr</span>`;
+          })()}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ======================== COUNTRY TABLE ========================
+function renderCountries(filter) {
+  const tbody = document.getElementById('countryBody');
+  let data = SP_COUNTRIES;
+  if (filter !== 'all') {
+    if (filter === 'eea') data = data.filter(c => c.region === 'eea');
+    else data = data.filter(c => c.region === filter);
+  }
+
+  tbody.innerHTML = data.map(c => {
+    const regionLabel = {'eu-eur':'EU (EUR)','eu-local':'EU (Local CCY)','eea':'EEA/Other','apac':'APAC','americas':'Americas'}[c.region];
+    const regionColor = c.region.startsWith('eu') ? 'blue' : c.region === 'eea' ? 'purple' : c.region === 'apac' ? 'cyan' : 'amber';
+    const euBadge = c.euDomestic ? '<span class="badge badge-green">Yes</span>' :
+      c.region === 'eea' && ['NO','LI'].includes(c.code) ? '<span class="badge badge-amber">Partial (EEA)</span>' :
+      '<span class="badge badge-red">No</span>';
+    const dualText = c.dualDom.length > 1 ? c.dualDom.join('+') : c.ccy;
+    const dualBadge = c.dualDom.length > 1 ?
+      `<span class="badge badge-green">${dualText}</span>` :
+      `<span style="color:var(--text-muted);">${c.ccy} only</span>`;
+
+    return `<tr>
+      <td><strong>${c.name}</strong>${c.note && c.note.includes('New') ? ' <span class="badge badge-cyan" style="font-size:9px;">NEW</span>' : ''}</td>
+      <td><span class="badge badge-${regionColor}">${regionLabel}</span></td>
+      <td class="mono">${c.ccy}</td>
+      <td class="mono">${c.basePct.toFixed(2)}%</td>
+      <td class="mono">~$${c.fixedUSD.toFixed(2)}</td>
+      <td>${euBadge}</td>
+      <td>${dualBadge}</td>
+      <td class="mono">1.5%</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCountries(filter, btn) {
+  document.querySelectorAll('#panel-countries .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderCountries(filter);
+}
+
+// ======================== VOLUME TABLE ========================
+function renderVolumeTable() {
+  const scenarios = [
+    { label:'US store → US customer (USD)', store:'US', cust:'US', pay:'USD', payout:'USD' },
+    { label:'US store → EU customer (EUR)', store:'US', cust:'DE', pay:'EUR', payout:'USD' },
+    { label:'Germany store → EU customer (EUR)', store:'DE', cust:'FR', pay:'EUR', payout:'EUR' },
+    { label:'Germany store → US customer (USD)', store:'DE', cust:'US', pay:'USD', payout:'EUR' },
+    { label:'Hungary store → EU customer (EUR payout)', store:'HU', cust:'DE', pay:'EUR', payout:'EUR' },
+    { label:'UK store → EU customer (EUR)', store:'GB', cust:'FR', pay:'EUR', payout:'GBP' },
+    { label:'UK store → UK customer (GBP)', store:'GB', cust:'GB', pay:'GBP', payout:'GBP' },
+    { label:'Canada store → US customer (USD payout)', store:'CA', cust:'US', pay:'USD', payout:'USD' },
+    { label:'Japan store → Japan customer (JPY)', store:'JP', cust:'JP', pay:'JPY', payout:'JPY' },
+    { label:'Australia store → AU customer (AUD)', store:'AU', cust:'AU', pay:'AUD', payout:'AUD' },
+    { label:'Singapore store → SG customer (SGD)', store:'SG', cust:'SG', pay:'SGD', payout:'SGD' },
+  ];
+
+  const volumes = [10000, 25000, 50000, 100000, 250000];
+  const tbody = document.getElementById('volumeBody');
+
+  tbody.innerHTML = scenarios.map(s => {
+    const r = calculateFees(s.store, s.cust, s.pay, s.payout, 100);
+    if (!r) return '';
+    const rateColor = r.effectiveRate < 2.0 ? 'green' : r.effectiveRate < 3.5 ? 'accent' : r.effectiveRate < 5.0 ? 'amber' : 'red';
+
+    return `<tr>
+      <td style="font-size:11.5px;">${s.label}</td>
+      <td class="mono" style="color:var(--${rateColor});font-weight:600;">${r.effectiveRate.toFixed(2)}%</td>
+      ${volumes.map(v => {
+        const cost = v * r.effectiveRate / 100;
+        return `<td class="mono" style="text-align:right;">$${cost.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</td>`;
+      }).join('')}
+    </tr>`;
+  }).join('');
+}
+
+function calcVolume() {
+  const storeCode = document.getElementById('volStore').value;
+  const custCode = document.getElementById('volCust').value;
+  const vol = parseFloat(document.getElementById('volAmount').value) || 50000;
+  const store = SP_COUNTRIES.find(x => x.code === storeCode);
+  const cust = getCountry(custCode);
+  if (!store || !cust) return;
+
+  // Calculate all payout options
+  const payoutOptions = [store.ccy, ...store.dualDom.filter(d => d !== store.ccy)];
+  const payCcy = cust.ccy !== 'OTHER' ? cust.ccy : 'USD';
+
+  const results = payoutOptions.map(po => {
+    const r = calculateFees(storeCode, custCode, payCcy, po, 100);
+    return { payout:po, result:r };
+  }).filter(x => x.result).sort((a,b) => a.result.effectiveRate - b.result.effectiveRate);
+
+  const container = document.getElementById('volResult');
+  container.innerHTML = `
+    <div class="info-box">
+      <strong>${store.name} entity → ${cust.name} customer (paying ${payCcy})</strong> at $${vol.toLocaleString()}/mo
+    </div>
+    <div class="vol-grid">
+      ${results.map((x,i) => {
+        const cost = vol * x.result.effectiveRate / 100;
+        const rateColor = x.result.effectiveRate < 2.0 ? 'green' : x.result.effectiveRate < 3.5 ? 'accent' : x.result.effectiveRate < 5.0 ? 'amber' : 'red';
+        return `<div class="vol-card" ${i===0?'style="border-color:var(--green);"':''}>
+          <div class="vol-label">Payout: ${x.payout} ${i===0?'(BEST)':''}</div>
+          <div class="vol-val" style="color:var(--${rateColor});">$${cost.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}</div>
+          <div class="vol-sub">${x.result.effectiveRate.toFixed(2)}% effective</div>
+          <div style="margin-top:6px;">
+            ${x.result.tags.map(t => `<span style="display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;background:var(--${t.color}-dim);color:var(--${t.color});margin:1px;">${t.text}</span>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+// ======================== INIT ========================
+function switchTab(panelId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tab = document.querySelector(`.tab[data-panel="${panelId}"]`);
+  const panel = document.getElementById('panel-' + panelId);
+  if (tab && panel) {
+    tab.classList.add('active');
+    panel.classList.add('active');
+  }
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const panelId = tab.dataset.panel;
+    window.location.hash = panelId;
+    switchTab(panelId);
+  });
+});
+
+// Handle direct hash navigation and back/forward
+function handleHash() {
+  const hash = window.location.hash.replace('#','');
+  if (hash && document.getElementById('panel-' + hash)) {
+    switchTab(hash);
+  }
+}
+window.addEventListener('hashchange', handleHash);
+handleHash();
+
+// Wire up calculator events
+['storeCountry','custCountry','payCcy','payoutCcy','calcAmount'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    if (id === 'storeCountry') updatePayoutOptions();
+    if (id === 'custCountry') updatePayCcyDefault();
+    renderCalculation();
+  });
+  if (document.getElementById(id).type === 'number') {
+    document.getElementById(id).addEventListener('input', renderCalculation);
+  }
+});
+
+populateDropdowns();
+renderCalculation();
+renderCountries('all');
+renderVolumeTable();
+
+// Load default comparison
+document.getElementById('cmpCustCountry').value = 'DE';
+document.getElementById('cmpPayCcy').value = 'EUR';
+</script>
+</body>
+</html>

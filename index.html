@@ -1,444 +1,1168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unicity Shopify Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0d1117;
-  --surface: #161b22;
-  --surface2: #1c2333;
-  --border: #30363d;
-  --border-hover: #484f58;
-  --text: #e6edf3;
-  --text-muted: #8b949e;
-  --text-dim: #6e7681;
-  --accent: #58a6ff;
-  --accent-glow: rgba(88,166,255,0.12);
-  --green: #3fb950;
-  --green-bg: rgba(63,185,80,0.1);
-  --yellow: #d29922;
-  --yellow-bg: rgba(210,153,34,0.1);
-  --purple: #bc8cff;
-  --purple-bg: rgba(188,140,255,0.1);
-  --red: #f85149;
-  --red-bg: rgba(248,81,73,0.1);
-  --orange: #f0883e;
-  --orange-bg: rgba(240,136,62,0.1);
-  --cyan: #39d2c0;
-  --cyan-bg: rgba(57,210,192,0.1);
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family:'DM Sans',system-ui,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Centralized command center for Shopify Plus operations, POS pilot, payment integrations, and global market expansion across US, Europe, and Japan.">
+    <meta name="keywords" content="Shopify Plus, POS Pilot, Global Expansion, 47 Pages, Unicity International">
+    <title>Unicity Shopify Hub - Command Center</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
 
-/* HEADER */
-.header {
-  padding:48px 48px 40px;
-  border-bottom:1px solid var(--border);
-  background:linear-gradient(180deg, rgba(88,166,255,0.03) 0%, transparent 100%);
-}
-.header-top {
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:8px;
-}
-.header-logo {
-  width:44px; height:44px;
-  background:var(--accent-glow);
-  border:1px solid rgba(88,166,255,0.25);
-  border-radius:12px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px;
-}
-.header h1 {
-  font-size:28px;
-  font-weight:700;
-  letter-spacing:-0.5px;
-  color:#fff;
-}
-.header h1 span { color:var(--accent); }
-.header .subtitle {
-  font-size:14px;
-  color:var(--text-muted);
-  margin-bottom:20px;
-  max-width:640px;
-}
-.header-meta {
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.meta-tag {
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:5px 12px;
-  border-radius:20px;
-  font-size:11px;
-  font-weight:500;
-  background:var(--surface);
-  border:1px solid var(--border);
-  color:var(--text-muted);
-}
-.meta-tag .dot {
-  width:7px; height:7px;
-  border-radius:50%;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* MAIN */
-main {
-  max-width:1200px;
-  margin:0 auto;
-  padding:40px 48px 60px;
-}
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-/* SECTION LABELS */
-.section-label {
-  font-size:11px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:1.5px;
-  color:var(--text-dim);
-  margin-bottom:20px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.section-label::after {
-  content:'';
-  flex:1;
-  height:1px;
-  background:var(--border);
-}
+        code, pre {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
 
-/* CARD GRID */
-.card-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
-  gap:16px;
-  margin-bottom:48px;
-}
-.card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:24px;
-  text-decoration:none;
-  color:var(--text);
-  transition:all 0.2s ease;
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-.card:hover {
-  border-color:var(--border-hover);
-  background:var(--surface2);
-  transform:translateY(-2px);
-  box-shadow:0 8px 32px rgba(0,0,0,0.3);
-}
-.card-icon {
-  width:48px; height:48px;
-  border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px;
-  flex-shrink:0;
-}
-.card-header {
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-.card-title {
-  font-size:16px;
-  font-weight:600;
-  color:#fff;
-}
-.card-badge {
-  font-size:10px;
-  font-weight:600;
-  padding:2px 8px;
-  border-radius:10px;
-  text-transform:uppercase;
-  letter-spacing:0.5px;
-  margin-left:auto;
-  white-space:nowrap;
-}
-.card-desc {
-  font-size:13px;
-  color:var(--text-muted);
-  line-height:1.7;
-}
-.card-tags {
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:auto;
-}
-.card-tag {
-  font-size:10px;
-  font-weight:500;
-  padding:3px 8px;
-  border-radius:4px;
-  background:var(--bg);
-  border:1px solid var(--border);
-  color:var(--text-dim);
-}
-.card-arrow {
-  position:absolute;
-  top:24px; right:24px;
-  color:var(--text-dim);
-  font-size:18px;
-  transition:all 0.2s;
-}
-.card:hover .card-arrow {
-  color:var(--accent);
-  transform:translateX(3px);
-}
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
-/* COLOR VARIANTS */
-.icon-blue { background:var(--accent-glow); border:1px solid rgba(88,166,255,0.2); }
-.icon-green { background:var(--green-bg); border:1px solid rgba(63,185,80,0.2); }
-.icon-purple { background:var(--purple-bg); border:1px solid rgba(188,140,255,0.2); }
-.icon-yellow { background:var(--yellow-bg); border:1px solid rgba(210,153,34,0.2); }
-.icon-orange { background:var(--orange-bg); border:1px solid rgba(240,136,62,0.2); }
-.icon-cyan { background:var(--cyan-bg); border:1px solid rgba(57,210,192,0.2); }
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 48px 0 32px;
+            margin-bottom: 32px;
+        }
 
-.badge-green { background:var(--green-bg); color:var(--green); }
-.badge-blue { background:var(--accent-glow); color:var(--accent); }
-.badge-purple { background:var(--purple-bg); color:var(--purple); }
-.badge-yellow { background:var(--yellow-bg); color:var(--yellow); }
-.badge-orange { background:var(--orange-bg); color:var(--orange); }
-.badge-cyan { background:var(--cyan-bg); color:var(--cyan); }
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-/* FOOTER */
-.footer {
-  border-top:1px solid var(--border);
-  padding:24px 48px;
-  text-align:center;
-  font-size:12px;
-  color:var(--text-dim);
-}
-.footer a {
-  color:var(--accent);
-  text-decoration:none;
-}
-.footer a:hover { text-decoration:underline; }
+        .header-content p {
+            font-size: 1.1rem;
+            color: rgba(230, 237, 243, 0.8);
+            margin-bottom: 24px;
+            max-width: 900px;
+            line-height: 1.6;
+        }
 
-/* RESPONSIVE */
-@media (max-width:768px) {
-  .header { padding:32px 20px 28px; }
-  main { padding:28px 20px 40px; }
-  .card-grid { grid-template-columns:1fr; }
-  .footer { padding:20px; }
-}
-</style>
+        /* Urgency Alert */
+        .urgency-alert {
+            background: linear-gradient(135deg, rgba(248, 81, 73, 0.15) 0%, rgba(248, 81, 73, 0.08) 100%);
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(248, 81, 73, 0.1); }
+        }
+
+        .urgency-alert::before {
+            content: "⚠️";
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .urgency-alert strong {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+        .urgency-alert a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent);
+            transition: opacity 0.2s;
+        }
+
+        .urgency-alert a:hover {
+            opacity: 0.8;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 40px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: rgba(230, 237, 243, 0.5);
+        }
+
+        .search-hint {
+            font-size: 0.85rem;
+            color: rgba(230, 237, 243, 0.6);
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        /* Quick Stats */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(230, 237, 243, 0.7);
+        }
+
+        /* Search Results Info */
+        .search-results-info {
+            font-size: 0.95rem;
+            color: rgba(230, 237, 243, 0.7);
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .search-results-info.visible {
+            display: block;
+        }
+
+        /* Sections */
+        .sections {
+            margin-bottom: 48px;
+        }
+
+        .section {
+            margin-bottom: 48px;
+            transition: opacity 0.3s;
+        }
+
+        .section.hidden {
+            display: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .section-title .badge {
+            background: var(--red);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-link:hover {
+            gap: 10px;
+            opacity: 0.8;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            background: var(--surface2);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .card-icon.blue { background: rgba(88, 166, 255, 0.15); }
+        .card-icon.green { background: rgba(63, 185, 80, 0.15); }
+        .card-icon.yellow { background: rgba(210, 153, 34, 0.15); }
+        .card-icon.cyan { background: rgba(57, 210, 192, 0.15); }
+        .card-icon.purple { background: rgba(188, 140, 255, 0.15); }
+        .card-icon.red { background: rgba(248, 81, 73, 0.15); }
+        .card-icon.orange { background: rgba(240, 136, 62, 0.15); }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .card-badge.blue { background: rgba(88, 166, 255, 0.2); color: #58d4ff; }
+        .card-badge.green { background: rgba(63, 185, 80, 0.2); color: #56d364; }
+        .card-badge.yellow { background: rgba(210, 153, 34, 0.2); color: #d29922; }
+        .card-badge.cyan { background: rgba(57, 210, 192, 0.2); color: #56d4c4; }
+        .card-badge.purple { background: rgba(188, 140, 255, 0.2); color: #d8b9ff; }
+        .card-badge.red { background: rgba(248, 81, 73, 0.2); color: #ff7b72; }
+        .card-badge.orange { background: rgba(240, 136, 62, 0.2); color: #fb8500; }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: rgba(230, 237, 243, 0.75);
+            margin-bottom: 12px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .card-tag {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: rgba(230, 237, 243, 0.7);
+            transition: all 0.2s;
+        }
+
+        .card:hover .card-tag {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .card-arrow {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.3s;
+        }
+
+        .card:hover .card-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            margin-top: 64px;
+            text-align: center;
+            color: rgba(230, 237, 243, 0.7);
+        }
+
+        footer p {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-content p {
+                font-size: 1rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(230, 237, 243, 0.6);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+    </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-top">
-    <div class="header-logo">&#x1f6d2;</div>
-    <h1>Unicity <span>Shopify</span> Hub</h1>
-  </div>
-  <div class="subtitle">Centralized documentation, reference guides, and tools for the Unicity Shopify Plus implementation and POS pilot program.</div>
-  <div class="header-meta">
-    <span class="meta-tag"><span class="dot" style="background:var(--green)"></span> Shopify Plus</span>
-    <span class="meta-tag"><span class="dot" style="background:var(--accent)"></span> POS Pilot</span>
-    <span class="meta-tag"><span class="dot" style="background:var(--purple)"></span> Unicity International</span>
-  </div>
-</div>
-
-<main>
-
-  <div class="section-label">Interactive Tools</div>
-  <div class="card-grid">
-
-    <a href="shopify-demo-v3.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-blue">&#x1f4f1;</div>
-        <div>
-          <div class="card-title">Checkout Demo</div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Unicity Shopify Hub</h1>
+                <p>Centralized command center for Shopify Plus operations, POS pilot, payment integrations, and global market expansion across US, Europe, and Japan.</p>
+            </div>
         </div>
-        <span class="card-badge badge-blue">Interactive</span>
-      </div>
-      <div class="card-desc">Interactive phone simulation showing Online and Tap to Pay checkout flows. Covers Apple Pay, Shop Pay, standard card payments, new vs returning customers, and POS staff attribution.</div>
-      <div class="card-tags">
-        <span class="card-tag">Online Checkout</span>
-        <span class="card-tag">POS Tap to Pay</span>
-        <span class="card-tag">Shop Pay</span>
-        <span class="card-tag">Apple Pay</span>
-      </div>
-    </a>
+    </header>
 
-  </div>
-
-  <div class="section-label">POS Pilot</div>
-  <div class="card-grid">
-
-    <a href="shopify-pos-pilot-dashboard.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-green">&#x1f4ca;</div>
-        <div>
-          <div class="card-title">Project Dashboard</div>
+    <main class="container">
+        <!-- Urgency Alert -->
+        <div class="urgency-alert">
+            <strong>Scripts Deprecation: June 30, 2026</strong> — Migrate all Shopify Scripts to Functions before deadline. <a href="scripts-migration.html">View migration guide</a>
         </div>
-        <span class="card-badge badge-green">Tracking</span>
-      </div>
-      <div class="card-desc">POS pilot project tracker with task management, phase progress, and ClickUp integration. Covers all workstreams from store setup through post-launch monitoring.</div>
-      <div class="card-tags">
-        <span class="card-tag">Task Tracking</span>
-        <span class="card-tag">Phases</span>
-        <span class="card-tag">ClickUp</span>
-      </div>
-    </a>
 
-    <a href="shopify-pos-order-sync-model.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-blue">&#x1f504;</div>
-        <div>
-          <div class="card-title">D2D Order Sync Simulator</div>
+        <!-- Search -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search pages by title, description, or tags... (Press / to focus)">
+            <div class="search-hint">Tip: Type keywords to filter across all 47 pages</div>
         </div>
-        <span class="card-badge badge-blue">Interactive</span>
-      </div>
-      <div class="card-desc">Live simulation of the door-to-door order sync pipeline. Walk through first-time orders, subscription renewals, refunds, and full lifecycle flows between Shopify, middleware, and Unity.</div>
-      <div class="card-tags">
-        <span class="card-tag">Order Sync</span>
-        <span class="card-tag">D2D Pipeline</span>
-        <span class="card-tag">Simulation</span>
-      </div>
-    </a>
 
-    <a href="shopify-pos-distributor-architecture.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-cyan">&#x1f465;</div>
-        <div>
-          <div class="card-title">Distributor Architecture</div>
+        <!-- Search Results Info -->
+        <div class="search-results-info" id="searchResultsInfo"></div>
+
+        <!-- Quick Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number">47</div>
+                <div class="stat-label">Pages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">13</div>
+                <div class="stat-label">Sections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">17</div>
+                <div class="stat-label">New Guides</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Markets</div>
+            </div>
         </div>
-        <span class="card-badge badge-cyan">Technical</span>
-      </div>
-      <div class="card-desc">POS distributor architecture covering staff account mapping, distributor attribution via PIN entry, Unity ID sync, and the middleware lookup table that ties Shopify sessions to Unicity distributor records.</div>
-      <div class="card-tags">
-        <span class="card-tag">Distributor Attribution</span>
-        <span class="card-tag">Staff Mapping</span>
-        <span class="card-tag">Unity Sync</span>
-      </div>
-    </a>
 
-    <a href="shopify-configurations.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-orange">&#x1f4cb;</div>
-        <div>
-          <div class="card-title">POS Configurations</div>
+        <!-- Sections -->
+        <div class="sections">
+
+            <!-- 1. INTERACTIVE DEMOS -->
+            <section class="section" data-section="interactive-demos">
+                <div class="section-header">
+                    <h2 class="section-title">Interactive Demos</h2>
+                    <a href="demos.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="shopify-demo-v3.html" class="card" data-searchable="Checkout Demo Interactive blue">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon blue">🛒</div>
+                        <h3 class="card-title">Checkout Demo</h3>
+                        <span class="card-badge blue">Interactive</span>
+                        <p class="card-description">Live checkout experience with real-time payment processing and order validation.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Demo</span>
+                            <span class="card-tag">Checkout</span>
+                            <span class="card-tag">Live</span>
+                        </div>
+                    </a>
+                    <a href="dual-checkout-demo.html" class="card" data-searchable="Dual Checkout Demo Interactive blue">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon blue">🔀</div>
+                        <h3 class="card-title">Dual Checkout Demo</h3>
+                        <span class="card-badge blue">Interactive</span>
+                        <p class="card-description">Compare classic vs. accelerated checkout flows side-by-side with conversion metrics.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Comparison</span>
+                            <span class="card-tag">Checkout</span>
+                        </div>
+                    </a>
+                    <a href="shop-pay-experience.html" class="card" data-searchable="Shop Pay Experience Demo blue">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon blue">💳</div>
+                        <h3 class="card-title">Shop Pay Experience</h3>
+                        <span class="card-badge blue">Demo</span>
+                        <p class="card-description">User experience walkthrough for Shop Pay wallet integration and payment flows.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Shop Pay</span>
+                            <span class="card-tag">UX</span>
+                        </div>
+                    </a>
+                    <a href="shop-pay-technical-demo.html" class="card" data-searchable="Shop Pay Technical Demo Technical cyan">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">⚙️</div>
+                        <h3 class="card-title">Shop Pay Technical Demo</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">Deep dive into Shop Pay API integration, tokenization, and implementation architecture.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">API</span>
+                            <span class="card-tag">Shop Pay</span>
+                            <span class="card-tag">Technical</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 2. POS PILOT -->
+            <section class="section" data-section="pos-pilot">
+                <div class="section-header">
+                    <h2 class="section-title">POS Pilot</h2>
+                    <a href="pos-pilot.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="shopify-pos-pilot-dashboard.html" class="card" data-searchable="Project Dashboard Tracking green">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">📊</div>
+                        <h3 class="card-title">Project Dashboard</h3>
+                        <span class="card-badge green">Tracking</span>
+                        <p class="card-description">Real-time POS pilot progress, milestones, team assignments, and deployment timeline.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Dashboard</span>
+                            <span class="card-tag">POS</span>
+                        </div>
+                    </a>
+                    <a href="shopify-pos-order-sync-model.html" class="card" data-searchable="D2D Order Sync Interactive blue">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon blue">🔄</div>
+                        <h3 class="card-title">D2D Order Sync</h3>
+                        <span class="card-badge blue">Interactive</span>
+                        <p class="card-description">Direct-to-distributor order synchronization model with inventory and fulfillment tracking.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Sync</span>
+                            <span class="card-tag">Order</span>
+                            <span class="card-tag">D2D</span>
+                        </div>
+                    </a>
+                    <a href="shopify-pos-distributor-architecture.html" class="card" data-searchable="Distributor Architecture Technical cyan">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">🏗️</div>
+                        <h3 class="card-title">Distributor Architecture</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">Multi-location distributor store setup, regional configurations, and network topology.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Architecture</span>
+                            <span class="card-tag">POS</span>
+                        </div>
+                    </a>
+                    <a href="shopify-pos-sales-dashboard.html" class="card" data-searchable="POS Sales Dashboard Dashboard green">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">📈</div>
+                        <h3 class="card-title">POS Sales Dashboard</h3>
+                        <span class="card-badge green">Dashboard</span>
+                        <p class="card-description">Sales performance analytics, regional metrics, and distributor KPI tracking.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Analytics</span>
+                            <span class="card-tag">Sales</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 3. OPERATIONS & REFERENCE -->
+            <section class="section" data-section="operations">
+                <div class="section-header">
+                    <h2 class="section-title">Operations & Reference</h2>
+                    <a href="operations.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="shopify-admin-operations-guide.html" class="card" data-searchable="Admin Operations Guide Reference purple">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon purple">📖</div>
+                        <h3 class="card-title">Admin Operations Guide</h3>
+                        <span class="card-badge purple">Reference</span>
+                        <p class="card-description">Comprehensive guide to Shopify admin features, workflows, and operational best practices.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Guide</span>
+                            <span class="card-tag">Admin</span>
+                        </div>
+                    </a>
+                    <a href="shopify-settings-reference.html" class="card" data-searchable="Settings Reference Reference yellow">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon yellow">🔧</div>
+                        <h3 class="card-title">Settings Reference</h3>
+                        <span class="card-badge yellow">Reference</span>
+                        <p class="card-description">Complete settings configuration reference with parameter descriptions and recommended values.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Configuration</span>
+                            <span class="card-tag">Settings</span>
+                        </div>
+                    </a>
+                    <a href="shopify-pros-cons.html" class="card" data-searchable="Pros & Cons Analysis Analysis yellow">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon yellow">⚖️</div>
+                        <h3 class="card-title">Pros & Cons Analysis</h3>
+                        <span class="card-badge yellow">Analysis</span>
+                        <p class="card-description">Detailed comparison of platform features, trade-offs, and implementation considerations.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Analysis</span>
+                            <span class="card-tag">Decision</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 4. PAYMENTS & INTEGRATIONS -->
+            <section class="section" data-section="payments">
+                <div class="section-header">
+                    <h2 class="section-title">Payments & Integrations</h2>
+                    <a href="payments.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="shop-pay-worldpay-flows.html" class="card" data-searchable="Shop Pay + WorldPay Flows Technical cyan">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">🌐</div>
+                        <h3 class="card-title">Shop Pay + WorldPay Flows</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">Integration flow diagrams and sequence diagrams for Shop Pay and WorldPay payment gateway.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Integration</span>
+                            <span class="card-tag">Payments</span>
+                        </div>
+                    </a>
+                    <a href="shop-pay-worldpay-unified-demo.html" class="card" data-searchable="Shop Pay + WorldPay Demo Interactive blue">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon blue">🔐</div>
+                        <h3 class="card-title">Shop Pay + WorldPay Demo</h3>
+                        <span class="card-badge blue">Interactive</span>
+                        <p class="card-description">Live demonstration of unified Shop Pay and WorldPay checkout experience.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Demo</span>
+                            <span class="card-tag">Checkout</span>
+                        </div>
+                    </a>
+                    <a href="payments.html" class="card" data-searchable="Gateway Comparisons Analysis yellow">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon yellow">🏦</div>
+                        <h3 class="card-title">Gateway Comparisons</h3>
+                        <span class="card-badge yellow">Analysis</span>
+                        <p class="card-description">Side-by-side comparison of payment gateways with pricing and feature matrix.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Comparison</span>
+                            <span class="card-tag">Gateway</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 5. GLOBAL MARKETS -->
+            <section class="section" data-section="global-markets">
+                <div class="section-header">
+                    <h2 class="section-title">Global Markets</h2>
+                    <a href="global-markets.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="global-market-costs-v3.html" class="card" data-searchable="Market Cost Calculator v3 Tool green">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">💵</div>
+                        <h3 class="card-title">Market Cost Calculator v3</h3>
+                        <span class="card-badge green">Tool</span>
+                        <p class="card-description">Interactive cost calculator for market expansion with localization, taxes, and fees.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Calculator</span>
+                            <span class="card-tag">Costs</span>
+                        </div>
+                    </a>
+                    <a href="market-decision-tool-v4.html" class="card" data-searchable="Market Decision Tool v4 Tool green">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">🎯</div>
+                        <h3 class="card-title">Market Decision Tool v4</h3>
+                        <span class="card-badge green">Tool</span>
+                        <p class="card-description">Decision framework and scoring system for evaluating market expansion priorities.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Decision Tool</span>
+                            <span class="card-tag">Strategy</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 6. US MIGRATION -->
+            <section class="section" data-section="migration">
+                <div class="section-header">
+                    <h2 class="section-title">US Migration</h2>
+                    <a href="migration.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="migration.html" class="card" data-searchable="Migration Program Program red">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon red">📋</div>
+                        <h3 class="card-title">Migration Program</h3>
+                        <span class="card-badge red">Program</span>
+                        <p class="card-description">Comprehensive US market migration plan with phased rollout and success metrics.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Program</span>
+                            <span class="card-tag">US</span>
+                        </div>
+                    </a>
+                    <a href="migration.html" class="card" data-searchable="Ticket Registry Registry orange">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon orange">📝</div>
+                        <h3 class="card-title">Ticket Registry</h3>
+                        <span class="card-badge orange">Registry</span>
+                        <p class="card-description">Central registry of all migration tickets, issues, and resolution tracking.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Registry</span>
+                            <span class="card-tag">Tracking</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 7. DATA & TOOLS -->
+            <section class="section" data-section="data-tools">
+                <div class="section-header">
+                    <h2 class="section-title">Data & Tools</h2>
+                    <a href="data-tools.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="orders_export_1-dashboard.html" class="card" data-searchable="Orders Dashboard Dashboard green">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">📦</div>
+                        <h3 class="card-title">Orders Dashboard</h3>
+                        <span class="card-badge green">Dashboard</span>
+                        <p class="card-description">Real-time orders analytics with export functionality and custom filtering options.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Dashboard</span>
+                            <span class="card-tag">Orders</span>
+                        </div>
+                    </a>
+                    <a href="data-tools.html" class="card" data-searchable="SQL Query Library Queries purple">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon purple">🔍</div>
+                        <h3 class="card-title">SQL Query Library</h3>
+                        <span class="card-badge purple">Queries</span>
+                        <p class="card-description">Collection of pre-built SQL queries for common reporting and data extraction tasks.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Queries</span>
+                            <span class="card-tag">SQL</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 8. STRATEGY & PLANNING -->
+            <section class="section" data-section="strategy">
+                <div class="section-header">
+                    <h2 class="section-title">Strategy & Planning</h2>
+                    <a href="strategy.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="strategy.html" class="card" data-searchable="Session Handoffs Handoff orange">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon orange">🤝</div>
+                        <h3 class="card-title">Session Handoffs</h3>
+                        <span class="card-badge orange">Handoff</span>
+                        <p class="card-description">Protocol and templates for seamless team handoffs and context transfer.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Handoff</span>
+                            <span class="card-tag">Process</span>
+                        </div>
+                    </a>
+                    <a href="strategy.html" class="card" data-searchable="Referral URL System Spec cyan">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">🔗</div>
+                        <h3 class="card-title">Referral URL System</h3>
+                        <span class="card-badge cyan">Spec</span>
+                        <p class="card-description">Specification for UTM parameter structure and referral tracking implementation.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">UTM</span>
+                            <span class="card-tag">Tracking</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 9. GLOBAL EXPANSION (NEW) -->
+            <section class="section" data-section="expansion">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        Global Expansion
+                        <span class="badge">NEW</span>
+                    </h2>
+                    <a href="expansion-stores.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="expansion-stores.html" class="card" data-searchable="Expansion Stores Guide Guide green multi-store US EU Japan">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">🏪</div>
+                        <h3 class="card-title">Expansion Stores Guide</h3>
+                        <span class="card-badge green">Guide</span>
+                        <p class="card-description">Multi-store architecture for US, EU, Japan expansion. Setup, costs, launch sequence.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Multi-store</span>
+                            <span class="card-tag">Expansion</span>
+                            <span class="card-tag">Global</span>
+                        </div>
+                    </a>
+                    <a href="markets-configuration.html" class="card" data-searchable="Shopify Markets Config Guide green currency language regional pricing">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">⚙️</div>
+                        <h3 class="card-title">Shopify Markets Config</h3>
+                        <span class="card-badge green">Guide</span>
+                        <p class="card-description">Multi-currency, multi-language, regional pricing, payment methods by market.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Configuration</span>
+                            <span class="card-tag">Markets</span>
+                        </div>
+                    </a>
+                    <a href="inventory-architecture.html" class="card" data-searchable="Inventory Architecture Technical cyan multi-store location ERP">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">📦</div>
+                        <h3 class="card-title">Inventory Architecture</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">Multi-store, multi-location inventory management and ERP synchronization.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Architecture</span>
+                            <span class="card-tag">Inventory</span>
+                            <span class="card-tag">ERP</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 10. AUTOMATION & INTEGRATIONS (NEW) -->
+            <section class="section" data-section="automation">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        Automation & Integrations
+                        <span class="badge">NEW</span>
+                    </h2>
+                    <a href="shopify-flow.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="shopify-flow.html" class="card" data-searchable="Shopify Flow Runbook green no-code automation order routing fraud">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">🔄</div>
+                        <h3 class="card-title">Shopify Flow</h3>
+                        <span class="card-badge green">Runbook</span>
+                        <p class="card-description">No-code automation for order routing, fraud detection, inventory alerts. 10 flows.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Automation</span>
+                            <span class="card-tag">Flow</span>
+                            <span class="card-tag">No-code</span>
+                        </div>
+                    </a>
+                    <a href="webhook-integration.html" class="card" data-searchable="Webhook Integration Map Technical cyan topology ERP sync security">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">🪝</div>
+                        <h3 class="card-title">Webhook Integration Map</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">Complete webhook topology, ERP sync, security, rate limits.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Integration</span>
+                            <span class="card-tag">Webhook</span>
+                            <span class="card-tag">API</span>
+                        </div>
+                    </a>
+                    <a href="launchpad.html" class="card" data-searchable="Launchpad Campaigns Playbook orange flash sales product launches timezone">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon orange">🚀</div>
+                        <h3 class="card-title">Launchpad Campaigns</h3>
+                        <span class="card-badge orange">Playbook</span>
+                        <p class="card-description">Schedule flash sales, product launches, timezone-aware promotions.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Campaign</span>
+                            <span class="card-tag">Launch</span>
+                            <span class="card-tag">Promotion</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 11. SECURITY & GOVERNANCE (NEW) -->
+            <section class="section" data-section="security">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        Security & Governance
+                        <span class="badge">NEW</span>
+                    </h2>
+                    <a href="org-admin-permissions.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="org-admin-permissions.html" class="card" data-searchable="Org Admin & Permissions Guide purple role-based access permission matrix">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon purple">👤</div>
+                        <h3 class="card-title">Org Admin & Permissions</h3>
+                        <span class="card-badge purple">Guide</span>
+                        <p class="card-description">Role-based access, permission matrix, audit procedures.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Access Control</span>
+                            <span class="card-tag">Admin</span>
+                        </div>
+                    </a>
+                    <a href="app-governance.html" class="card" data-searchable="App Governance Policy purple app evaluation approved vendors security review">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon purple">📋</div>
+                        <h3 class="card-title">App Governance</h3>
+                        <span class="card-badge purple">Policy</span>
+                        <p class="card-description">App evaluation framework, approved vendors, security review process.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Policy</span>
+                            <span class="card-tag">Apps</span>
+                        </div>
+                    </a>
+                    <a href="scripts-migration.html" class="card" data-searchable="Scripts Migration URGENT red deadline June 2026 Functions">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon red">⚠️</div>
+                        <h3 class="card-title">Scripts Migration</h3>
+                        <span class="card-badge red">URGENT</span>
+                        <p class="card-description">Deadline June 2026. Shopify Scripts to Functions migration plan and tools.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Migration</span>
+                            <span class="card-tag">Scripts</span>
+                            <span class="card-tag">Urgent</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 12. B2B & COMMERCE (NEW) -->
+            <section class="section" data-section="b2b">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        B2B & Commerce
+                        <span class="badge">NEW</span>
+                    </h2>
+                    <a href="b2b-wholesale.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="b2b-wholesale.html" class="card" data-searchable="B2B Wholesale Guide green distributor company profiles price lists net terms B2B checkout">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">🤝</div>
+                        <h3 class="card-title">B2B Wholesale</h3>
+                        <span class="card-badge green">Guide</span>
+                        <p class="card-description">Distributor company profiles, price lists, net terms, B2B checkout.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">B2B</span>
+                            <span class="card-tag">Wholesale</span>
+                        </div>
+                    </a>
+                    <a href="checkout-extensibility.html" class="card" data-searchable="Checkout Extensibility Technical cyan UI extensions Functions branding">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">🎨</div>
+                        <h3 class="card-title">Checkout Extensibility</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">UI extensions, Functions, branding, regional checkout differences.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Extensibility</span>
+                            <span class="card-tag">Checkout</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- 13. COMPLIANCE & ANALYTICS (NEW) -->
+            <section class="section" data-section="compliance">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        Compliance & Analytics
+                        <span class="badge">NEW</span>
+                    </h2>
+                    <a href="tax-compliance.html" class="section-link">View All →</a>
+                </div>
+                <div class="cards-grid">
+                    <a href="tax-compliance.html" class="card" data-searchable="Tax Compliance Compliance red US sales tax EU VAT Japan consumption tax configuration rules">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon red">💳</div>
+                        <h3 class="card-title">Tax Compliance</h3>
+                        <span class="card-badge red">Compliance</span>
+                        <p class="card-description">US sales tax, EU VAT, Japan consumption tax. Configuration and rules.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Tax</span>
+                            <span class="card-tag">Compliance</span>
+                        </div>
+                    </a>
+                    <a href="data-privacy.html" class="card" data-searchable="Data Privacy Compliance red GDPR CCPA Japan APPI cookie consent data requests">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon red">🔒</div>
+                        <h3 class="card-title">Data Privacy</h3>
+                        <span class="card-badge red">Compliance</span>
+                        <p class="card-description">GDPR, CCPA, Japan APPI. Cookie consent, data requests, breach response.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Privacy</span>
+                            <span class="card-tag">Compliance</span>
+                        </div>
+                    </a>
+                    <a href="analytics-cross-market.html" class="card" data-searchable="Cross-Market Analytics Dashboard green aggregated reporting GA4 KPI tracking">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon green">📊</div>
+                        <h3 class="card-title">Cross-Market Analytics</h3>
+                        <span class="card-badge green">Dashboard</span>
+                        <p class="card-description">Aggregated reporting, GA4 setup, KPI tracking across markets.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Analytics</span>
+                            <span class="card-tag">Reporting</span>
+                        </div>
+                    </a>
+                    <a href="shopify-audiences.html" class="card" data-searchable="Shopify Audiences Marketing purple AI ad targeting Google Meta TikTok Plus-exclusive">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon purple">🎯</div>
+                        <h3 class="card-title">Shopify Audiences</h3>
+                        <span class="card-badge purple">Marketing</span>
+                        <p class="card-description">AI ad targeting for Google, Meta, TikTok. Plus-exclusive feature.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">Marketing</span>
+                            <span class="card-tag">Audiences</span>
+                        </div>
+                    </a>
+                    <a href="multipass-sso.html" class="card" data-searchable="Multipass SSO Technical cyan single sign-on Unity platform Shopify stores">
+                        <span class="card-arrow">→</span>
+                        <div class="card-icon cyan">🔑</div>
+                        <h3 class="card-title">Multipass SSO</h3>
+                        <span class="card-badge cyan">Technical</span>
+                        <p class="card-description">Single sign-on between Unity platform and Shopify stores.</p>
+                        <div class="card-tags">
+                            <span class="card-tag">SSO</span>
+                            <span class="card-tag">Authentication</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
         </div>
-        <span class="card-badge badge-orange">Checklist</span>
-      </div>
-      <div class="card-desc">Configuration reference and checklist for the POS pilot. Covers every setting required for Tap to Pay deployment, staff accounts, location setup, and payment provider configuration.</div>
-      <div class="card-tags">
-        <span class="card-tag">POS Setup</span>
-        <span class="card-tag">Staff Accounts</span>
-        <span class="card-tag">Locations</span>
-      </div>
-    </a>
 
-    <a href="shopify-pos-sales-dashboard.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-green">&#x1f4b0;</div>
-        <div>
-          <div class="card-title">POS Sales Dashboard</div>
+        <!-- No Results -->
+        <div id="noResults" style="display: none;">
+            <div class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <h3>No pages found</h3>
+                <p>Try different keywords or clear your search to see all pages.</p>
+            </div>
         </div>
-        <span class="card-badge badge-green">Dashboard</span>
-      </div>
-      <div class="card-desc">Live sales dashboard with Chart.js visualizations showing POS transaction volume, revenue by location (Mississippi + Florida), daily trends, product mix, and distributor performance metrics.</div>
-      <div class="card-tags">
-        <span class="card-tag">Sales Analytics</span>
-        <span class="card-tag">Chart.js</span>
-        <span class="card-tag">Mississippi</span>
-        <span class="card-tag">Florida</span>
-      </div>
-    </a>
 
-    <a href="shopify-architecture-flows.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-cyan">&#x1f3d7;&#xFE0F;</div>
-        <div>
-          <div class="card-title">Architecture Flows</div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p><strong>Unicity International</strong> — Shopify Plus Documentation Hub</p>
+            <p>47 pages | 13 sections | Last updated March 2026</p>
+            <p><a href="https://howkoz.github.io/shopify/">howkoz.github.io/shopify</a></p>
         </div>
-        <span class="card-badge badge-cyan">Technical</span>
-      </div>
-      <div class="card-desc">POS architecture documentation with Mermaid diagrams showing data flows between Shopify, Unity, and middleware. Covers order lifecycle, distributor attribution, and sync patterns.</div>
-      <div class="card-tags">
-        <span class="card-tag">Mermaid Diagrams</span>
-        <span class="card-tag">Data Flows</span>
-        <span class="card-tag">Sync</span>
-      </div>
-    </a>
+    </footer>
 
-  </div>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const sections = document.querySelectorAll('.section');
+        const cards = document.querySelectorAll('.card');
+        const noResults = document.getElementById('noResults');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
 
-  <div class="section-label">Reference Guides</div>
-  <div class="card-grid">
+        // "/" keyboard shortcut to focus search
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
 
-    <a href="shopify-admin-operations-guide.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-purple">&#x2699;&#xFE0F;</div>
-        <div>
-          <div class="card-title">Admin Operations Guide</div>
-        </div>
-        <span class="card-badge badge-purple">Reference</span>
-      </div>
-      <div class="card-desc">Complete reference for the Shopify Admin workspace covering Home, Orders, Products, Customers, Marketing, Discounts, Content, Markets, Finance, Analytics, Online Store, POS, and Subscriptions.</div>
-      <div class="card-tags">
-        <span class="card-tag">Orders</span>
-        <span class="card-tag">Products</span>
-        <span class="card-tag">Customers</span>
-        <span class="card-tag">Analytics</span>
-      </div>
-    </a>
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            let visibleCardsCount = 0;
 
-    <a href="shopify-settings-reference.html" class="card">
-      <span class="card-arrow">&#x2192;</span>
-      <div class="card-header">
-        <div class="card-icon icon-yellow">&#x1f527;</div>
-        <div>
-          <div class="card-title">Settings Reference</div>
-        </div>
-        <span class="card-badge badge-yellow">Reference</span>
-      </div>
-      <div class="card-desc">Every Settings section documented: Organization, Users, Billing, General, Plan, Payments, Checkout, Shipping, Taxes, Locations, Apps, Sales Channels, Domains, Events, Notifications, Metafields, Privacy, and Policies.</div>
-      <div class="card-tags">
-        <span class="card-tag">Payments</span>
-        <span class="card-tag">Checkout</span>
-        <span class="card-tag">Shipping</span>
-        <span class="card-tag">Taxes</span>
-      </div>
-    </a>
+            if (query === '') {
+                // Show all sections and cards
+                sections.forEach(section => section.classList.remove('hidden'));
+                cards.forEach(card => {
+                    card.style.display = '';
+                    visibleCardsCount++;
+                });
+                searchResultsInfo.classList.remove('visible');
+                noResults.style.display = 'none';
+            } else {
+                // Filter sections and cards
+                let visibleSectionsCount = 0;
 
-  </div>
+                sections.forEach(section => {
+                    const sectionCards = section.querySelectorAll('.card');
+                    let visibleInSection = 0;
 
-</main>
+                    sectionCards.forEach(card => {
+                        const searchableText = card.getAttribute('data-searchable').toLowerCase();
+                        const cardTitle = card.querySelector('.card-title').textContent.toLowerCase();
+                        const cardDescription = card.querySelector('.card-description').textContent.toLowerCase();
 
-<div class="footer">
-  Unicity International &mdash; Shopify Plus Documentation Hub
-</div>
+                        if (
+                            searchableText.includes(query) ||
+                            cardTitle.includes(query) ||
+                            cardDescription.includes(query)
+                        ) {
+                            card.style.display = '';
+                            visibleInSection++;
+                            visibleCardsCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
 
+                    if (visibleInSection > 0) {
+                        section.classList.remove('hidden');
+                        visibleSectionsCount++;
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                // Show/hide search results info and no results message
+                if (visibleCardsCount === 0) {
+                    searchResultsInfo.classList.remove('visible');
+                    noResults.style.display = 'block';
+                } else {
+                    searchResultsInfo.textContent = `Found ${visibleCardsCount} page${visibleCardsCount !== 1 ? 's' : ''} across ${visibleSectionsCount} section${visibleSectionsCount !== 1 ? 's' : ''}`;
+                    searchResultsInfo.classList.add('visible');
+                    noResults.style.display = 'none';
+                }
+            }
+        });
+
+        // Initialize
+        searchInput.focus();
+    </script>
 </body>
 </html>

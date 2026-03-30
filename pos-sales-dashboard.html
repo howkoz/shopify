@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS Sales Dashboard | Unicity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #07090e;
+  --surface: #0d1117;
+  --surface2: #161b24;
+  --surface3: #1c2333;
+  --border: #21262d;
+  --border-bright: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-muted: #484f58;
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.12);
+  --green: #3fb950;
+  --green-dim: rgba(63,185,80,0.12);
+  --amber: #d29922;
+  --amber-dim: rgba(210,153,34,0.12);
+  --red: #f85149;
+  --red-dim: rgba(248,81,73,0.12);
+  --purple: #bc8cff;
+  --purple-dim: rgba(188,140,255,0.12);
+  --ms-color: #00d4ff;
+  --fl-color: #3fb950;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding-top: 49px; }
+.mono { font-family:'Space Mono',monospace; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #0d1117 0%, #0d1f2d 50%, #0d1117 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header-left h1 { font-size:20px; font-weight:800; letter-spacing:-0.5px; }
+.header-left h1 span { color:var(--accent); }
+.header-left .sub { color:var(--text-dim); font-size:12px; margin-top:3px; font-family:'Space Mono',monospace; }
+.header-badges { display:flex; gap:8px; flex-wrap:wrap; }
+.badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 10px; border-radius:4px; font-size:11px; font-weight:600;
+  font-family:'Space Mono',monospace;
+}
+.badge-cyan { background:var(--accent-dim); color:var(--accent); border:1px solid rgba(0,212,255,0.2); }
+.badge-green { background:var(--green-dim); color:var(--green); border:1px solid rgba(63,185,80,0.2); }
+.badge-amber { background:var(--amber-dim); color:var(--amber); border:1px solid rgba(210,153,34,0.2); }
+.badge-purple { background:var(--purple-dim); color:var(--purple); border:1px solid rgba(188,140,255,0.2); }
+.badge-red { background:var(--red-dim); color:var(--red); border:1px solid rgba(248,81,73,0.2); }
+.badge-dim { background:var(--surface2); color:var(--text-dim); border:1px solid var(--border); }
+
+/* LAYOUT */
+.main { padding:24px 28px; max-width:1600px; }
+
+/* KPI TILES */
+.kpi-row { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
+@media(max-width:1100px) { .kpi-row { grid-template-columns:repeat(3,1fr); } }
+@media(max-width:700px) { .kpi-row { grid-template-columns:1fr 1fr; } }
+.kpi {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:16px 18px;
+  position:relative;
+  overflow:hidden;
+}
+.kpi::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--accent);
+}
+.kpi.green::before { background:var(--green); }
+.kpi.amber::before { background:var(--amber); }
+.kpi.purple::before { background:var(--purple); }
+.kpi.red::before { background:var(--red); }
+.kpi-label { font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
+.kpi-value { font-family:'Space Mono',monospace; font-size:26px; font-weight:700; line-height:1; color:var(--text); }
+.kpi-sub { font-size:11px; color:var(--text-dim); margin-top:6px; font-family:'Space Mono',monospace; }
+
+/* SECTIONS */
+.section-title { font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:14px; }
+.card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:20px;
+  margin-bottom:18px;
+}
+
+/* CHARTS GRID */
+.charts-top { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+.charts-mid { display:grid; grid-template-columns:2fr 1fr; gap:18px; margin-bottom:18px; }
+.charts-bot { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px; }
+@media(max-width:1100px) { .charts-top,.charts-mid,.charts-bot { grid-template-columns:1fr; } }
+.chart-wrap { position:relative; height:240px; }
+.chart-wrap.tall { height:280px; }
+
+/* FILTERS */
+.filter-bar { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
+.filter-btn {
+  padding:5px 14px; border-radius:5px; font-size:11px; font-weight:600;
+  background:var(--surface2); color:var(--text-dim); border:1px solid var(--border);
+  cursor:pointer; transition:all 0.15s; font-family:'Syne',sans-serif;
+}
+.filter-btn:hover { border-color:var(--border-bright); color:var(--text); }
+.filter-btn.active { background:var(--accent-dim); color:var(--accent); border-color:rgba(0,212,255,0.4); }
+.filter-btn.ms.active { background:rgba(0,212,255,0.1); color:var(--ms-color); border-color:rgba(0,212,255,0.4); }
+.filter-btn.fl.active { background:rgba(63,185,80,0.1); color:var(--fl-color); border-color:rgba(63,185,80,0.4); }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+thead th { padding:9px 12px; border-bottom:2px solid var(--border-bright); color:var(--text-muted); font-size:10px; text-transform:uppercase; letter-spacing:0.6px; font-weight:700; white-space:nowrap; text-align:left; }
+tbody td { padding:9px 12px; border-bottom:1px solid var(--border); font-size:12px; vertical-align:middle; }
+tbody tr:hover { background:rgba(255,255,255,0.02); }
+.tbl-money { font-family:'Space Mono',monospace; font-weight:700; }
+.loc-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; }
+.loc-ms { background:var(--ms-color); }
+.loc-fl { background:var(--fl-color); }
+.sync-badge { display:inline-block; padding:2px 7px; border-radius:3px; font-size:10px; font-weight:700; }
+.sync-yes { background:var(--green-dim); color:var(--green); }
+.sync-refunded { background:var(--red-dim); color:var(--red); }
+.sync-pended { background:var(--amber-dim); color:var(--amber); }
+.sync-select { background:var(--purple-dim); color:var(--purple); }
+tr.hidden { display:none; }
+
+/* LEADERBOARD */
+.lb-list { display:flex; flex-direction:column; gap:8px; }
+.lb-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--surface2); border-radius:6px; border:1px solid var(--border); }
+.lb-rank { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:var(--text-muted); width:20px; }
+.lb-rank.gold { color:#f5a623; }
+.lb-rank.silver { color:#8b949e; }
+.lb-rank.bronze { color:#cd7f32; }
+.lb-name { flex:1; font-size:13px; font-weight:600; }
+.lb-loc { font-size:10px; color:var(--text-muted); }
+.lb-bar-wrap { flex:2; height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; }
+.lb-bar { height:100%; border-radius:3px; background:var(--accent); transition:width 0.6s; }
+.lb-bar.fl { background:var(--green); }
+.lb-val { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:var(--accent); white-space:nowrap; }
+.lb-val.fl { color:var(--green); }
+
+/* PRODUCT CARDS */
+.prod-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+.prod-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:7px;
+  padding:14px; text-align:center;
+}
+.prod-name { font-size:11px; font-weight:700; color:var(--text-dim); margin-bottom:8px; line-height:1.3; }
+.prod-rev { font-family:'Space Mono',monospace; font-size:18px; font-weight:700; color:var(--accent); }
+.prod-qty { font-size:10px; color:var(--text-muted); margin-top:4px; }
+
+/* STAT PAIRS */
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stat-item { background:var(--surface2); border-radius:6px; padding:12px; border:1px solid var(--border); }
+.stat-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.stat-val { font-family:'Space Mono',monospace; font-size:16px; font-weight:700; }
+
+/* STICKY FILTER BAR */
+.sticky-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(7,9,14,0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-bright);
+  padding: 9px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.sticky-bar .filter-group { display:flex; align-items:center; gap:6px; }
+.sticky-bar .filter-label { font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.7px; white-space:nowrap; }
+.sticky-bar .sep { width:1px; height:20px; background:var(--border-bright); }
+
+/* STAFF DROPDOWN */
+.staff-select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.staff-select:hover, .staff-select:focus { border-color: var(--border-bright); }
+.staff-select.ms { border-left: 2px solid var(--ms-color); }
+.staff-select.fl { border-left: 2px solid var(--fl-color); }
+
+/* FOOTER */
+.footer { padding:20px 28px; border-top:1px solid var(--border); font-size:11px; color:var(--text-muted); font-family:'Space Mono',monospace; display:flex; gap:20px; flex-wrap:wrap; }
+/* ===== AUTH GATE ===== */
+#auth-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  flex-direction: column;
+}
+#auth-gate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 55% at 50% 40%, rgba(0,212,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+#auth-gate.hidden { display: none !important; }
+
+.gate-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  padding: 0 24px;
+}
+.gate-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 24px;
+  animation: gate-pulse 2.5s ease-in-out infinite;
+}
+@keyframes gate-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.15); }
+  50% { box-shadow: 0 0 0 12px rgba(0,212,255,0); }
+}
+.gate-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.gate-eyebrow::before, .gate-eyebrow::after {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--border-bright);
+}
+.gate-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.8px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.gate-title span { color: var(--accent); }
+.gate-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.gate-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gate-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  text-align: center;
+  letter-spacing: 3px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.gate-input::placeholder { color: var(--text-muted); letter-spacing: 1px; font-size: 11px; }
+.gate-input:focus {
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.06);
+}
+.gate-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #07090e;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.gate-btn:hover { opacity: 0.88; }
+.gate-btn:active { transform: scale(0.98); }
+.gate-error {
+  font-size: 11px;
+  color: var(--red);
+  text-align: center;
+  min-height: 16px;
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.5px;
+}
+.gate-footer-txt {
+  position: absolute;
+  bottom: 32px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  opacity: 0.4;
+}
+.gate-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  margin: 6px 0;
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-6px); }
+  40%,80% { transform: translateX(6px); }
+}
+.shake { animation: shake 0.35s ease; border-color: var(--red) !important; }
+
+#page-content { display: none; }
+#page-content.unlocked { display: block; }
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <div class="gate-inner">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-eyebrow">Restricted Access</div>
+    <div class="gate-title">POS Sales <span>Dashboard</span></div>
+    <div class="gate-subtitle">Enter your access code to view sales data and reports.</div>
+    <form class="gate-form" onsubmit="return checkGate()">
+      <input class="gate-input" id="gate-pwd" type="password" placeholder="Access code" autocomplete="off" autofocus>
+      <div class="gate-error" id="gate-error"></div>
+      <div class="gate-divider"></div>
+      <button class="gate-btn" type="submit">Authenticate →</button>
+    </form>
+  </div>
+  <div class="gate-footer-txt">Unicity International · POS Team Only</div>
+</div>
+
+<div id="page-content">
+<!-- STICKY FILTER BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="filter-group">
+    <span class="filter-label">Location</span>
+    <button class="filter-btn active" onclick="filterTable('loc','all',this)">All</button>
+    <button class="filter-btn ms" onclick="filterTable('loc','Mississippi Location',this)">Mississippi</button>
+    <button class="filter-btn fl" onclick="filterTable('loc','Florida Location',this)">Florida</button>
+  </div>
+  <div class="sep"></div>
+  <div class="filter-group">
+    <span class="filter-label">Sync</span>
+    <button class="filter-btn active" onclick="filterTable('sync','all',this)">All</button>
+    <button class="filter-btn" onclick="filterTable('sync','Yes',this)">Synced</button>
+    <button class="filter-btn" onclick="filterTable('sync','Pended',this)">Pended</button>
+    <button class="filter-btn" onclick="filterTable('sync','Refunded',this)">Refunded</button>
+  </div>
+  <div class="sep"></div>
+  <div class="filter-group" style="margin-left:auto;gap:8px;">
+    <span class="filter-label" style="color:var(--ms-color);">MS Staff</span>
+    <select class="staff-select ms" id="msStaffSelect" onchange="filterStaff()">
+      <option value="all">All Staff</option>
+    </select>
+    <span class="filter-label" style="color:var(--fl-color);">FL Staff</span>
+    <select class="staff-select fl" id="flStaffSelect" onchange="filterStaff()">
+      <option value="all">All Staff</option>
+    </select>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>POS Sales <span>Dashboard</span></h1>
+    <div class="sub">Source: pos-slaes.csv &nbsp;|&nbsp; Feb 23, 2026 – Mar 03, 2026</div>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-cyan" id="hdr-orders">📦 38 Orders</span>
+    <span class="badge badge-green" id="hdr-rev">💵 $7,169.29 Revenue</span>
+    <span class="badge badge-purple" id="hdr-staff">10 Staff</span>
+    <span class="badge badge-dim" id="hdr-locs">2 Locations</span>
+    <span class="badge badge-dim">Built 2026-03-05 13:10</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- KPI TILES -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value mono" id="kpi-orders">38</div>
+      <div class="kpi-sub">Active (excl. refunds)</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-value mono" id="kpi-rev">$7,169.29</div>
+      <div class="kpi-sub">incl. tax &amp; shipping</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-label">Subtotal</div>
+      <div class="kpi-value mono" id="kpi-sub">$6,828.00</div>
+      <div class="kpi-sub">before tax</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Avg Order</div>
+      <div class="kpi-value mono" id="kpi-avg">$188.67</div>
+      <div class="kpi-sub">per transaction</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">Tax Collected</div>
+      <div class="kpi-value mono" id="kpi-tax">$341.29</div>
+      <div class="kpi-sub" id="kpi-tax-pct">4.8% of revenue</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1: Daily Revenue + Location Comparison -->
+  <div class="charts-top">
+    <div class="card">
+      <div class="section-title">Daily Revenue by Location</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartDailyRev"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Daily Order Count</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartDailyOrders"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBSCRIPTION ROW -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;">
+
+    <!-- Donut: overall split -->
+    <div class="card">
+      <div class="section-title">Subscription vs One-Time</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartSubDonut"></canvas>
+      </div>
+    </div>
+
+    <!-- Grouped bar: sub type by location -->
+    <div class="card">
+      <div class="section-title">Sub Type by Location</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartSubLoc"></canvas>
+      </div>
+    </div>
+
+    <!-- KPI summary tiles -->
+    <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;gap:12px;">
+      <div class="section-title">Subscription Breakdown</div>
+      <div id="subKpiTiles" style="display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center;"></div>
+    </div>
+
+  </div>
+
+  <!-- CHARTS ROW 2: Staff Performance + Donut -->
+  <div class="charts-mid">
+    <div class="card">
+      <div class="section-title">Staff Revenue Performance</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartStaffBar"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Revenue by Location</div>
+      <div class="chart-wrap tall">
+        <canvas id="chartLocDonut"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 3: Products + Sponsor + Staff Orders -->
+  <div class="charts-bot">
+    <div class="card">
+      <div class="section-title">Product Revenue Mix</div>
+      <div class="chart-wrap">
+        <canvas id="chartProducts"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Top Sponsors</div>
+      <div class="chart-wrap">
+        <canvas id="chartSponsors"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Staff Order Count</div>
+      <div class="chart-wrap">
+        <canvas id="chartStaffOrders"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF LEADERBOARD BY LOCATION + PRODUCT CARDS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;">
+    <div class="card" style="border-top:2px solid var(--ms-color);">
+      <div class="section-title" style="color:var(--ms-color);">&#9679; Mississippi Leaderboard</div>
+      <div class="lb-list" id="leaderboard-ms"></div>
+    </div>
+    <div class="card" style="border-top:2px solid var(--fl-color);">
+      <div class="section-title" style="color:var(--fl-color);">&#9679; Florida Leaderboard</div>
+      <div class="lb-list" id="leaderboard-fl"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Products Sold</div>
+      <div class="prod-grid" id="productGrid"></div>
+      <div style="margin-top:14px;">
+        <div class="section-title" style="margin-bottom:10px;">Location Summary</div>
+        <div class="stat-grid" id="locStats"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER TABLE -->
+  <div class="card">
+    <div class="section-title">Order Detail</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Date</th>
+            <th>Employee</th>
+            <th>Location</th>
+            <th>Sponsor</th>
+            <th>Items</th>
+            <th>Subtotal</th>
+            <th>Tax</th>
+            <th>Total</th>
+            <th>Sync</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>Source: pos-slaes.csv</span>
+  <span>Date range: Feb 23, 2026 – Mar 03, 2026</span>
+  <span>Orders: 38 active + 1 refunded</span>
+  <span>Generated: 2026-03-05 13:10</span>
+</div>
+
+<script>
+const ORDERS = [{"order":"#1052","date":"03/03 19:28","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":169.0,"subtotal":169.0,"taxes":0.0,"items":"Br / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Naples","sub":"One-Time"},{"order":"#1051","date":"03/03 19:09","employee":"Joe Orton","location":"Mississippi Location","sponsor":"Joe Orton","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1050","date":"03/03 17:07","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":159.0,"subtotal":159.0,"taxes":0.0,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Fort Myers","sub":"Subscription"},{"order":"#1049","date":"03/02 18:48","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":361.66,"subtotal":338.0,"taxes":23.66,"items":"Or / Lemon x2","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"One-Time"},{"order":"#1048","date":"03/02 18:40","employee":"Darren Wood","location":"Mississippi Location","sponsor":"Christopher Cutler","total":329.56,"subtotal":308.0,"taxes":21.56,"items":"Br / Lemon x1, Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1047","date":"03/02 18:27","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1046","date":"03/02 18:10","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1045","date":"03/02 17:35","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":159.0,"subtotal":159.0,"taxes":0.0,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Naples","sub":"Subscription"},{"order":"#1044","date":"03/02 17:33","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1043","date":"03/02 10:42","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":159.0,"subtotal":159.0,"taxes":0.0,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Naples","sub":"Subscription"},{"order":"#1042","date":"03/01 13:05","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":159.0,"subtotal":159.0,"taxes":0.0,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Naples","sub":"Subscription"},{"order":"#1041","date":"03/01 11:47","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":169.0,"subtotal":169.0,"taxes":0.0,"items":"Or / Lemon x1","sync":"Pended","payment":"","city":"","sub":"One-Time"},{"order":"#1040","date":"02/28 19:23","employee":"Troy Hatch","location":"Mississippi Location","sponsor":"Troy Hatch","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1039","date":"02/28 16:52","employee":"Chris Comer","location":"Florida Location","sponsor":"Chris Comer","total":169.0,"subtotal":169.0,"taxes":0.0,"items":"Br / Lemon x1","sync":"Pended","payment":"","city":"","sub":"One-Time"},{"order":"#1038","date":"02/28 15:46","employee":"Christopher Cutler","location":"Mississippi Location","sponsor":"Christopher Cutler","total":180.83,"subtotal":169.0,"taxes":11.83,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1037","date":"02/28 15:17","employee":"Christopher Cutler","location":"Mississippi Location","sponsor":"Christopher Cutler","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1036","date":"02/28 14:37","employee":"Joe Orton","location":"Mississippi Location","sponsor":"Joe Orton","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1035","date":"02/28 12:39","employee":"Christopher Cutler","location":"Mississippi Location","sponsor":"Christopher Cutler","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1034","date":"02/27 18:07","employee":"Colton Kelley","location":"Mississippi Location","sponsor":"Colton Kelley","total":510.39,"subtotal":477.0,"taxes":33.39,"items":"Or / Lemon x3","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1033","date":"02/27 16:37","employee":"Darren Wood","location":"Mississippi Location","sponsor":"Darren Wood","total":180.83,"subtotal":169.0,"taxes":11.83,"items":"Br / Lemon x1","sync":"Yes","payment":"Cash","city":"","sub":"One-Time"},{"order":"#1032","date":"02/27 16:36","employee":"Trent Tueller","location":"Mississippi Location","sponsor":"Trent Tueller","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1031","date":"02/27 16:34","employee":"Troy Hatch","location":"Mississippi Location","sponsor":"Troy Hatch","total":180.83,"subtotal":169.0,"taxes":11.83,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1030","date":"02/27 15:18","employee":"Chris Comer","location":"Florida Location","sponsor":"Troy Hatch","total":169.0,"subtotal":169.0,"taxes":0.0,"items":"Br / Lemon x1","sync":"Pended","payment":"","city":"","sub":"One-Time"},{"order":"#1029","date":"02/27 15:10","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Canton","sub":"Subscription"},{"order":"#1028","date":"02/27 15:03","employee":"clowardcason@gmail.com User","location":"Mississippi Location","sponsor":"Cason Cloward","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1026","date":"02/27 14:44","employee":"Darren Wood","location":"Mississippi Location","sponsor":"Darren Wood","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1027","date":"02/27 14:44","employee":"Troy Hatch","location":"Mississippi Location","sponsor":"Troy Hatch","total":180.83,"subtotal":169.0,"taxes":11.83,"items":"Br / Lemon / Lemon Ginger x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1025","date":"02/27 14:36","employee":"Craig Fenn","location":"Florida Location","sponsor":"Craig Fenn","total":169.0,"subtotal":169.0,"taxes":0.0,"items":"Br / Lemon x1","sync":"Pended","payment":"","city":"","sub":"One-Time"},{"order":"#1024","date":"02/26 19:33","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":180.83,"subtotal":169.0,"taxes":11.83,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1023","date":"02/26 18:10","employee":"clowardcason@gmail.com User","location":"Mississippi Location","sponsor":"Cason Cloward","total":180.83,"subtotal":169.0,"taxes":11.83,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1022","date":"02/26 17:33","employee":"Darren Wood","location":"Mississippi Location","sponsor":"Darren Wood","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Br / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1021","date":"02/26 15:45","employee":"Trent Tueller","location":"Mississippi Location","sponsor":"Trent Tueller","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Madison","sub":"Subscription"},{"order":"#1019","date":"02/25 15:18","employee":"Darren Wood","location":"Mississippi Location","sponsor":"Darren Wood","total":170.13,"subtotal":159.0,"taxes":11.13,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"},{"order":"#1018","date":"02/24 18:24","employee":"Joe Orton","location":"Mississippi Location","sponsor":"Joe Orton","total":174.07,"subtotal":169.0,"taxes":5.07,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1017","date":"02/24 18:11","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":163.77,"subtotal":159.0,"taxes":4.77,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Flowood","sub":"Subscription"},{"order":"#1016","date":"02/24 17:19","employee":"Joe Orton","location":"Mississippi Location","sponsor":"Joe Orton","total":174.07,"subtotal":169.0,"taxes":5.07,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1011","date":"02/24 12:31","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":174.07,"subtotal":169.0,"taxes":5.07,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"","sub":"One-Time"},{"order":"#1010","date":"02/23 17:45","employee":"Josh Snyder","location":"Mississippi Location","sponsor":"Josh Snyder","total":163.77,"subtotal":159.0,"taxes":4.77,"items":"Or / Lemon x1","sync":"Yes","payment":"Shopify Payments","city":"Flowood","sub":"Subscription"},{"order":"#1009","date":"02/23 16:07","employee":"Joe Orton","location":"Mississippi Location","sponsor":"Joe Orton","total":163.77,"subtotal":159.0,"taxes":4.77,"items":"Or / Lemon x1","sync":"Refunded","payment":"Shopify Payments","city":"Brandon","sub":"Subscription"}];
+const CHART_DAYS = ["02/23", "02/24", "02/25", "02/26", "02/27", "02/28", "03/01", "03/02", "03/03"];
+const CHART_MS = [163.77, 685.98, 170.13, 701.9200000000001, 1733.4, 861.35, 0, 1201.6100000000001, 170.13];
+const CHART_FL = [0, 0, 0, 0, 338.0, 169.0, 328.0, 318.0, 328.0];
+const CHART_ORDERS = [1, 4, 1, 4, 10, 6, 2, 7, 3];
+const EMP_NAMES = ["Josh Snyder", "Chris Comer", "Darren Wood", "Joe Orton", "Troy Hatch", "Christopher Cutler", "Colton Kelley", "clowardcason@gmail.com User", "Trent Tueller", "Craig Fenn"];
+const EMP_TOTALS = [1724.62, 1312.0, 1020.78, 688.4, 531.79, 521.09, 510.39, 350.96, 340.26, 169.0];
+const EMP_ORDERS = [9, 8, 5, 4, 3, 3, 1, 2, 2, 1];
+const EMP_LOCS = ["Mississippi Location", "Florida Location", "Mississippi Location", "Mississippi Location", "Mississippi Location", "Mississippi Location", "Mississippi Location", "Mississippi Location", "Mississippi Location", "Florida Location"];
+const PROD_NAMES = ["Or / Lemon", "Br / Lemon", "Br / Lemon / Lemon Ginger", "Or / Lemon / Lemon Ginger", "Br / Lemon Ginger"];
+const PROD_REV = [2763.0, 2455.0, 1133.0, 318.0, 169.0];
+const PROD_QTY = [17, 15, 7, 2, 1];
+const LOC_NAMES = ["Mississippi Location", "Florida Location"];
+const LOC_TOTALS = [5688.29, 1481.0];
+const LOC_ORDERS = [29, 9];
+const SPONSOR_DATA = [{"name": "Josh Snyder", "total": 1724.62, "orders": 9}, {"name": "Chris Comer", "total": 1143.0, "orders": 7}, {"name": "Christopher Cutler", "total": 850.65, "orders": 4}, {"name": "Troy Hatch", "total": 700.79, "orders": 4}, {"name": "Darren Wood", "total": 691.22, "orders": 4}, {"name": "Joe Orton", "total": 688.4, "orders": 4}, {"name": "Colton Kelley", "total": 510.39, "orders": 1}, {"name": "Cason Cloward", "total": 350.96, "orders": 2}];
+
+const PALETTE = {
+  ms: '#00d4ff',
+  fl: '#3fb950',
+  accent: '#00d4ff',
+  amber: '#d29922',
+  purple: '#bc8cff',
+  red: '#f85149',
+};
+
+const BASE_OPTS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color: '#8b949e', font: { family: 'Space Mono', size: 10 }, boxWidth: 12 } },
+    tooltip: { backgroundColor: '#161b24', borderColor: '#30363d', borderWidth: 1,
+      titleColor: '#e6edf3', bodyColor: '#8b949e', titleFont: { family: 'Space Mono', size: 11 },
+      bodyFont: { family: 'Space Mono', size: 11 } }
+  },
+  scales: {
+    x: { grid: { color: 'rgba(48,54,61,0.5)' }, ticks: { color: '#8b949e', font: { family: 'Space Mono', size: 10 } } },
+    y: { grid: { color: 'rgba(48,54,61,0.5)' }, ticks: { color: '#8b949e', font: { family: 'Space Mono', size: 10 },
+      callback: v => '$' + v.toLocaleString() } }
+  }
+};
+
+// ── Chart instances (stored so we can update them)
+let chartDailyRev, chartDailyOrders, chartStaffBar, chartLocDonut, chartProducts, chartSponsors, chartStaffOrders, chartSubDonut, chartSubLoc;
+
+// ── Build chart options helpers
+function makeBarOpts(horizontal, yCallback) {
+  return {
+    indexAxis: horizontal ? 'y' : 'x',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { ...BASE_OPTS.plugins, legend: { display: false } },
+    scales: {
+      x: { ...BASE_OPTS.scales.x, ticks: { ...BASE_OPTS.scales.x.ticks, callback: horizontal ? (v => '$' + v.toLocaleString()) : undefined } },
+      y: { ...BASE_OPTS.scales.y, grid: { display: horizontal ? false : undefined }, ticks: { color: horizontal ? '#e6edf3' : '#8b949e', font: { family: 'Space Mono', size: 10 } } }
+    }
+  };
+}
+
+// ── Init all charts with initial data
+function initCharts() {
+  chartDailyRev = new Chart(document.getElementById('chartDailyRev'), {
+    type: 'bar',
+    data: { labels: CHART_DAYS, datasets: [
+      { label: 'Mississippi', data: CHART_MS, backgroundColor: 'rgba(0,212,255,0.7)', borderColor: PALETTE.ms, borderWidth: 1, borderRadius: 3 },
+      { label: 'Florida',     data: CHART_FL, backgroundColor: 'rgba(63,185,80,0.7)',  borderColor: PALETTE.fl, borderWidth: 1, borderRadius: 3 },
+    ]},
+    options: { ...BASE_OPTS, scales: { ...BASE_OPTS.scales, x: BASE_OPTS.scales.x, y: { ...BASE_OPTS.scales.y, stacked: true } }, stacked: true }
+  });
+
+  chartDailyOrders = new Chart(document.getElementById('chartDailyOrders'), {
+    type: 'line',
+    data: { labels: CHART_DAYS, datasets: [
+      {
+        label: 'Mississippi', data: [1,4,1,4,8,5,0,5,1],
+        borderColor: PALETTE.ms, backgroundColor: 'rgba(0,212,255,0.08)',
+        borderWidth: 2, pointBackgroundColor: PALETTE.ms, pointRadius: 4,
+        fill: true, tension: 0.3,
+      },
+      {
+        label: 'Florida', data: [0,0,0,0,2,1,2,2,2],
+        borderColor: PALETTE.fl, backgroundColor: 'rgba(63,185,80,0.08)',
+        borderWidth: 2, pointBackgroundColor: PALETTE.fl, pointRadius: 4,
+        fill: true, tension: 0.3,
+      }
+    ]},
+    options: { ...BASE_OPTS,
+      scales: {
+        x: BASE_OPTS.scales.x,
+        y: { ...BASE_OPTS.scales.y, ticks: { ...BASE_OPTS.scales.y.ticks, callback: v => v + ' orders' }, beginAtZero: true }
+      }
+    }
+  });
+
+  chartStaffBar = new Chart(document.getElementById('chartStaffBar'), {
+    type: 'bar',
+    data: { labels: EMP_NAMES, datasets: [{
+      label: 'Revenue', data: EMP_TOTALS,
+      backgroundColor: EMP_LOCS.map(l => l.includes('Florida') ? 'rgba(63,185,80,0.75)' : 'rgba(0,212,255,0.75)'),
+      borderColor: EMP_LOCS.map(l => l.includes('Florida') ? PALETTE.fl : PALETTE.ms),
+      borderWidth: 1, borderRadius: 4,
+    }]},
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins: { ...BASE_OPTS.plugins, legend: { display: false } },
+      scales: { x: { ...BASE_OPTS.scales.x, ticks: { ...BASE_OPTS.scales.x.ticks, callback: v => '$' + v.toLocaleString() } },
+        y: { ...BASE_OPTS.scales.y, grid: { display: false }, ticks: { color: '#e6edf3', font: { family: 'Space Mono', size: 10 } } } }
+    }
+  });
+
+  chartLocDonut = new Chart(document.getElementById('chartLocDonut'), {
+    type: 'doughnut',
+    data: { labels: LOC_NAMES, datasets: [{
+      data: LOC_TOTALS,
+      backgroundColor: ['rgba(0,212,255,0.8)', 'rgba(63,185,80,0.8)'],
+      borderColor: ['#00d4ff', '#3fb950'], borderWidth: 2, hoverOffset: 8,
+    }]},
+    options: { responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins: { legend: { position:'bottom', labels: { color:'#8b949e', font:{ family:'Space Mono', size:10 }, boxWidth:12, padding:16 } }, tooltip: BASE_OPTS.plugins.tooltip }
+    }
+  });
+
+  chartProducts = new Chart(document.getElementById('chartProducts'), {
+    type: 'bar',
+    data: { labels: PROD_NAMES, datasets: [{
+      label: 'Revenue', data: PROD_REV,
+      backgroundColor: 'rgba(188,140,255,0.75)', borderColor: PALETTE.purple, borderWidth: 1, borderRadius: 4,
+    }]},
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins: { ...BASE_OPTS.plugins, legend: { display: false } },
+      scales: { x: { ...BASE_OPTS.scales.x, ticks: { ...BASE_OPTS.scales.x.ticks, callback: v => '$' + v.toLocaleString() } },
+        y: { grid: { display: false }, ticks: { color: '#8b949e', font: { family:'Space Mono', size:9 } } } }
+    }
+  });
+
+  chartSponsors = new Chart(document.getElementById('chartSponsors'), {
+    type: 'bar',
+    data: { labels: SPONSOR_DATA.map(s => s.name), datasets: [{
+      label: 'Revenue', data: SPONSOR_DATA.map(s => s.total),
+      backgroundColor: 'rgba(210,153,34,0.75)', borderColor: PALETTE.amber, borderWidth: 1, borderRadius: 4,
+    }]},
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins: { ...BASE_OPTS.plugins, legend: { display: false } },
+      scales: { x: { ...BASE_OPTS.scales.x, ticks: { ...BASE_OPTS.scales.x.ticks, callback: v => '$' + v.toLocaleString() } },
+        y: { grid: { display: false }, ticks: { color: '#8b949e', font: { family:'Space Mono', size:10 } } } }
+    }
+  });
+
+  chartStaffOrders = new Chart(document.getElementById('chartStaffOrders'), {
+    type: 'bar',
+    data: { labels: EMP_NAMES, datasets: [{
+      label: 'Orders', data: EMP_ORDERS,
+      backgroundColor: EMP_LOCS.map(l => l.includes('Florida') ? 'rgba(63,185,80,0.6)' : 'rgba(0,212,255,0.6)'),
+      borderColor: EMP_LOCS.map(l => l.includes('Florida') ? PALETTE.fl : PALETTE.ms),
+      borderWidth: 1, borderRadius: 4,
+    }]},
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins: { ...BASE_OPTS.plugins, legend: { display: false } },
+      scales: { x: { ...BASE_OPTS.scales.x, ticks: { ...BASE_OPTS.scales.x.ticks, callback: v => v + ' orders' }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { color: '#e6edf3', font: { family:'Space Mono', size:10 } } } }
+    }
+  });
+
+  // Subscription donut
+  chartSubDonut = new Chart(document.getElementById('chartSubDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Subscription', 'One-Time'],
+      datasets: [{
+        data: [24, 15],
+        backgroundColor: ['rgba(188,140,255,0.85)', 'rgba(210,153,34,0.75)'],
+        borderColor: ['#bc8cff', '#d29922'],
+        borderWidth: 2, hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8b949e', font: { family: 'Space Mono', size: 10 }, boxWidth: 12, padding: 16 } },
+        tooltip: { ...BASE_OPTS.plugins.tooltip,
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} orders` }
+        }
+      }
+    }
+  });
+
+  // Grouped bar: sub vs one-time per location
+  chartSubLoc = new Chart(document.getElementById('chartSubLoc'), {
+    type: 'bar',
+    data: {
+      labels: ['Mississippi', 'Florida'],
+      datasets: [
+        { label: 'Subscription', data: [19, 4], backgroundColor: 'rgba(188,140,255,0.8)', borderColor: '#bc8cff', borderWidth: 1, borderRadius: 4 },
+        { label: 'One-Time',     data: [10, 5], backgroundColor: 'rgba(210,153,34,0.75)', borderColor: '#d29922', borderWidth: 1, borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { ...BASE_OPTS.plugins, legend: { position: 'bottom', labels: { color: '#8b949e', font: { family: 'Space Mono', size: 10 }, boxWidth: 10, padding: 14 } } },
+      scales: {
+        x: { ...BASE_OPTS.scales.x, ticks: { color: '#8b949e', font: { family: 'Space Mono', size: 10 } } },
+        y: { ...BASE_OPTS.scales.y, ticks: { ...BASE_OPTS.scales.y.ticks, callback: v => v + ' orders' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ── Compute derived data from filtered ORDERS
+function computeFromOrders(filtered) {
+  const days = [...new Set(ORDERS.map(o => o.date.slice(0,5)))].sort();
+  const byDayMs = {}, byDayFl = {}, byDayAll = {}, byDayMsOrders = {}, byDayFlOrders = {};
+  days.forEach(d => { byDayMs[d] = 0; byDayFl[d] = 0; byDayAll[d] = 0; byDayMsOrders[d] = 0; byDayFlOrders[d] = 0; });
+
+  const empTotals = {}, empOrders = {}, empLocs = {};
+  const prodRev = {}, prodQty = {};
+  const sponsorTotals = {}, sponsorOrders = {};
+  const locTotals = {}, locOrders = {};
+
+  filtered.forEach(o => {
+    const day = o.date.slice(0,5);
+    if (o.location.includes('Mississippi')) { byDayMs[day] = (byDayMs[day]||0) + o.total; byDayMsOrders[day] = (byDayMsOrders[day]||0) + 1; }
+    else { byDayFl[day] = (byDayFl[day]||0) + o.total; byDayFlOrders[day] = (byDayFlOrders[day]||0) + 1; }
+    byDayAll[day] = (byDayAll[day]||0) + 1;
+
+    empTotals[o.employee] = (empTotals[o.employee]||0) + o.total;
+    empOrders[o.employee] = (empOrders[o.employee]||0) + 1;
+    empLocs[o.employee] = o.location;
+
+    if (o.items) {
+      o.items.split(', ').forEach(item => {
+        const m = item.match(/^(.+?) x(\d+)$/);
+        if (m) {
+          const name = m[1], qty = parseInt(m[2]);
+          prodRev[name] = (prodRev[name]||0) + qty * (o.total / (o.items.split(', ').length || 1));
+          prodQty[name] = (prodQty[name]||0) + qty;
+        }
+      });
+    }
+
+    sponsorTotals[o.sponsor] = (sponsorTotals[o.sponsor]||0) + o.total;
+    sponsorOrders[o.sponsor] = (sponsorOrders[o.sponsor]||0) + 1;
+
+    locTotals[o.location] = (locTotals[o.location]||0) + o.total;
+    locOrders[o.location] = (locOrders[o.location]||0) + 1;
+  });
+
+  const empEntries = Object.entries(empTotals).sort((a,b) => b[1]-a[1]);
+  const empNames = empEntries.map(e => e[0]);
+  const empTotalArr = empEntries.map(e => Math.round(e[1]*100)/100);
+  const empOrderArr = empEntries.map(e => empOrders[e[0]]);
+  const empLocArr = empEntries.map(e => empLocs[e[0]]||'');
+
+  const prodEntries = Object.entries(prodRev).sort((a,b) => b[1]-a[1]);
+  const sponsorEntries = Object.entries(sponsorTotals).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const locEntries = Object.entries(locTotals).sort((a,b) => b[1]-a[1]);
+
+  return {
+    days,
+    msRev: days.map(d => Math.round((byDayMs[d]||0)*100)/100),
+    flRev: days.map(d => Math.round((byDayFl[d]||0)*100)/100),
+    orderCounts: days.map(d => byDayAll[d]||0),
+    msOrders: days.map(d => byDayMsOrders[d]||0),
+    flOrders: days.map(d => byDayFlOrders[d]||0),
+    subCount: filtered.filter(o => o.sub === 'Subscription').length,
+    oneTimeCount: filtered.filter(o => o.sub === 'One-Time').length,
+    subRev: Math.round(filtered.filter(o => o.sub === 'Subscription').reduce((s,o) => s+o.total,0)*100)/100,
+    oneTimeRev: Math.round(filtered.filter(o => o.sub === 'One-Time').reduce((s,o) => s+o.total,0)*100)/100,
+    msSubCount: filtered.filter(o => o.sub === 'Subscription' && o.location.includes('Mississippi')).length,
+    msOneTimeCount: filtered.filter(o => o.sub === 'One-Time' && o.location.includes('Mississippi')).length,
+    flSubCount: filtered.filter(o => o.sub === 'Subscription' && o.location.includes('Florida')).length,
+    flOneTimeCount: filtered.filter(o => o.sub === 'One-Time' && o.location.includes('Florida')).length,
+    empNames, empTotalArr, empOrderArr, empLocArr,
+    prodNames: prodEntries.map(e => e[0]),
+    prodRev: prodEntries.map(e => Math.round(e[1]*100)/100),
+    prodQty: prodEntries.map(e => prodQty[e[0]]||0),
+    sponsorNames: sponsorEntries.map(e => e[0]),
+    sponsorTotals: sponsorEntries.map(e => Math.round(e[1]*100)/100),
+    locNames: locEntries.map(e => e[0]),
+    locTotals: locEntries.map(e => Math.round(e[1]*100)/100),
+    locOrders: locEntries.map(e => locOrders[e[0]]||0),
+    totalRev: filtered.reduce((s,o) => s+o.total, 0),
+    totalOrders: filtered.length,
+  };
+}
+
+// ── Update all charts + KPIs + leaderboards from filtered data
+function applyFilters() {
+  const locF = activeLocFilter, syncF = activeSyncFilter, staffF = activeStaffFilter;
+
+  const filtered = ORDERS.filter(o => {
+    const locMatch = locF === 'all' || o.location === locF;
+    const syncMatch = syncF === 'all' || o.sync === syncF;
+    const staffMatch = staffF === 'all' || o.employee === staffF;
+    return locMatch && syncMatch && staffMatch;
+  });
+
+  // Update header badges
+  const activeFiltered = filtered.filter(o => o.sync.toLowerCase() !== 'refunded');
+  const filteredRev = activeFiltered.reduce((s, o) => s + o.total, 0);
+  const filteredSub = activeFiltered.reduce((s, o) => s + o.subtotal, 0);
+  const filteredTax = activeFiltered.reduce((s, o) => s + o.taxes, 0);
+  const filteredAvg = activeFiltered.length ? filteredRev / activeFiltered.length : 0;
+  const filteredStaff = new Set(activeFiltered.map(o => o.employee)).size;
+  const filteredLocs  = new Set(activeFiltered.map(o => o.location)).size;
+  const taxPct = filteredRev ? (filteredTax / filteredRev * 100).toFixed(1) : '0.0';
+  const fmt = (n) => n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  document.getElementById('hdr-orders').textContent = `📦 ${activeFiltered.length} Orders`;
+  document.getElementById('hdr-rev').textContent    = `💵 $${fmt(filteredRev)} Revenue`;
+  document.getElementById('hdr-staff').textContent  = `${filteredStaff} Staff`;
+  document.getElementById('hdr-locs').textContent   = `${filteredLocs} Location${filteredLocs !== 1 ? 's' : ''}`;
+
+  // Update KPI tiles
+  document.getElementById('kpi-orders').textContent  = activeFiltered.length;
+  document.getElementById('kpi-rev').textContent     = `$${fmt(filteredRev)}`;
+  document.getElementById('kpi-sub').textContent     = `$${fmt(filteredSub)}`;
+  document.getElementById('kpi-avg').textContent     = `$${fmt(filteredAvg)}`;
+  document.getElementById('kpi-tax').textContent     = `$${fmt(filteredTax)}`;
+  document.getElementById('kpi-tax-pct').textContent = `${taxPct}% of revenue`;
+
+  const d = computeFromOrders(filtered);
+
+  // Update charts
+  chartDailyRev.data.labels = d.days;
+  chartDailyRev.data.datasets[0].data = d.msRev;
+  chartDailyRev.data.datasets[1].data = d.flRev;
+  chartDailyRev.update();
+
+  chartDailyOrders.data.labels = d.days;
+  chartDailyOrders.data.datasets[0].data = d.msOrders;
+  chartDailyOrders.data.datasets[1].data = d.flOrders;
+  chartDailyOrders.update();
+
+  chartStaffBar.data.labels = d.empNames;
+  chartStaffBar.data.datasets[0].data = d.empTotalArr;
+  chartStaffBar.data.datasets[0].backgroundColor = d.empLocArr.map(l => l.includes('Florida') ? 'rgba(63,185,80,0.75)' : 'rgba(0,212,255,0.75)');
+  chartStaffBar.data.datasets[0].borderColor = d.empLocArr.map(l => l.includes('Florida') ? PALETTE.fl : PALETTE.ms);
+  chartStaffBar.update();
+
+  chartLocDonut.data.labels = d.locNames;
+  chartLocDonut.data.datasets[0].data = d.locTotals;
+  chartLocDonut.update();
+
+  chartProducts.data.labels = d.prodNames;
+  chartProducts.data.datasets[0].data = d.prodRev;
+  chartProducts.update();
+
+  chartSponsors.data.labels = d.sponsorNames;
+  chartSponsors.data.datasets[0].data = d.sponsorTotals;
+  chartSponsors.update();
+
+  chartStaffOrders.data.labels = d.empNames;
+  chartStaffOrders.data.datasets[0].data = d.empOrderArr;
+  chartStaffOrders.data.datasets[0].backgroundColor = d.empLocArr.map(l => l.includes('Florida') ? 'rgba(63,185,80,0.6)' : 'rgba(0,212,255,0.6)');
+  chartStaffOrders.data.datasets[0].borderColor = d.empLocArr.map(l => l.includes('Florida') ? PALETTE.fl : PALETTE.ms);
+  chartStaffOrders.update();
+
+  // Subscription charts
+  chartSubDonut.data.datasets[0].data = [d.subCount, d.oneTimeCount];
+  chartSubDonut.update();
+  chartSubLoc.data.datasets[0].data = [d.msSubCount, d.flSubCount];
+  chartSubLoc.data.datasets[1].data = [d.msOneTimeCount, d.flOneTimeCount];
+  chartSubLoc.update();
+
+  // Subscription KPI tiles
+  const subTotal = d.subCount + d.oneTimeCount || 1;
+  const subPct = Math.round(d.subCount / subTotal * 100);
+  const subAvg = d.subCount ? (d.subRev / d.subCount).toFixed(2) : '0.00';
+  const oneAvg = d.oneTimeCount ? (d.oneTimeRev / d.oneTimeCount).toFixed(2) : '0.00';
+  document.getElementById('subKpiTiles').innerHTML = `
+    <div style="background:rgba(188,140,255,0.07);border:1px solid rgba(188,140,255,0.2);border-radius:8px;padding:12px 14px;">
+      <div style="font-size:10px;color:#bc8cff;font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Subscriptions</div>
+      <div style="font-size:22px;font-weight:700;color:#bc8cff;font-family:'Space Mono',monospace;">${d.subCount} <span style="font-size:13px;opacity:.7;">orders</span></div>
+      <div style="font-size:11px;color:#8b949e;margin-top:4px;">$${d.subRev.toLocaleString('en-US',{minimumFractionDigits:2})} &middot; avg $${subAvg} &middot; ${subPct}% of orders</div>
+    </div>
+    <div style="background:rgba(210,153,34,0.07);border:1px solid rgba(210,153,34,0.2);border-radius:8px;padding:12px 14px;">
+      <div style="font-size:10px;color:#d29922;font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">One-Time</div>
+      <div style="font-size:22px;font-weight:700;color:#d29922;font-family:'Space Mono',monospace;">${d.oneTimeCount} <span style="font-size:13px;opacity:.7;">orders</span></div>
+      <div style="font-size:11px;color:#8b949e;margin-top:4px;">$${d.oneTimeRev.toLocaleString('en-US',{minimumFractionDigits:2})} &middot; avg $${oneAvg} &middot; ${100-subPct}% of orders</div>
+    </div>
+    <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.1);border-radius:8px;padding:10px 14px;">
+      <div style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Subscription Rate</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;">
+          <div style="width:${subPct}%;height:100%;background:linear-gradient(90deg,#bc8cff,#d29922);border-radius:3px;transition:width .4s;"></div>
+        </div>
+        <span style="font-family:'Space Mono',monospace;font-size:13px;color:#e0e0e0;font-weight:700;">${subPct}%</span>
+      </div>
+    </div>`;
+
+  // Update leaderboards
+  const lbMs = document.getElementById('leaderboard-ms');
+  const lbFl = document.getElementById('leaderboard-fl');
+  const ranks = ['#1','#2','#3'], rankClass = ['gold','silver','bronze'];
+
+  const msStaff = d.empNames.map((n,i) => ({name:n,total:d.empTotalArr[i],orders:d.empOrderArr[i],loc:d.empLocArr[i]})).filter(e => e.loc.includes('Mississippi'));
+  const flStaff = d.empNames.map((n,i) => ({name:n,total:d.empTotalArr[i],orders:d.empOrderArr[i],loc:d.empLocArr[i]})).filter(e => e.loc.includes('Florida'));
+  const maxMs = Math.max(...msStaff.map(e => e.total), 1);
+  const maxFl = Math.max(...flStaff.map(e => e.total), 1);
+
+  lbMs.innerHTML = msStaff.map((emp, i) => `
+    <div class="lb-item">
+      <span class="lb-rank ${i < 3 ? rankClass[i] : ''}">${i < 3 ? ranks[i] : '#'+(i+1)}</span>
+      <span class="lb-name">${emp.name}<br><span class="lb-loc">${emp.orders} orders</span></span>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(emp.total/maxMs*100)}%"></div></div>
+      <span class="lb-val">$${emp.total.toLocaleString('en-US',{minimumFractionDigits:2})}</span>
+    </div>`).join('');
+
+  lbFl.innerHTML = flStaff.map((emp, i) => `
+    <div class="lb-item">
+      <span class="lb-rank ${i < 3 ? rankClass[i] : ''}">${i < 3 ? ranks[i] : '#'+(i+1)}</span>
+      <span class="lb-name">${emp.name}<br><span class="lb-loc">${emp.orders} orders</span></span>
+      <div class="lb-bar-wrap"><div class="lb-bar fl" style="width:${Math.round(emp.total/maxFl*100)}%"></div></div>
+      <span class="lb-val fl">$${emp.total.toLocaleString('en-US',{minimumFractionDigits:2})}</span>
+    </div>`).join('');
+
+  // Update location stats
+  const ls = document.getElementById('locStats');
+  ls.innerHTML = d.locNames.map((name, i) => {
+    const isFl = name.includes('Florida');
+    const color = isFl ? 'var(--fl-color)' : 'var(--ms-color)';
+    return `<div class="stat-item">
+      <div class="stat-label"><span class="loc-dot ${isFl ? 'loc-fl' : 'loc-ms'}"></span>${name}</div>
+      <div class="stat-val" style="color:${color}">$${d.locTotals[i].toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:3px;font-family:'Space Mono',monospace;">${d.locOrders[i]} orders</div>
+    </div>`;
+  }).join('');
+
+  // Update order table
+  renderTable(locF, syncF, staffF);
+}
+
+// ── Order table
+function renderTable(locFilter, syncFilter, staffFilter) {
+  const tbody = document.getElementById('orderTableBody');
+  tbody.innerHTML = '';
+  ORDERS.forEach(o => {
+    if ((locFilter !== 'all' && o.location !== locFilter)) return;
+    if ((syncFilter !== 'all' && o.sync !== syncFilter)) return;
+    if ((staffFilter !== 'all' && o.employee !== staffFilter)) return;
+    const isFl = o.location.includes('Florida');
+    const syncClass = {Yes:'sync-yes', Refunded:'sync-refunded', Pended:'sync-pended', Select:'sync-select'}[o.sync] || '';
+    tbody.innerHTML += `
+      <tr>
+        <td class="mono" style="color:var(--accent);font-size:11px;">${o.order}</td>
+        <td class="mono" style="font-size:11px;color:var(--text-dim);">${o.date}</td>
+        <td style="font-size:12px;font-weight:600;">${o.employee}</td>
+        <td><span class="loc-dot ${isFl ? 'loc-fl' : 'loc-ms'}"></span><span style="font-size:11px;">${isFl ? 'Florida' : 'Mississippi'}</span></td>
+        <td style="font-size:11px;color:var(--text-dim);">${o.sponsor}</td>
+        <td style="font-size:11px;color:var(--text-dim);max-width:180px;">${o.items}</td>
+        <td class="tbl-money" style="color:var(--text-dim);">$${o.subtotal.toFixed(2)}</td>
+        <td class="tbl-money" style="color:var(--amber);">$${o.taxes.toFixed(2)}</td>
+        <td class="tbl-money" style="color:var(--green);">$${o.total.toFixed(2)}</td>
+        <td><span class="sync-badge ${syncClass}">${o.sync}</span></td>
+      </tr>`;
+  });
+}
+
+// ── Populate staff dropdowns
+const msSelect = document.getElementById('msStaffSelect');
+const flSelect = document.getElementById('flStaffSelect');
+EMP_NAMES.forEach((name, i) => {
+  const opt = document.createElement('option');
+  opt.value = name; opt.textContent = name;
+  if (EMP_LOCS[i].includes('Mississippi')) msSelect.appendChild(opt);
+  else flSelect.appendChild(opt);
+});
+
+// ── Filter state
+let activeLocFilter = 'all', activeSyncFilter = 'all', activeStaffFilter = 'all';
+
+function filterStaff() {
+  const ms = msSelect.value, fl = flSelect.value;
+  if (ms === 'all' && fl === 'all') activeStaffFilter = 'all';
+  else if (ms !== 'all') { activeStaffFilter = ms; flSelect.value = 'all'; }
+  else { activeStaffFilter = fl; msSelect.value = 'all'; }
+  applyFilters();
+}
+
+function filterTable(type, val, btn) {
+  if (type === 'loc') {
+    activeLocFilter = val;
+    document.querySelectorAll('#stickyBar .filter-btn').forEach(b => {
+      if ((b.getAttribute('onclick')||'').includes("'loc'")) b.classList.remove('active');
+    });
+    btn.classList.add('active');
+    msSelect.value = 'all'; flSelect.value = 'all'; activeStaffFilter = 'all';
+  } else {
+    activeSyncFilter = val;
+    document.querySelectorAll('#stickyBar .filter-btn').forEach(b => {
+      if ((b.getAttribute('onclick')||'').includes("'sync'")) b.classList.remove('active');
+    });
+    btn.classList.add('active');
+  }
+  applyFilters();
+}
+
+// ── Init
+// ── Auth gate
+(function() {
+  var TOKEN_KEY = 'pos_auth';
+  var GATE_PASS = 'pos2026';
+  if (sessionStorage.getItem(TOKEN_KEY) === 'granted') {
+    document.getElementById('auth-gate').classList.add('hidden');
+    document.getElementById('page-content').classList.add('unlocked');
+  }
+  window.checkGate = function() {
+    var input = document.getElementById('gate-pwd');
+    var error = document.getElementById('gate-error');
+    if (input.value === GATE_PASS) {
+      sessionStorage.setItem(TOKEN_KEY, 'granted');
+      document.getElementById('auth-gate').classList.add('hidden');
+      document.getElementById('page-content').classList.add('unlocked');
+    } else {
+      input.classList.add('shake');
+      error.textContent = 'Invalid access code';
+      setTimeout(function() { input.classList.remove('shake'); }, 400);
+      input.value = '';
+      input.focus();
+    }
+    return false;
+  };
+})();
+
+initCharts();
+applyFilters();
+</script>
+</div><!-- /page-content -->
+</body>
+</html>

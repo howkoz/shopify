@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopify Global Market Cost Analyzer | Unicity</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --border: #1e293b;
+  --border-bright: #334155;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #22d3ee;
+  --accent-dim: rgba(34,211,238,0.15);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.15);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.15);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.15);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.mono { font-family:'JetBrains Mono',monospace; }
+
+.header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.header h1 { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+.header h1 span { color:var(--accent); }
+.header .sub { color:var(--text-dim); font-size:13px; margin-top:4px; }
+
+.source-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.source-bar .tag {
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.source-bar .warn {
+  background: var(--amber-dim);
+  color: var(--amber);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab:hover { color:var(--text-dim); background:rgba(255,255,255,0.02); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); background:rgba(34,211,238,0.05); }
+
+.content { padding:20px 24px; max-width:1400px; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+h2 { font-size:17px; font-weight:700; margin-bottom:12px; letter-spacing:-0.3px; }
+h3 { font-size:14px; font-weight:600; margin:16px 0 8px; color:var(--accent); }
+.section { margin-bottom:24px; }
+
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:12.5px;
+  margin-bottom:16px;
+}
+th {
+  text-align:left;
+  padding:10px 12px;
+  background:var(--surface2);
+  color:var(--text-dim);
+  font-weight:600;
+  border-bottom:1px solid var(--border-bright);
+  white-space:nowrap;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+td {
+  padding:9px 12px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+tr:hover td { background:rgba(255,255,255,0.015); }
+
+.badge {
+  display:inline-block;
+  padding:2px 7px;
+  border-radius:3px;
+  font-size:10.5px;
+  font-weight:600;
+}
+.badge-green { background:var(--green-dim); color:var(--green); }
+.badge-amber { background:var(--amber-dim); color:var(--amber); }
+.badge-red { background:var(--red-dim); color:var(--red); }
+.badge-blue { background:var(--blue-dim); color:var(--blue); }
+.badge-purple { background:var(--purple-dim); color:var(--purple); }
+
+.rate { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; }
+.rate-good { color:var(--green); }
+.rate-mid { color:var(--amber); }
+.rate-bad { color:var(--red); }
+
+.card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.card-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+.card h4 { font-size:14px; font-weight:600; }
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+@media(max-width:900px) { .grid2,.grid3 { grid-template-columns:1fr; } }
+
+.note {
+  background:var(--surface2);
+  border-left:3px solid var(--accent);
+  padding:10px 14px;
+  font-size:12px;
+  color:var(--text-dim);
+  margin:12px 0;
+  border-radius:0 4px 4px 0;
+}
+.note-warn {
+  background:var(--amber-dim);
+  border-left-color:var(--amber);
+  color:var(--amber);
+}
+
+.scenario-row {
+  display:grid;
+  grid-template-columns:200px 1fr 100px 100px;
+  gap:8px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  align-items:center;
+  font-size:12.5px;
+}
+.scenario-row.header-row {
+  background:var(--surface2);
+  font-weight:600;
+  color:var(--text-dim);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.fee-stack {
+  display:flex;
+  gap:4px;
+  flex-wrap:wrap;
+}
+.fee-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:2px 6px;
+  border-radius:3px;
+  font-size:10.5px;
+  font-family:'JetBrains Mono',monospace;
+}
+.fee-base { background:var(--blue-dim); color:var(--blue); }
+.fee-xborder { background:var(--purple-dim); color:var(--purple); }
+.fee-fx { background:var(--amber-dim); color:var(--amber); }
+.fee-mcp { background:var(--red-dim); color:var(--red); }
+.fee-none { background:var(--green-dim); color:var(--green); }
+
+.calc-section { margin:20px 0; }
+.calc-grid {
+  display:grid;
+  grid-template-columns:180px 1fr;
+  gap:8px 16px;
+  align-items:center;
+  font-size:13px;
+}
+.calc-grid label { color:var(--text-dim); font-weight:500; }
+.calc-grid select, .calc-grid input {
+  background:var(--surface2);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:4px;
+  font-family:'Outfit',sans-serif;
+  font-size:13px;
+}
+.calc-grid select:focus, .calc-grid input:focus {
+  outline:none;
+  border-color:var(--accent);
+}
+
+.result-box {
+  background:linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+  border:1px solid var(--border-bright);
+  border-radius:8px;
+  padding:20px;
+  margin:16px 0;
+}
+.result-big {
+  font-family:'JetBrains Mono',monospace;
+  font-size:28px;
+  font-weight:700;
+}
+
+.legend {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:12px 0;
+  font-size:11px;
+}
+
+.collapse-toggle {
+  cursor:pointer;
+  color:var(--accent);
+  font-size:12px;
+  font-weight:500;
+  padding:4px 0;
+}
+.collapse-toggle:hover { text-decoration:underline; }
+.collapse-content { display:none; }
+.collapse-content.open { display:block; }
+
+.filter-bar {
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+.filter-btn {
+  padding:5px 12px;
+  font-size:11.5px;
+  font-weight:500;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:var(--surface);
+  color:var(--text-dim);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.filter-btn:hover { border-color:var(--accent); color:var(--accent); }
+.filter-btn.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Shopify <span>Global Market</span> Cost Analyzer</h1>
+  <div class="sub">Unicity International | Shopify Plus | All 33+ Shopify Payments Countries</div>
+</div>
+
+<div class="source-bar">
+  <span><span class="tag">VERIFIED</span> US rates from Shopify Admin Settings (Feb 2026)</span>
+  <span><span class="tag">PUBLISHED</span> EU rates from Shopify/Latori documentation</span>
+  <span><span class="warn">NEGOTIABLE</span> Plus rates vary by country, contact Shopify sales for exact quotes</span>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-panel="countries">33 Countries</div>
+  <div class="tab" data-panel="scenarios">Cost Scenarios</div>
+  <div class="tab" data-panel="eu-deep">EU Deep Dive</div>
+  <div class="tab" data-panel="calculator">Calculator</div>
+  <div class="tab" data-panel="decisions">Decision Matrix</div>
+</div>
+
+<div class="content">
+
+<!-- ==================== PANEL 1: COUNTRIES ==================== -->
+<div class="panel active" id="panel-countries">
+  <h2>Shopify Payments Supported Countries (33+)</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Shopify Payments expanded to 11 new countries in 2025. European cards are treated as domestic within the EU/EEA, significantly lowering intra-EU transaction costs.</p>
+
+  <div class="filter-bar" id="regionFilter">
+    <button class="filter-btn active" data-filter="all">All (33+)</button>
+    <button class="filter-btn" data-filter="eu-eur">EU (EUR)</button>
+    <button class="filter-btn" data-filter="eu-local">EU (Local CCY)</button>
+    <button class="filter-btn" data-filter="eea-non-eu">EEA Non-EU</button>
+    <button class="filter-btn" data-filter="apac">APAC</button>
+    <button class="filter-btn" data-filter="americas">Americas</button>
+  </div>
+
+  <table id="countryTable">
+    <thead>
+      <tr>
+        <th>Country</th>
+        <th>Region</th>
+        <th>Domestic CCY</th>
+        <th>Plus Online Rate*</th>
+        <th>EU Card = Domestic?</th>
+        <th>Dual Domestic Payout?</th>
+        <th>FX Fee (if CCY mismatch)</th>
+      </tr>
+    </thead>
+    <tbody id="countryBody"></tbody>
+  </table>
+
+  <div class="note">
+    *Plus rates are approximate based on published documentation. US rate verified from admin settings. EU rate ~1.3%+€0.30 from Latori/Shopify docs. UK ~1.5%+£0.25. Actual Plus rates are negotiable. Contact Shopify sales for exact quotes per country.
+  </div>
+
+  <div class="card">
+    <h4>Key Insights</h4>
+    <div style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6;">
+      <strong style="color:var(--green);">EU Interchange Regulation:</strong> EU caps interchange at 0.30% credit / 0.20% debit, making EU Plus rates significantly lower than US/UK.<br>
+      <strong style="color:var(--accent);">European Card Treatment:</strong> Post-regulation, cards from ANY EU/EEA country are treated as domestic within any EU store. A French Visa used in a German Shopify store = domestic rate.<br>
+      <strong style="color:var(--amber);">Post-Brexit:</strong> UK-EU transactions are now cross-border. UK card in EU store = international surcharge (+1.0%). EU card in UK store = international surcharge.<br>
+      <strong style="color:var(--purple);">Dual Domestic:</strong> Some countries (e.g., Hungary) treat both EUR and local currency (HUF) as domestic for payouts, meaning no Multi-Currency Payout fee on either.
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 2: COST SCENARIOS ==================== -->
+<div class="panel" id="panel-scenarios">
+  <h2>Cost Scenarios: How Fees Stack by Entity Setup</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">On a $100 equivalent sale. Each row shows the fee layers that apply based on where your entity is registered and where settlement occurs.</p>
+
+  <div class="legend">
+    <span class="fee-chip fee-base">Base Card Rate</span>
+    <span class="fee-chip fee-xborder">Cross-Border +1%</span>
+    <span class="fee-chip fee-fx">FX Conversion 1.5%</span>
+    <span class="fee-chip fee-mcp">MCP Fee</span>
+    <span class="fee-chip fee-none">None / Waived</span>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <h4>Scenario A: US Entity Only (Current Pilot Setup)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Location</th>
+          <th>Pays In</th>
+          <th>Card Type</th>
+          <th>Fee Layers</th>
+          <th>Effective Rate</th>
+          <th>Cost on $100</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>US (Mississippi)</td><td>USD</td><td>Domestic</td>
+          <td><span class="fee-chip fee-base">2.25%+$0.30</span></td>
+          <td class="rate rate-good">~2.55%</td>
+          <td class="mono">$2.55</td>
+        </tr>
+        <tr>
+          <td>EU (Germany)</td><td>EUR (converted)</td><td>International</td>
+          <td>
+            <span class="fee-chip fee-base">2.25%+$0.30</span>
+            <span class="fee-chip fee-xborder">+1.0%</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-bad">~5.05%</td>
+          <td class="mono">$5.05</td>
+        </tr>
+        <tr>
+          <td>Hungary</td><td>HUF (converted)</td><td>International</td>
+          <td>
+            <span class="fee-chip fee-base">2.25%+$0.30</span>
+            <span class="fee-chip fee-xborder">+1.0%</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-bad">~5.05%</td>
+          <td class="mono">$5.05</td>
+        </tr>
+        <tr>
+          <td>UK</td><td>GBP (converted)</td><td>International</td>
+          <td>
+            <span class="fee-chip fee-base">2.25%+$0.30</span>
+            <span class="fee-chip fee-xborder">+1.0%</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-bad">~5.05%</td>
+          <td class="mono">$5.05</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <h4>Scenario B: EU Entity (e.g., Germany) + EUR Bank Account</h4>
+    <div class="note">Requires Unicity registered entity in an EU country + EUR bank account. Activates Shopify Payments on EU expansion store.</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Location</th>
+          <th>Pays In</th>
+          <th>Card Origin</th>
+          <th>Fee Layers</th>
+          <th>Effective Rate</th>
+          <th>Cost on €100</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Germany (EUR)</td><td>EUR</td><td>Domestic EU</td>
+          <td><span class="fee-chip fee-base">~1.3%+€0.30</span></td>
+          <td class="rate rate-good">~1.60%</td>
+          <td class="mono">€1.60</td>
+        </tr>
+        <tr>
+          <td>France (EUR)</td><td>EUR</td><td>EU = Domestic</td>
+          <td><span class="fee-chip fee-base">~1.3%+€0.30</span></td>
+          <td class="rate rate-good">~1.60%</td>
+          <td class="mono">€1.60</td>
+        </tr>
+        <tr>
+          <td>Hungary (HUF)</td><td>HUF</td><td>EU = Domestic</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+€0.30</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-mid">~3.10%</td>
+          <td class="mono">€3.10</td>
+        </tr>
+        <tr>
+          <td>Poland (PLN)</td><td>PLN</td><td>EU = Domestic</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+€0.30</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-mid">~3.10%</td>
+          <td class="mono">€3.10</td>
+        </tr>
+        <tr>
+          <td>UK</td><td>GBP</td><td>International (post-Brexit)</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+€0.30</span>
+            <span class="fee-chip fee-xborder">+1.0%</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-bad">~4.10%</td>
+          <td class="mono">€4.10</td>
+        </tr>
+        <tr>
+          <td>US</td><td>USD</td><td>International</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+€0.30</span>
+            <span class="fee-chip fee-xborder">+1.0%</span>
+            <span class="fee-chip fee-fx">+1.5% FX</span>
+          </td>
+          <td class="rate rate-bad">~4.10%</td>
+          <td class="mono">€4.10</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <h4>Scenario C: Hungary Entity + HUF Bank (Local Settlement)</h4>
+    <div class="note">Requires Unicity registered entity in Hungary + HUF bank account. Best rates for Hungarian market.</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Location</th>
+          <th>Pays In</th>
+          <th>Card Origin</th>
+          <th>Fee Layers</th>
+          <th>Effective Rate</th>
+          <th>Cost on 40,000 HUF</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hungary (HUF)</td><td>HUF</td><td>Domestic</td>
+          <td><span class="fee-chip fee-base">~1.3%+local</span> <span class="fee-chip fee-none">No FX</span></td>
+          <td class="rate rate-good">~1.60%</td>
+          <td class="mono">~640 HUF</td>
+        </tr>
+        <tr>
+          <td>Germany (EUR)</td><td>EUR</td><td>EU = Domestic</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+local</span>
+            <span class="fee-chip fee-fx">+1.5% FX (EUR→HUF)</span>
+          </td>
+          <td class="rate rate-mid">~3.10%</td>
+          <td class="mono">~1,240 HUF</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="overflow-x:auto;">
+    <h4>Scenario D: Hungary Entity + EUR Settlement (Dual Domestic)</h4>
+    <div class="note">Hungary treats both EUR and HUF as domestic payout currencies. No MCP fee on either. But FX conversion fee (1.5%) still applies when payment currency ≠ payout currency.</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Location</th>
+          <th>Pays In</th>
+          <th>Settles In</th>
+          <th>Fee Layers</th>
+          <th>Effective Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hungary</td><td>HUF</td><td>EUR</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+local</span>
+            <span class="fee-chip fee-fx">+1.5% FX (HUF→EUR)</span>
+            <span class="fee-chip fee-none">No MCP fee</span>
+          </td>
+          <td class="rate rate-mid">~3.10%</td>
+        </tr>
+        <tr>
+          <td>Hungary</td><td>HUF</td><td>HUF</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+local</span>
+            <span class="fee-chip fee-none">No FX</span>
+            <span class="fee-chip fee-none">No MCP fee</span>
+          </td>
+          <td class="rate rate-good">~1.60%</td>
+        </tr>
+        <tr>
+          <td>Germany</td><td>EUR</td><td>EUR</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+local</span>
+            <span class="fee-chip fee-none">No FX (same ccy)</span>
+            <span class="fee-chip fee-none">No MCP fee</span>
+          </td>
+          <td class="rate rate-good">~1.60%</td>
+        </tr>
+        <tr>
+          <td>Poland</td><td>PLN</td><td>EUR</td>
+          <td>
+            <span class="fee-chip fee-base">~1.3%+local</span>
+            <span class="fee-chip fee-fx">+1.5% FX (PLN→EUR)</span>
+            <span class="fee-chip fee-none">No MCP fee</span>
+          </td>
+          <td class="rate rate-mid">~3.10%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg, #0f172a 0%, #1a0a2e 100%);">
+    <h4 style="color:var(--amber);">Scenario E: Managed Markets (US Store, No Local Entity)</h4>
+    <div class="note note-warn">Managed Markets is Shopify's bundled international solution. Higher fees but handles duties, taxes, FX, fraud protection, and shipping. Powered by Global-e.</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Location</th>
+          <th>Fee Components</th>
+          <th>Total Effective</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Any international market</td>
+          <td>
+            <span class="fee-chip fee-base">Card ~2.25%+$0.30</span>
+            <span class="fee-chip fee-xborder">MM fee 3.5%</span>
+            <span class="fee-chip fee-fx">FX 1.5%</span>
+          </td>
+          <td class="rate rate-bad">~7.55%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Includes: guaranteed duties/taxes, chargeback protection, local payment methods, shipping rates. Overkill for B2B distributor model.</div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 3: EU DEEP DIVE ==================== -->
+<div class="panel" id="panel-eu-deep">
+  <h2>EU Markets: Process Local, Settle EUR?</h2>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Detailed breakdown for EU countries with non-EUR currencies. Shows what happens when you process in local currency but settle in EUR.</p>
+
+  <div class="card">
+    <h4>EU Countries with Non-EUR Domestic Currencies</h4>
+    <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">These countries are EU members but use local currencies. All have Shopify Payments available.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Local CCY</th>
+          <th>EUR Domestic?</th>
+          <th>Process HUF/PLN/etc → Settle EUR</th>
+          <th>Process EUR → Settle EUR</th>
+          <th>Process Local → Settle Local</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hungary</td><td>HUF</td>
+          <td><span class="badge badge-green">Yes (Dual)</span></td>
+          <td><span class="rate rate-mid">~2.8%</span> (base + 1.5% FX)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+        </tr>
+        <tr>
+          <td>Poland</td><td>PLN</td>
+          <td><span class="badge badge-blue">Check TOS</span></td>
+          <td><span class="rate rate-mid">~2.8%</span> (base + 1.5% FX)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+        </tr>
+        <tr>
+          <td>Czechia</td><td>CZK</td>
+          <td><span class="badge badge-blue">Check TOS</span></td>
+          <td><span class="rate rate-mid">~2.8%</span> (base + 1.5% FX)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+        </tr>
+        <tr>
+          <td>Romania</td><td>RON</td>
+          <td><span class="badge badge-blue">Check TOS</span></td>
+          <td><span class="rate rate-mid">~2.8%</span> (base + 1.5% FX)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+        </tr>
+        <tr>
+          <td>Denmark</td><td>DKK</td>
+          <td><span class="badge badge-blue">Check TOS</span></td>
+          <td><span class="rate rate-mid">~2.8%</span> (base + 1.5% FX)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+        </tr>
+        <tr>
+          <td>Sweden</td><td>SEK</td>
+          <td><span class="badge badge-blue">Check TOS</span></td>
+          <td><span class="rate rate-mid">~2.8%</span> (base + 1.5% FX)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+          <td><span class="rate rate-good">~1.6%</span> (base only)</td>
+        </tr>
+        <tr>
+          <td>Croatia</td><td>EUR (adopted 2023)</td>
+          <td><span class="badge badge-green">Native EUR</span></td>
+          <td colspan="3" style="text-align:center"><span class="rate rate-good">~1.6%</span> EUR only, no FX needed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h4>The Three Settlement Strategies for Non-EUR EU Countries</h4>
+    <div class="grid3" style="margin-top:12px;">
+      <div class="card" style="border-color:var(--green);">
+        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">Strategy 1: Sell + Settle Local</div>
+        <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">
+          Customer pays HUF → you get HUF<br>
+          <strong>Rate:</strong> <span class="rate rate-good">~1.3% + local fixed</span><br>
+          <strong>FX fee:</strong> None<br>
+          <strong>MCP fee:</strong> None<br>
+          <strong>Requires:</strong> Local bank account in HUF<br>
+          <strong>Downside:</strong> You hold local currency, need to manage FX yourself when repatriating
+        </div>
+      </div>
+      <div class="card" style="border-color:var(--amber);">
+        <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">Strategy 2: Sell Local, Settle EUR</div>
+        <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">
+          Customer pays HUF → Shopify converts → you get EUR<br>
+          <strong>Rate:</strong> <span class="rate rate-mid">~1.3% + local fixed</span><br>
+          <strong>FX fee:</strong> <span class="rate rate-mid">+1.5%</span><br>
+          <strong>MCP fee:</strong> Waived if EUR is domestic (Hungary confirmed)<br>
+          <strong>Requires:</strong> EUR bank account, entity in dual-domestic country<br>
+          <strong>Downside:</strong> 1.5% FX on every non-EUR transaction
+        </div>
+      </div>
+      <div class="card" style="border-color:var(--accent);">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;">Strategy 3: Sell EUR, Settle EUR</div>
+        <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">
+          Customer pays EUR → you get EUR<br>
+          <strong>Rate:</strong> <span class="rate rate-good">~1.3% + €0.30</span><br>
+          <strong>FX fee:</strong> None (same currency)<br>
+          <strong>MCP fee:</strong> None<br>
+          <strong>Requires:</strong> EUR bank account, price in EUR<br>
+          <strong>Downside:</strong> Customer sees foreign currency (unless in Eurozone). Customer's bank may charge them FX
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>EU Eurozone Countries (EUR native, no FX complexity)</h4>
+    <p style="font-size:12px;color:var(--text-muted);margin:4px 0 8px;">These process and settle in EUR with zero FX fees. All EU cards are domestic.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <span class="badge badge-green">Austria</span>
+      <span class="badge badge-green">Belgium</span>
+      <span class="badge badge-green">Croatia</span>
+      <span class="badge badge-green">Estonia</span>
+      <span class="badge badge-green">Finland</span>
+      <span class="badge badge-green">France</span>
+      <span class="badge badge-green">Germany</span>
+      <span class="badge badge-green">Greece</span>
+      <span class="badge badge-green">Ireland</span>
+      <span class="badge badge-green">Italy</span>
+      <span class="badge badge-green">Latvia</span>
+      <span class="badge badge-green">Lithuania</span>
+      <span class="badge badge-green">Luxembourg</span>
+      <span class="badge badge-green">Malta</span>
+      <span class="badge badge-green">Netherlands</span>
+      <span class="badge badge-green">Portugal</span>
+      <span class="badge badge-green">Slovenia</span>
+      <span class="badge badge-green">Spain</span>
+    </div>
+    <div style="font-size:12px;color:var(--green);margin-top:8px;">All at ~1.3%+€0.30 (Plus domestic EU card rate). No FX. No cross-border surcharge on EU cards.</div>
+  </div>
+
+  <div class="note">
+    <strong>CONFIRMED for Hungary:</strong> Shopify documentation explicitly states "With Shopify Payments in Hungary, you can receive domestic currency payouts in Euro (EUR) or Forint (HUF)" and "If this currency is your domestic currency, such as EUR or HUF in Hungary, then you won't incur Multi-Currency Payout fees."<br><br>
+    <strong>TO VERIFY for other non-EUR EU countries:</strong> Whether Poland (PLN/EUR), Czechia (CZK/EUR), Romania (RON/EUR), Denmark (DKK/EUR), and Sweden (SEK/EUR) also have dual domestic status. Check each country's Shopify Payments TOS or contact Shopify sales.
+  </div>
+</div>
+
+<!-- ==================== PANEL 4: CALCULATOR ==================== -->
+<div class="panel" id="panel-calculator">
+  <h2>Cost Calculator</h2>
+
+  <div class="calc-section">
+    <div class="calc-grid">
+      <label>Transaction Amount:</label>
+      <input type="number" id="calcAmount" value="100" min="1">
+
+      <label>Store Entity Location:</label>
+      <select id="calcEntity">
+        <option value="us">US (current)</option>
+        <option value="eu-eur">EU Eurozone (e.g., Germany)</option>
+        <option value="eu-local">EU Non-EUR (e.g., Hungary)</option>
+        <option value="uk">UK</option>
+      </select>
+
+      <label>Customer Card Origin:</label>
+      <select id="calcCard">
+        <option value="domestic">Domestic (same region)</option>
+        <option value="eu">EU card (in EU store)</option>
+        <option value="international">International (different region)</option>
+      </select>
+
+      <label>Payment Currency:</label>
+      <select id="calcPayCcy">
+        <option value="same">Same as payout</option>
+        <option value="different">Different from payout</option>
+      </select>
+
+      <label>Settlement:</label>
+      <select id="calcSettle">
+        <option value="domestic">Domestic currency (no MCP)</option>
+        <option value="dual-domestic">Dual domestic (e.g., HUF entity → EUR, no MCP)</option>
+        <option value="non-domestic">Non-domestic currency (MCP fee applies)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="result-box" id="calcResult">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Base Card Rate</div>
+        <div class="result-big" id="resBase" style="color:var(--blue);">2.25%</div>
+        <div style="font-size:11px;color:var(--text-muted);" id="resBaseNote">+ $0.30 fixed</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Additional Fees</div>
+        <div class="result-big" id="resAdditional" style="color:var(--amber);">0.0%</div>
+        <div style="font-size:11px;color:var(--text-muted);" id="resAdditionalNote">No extras</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;">Total Effective</div>
+        <div class="result-big" id="resTotal" style="color:var(--accent);">2.55%</div>
+        <div style="font-size:11px;color:var(--text-muted);" id="resTotalNote">$2.55 on $100</div>
+      </div>
+    </div>
+    <div id="resFeeBreakdown" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-dim);"></div>
+  </div>
+</div>
+
+<!-- ==================== PANEL 5: DECISIONS ==================== -->
+<div class="panel" id="panel-decisions">
+  <h2>Decision Matrix: When to Establish Local Entities</h2>
+
+  <div class="card">
+    <h4>Cost Comparison Summary (per $100 equivalent sale, EU customer with EU card)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Setup</th>
+          <th>Customer Pays EUR</th>
+          <th>Customer Pays HUF</th>
+          <th>Monthly Cost at $50K vol</th>
+          <th>Complexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>US entity only</strong></td>
+          <td class="rate rate-bad">~5.05%</td>
+          <td class="rate rate-bad">~5.05%</td>
+          <td class="mono" style="color:var(--red);">$2,525</td>
+          <td><span class="badge badge-green">Low</span></td>
+        </tr>
+        <tr>
+          <td><strong>EU entity (EUR zone)</strong></td>
+          <td class="rate rate-good">~1.60%</td>
+          <td class="rate rate-mid">~3.10%</td>
+          <td class="mono" style="color:var(--amber);">$800 - $1,550</td>
+          <td><span class="badge badge-amber">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hungary entity + HUF</strong></td>
+          <td class="rate rate-mid">~3.10%</td>
+          <td class="rate rate-good">~1.60%</td>
+          <td class="mono" style="color:var(--amber);">$800 - $1,550</td>
+          <td><span class="badge badge-amber">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hungary entity + EUR settle</strong></td>
+          <td class="rate rate-good">~1.60%</td>
+          <td class="rate rate-mid">~2.80%</td>
+          <td class="mono" style="color:var(--green);">$800 - $1,400</td>
+          <td><span class="badge badge-amber">Medium</span></td>
+        </tr>
+        <tr>
+          <td><strong>Managed Markets</strong></td>
+          <td class="rate rate-bad">~7.55%</td>
+          <td class="rate rate-bad">~7.55%</td>
+          <td class="mono" style="color:var(--red);">$3,775</td>
+          <td><span class="badge badge-green">Low (bundled)</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="border-color:var(--green);">
+      <h4 style="color:var(--green);">Recommended: EU Eurozone Entity</h4>
+      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-top:8px;">
+        <strong>Best for:</strong> Serving all 18 EUR-zone countries at ~1.6%<br>
+        <strong>Bonus:</strong> EU cards from non-EUR countries (Hungary, Poland, etc.) also get domestic card rate. Only FX conversion (1.5%) applies on currency mismatch.<br>
+        <strong>Savings vs US cross-border:</strong> ~3.45% per transaction = <strong>$1,725/mo at $50K vol</strong><br>
+        <strong>Break-even:</strong> Almost immediately. Entity registration + bank account costs are negligible vs savings.<br>
+        <strong>Question for Sam/AJ:</strong> Does Unicity already have an EU legal entity?
+      </div>
+    </div>
+    <div class="card" style="border-color:var(--accent);">
+      <h4 style="color:var(--accent);">Optimal: Hungary Entity + EUR Payout</h4>
+      <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-top:8px;">
+        <strong>Best for:</strong> Dual domestic payout (EUR + HUF). Covers Eurozone at ~1.6% AND Hungary at ~1.6% (if local HUF bank added).<br>
+        <strong>Unique advantage:</strong> Only country confirmed with dual domestic status for EUR/HUF. No MCP fee on either currency.<br>
+        <strong>EUR customers:</strong> ~1.6% (EUR→EUR, no FX)<br>
+        <strong>HUF customers:</strong> ~2.8% if settling EUR, or ~1.6% with HUF bank account<br>
+        <strong>Question for Sam/AJ:</strong> Does Unicity have a Hungarian entity? If yes, this is the optimal single-entity solution for all of EU.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Questions to Resolve with Leadership</h4>
+    <table>
+      <thead><tr><th>#</th><th>Question</th><th>Impact</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Which EU countries does Unicity already have legal entities in?</td>
+          <td>Determines if we can activate EU Shopify Payments immediately</td>
+          <td><span class="badge badge-red">Critical</span></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Does Unicity have EUR bank accounts in the EU?</td>
+          <td>Required for EUR settlement and lowest rates</td>
+          <td><span class="badge badge-red">Critical</span></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Which non-EUR EU markets are priority for expansion?</td>
+          <td>Determines if Hungary/Poland/Czechia entities are worth pursuing</td>
+          <td><span class="badge badge-amber">High</span></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Expected monthly volume per EU market?</td>
+          <td>At $50K/mo, EU entity saves ~$1,725/mo vs US cross-border</td>
+          <td><span class="badge badge-amber">High</span></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Is Unicity open to Shopify Plus expansion stores? (included, up to 9)</td>
+          <td>Each expansion store can have its own Shopify Payments activation per country</td>
+          <td><span class="badge badge-blue">Medium</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>Shopify Plus includes up to 9 expansion stores at no additional subscription cost.</strong> Each expansion store can be registered in a different country with its own Shopify Payments activation, local currency, and local bank account. This architecture supports a hub-and-spoke model: US primary store + EU expansion store + UK expansion store, each processing at local domestic rates.
+  </div>
+</div>
+
+</div>
+
+<script>
+// ==================== COUNTRY DATA ====================
+const countries = [
+  // EU Eurozone
+  { name:'Austria', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Belgium', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Croatia', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Estonia', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Finland', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'France', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Germany', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Greece', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Ireland', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Italy', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Latvia', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Lithuania', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Luxembourg', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Malta', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Netherlands', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Portugal', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Slovenia', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  { name:'Spain', region:'eu-eur', ccy:'EUR', rate:'~1.3%+€0.30', euDomestic:'Yes', dualDomestic:'-', fx:'1.5%' },
+  // EU Non-EUR
+  { name:'Czechia', region:'eu-local', ccy:'CZK', rate:'~1.3%+local', euDomestic:'Yes', dualDomestic:'Verify TOS', fx:'1.5%' },
+  { name:'Denmark', region:'eu-local', ccy:'DKK', rate:'~1.3%+local', euDomestic:'Yes', dualDomestic:'Verify TOS', fx:'1.5%' },
+  { name:'Hungary', region:'eu-local', ccy:'HUF/EUR', rate:'~1.3%+local', euDomestic:'Yes', dualDomestic:'EUR+HUF confirmed', fx:'1.5%' },
+  { name:'Poland', region:'eu-local', ccy:'PLN', rate:'~1.3%+local', euDomestic:'Yes', dualDomestic:'Verify TOS', fx:'1.5%' },
+  { name:'Romania', region:'eu-local', ccy:'RON', rate:'~1.3%+local', euDomestic:'Yes', dualDomestic:'Verify TOS', fx:'1.5%' },
+  { name:'Sweden', region:'eu-local', ccy:'SEK', rate:'~1.3%+local', euDomestic:'Yes', dualDomestic:'Verify TOS', fx:'1.5%' },
+  // EEA non-EU
+  { name:'Liechtenstein', region:'eea-non-eu', ccy:'CHF', rate:'~1.4%+CHF0.30', euDomestic:'Partial (EEA)', dualDomestic:'-', fx:'1.5%' },
+  { name:'Norway', region:'eea-non-eu', ccy:'NOK', rate:'~1.4%+local', euDomestic:'Partial (EEA)', dualDomestic:'-', fx:'1.5%' },
+  { name:'Switzerland', region:'eea-non-eu', ccy:'CHF', rate:'~1.4%+CHF0.30', euDomestic:'No', dualDomestic:'-', fx:'1.5-2%' },
+  { name:'United Kingdom', region:'eea-non-eu', ccy:'GBP', rate:'~1.5%+£0.25', euDomestic:'No (post-Brexit)', dualDomestic:'-', fx:'1.5%' },
+  // APAC
+  { name:'Australia', region:'apac', ccy:'AUD', rate:'~1.6%+A$0.30', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+  { name:'Hong Kong', region:'apac', ccy:'HKD', rate:'~2.4%+HK$2.35', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+  { name:'Japan', region:'apac', ccy:'JPY', rate:'~3.25%+¥0', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+  { name:'New Zealand', region:'apac', ccy:'NZD', rate:'~1.7%+NZ$0.30', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+  { name:'Singapore', region:'apac', ccy:'SGD', rate:'~2.6%+S$0.50', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+  // Americas
+  { name:'Canada', region:'americas', ccy:'CAD', rate:'~2.15%+C$0.30', euDomestic:'No', dualDomestic:'CAD+USD', fx:'1.5%' },
+  { name:'Mexico', region:'americas', ccy:'MXN', rate:'~3.3%+MX$5', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+  { name:'United States', region:'americas', ccy:'USD', rate:'2.25%+$0.30', euDomestic:'No', dualDomestic:'-', fx:'1.5%' },
+];
+
+function renderCountries(filter) {
+  const tbody = document.getElementById('countryBody');
+  const filtered = filter === 'all' ? countries : countries.filter(c => c.region === filter);
+  tbody.innerHTML = filtered.map(c => {
+    const dualBadge = c.dualDomestic === '-' ? '<span style="color:var(--text-muted);">-</span>'
+      : c.dualDomestic.includes('confirmed') ? `<span class="badge badge-green">${c.dualDomestic}</span>`
+      : c.dualDomestic.includes('Verify') ? `<span class="badge badge-amber">${c.dualDomestic}</span>`
+      : `<span class="badge badge-blue">${c.dualDomestic}</span>`;
+    const euBadge = c.euDomestic === 'Yes' ? '<span class="badge badge-green">Yes</span>'
+      : c.euDomestic.includes('Partial') ? '<span class="badge badge-amber">Partial</span>'
+      : '<span class="badge badge-red">No</span>';
+    const regionLabel = { 'eu-eur':'EU (EUR)', 'eu-local':'EU (Local CCY)', 'eea-non-eu':'EEA/Other', 'apac':'APAC', 'americas':'Americas' }[c.region];
+    return `<tr>
+      <td><strong>${c.name}</strong></td>
+      <td>${regionLabel}</td>
+      <td class="mono">${c.ccy}</td>
+      <td class="mono">${c.rate}</td>
+      <td>${euBadge}</td>
+      <td>${dualBadge}</td>
+      <td class="mono">${c.fx}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Tab switching
+document.getElementById('tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+});
+
+// Region filter
+document.getElementById('regionFilter').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('#regionFilter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCountries(btn.dataset.filter);
+});
+
+// Calculator
+function updateCalc() {
+  const amount = parseFloat(document.getElementById('calcAmount').value) || 100;
+  const entity = document.getElementById('calcEntity').value;
+  const card = document.getElementById('calcCard').value;
+  const payCcy = document.getElementById('calcPayCcy').value;
+  const settle = document.getElementById('calcSettle').value;
+
+  let baseRate, fixedFee, fixedLabel, xborder = 0, fxFee = 0, mcpFee = 0;
+  const fees = [];
+
+  // Base rate by entity location
+  switch(entity) {
+    case 'us': baseRate = 2.25; fixedFee = 0.30; fixedLabel = '+ $0.30'; break;
+    case 'eu-eur': baseRate = 1.3; fixedFee = 0.30; fixedLabel = '+ €0.30'; break;
+    case 'eu-local': baseRate = 1.3; fixedFee = 0.30; fixedLabel = '+ ~€0.30 equiv'; break;
+    case 'uk': baseRate = 1.5; fixedFee = 0.25; fixedLabel = '+ £0.25'; break;
+  }
+  fees.push(`Base card rate: ${baseRate}% ${fixedLabel}`);
+
+  // Cross-border
+  if (card === 'international') {
+    xborder = 1.0;
+    fees.push('Cross-border surcharge: +1.0% (international card)');
+  } else if (card === 'eu' && (entity === 'uk')) {
+    xborder = 1.0;
+    fees.push('Cross-border surcharge: +1.0% (EU card in UK post-Brexit)');
+  }
+
+  // FX conversion
+  if (payCcy === 'different') {
+    fxFee = 1.5;
+    fees.push('Currency conversion: +1.5% (payment ≠ payout currency)');
+  } else {
+    fees.push('Currency conversion: None (same currency)');
+  }
+
+  // MCP
+  if (settle === 'non-domestic') {
+    mcpFee = 0.5; // estimated, varies by plan
+    fees.push('Multi-Currency Payout fee: ~0.5% (estimated, varies)');
+  } else if (settle === 'dual-domestic') {
+    fees.push('Multi-Currency Payout fee: Waived (dual domestic)');
+  } else {
+    fees.push('Multi-Currency Payout fee: None (domestic payout)');
+  }
+
+  const totalPct = baseRate + xborder + fxFee + mcpFee;
+  const totalCost = (amount * totalPct / 100) + fixedFee;
+  const additionalPct = xborder + fxFee + mcpFee;
+
+  document.getElementById('resBase').textContent = baseRate.toFixed(2) + '%';
+  document.getElementById('resBaseNote').textContent = fixedLabel;
+  document.getElementById('resAdditional').textContent = additionalPct > 0 ? '+' + additionalPct.toFixed(1) + '%' : '0.0%';
+  document.getElementById('resAdditionalNote').textContent = additionalPct > 0
+    ? [xborder > 0 ? 'X-border' : '', fxFee > 0 ? 'FX' : '', mcpFee > 0 ? 'MCP' : ''].filter(Boolean).join(' + ')
+    : 'No extras';
+  document.getElementById('resTotal').textContent = totalPct.toFixed(2) + '%';
+  document.getElementById('resTotal').style.color = totalPct < 2 ? 'var(--green)' : totalPct < 3.5 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('resTotalNote').textContent = `~${totalCost.toFixed(2)} on ${amount}`;
+  document.getElementById('resFeeBreakdown').innerHTML = fees.map(f => `<div style="padding:2px 0;">• ${f}</div>`).join('');
+}
+
+document.querySelectorAll('#panel-calculator select, #panel-calculator input').forEach(el => {
+  el.addEventListener('change', updateCalc);
+  el.addEventListener('input', updateCalc);
+});
+
+// Init
+renderCountries('all');
+updateCalc();
+</script>
+</body>
+</html>

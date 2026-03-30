@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Pilot Program - Unicity Shopify Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --cyan: #39d2c0;
+            --orange: #f0883e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 8px 16px;
+            background-color: var(--surface);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            border-radius: 6px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: rgba(230, 237, 243, 0.7);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        /* Context Box */
+        .context-box {
+            background: linear-gradient(135deg, var(--surface) 0%, rgba(22, 27, 34, 0.8) 100%);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .context-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .context-item-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .context-item-value {
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        /* Section Heading */
+        .section-heading {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 40px 0 20px 0;
+            color: var(--text);
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(88, 166, 255, 0.2);
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--surface);
+            border: 1px solid rgba(88, 166, 255, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-type-badge {
+            display: inline-block;
+            width: fit-content;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .badge-interactive {
+            background-color: rgba(63, 185, 80, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .badge-technical {
+            background-color: rgba(88, 166, 255, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+
+        .badge-config {
+            background-color: rgba(240, 136, 62, 0.15);
+            color: var(--orange);
+            border: 1px solid rgba(240, 136, 62, 0.3);
+        }
+
+        .badge-reference {
+            background-color: rgba(57, 210, 192, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(57, 210, 192, 0.3);
+        }
+
+        .badge-utility {
+            background-color: rgba(230, 237, 243, 0.1);
+            color: rgba(230, 237, 243, 0.8);
+            border: 1px solid rgba(230, 237, 243, 0.2);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: rgba(230, 237, 243, 0.75);
+            margin-bottom: 12px;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: rgba(230, 237, 243, 0.6);
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(88, 166, 255, 0.1);
+        }
+
+        .file-size {
+            background-color: rgba(88, 166, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* Clickable Card Link */
+        a.card {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        a.card:hover {
+            text-decoration: none;
+        }
+
+        /* Non-clickable Card (Reference) */
+        .card.reference {
+            opacity: 0.95;
+        }
+
+        .card.reference .card-title {
+            color: rgba(230, 237, 243, 0.9);
+        }
+
+        .reference-note {
+            font-size: 12px;
+            color: rgba(230, 237, 243, 0.6);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(88, 166, 255, 0.1);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .context-box {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+
+        /* Section Info Box */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(57, 210, 192, 0.1) 0%, rgba(88, 166, 255, 0.05) 100%);
+            border-left: 4px solid var(--cyan);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: rgba(230, 237, 243, 0.9);
+            line-height: 1.6;
+        }
+
+        .info-banner strong {
+            color: var(--cyan);
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(88, 166, 255, 0.1);
+            text-align: center;
+            font-size: 12px;
+            color: rgba(230, 237, 243, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Hub</a>
+
+    <div class="container">
+        <header>
+            <h1>POS Pilot Program</h1>
+            <div class="subtitle">
+                <strong>TKT-5793:</strong> Shopify POS Distributor Pilot for USA<br>
+                <strong>Store:</strong> unicity-international-2.myshopify.com<br>
+                <strong>Plan:</strong> Shopify Plus ($2,500/mo)
+            </div>
+        </header>
+
+        <!-- Context Box -->
+        <div class="context-box">
+            <div class="context-item">
+                <div class="context-item-label">Pilot Structure</div>
+                <div class="context-item-value">1 Regional Manager + 10 Distributors</div>
+            </div>
+            <div class="context-item">
+                <div class="context-item-label">Markets</div>
+                <div class="context-item-value">Mississippi & Florida</div>
+            </div>
+            <div class="context-item">
+                <div class="context-item-label">Store Domain</div>
+                <div class="context-item-value">unicity-international-2.myshopify.com</div>
+            </div>
+            <div class="context-item">
+                <div class="context-item-label">Subscription Tier</div>
+                <div class="context-item-value">Shopify Plus</div>
+            </div>
+        </div>
+
+        <!-- Dashboards & Tools Section -->
+        <h2 class="section-heading">Dashboards & Tools</h2>
+        <div class="info-banner">
+            <strong>Interactive dashboards</strong> for real-time monitoring and analysis of the pilot program. Click any dashboard to open in your browser.
+        </div>
+        <div class="grid">
+            <a href="shopify-pos-pilot-dashboard.html" class="card">
+                <span class="card-type-badge badge-interactive">Interactive Dashboard</span>
+                <div class="card-title">Project Dashboard</div>
+                <div class="card-description">Comprehensive task management, phase progress tracking, and ClickUp integration for pilot coordination and timeline oversight.</div>
+                <div class="card-meta">
+                    <span>109 KB</span>
+                </div>
+            </a>
+
+            <a href="shopify-pos-sales-dashboard.html" class="card">
+                <span class="card-type-badge badge-interactive">Interactive Dashboard</span>
+                <div class="card-title">POS Sales Dashboard</div>
+                <div class="card-description">Real-time sales analytics with Chart.js visualizations, revenue tracking by location, and performance metrics.</div>
+                <div class="card-meta">
+                    <span>62 KB</span>
+                </div>
+            </a>
+
+            <a href="pos-sales-dashboard.html" class="card">
+                <span class="card-type-badge badge-interactive">Interactive Dashboard</span>
+                <div class="card-title">Orders Dashboard</div>
+                <div class="card-description">POS orders visualization and analytics for monitoring sales volume and distributor performance data.</div>
+                <div class="card-meta">
+                    <span>59 KB</span>
+                </div>
+            </a>
+
+            <a href="orders_export_1-dashboard.html" class="card">
+                <span class="card-type-badge badge-interactive">Interactive Dashboard</span>
+                <div class="card-title">Orders Export Dashboard</div>
+                <div class="card-description">Dashboard built from CSV export data, providing batch analysis and historical order insights.</div>
+                <div class="card-meta">
+                    <span>32 KB</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Architecture & Technical Section -->
+        <h2 class="section-heading">Architecture & Technical</h2>
+        <div class="info-banner">
+            <strong>Technical documentation</strong> covering system architecture, data flows, and integration pipelines.
+        </div>
+        <div class="grid">
+            <a href="shopify-pos-distributor-architecture.html" class="card">
+                <span class="card-type-badge badge-technical">Technical Docs</span>
+                <div class="card-title">Distributor Architecture</div>
+                <div class="card-description">Detailed staff mapping, PIN attribution system, and Unity ID synchronization patterns for distributor onboarding.</div>
+                <div class="card-meta">
+                    <span>133 KB</span>
+                </div>
+            </a>
+
+            <a href="shopify-architecture-flows.html" class="card">
+                <span class="card-type-badge badge-technical">Technical Docs</span>
+                <div class="card-title">Architecture Flows</div>
+                <div class="card-description">Mermaid diagrams visualizing Shopify-Unity-middleware data flow patterns and system interactions.</div>
+                <div class="card-meta">
+                    <span>32 KB</span>
+                </div>
+            </a>
+
+            <a href="shopify-pos-order-sync-model.html" class="card">
+                <span class="card-type-badge badge-technical">Technical Docs</span>
+                <div class="card-title">D2D Order Sync Simulator</div>
+                <div class="card-description">Live simulation of the distributor-to-distributor order synchronization pipeline with real-time execution visualization.</div>
+                <div class="card-meta">
+                    <span>45 KB</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Configuration & Setup Section -->
+        <h2 class="section-heading">Configuration & Setup</h2>
+        <div class="info-banner">
+            <strong>Deployment configurations</strong> for Shopify Tap to Pay and point-of-sale system setup.
+        </div>
+        <div class="grid grid-2">
+            <a href="shopify-configurations.html" class="card">
+                <span class="card-type-badge badge-config">Configuration</span>
+                <div class="card-title">POS Configurations</div>
+                <div class="card-description">Complete configuration settings and parameters for Tap to Pay deployment across all pilot locations and terminals.</div>
+                <div class="card-meta">
+                    <span>55 KB</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Session Handoffs & Reference Documents -->
+        <h2 class="section-heading">Session Handoffs & Reference</h2>
+        <div class="info-banner">
+            <strong>Markdown reference documents</strong> containing session context, technical notes, and project history. These are source files (not browser-viewable) but contain essential project context.
+        </div>
+        <div class="grid">
+            <div class="card reference">
+                <span class="card-type-badge badge-reference">Reference Doc</span>
+                <div class="card-title">Handoff Feb 14</div>
+                <div class="card-description">Initial pilot setup and store configuration documentation from the start of the Shopify POS deployment.</div>
+                <div class="reference-note">📄 HANDOFF-2026-02-14.md — Source file</div>
+            </div>
+
+            <div class="card reference">
+                <span class="card-type-badge badge-reference">Reference Doc</span>
+                <div class="card-title">Handoff Feb 15</div>
+                <div class="card-description">Customer import and product setup progress tracking during Phase 1 of the pilot program.</div>
+                <div class="reference-note">📄 HANDOFF-2026-02-15.md — Source file</div>
+            </div>
+
+            <div class="card reference">
+                <span class="card-type-badge badge-reference">Reference Doc</span>
+                <div class="card-title">Combined Handoff Feb 16</div>
+                <div class="card-description">Consolidated context from Sessions 1-3, providing comprehensive project overview and progress summary.</div>
+                <div class="reference-note">📄 HANDOFF-COMBINED-2026-02-16.md — Source file</div>
+            </div>
+
+            <div class="card reference">
+                <span class="card-type-badge badge-reference">Reference Doc</span>
+                <div class="card-title">Session 3 Technical Context</div>
+                <div class="card-description">Database schemas, query patterns, and detailed project state from Session 3 work.</div>
+                <div class="reference-note">📄 session-3-handoff-shopify-pilot.md — Source file</div>
+            </div>
+
+            <div class="card reference">
+                <span class="card-type-badge badge-reference">Reference Doc</span>
+                <div class="card-title">Session 3 Customer Import</div>
+                <div class="card-description">Mississippi customer import recap and bulk customer onboarding documentation.</div>
+                <div class="reference-note">📄 SESSION-3-SHOPIFY-CUSTOMER-IMPORT-2026-02-15.md — Source file</div>
+            </div>
+
+            <div class="card reference">
+                <span class="card-type-badge badge-reference">Reference Doc</span>
+                <div class="card-title">Session 3 Global Payments</div>
+                <div class="card-description">Global payments research and findings for international payment processing options.</div>
+                <div class="reference-note">📄 session-3-shopify-global-payments-research.md — Source file</div>
+            </div>
+        </div>
+
+        <!-- Data Tools Section -->
+        <h2 class="section-heading">Data Tools & Utilities</h2>
+        <div class="info-banner">
+            <strong>Utility tools</strong> for data processing and dashboard generation. These are source files (scripts) that require a Python/command-line environment.
+        </div>
+        <div class="grid grid-2">
+            <div class="card reference">
+                <span class="card-type-badge badge-utility">Python Script</span>
+                <div class="card-title">POS CSV Dashboard Builder</div>
+                <div class="card-description">Python script that generates interactive dashboards directly from CSV export data and sales reports.</div>
+                <div class="reference-note">🐍 build-pos-csv-dashboard.py — Utility script</div>
+            </div>
+
+            <div class="card reference">
+                <span class="card-type-badge badge-utility">Batch Script</span>
+                <div class="card-title">BAT Launcher</div>
+                <div class="card-description">Windows batch launcher for running the POS CSV dashboard builder with convenient command-line execution.</div>
+                <div class="reference-note">📝 run-pos-csv-dashboard.bat — Batch launcher</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Unicity Shopify POS Pilot Program Documentation | TKT-5793</p>
+            <p style="margin-top: 8px; font-size: 11px;">Store: unicity-international-2.myshopify.com | Markets: Mississippi & Florida</p>
+        </footer>
+    </div>
+</body>
+</html>

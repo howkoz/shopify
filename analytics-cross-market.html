@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Market Analytics | Unicity Shopify Plus</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #8b949e;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: var(--accent);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            z-index: 100;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px 40px;
+        }
+
+        header {
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin: 50px 0 30px;
+            color: var(--accent);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Architecture Diagram */
+        .diagram-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 40px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .architecture-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 100%;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .diagram-box {
+            background: var(--surface2);
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 180px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .diagram-box.us { border-color: #58a6ff; }
+        .diagram-box.eu { border-color: var(--green); }
+        .diagram-box.japan { border-color: var(--purple); }
+        .diagram-box.agg { border-color: var(--cyan); background: var(--surface2); }
+
+        .arrow {
+            font-size: 24px;
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .source-item {
+            background: var(--surface);
+            border-left: 3px solid var(--cyan);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+        }
+
+        .kpi-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .kpi-meta {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        /* Metrics Categories */
+        .metrics-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-item {
+            background: var(--surface2);
+            border-left: 4px solid var(--cyan);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .metric-item strong {
+            color: var(--cyan);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .metric-item.revenue { border-left-color: var(--green); }
+        .metric-item.revenue strong { color: var(--green); }
+
+        .metric-item.customers { border-left-color: var(--purple); }
+        .metric-item.customers strong { color: var(--purple); }
+
+        .metric-item.conversion { border-left-color: var(--yellow); }
+        .metric-item.conversion strong { color: var(--yellow); }
+
+        .metric-item.operations { border-left-color: var(--orange); }
+        .metric-item.operations strong { color: var(--orange); }
+
+        /* Market Cards */
+        .market-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .market-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .market-card:hover {
+            border-color: var(--accent);
+        }
+
+        .market-card h3 {
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .market-card.us h3 { color: #58a6ff; }
+        .market-card.eu h3 { color: var(--green); }
+        .market-card.japan h3 { color: var(--purple); }
+
+        .market-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .market-stat:last-child {
+            border-bottom: none;
+        }
+
+        .market-stat-label {
+            color: var(--text-dim);
+        }
+
+        .market-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--surface2);
+        }
+
+        th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        tr:hover {
+            background: var(--surface2);
+        }
+
+        /* Reporting Cadence */
+        .cadence-item {
+            background: var(--surface2);
+            border-left: 4px solid var(--cyan);
+            padding: 20px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+
+        .cadence-frequency {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+        .cadence-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .cadence-item-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        /* Checklist */
+        .checklist {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px;
+            margin: 8px 0;
+            background: var(--surface2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            background: linear-gradient(135deg, var(--surface2) 0%, rgba(88, 166, 255, 0.05) 100%);
+            border-left: 3px solid var(--cyan);
+            padding-left: 27px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 14px;
+            margin-top: 2px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--green);
+        }
+
+        .checklist-item input[type="checkbox"]:checked + label {
+            color: var(--text-dim);
+            text-decoration: line-through;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex-grow: 1;
+            color: var(--text);
+        }
+
+        /* Alert Boxes */
+        .alert {
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent);
+        }
+
+        .alert.info {
+            background: rgba(88, 166, 255, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .alert.success {
+            background: rgba(63, 185, 80, 0.1);
+            border-left-color: var(--green);
+        }
+
+        .alert.warning {
+            background: rgba(210, 153, 34, 0.1);
+            border-left-color: var(--yellow);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 40px 16px 20px;
+            }
+
+            .back-link {
+                font-size: 12px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .market-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .architecture-diagram {
+                flex-direction: column;
+            }
+
+            .diagram-box {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        /* Utility Classes */
+        .text-dim {
+            color: var(--text-dim);
+        }
+
+        .accent {
+            color: var(--accent);
+        }
+
+        .green {
+            color: var(--green);
+        }
+
+        .purple {
+            color: var(--purple);
+        }
+
+        .orange {
+            color: var(--orange);
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 60px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(88, 166, 255, 0.1) 0%, transparent 100%);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Index</a>
+
+    <div class="container">
+        <header>
+            <h1>Cross-Market Analytics</h1>
+            <p class="subtitle">Aggregated reporting across US, EU, and Japan stores for executive visibility and operational decision-making.</p>
+        </header>
+
+        <!-- Analytics Architecture Section -->
+        <section>
+            <h2>Analytics Architecture</h2>
+            <p>Unicity's Shopify Plus multi-store operations require a unified analytics infrastructure to track performance across markets. The architecture aggregates data from multiple sources into a cohesive dashboard for real-time insights and strategic planning.</p>
+
+            <div class="diagram-container">
+                <div class="architecture-diagram">
+                    <div class="diagram-box us">US Store<br>Analytics</div>
+                    <div class="arrow">→</div>
+                    <div class="diagram-box eu">EU Store<br>Analytics</div>
+                    <div class="arrow">→</div>
+                    <div class="diagram-box japan">Japan Store<br>Analytics</div>
+                    <div class="arrow">→</div>
+                    <div class="diagram-box agg">Aggregation<br>Layer</div>
+                    <div class="arrow">→</div>
+                    <div class="diagram-box agg">Unified<br>Dashboard</div>
+                </div>
+
+                <div class="sources-grid">
+                    <div class="source-item"><strong>Shopify Analytics</strong> – Native store metrics</div>
+                    <div class="source-item"><strong>Google Analytics 4</strong> – User behavior & traffic</div>
+                    <div class="source-item"><strong>Custom Reports</strong> – Business logic & calculations</div>
+                    <div class="source-item"><strong>ERP Data</strong> – Inventory & fulfillment</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shopify Built-In Analytics Section -->
+        <section>
+            <h2>Shopify Built-In Analytics</h2>
+            <p>Shopify Plus provides native analytics tools that should be leveraged as the foundation for per-store reporting.</p>
+
+            <div class="metrics-section">
+                <h3>Dashboard & Reports</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <strong>Dashboard Metrics</strong>
+                        Total sales, sessions, conversion rate, AOV, returning customer rate
+                    </div>
+                    <div class="metric-item">
+                        <strong>Reports Library</strong>
+                        Sales, Customers, Acquisition, Behavior, Marketing, Finance, Inventory
+                    </div>
+                    <div class="metric-item">
+                        <strong>Live View</strong>
+                        Real-time store activity and visitor engagement
+                    </div>
+                    <div class="metric-item">
+                        <strong>Organization Analytics</strong>
+                        Cross-store overview at the organizational level (Plus only)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Metrics Section -->
+        <section>
+            <h2>Key Metrics to Track</h2>
+            <p>Organize tracking by business category to ensure comprehensive cross-market visibility.</p>
+
+            <h3 style="margin-top: 40px;">Revenue Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-item revenue">
+                    <strong>Total Sales (by store, market, combined)</strong>
+                    Gross revenue before deductions
+                </div>
+                <div class="metric-item revenue">
+                    <strong>Gross vs Net Revenue</strong>
+                    After returns, discounts, and adjustments
+                </div>
+                <div class="metric-item revenue">
+                    <strong>Average Order Value (AOV)</strong>
+                    Revenue per transaction by market
+                </div>
+                <div class="metric-item revenue">
+                    <strong>Revenue Per Customer</strong>
+                    Total revenue divided by unique customers
+                </div>
+                <div class="metric-item revenue">
+                    <strong>Monthly Recurring Revenue (MRR)</strong>
+                    Predictable subscription-based revenue
+                </div>
+            </div>
+
+            <h3>Customer Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-item customers">
+                    <strong>New vs Returning Customers</strong>
+                    Split by market for acquisition vs retention trends
+                </div>
+                <div class="metric-item customers">
+                    <strong>Customer Acquisition Cost (CAC)</strong>
+                    Marketing spend divided by new customers per market
+                </div>
+                <div class="metric-item customers">
+                    <strong>Customer Lifetime Value (CLV)</strong>
+                    Expected revenue from customer relationship
+                </div>
+                <div class="metric-item customers">
+                    <strong>Distributor vs Consumer Ratio</strong>
+                    B2B volume versus DTC transactions
+                </div>
+                <div class="metric-item customers">
+                    <strong>B2B vs DTC Revenue Split</strong>
+                    Revenue attribution by sales channel
+                </div>
+            </div>
+
+            <h3>Conversion Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-item conversion">
+                    <strong>Store Conversion Rate</strong>
+                    Sessions to orders ratio by market
+                </div>
+                <div class="metric-item conversion">
+                    <strong>Cart Abandonment Rate</strong>
+                    Checkout initiated but not completed
+                </div>
+                <div class="metric-item conversion">
+                    <strong>Checkout Completion Rate</strong>
+                    Percentage of carts converting to orders
+                </div>
+                <div class="metric-item conversion">
+                    <strong>Payment Method Success Rates</strong>
+                    Success rate by payment provider (critical for market issues)
+                </div>
+                <div class="metric-item conversion">
+                    <strong>Mobile vs Desktop Conversion</strong>
+                    Device-specific performance analysis
+                </div>
+            </div>
+
+            <h3>Operational Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-item operations">
+                    <strong>Orders Per Day</strong>
+                    Volume by market for capacity planning
+                </div>
+                <div class="metric-item operations">
+                    <strong>Fulfillment Time</strong>
+                    Order to delivery duration
+                </div>
+                <div class="metric-item operations">
+                    <strong>Return Rate</strong>
+                    Product returns as percentage of orders
+                </div>
+                <div class="metric-item operations">
+                    <strong>Inventory Turnover</strong>
+                    How quickly inventory moves per location
+                </div>
+                <div class="metric-item operations">
+                    <strong>POS vs Online Sales Ratio</strong>
+                    Channel mix and growth trends
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Mockup Section -->
+        <section>
+            <h2>Cross-Market Dashboard Design</h2>
+            <p>Executive-level dashboard showing aggregated metrics across all markets with drill-down capability.</p>
+
+            <div class="diagram-container">
+                <h3 style="margin-top: 0; text-align: center; color: var(--accent);">Dashboard Layout</h3>
+
+                <div class="kpi-grid" style="margin-bottom: 40px;">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Revenue (YTD)</div>
+                        <div class="kpi-value">$8.2M</div>
+                        <div class="kpi-meta">↑ 12% vs prior year</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Orders (YTD)</div>
+                        <div class="kpi-value">24,531</div>
+                        <div class="kpi-meta">↑ 8% vs prior year</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Avg Conversion Rate</div>
+                        <div class="kpi-value">3.24%</div>
+                        <div class="kpi-meta">Baseline: 3.1%</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Active Markets</div>
+                        <div class="kpi-value">3/3</div>
+                        <div class="kpi-meta">All markets live</div>
+                    </div>
+                </div>
+
+                <h4 style="color: var(--accent); margin-bottom: 16px;">Revenue by Market</h4>
+                <div class="table-container" style="margin-bottom: 30px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Market</th>
+                                <th>Revenue (YTD)</th>
+                                <th>Orders</th>
+                                <th>Avg Order Value</th>
+                                <th>Conversion Rate</th>
+                                <th>YoY Growth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="highlight" style="color: #58a6ff;">US</span></td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">$4.8M</td>
+                                <td>12,840</td>
+                                <td>$373.52</td>
+                                <td>3.18%</td>
+                                <td><span class="green">↑ 14.2%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight" style="color: var(--green);">EU</span></td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">$2.1M</td>
+                                <td>6,920</td>
+                                <td>€265.33</td>
+                                <td>2.85%</td>
+                                <td><span class="orange">↑ 8.5%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight" style="color: var(--purple);">Japan</span></td>
+                                <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">¥1.3B</td>
+                                <td>4,771</td>
+                                <td>¥272,183</td>
+                                <td>3.58%</td>
+                                <td><span class="green">↑ 9.8%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 style="color: var(--accent); margin-bottom: 16px;">Market Performance Summary</h4>
+                <div class="market-cards">
+                    <div class="market-card us">
+                        <h3>United States</h3>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Customers</span>
+                            <span class="market-stat-value">8,240</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Retention Rate</span>
+                            <span class="market-stat-value">42%</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">CAC</span>
+                            <span class="market-stat-value">$12.40</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Avg Session</span>
+                            <span class="market-stat-value">2m 14s</span>
+                        </div>
+                    </div>
+                    <div class="market-card eu">
+                        <h3>European Union</h3>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Customers</span>
+                            <span class="market-stat-value">4,180</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Retention Rate</span>
+                            <span class="market-stat-value">38%</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">CAC</span>
+                            <span class="market-stat-value">€11.20</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Avg Session</span>
+                            <span class="market-stat-value">2m 31s</span>
+                        </div>
+                    </div>
+                    <div class="market-card japan">
+                        <h3>Japan</h3>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Customers</span>
+                            <span class="market-stat-value">3,960</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Retention Rate</span>
+                            <span class="market-stat-value">45%</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">CAC</span>
+                            <span class="market-stat-value">¥1,240</span>
+                        </div>
+                        <div class="market-stat">
+                            <span class="market-stat-label">Avg Session</span>
+                            <span class="market-stat-value">2m 44s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert info" style="margin-top: 30px;">
+                <strong>Dashboard Implementation:</strong> Use Shopify's Organization Analytics (Plus) as the base, then export to Looker, Tableau, or Google Data Studio for advanced cross-market analysis and custom visualizations.
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Google Analytics 4 Setup Section -->
+        <section>
+            <h2>Google Analytics 4 Setup</h2>
+            <p>GA4 provides deeper user behavior insights that Shopify's native analytics doesn't capture. Configure GA4 to complement Shopify metrics.</p>
+
+            <div class="metrics-section">
+                <h3>Implementation Strategy</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <strong>Property Setup</strong>
+                        Create GA4 property per store OR single property with data streams per market for centralized reporting
+                    </div>
+                    <div class="metric-item">
+                        <strong>Installation Method</strong>
+                        Install via Shopify Customer Events (web pixel) for native integration
+                    </div>
+                    <div class="metric-item">
+                        <strong>Enhanced Ecommerce</strong>
+                        Enable tracking: view_item, add_to_cart, begin_checkout, purchase, add_to_wishlist, remove_from_cart
+                    </div>
+                    <div class="metric-item">
+                        <strong>Cross-Domain Tracking</strong>
+                        Configure for tracking users across multi-store domains
+                    </div>
+                </div>
+            </div>
+
+            <h3>Custom Dimensions & Events</h3>
+            <div class="code-block">Market (market)
+Distributor ID (distributor_id)
+Customer Type (customer_type: B2B/DTC)
+Product Category (category)
+Inventory Level (inventory_status)
+Fulfillment Method (fulfillment_type)</div>
+
+            <div class="alert success">
+                <strong>Recommended Events:</strong> Beyond standard ecommerce events, track subscription starts, subscription cancellations, product reviews submitted, customer support tickets, and store outages for complete operational visibility.
+            </div>
+        </section>
+
+        <!-- Reporting Cadence Section -->
+        <section>
+            <h2>Reporting Cadence & Schedule</h2>
+            <p>Establish a consistent reporting rhythm to maintain data-driven decision-making across all time horizons.</p>
+
+            <div class="cadence-item">
+                <div class="cadence-frequency">📊 Daily</div>
+                <div class="cadence-items">
+                    <div class="cadence-item-chip">Revenue</div>
+                    <div class="cadence-item-chip">Orders</div>
+                    <div class="cadence-item-chip">Conversion Rate</div>
+                    <div class="cadence-item-chip">Payment Failures</div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: var(--text-dim);">Automated Slack alerts via Shopify Flow. Alert on revenue drop >20% or conversion rate below baseline.</p>
+            </div>
+
+            <div class="cadence-item">
+                <div class="cadence-frequency">📈 Weekly</div>
+                <div class="cadence-items">
+                    <div class="cadence-item-chip">Market Comparison</div>
+                    <div class="cadence-item-chip">Top Products</div>
+                    <div class="cadence-item-chip">Customer Acquisition</div>
+                    <div class="cadence-item-chip">Inventory Alerts</div>
+                    <div class="cadence-item-chip">Traffic Sources</div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: var(--text-dim);">Delivered Friday afternoon. Email or dashboard review with key insights and action items.</p>
+            </div>
+
+            <div class="cadence-item">
+                <div class="cadence-frequency">📋 Monthly</div>
+                <div class="cadence-items">
+                    <div class="cadence-item-chip">Full P&L by Market</div>
+                    <div class="cadence-item-chip">Customer Cohort Analysis</div>
+                    <div class="cadence-item-chip">CAC/CLV Trends</div>
+                    <div class="cadence-item-chip">Operational Efficiency</div>
+                    <div class="cadence-item-chip">Marketing ROI</div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: var(--text-dim);">Executive summary with detailed appendices. Includes variance analysis and forecast for next month.</p>
+            </div>
+
+            <div class="cadence-item">
+                <div class="cadence-frequency">📊 Quarterly</div>
+                <div class="cadence-items">
+                    <div class="cadence-item-chip">Strategic Review</div>
+                    <div class="cadence-item-chip">Market Expansion Metrics</div>
+                    <div class="cadence-item-chip">YoY Comparison</div>
+                    <div class="cadence-item-chip">Budget vs Actual</div>
+                    <div class="cadence-item-chip">OKR Progress</div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: var(--text-dim);">Board-level presentation with strategic insights, competitive positioning, and forward-looking guidance.</p>
+            </div>
+        </section>
+
+        <!-- Custom Reporting Section -->
+        <section>
+            <h2>Custom Reporting with Shopify API</h2>
+            <p>For advanced analytics beyond Shopify and GA4, leverage the Shopify GraphQL API to build custom dashboards and data exports.</p>
+
+            <div class="metrics-section">
+                <h3>API & Tools</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <strong>Bulk Operations API</strong>
+                        Export large datasets (orders, products, customers) for offline analysis
+                    </div>
+                    <div class="metric-item">
+                        <strong>GraphQL Queries</strong>
+                        Real-time metrics on orders, customers, products, fulfillments
+                    </div>
+                    <div class="metric-item">
+                        <strong>Data Warehouse</strong>
+                        Export to BigQuery, Snowflake, or Databricks for advanced analysis
+                    </div>
+                    <div class="metric-item">
+                        <strong>BI Tools</strong>
+                        Build dashboards in Looker, Tableau, or Power BI for stakeholder viewing
+                    </div>
+                </div>
+            </div>
+
+            <h3>Sample GraphQL Query Pattern</h3>
+            <div class="code-block">query {
+  orders(first: 100, query: "created:>=2024-01-01") {
+    edges {
+      node {
+        id
+        name
+        totalPrice
+        currencyCode
+        createdAt
+        customer {
+          email
+          totalSpent
+        }
+      }
+    }
+  }
+}</div>
+
+            <div class="alert info">
+                <strong>Cross-Store Analysis:</strong> Run the same query against each store API, then aggregate results in a data warehouse for unified reporting across markets with currency normalization.
+            </div>
+        </section>
+
+        <!-- Currency Normalization Section -->
+        <section>
+            <h2>Currency Normalization</h2>
+            <p>All cross-market reports must normalize to a single currency (USD) for accurate comparison and executive understanding.</p>
+
+            <div class="metrics-section">
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <strong>Exchange Rate Source</strong>
+                        Daily rates from Shopify API or ECB for consistency
+                    </div>
+                    <div class="metric-item">
+                        <strong>Reporting Standard</strong>
+                        Show local currency AND USD equivalent in all reports
+                    </div>
+                    <div class="metric-item">
+                        <strong>FX Impact Tracking</strong>
+                        Separately attribute revenue variance to market performance vs FX
+                    </div>
+                    <div class="metric-item">
+                        <strong>Budget Management</strong>
+                        Budget in USD, report in local + USD for clarity
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert warning">
+                <strong>Important:</strong> When currency values fluctuate significantly (>5%), separate organic growth from FX impact in executive reports. This prevents misinterpretation of market performance.
+            </div>
+        </section>
+
+        <!-- Alerting & Monitoring Section -->
+        <section>
+            <h2>Alerting & Monitoring</h2>
+            <p>Establish automated alerts to catch critical issues before they impact business outcomes.</p>
+
+            <div class="metrics-section">
+                <div class="metric-item orange">
+                    <strong>Revenue Alert</strong>
+                    Daily revenue drop >20% from average → Slack alert + manual investigation
+                </div>
+                <div class="metric-item yellow">
+                    <strong>Conversion Anomaly</strong>
+                    Conversion rate drops below market baseline → Investigate checkout issues
+                </div>
+                <div class="metric-item red">
+                    <strong>Payment Failures</strong>
+                    Payment failure rate spikes >5% → Immediate review of payment processors
+                </div>
+                <div class="metric-item">
+                    <strong>Inventory Alert</strong>
+                    SKU falls below safety stock level → Auto-trigger purchase order
+                </div>
+                <div class="metric-item">
+                    <strong>Launch Monitoring</strong>
+                    New market launch: hourly monitoring first 48 hours, then daily for 30 days
+                </div>
+                <div class="metric-item">
+                    <strong>Uptime Monitoring</strong>
+                    Store unavailability or checkout outages → Page incident alert
+                </div>
+            </div>
+
+            <p style="margin-top: 20px; color: var(--text-dim);">Configure alerts in Shopify Flow, third-party monitoring tools (Datadog, New Relic), or custom webhooks to your internal systems.</p>
+        </section>
+
+        <!-- Implementation Checklist -->
+        <section>
+            <h2>Implementation Checklist</h2>
+            <p>Use this checklist to ensure all components of the cross-market analytics infrastructure are properly set up.</p>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="check1">
+                    <label for="check1">Set up Shopify Analytics for each store with dashboard customization</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2">
+                    <label for="check2">Install GA4 on all stores via Shopify Customer Events web pixel</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3">
+                    <label for="check3">Configure enhanced ecommerce tracking in GA4</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4">
+                    <label for="check4">Set up custom dimensions in GA4 (market, distributor_id, customer_type)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5">
+                    <label for="check5">Create Organization Analytics dashboard in Shopify Plus</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6">
+                    <label for="check6">Build weekly report template with market comparisons</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7">
+                    <label for="check7">Configure daily Slack alerts via Shopify Flow</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check8">
+                    <label for="check8">Establish reporting cadence (daily, weekly, monthly, quarterly)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check9">
+                    <label for="check9">Set up data export to BigQuery or Snowflake for advanced analysis</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check10">
+                    <label for="check10">Train marketing, operations, and finance teams on available reports</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check11">
+                    <label for="check11">Document data dictionary with metric definitions and calculation methods</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check12">
+                    <label for="check12">Schedule quarterly review of analytics strategy and tooling</label>
+                </div>
+            </div>
+
+            <div class="alert success" style="margin-top: 30px;">
+                <strong>Quick Wins:</strong> Start with Shopify built-in analytics and GA4. Move to custom dashboards and data warehouse only after validating the core metrics and establishing reporting cadence.
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section style="text-align: center; padding: 40px 0; color: var(--text-dim);">
+            <p>Last updated: March 2024 | For questions, contact the Analytics team</p>
+            <p><a href="index.html" style="color: var(--accent); text-decoration: none;">← Back to Documentation Index</a></p>
+        </section>
+    </div>
+
+    <script>
+        // Handle checklist persistence
+        document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach((checkbox, index) => {
+            const storageKey = `checklist-item-${index}`;
+            checkbox.checked = localStorage.getItem(storageKey) === 'true';
+            checkbox.addEventListener('change', () => {
+                localStorage.setItem(storageKey, checkbox.checked);
+            });
+        });
+    </script>
+</body>
+</html>

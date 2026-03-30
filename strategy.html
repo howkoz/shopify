@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy & Planning - Unicity Shopify Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --purple: #bc8cff;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--purple);
+        }
+
+        .header {
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #8b949e;
+            max-width: 800px;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--surface);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+            flex: 1;
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .badge-md {
+            background-color: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .badge-docx {
+            background-color: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .badge-pptx {
+            background-color: rgba(240, 136, 62, 0.2);
+            color: var(--orange);
+        }
+
+        .badge-mermaid {
+            background-color: rgba(57, 210, 192, 0.2);
+            color: var(--cyan);
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #8b949e;
+            margin-bottom: 12px;
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #6e7681;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #30363d;
+        }
+
+        .card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+        }
+
+        /* Anchor styling for id links */
+        [id] {
+            scroll-margin-top: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Hub</a>
+
+        <div class="header">
+            <h1>Strategy & Planning</h1>
+            <p>Executive assessments, integration strategy documents, session handoffs, and planning documentation for the Shopify initiative.</p>
+        </div>
+
+        <!-- Executive Documents Section -->
+        <div class="section">
+            <h2 class="section-title">Executive Documents</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Integration Assessment Deck</span>
+                        <span class="card-badge badge-pptx">PPTX</span>
+                    </div>
+                    <p class="card-description">PowerPoint presentation for executive review of the Shopify integration initiative, including scope, timeline, and key objectives.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 Shopify_Integration_Assessment.pptx</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Executive One-Pager</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Concise subscription payment conflict assessment and resolution strategy for executive stakeholders.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 Shopify_Integration_Executive_OnePager.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Session Log Feb 14</span>
+                        <span class="card-badge badge-docx">DOCX</span>
+                    </div>
+                    <p class="card-description">Detailed session documentation covering pilot setup, store configuration, and Shopify Plus plan details.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📅 February 14, 2026</span>
+                        <span class="card-meta-item">📄 shopify-session-log-2026-02-14.docx</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Strategy Section -->
+        <div class="section">
+            <h2 class="section-title">Integration Strategy</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Integration Flow Ownership v2</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">System ownership mapping with color-coded legend identifying service ownership across the integration architecture. Latest version with updated assignments.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 Shopify_Integration_Flow_Ownership_v2.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Integration Flow Ownership v1</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Original version of the system ownership mapping document. Reference for historical context and evolution of ownership assignments.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 Shopify_Integration_Flow_Ownership.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Payments Complete Flow with Ownership</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Component ownership diagram showing end-to-end payment flow with clear ownership markers for each system component.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 Shopify_Payments_Complete_Flow_With_Ownership.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Payments Complete Flow Diagram</span>
+                        <span class="card-badge badge-mermaid">MERMAID</span>
+                    </div>
+                    <p class="card-description">End-to-end Mermaid flow diagram visualizing the complete payment processing pipeline and data flow.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 Shopify_Payments_Complete_Flow_Diagram.md</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral & Attribution Section -->
+        <div class="section">
+            <h2 class="section-title" id="referral">Referral & Attribution</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Referral URL Overview</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Distributor referral URL attribution system. Every distributor gets a unique URL with their Unity ID for tracking and attribution.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 referral-url-overview.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Referral URL Flow Diagram</span>
+                        <span class="card-badge badge-mermaid">MERMAID</span>
+                    </div>
+                    <p class="card-description">Mermaid diagram of the referral attribution flow showing how distributor URLs are generated and tracked through the system.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 referral-url-flow.mermaid</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Storefront Referral URL Tech Spec</span>
+                        <span class="card-badge badge-docx">DOCX</span>
+                    </div>
+                    <p class="card-description">Technical specification for the referral system including implementation requirements, parameter structure, and tracking mechanisms.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 storefront-referral-url-tech-spec.docx</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Handoffs Section -->
+        <div class="section">
+            <h2 class="section-title" id="handoffs">Session Handoffs</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Handoff Feb 14</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Initial pilot setup session. Covers store configuration, Shopify Plus plan details, and kickoff activities for the integration project.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📅 February 14, 2026</span>
+                        <span class="card-meta-item">📄 HANDOFF-2026-02-14.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Handoff Feb 15</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Customer import progress update. Documents work completed and remaining tasks with 6 days to deadline for critical path items.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📅 February 15, 2026</span>
+                        <span class="card-meta-item">📄 HANDOFF-2026-02-15.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Combined Handoff Feb 16</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Sessions 1-3 combined context. Complete comprehensive overview for resuming work with full historical context and current status.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📅 February 16, 2026</span>
+                        <span class="card-meta-item">📄 HANDOFF-COMBINED-2026-02-16.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Session 3 Technical Context</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Deep technical documentation including database schemas, query patterns, Shopify configuration, and current project state inventory.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 session-3-handoff-shopify-pilot.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Session 3 Customer Import</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Microsoft customer import process and product setup recap. Documents data migration approach and Shopify product configuration work.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📅 February 15, 2026</span>
+                        <span class="card-meta-item">📄 SESSION-3-SHOPIFY-CUSTOMER-IMPORT-2026-02-15.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Session 3 Global Payments</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Global payments research and cost analysis tools. Investigation of payment processing options across international markets and pricing models.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 session-3-shopify-global-payments-research.md</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Handoffs Section -->
+        <div class="section">
+            <h2 class="section-title">Demo Handoffs</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Shop Pay Demo Handoff v2</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Latest version with 7-step completed demo features. Comprehensive documentation of Shop Pay implementation and demonstration flow.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 shop-pay-demo-handoff-v2.md</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Shop Pay Demo Handoff v1</span>
+                        <span class="card-badge badge-md">MD</span>
+                    </div>
+                    <p class="card-description">Original Shop Pay demo handoff documentation. Reference for initial implementation approach and original feature specifications.</p>
+                    <div class="card-meta">
+                        <span class="card-meta-item">📄 shop-pay-demo-handoff.md</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

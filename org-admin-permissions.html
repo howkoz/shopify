@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Admin & Permissions | Unicity Shopify Plus</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #8b949e;
+            font-weight: 400;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 40px 0 20px;
+            color: var(--accent);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0 15px;
+            color: var(--text);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #c9d1d9;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--accent);
+        }
+
+        .card-label {
+            display: inline-block;
+            background-color: var(--surface2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--cyan);
+            margin-bottom: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .card-content {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Hierarchy Diagram */
+        .hierarchy {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .hierarchy-level {
+            margin: 20px 0;
+        }
+
+        .hierarchy-box {
+            display: inline-block;
+            background-color: var(--surface2);
+            border: 2px solid var(--accent);
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 10px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .hierarchy-arrow {
+            display: inline-block;
+            color: var(--border);
+            font-size: 20px;
+            margin: 0 10px;
+        }
+
+        /* Permission Matrix Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--surface);
+        }
+
+        th {
+            background-color: var(--surface2);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            font-size: 12px;
+            writing-mode: horizontal-tb;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .role-name {
+            font-weight: 600;
+            color: var(--text);
+            min-width: 140px;
+        }
+
+        .permission-full {
+            background-color: rgba(63, 185, 80, 0.15);
+            color: var(--green);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .permission-read {
+            background-color: rgba(210, 153, 34, 0.15);
+            color: var(--yellow);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .permission-none {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--red);
+            text-align: center;
+        }
+
+        /* Workflow Steps */
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .step {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .step p {
+            margin-bottom: 0;
+        }
+
+        /* Checklist */
+        .checklist {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .checklist-item:hover {
+            background-color: var(--surface2);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            margin-right: 15px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--green);
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
+        }
+
+        .checklist-item input[type="checkbox"]:checked + label {
+            color: #6e7681;
+            text-decoration: line-through;
+        }
+
+        /* Info Box */
+        .info-box {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .info-box.warning {
+            background-color: rgba(240, 136, 62, 0.1);
+            border-left-color: var(--orange);
+        }
+
+        .info-box.success {
+            background-color: rgba(63, 185, 80, 0.1);
+            border-left-color: var(--green);
+        }
+
+        .info-box.critical {
+            background-color: rgba(248, 81, 73, 0.1);
+            border-left-color: var(--red);
+        }
+
+        .info-box strong {
+            color: var(--text);
+        }
+
+        /* List Styles */
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #c9d1d9;
+        }
+
+        code {
+            background-color: var(--surface2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan);
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrapper {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .workflow-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border);
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <header>
+            <h1>Organization Admin & Permissions</h1>
+            <p class="subtitle">Role-based access control, user management, and audit procedures for multi-store Shopify Plus operations</p>
+        </header>
+
+        <!-- Section 1: Organization Admin Overview -->
+        <section class="section">
+            <h2>Organization Admin Overview</h2>
+            <p>The Organization Admin interface is your centralized management hub for all Shopify Plus stores under Unicity International. This unified dashboard provides complete visibility and control over multi-store operations.</p>
+
+            <div class="info-box">
+                <strong>Access Point:</strong> <code>admin.shopify.com/store/{org}</code>
+            </div>
+
+            <h3>Core Capabilities</h3>
+            <ul>
+                <li><strong>User Management:</strong> Add, modify, and remove users across the organization</li>
+                <li><strong>Store Management:</strong> Create, configure, and manage multiple Shopify stores</li>
+                <li><strong>Billing & Subscriptions:</strong> Manage organization-wide billing, app subscriptions, and plan changes</li>
+                <li><strong>Cross-Store Analytics:</strong> View unified reporting and performance metrics across all stores</li>
+                <li><strong>Security Settings:</strong> Configure 2FA requirements, IP restrictions, and session management</li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 2: Organization Roles -->
+        <section class="section">
+            <h2>Organization Roles</h2>
+            <p>Organization-level roles control access to admin functions that span all stores. These roles determine who can manage the organization structure itself.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <span class="card-label">HIGHEST PRIVILEGE</span>
+                    <h3>Organization Admin</h3>
+                    <div class="card-content">
+                        <p><strong>Full organizational control</strong></p>
+                        <p>Complete access to:</p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Organization settings & configuration</li>
+                            <li>All stores and their settings</li>
+                            <li>User management (add/remove/modify)</li>
+                            <li>Billing and subscription management</li>
+                            <li>Store creation and deletion</li>
+                            <li>Activity logs and audit trails</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Recommended for:</strong> Howard, IT Director</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">MEDIUM PRIVILEGE</span>
+                    <h3>Organization Editor</h3>
+                    <div class="card-content">
+                        <p><strong>Store & user management</strong></p>
+                        <p>Can:</p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Manage store configurations</li>
+                            <li>Add/remove users from stores</li>
+                            <li>Modify user store-level access</li>
+                            <li>View analytics</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Cannot:</strong> Modify org settings, billing, or create/delete stores</p>
+                        <p><strong>Recommended for:</strong> Regional managers, operations leads</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">READ-ONLY</span>
+                    <h3>Organization Viewer</h3>
+                    <div class="card-content">
+                        <p><strong>Read-only visibility</strong></p>
+                        <p>Access to:</p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Organization analytics dashboard</li>
+                            <li>Store list and basic info</li>
+                            <li>Cross-store reporting</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Cannot:</strong> Modify anything, manage users, or access detailed settings</p>
+                        <p><strong>Recommended for:</strong> Finance team, executives, analysts</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hierarchy Diagram -->
+            <div class="hierarchy">
+                <h3>Access Hierarchy</h3>
+                <div class="hierarchy-level">
+                    <div class="hierarchy-box">Organization</div>
+                </div>
+                <div class="hierarchy-arrow">↓</div>
+                <div class="hierarchy-level">
+                    <div class="hierarchy-box">Admin</div>
+                    <div class="hierarchy-box">Editor</div>
+                    <div class="hierarchy-box">Viewer</div>
+                </div>
+                <div class="hierarchy-arrow">↓</div>
+                <div class="hierarchy-level">
+                    <div class="hierarchy-box">Store 1</div>
+                    <div class="hierarchy-box">Store 2</div>
+                    <div class="hierarchy-box">Store 3</div>
+                </div>
+                <div class="hierarchy-arrow">↓</div>
+                <div class="hierarchy-level">
+                    <div class="hierarchy-box">Store Roles</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 3: Store-Level Roles -->
+        <section class="section">
+            <h2>Store-Level Roles</h2>
+            <p>Once a user is assigned to a store, they receive a store-level role that determines their permissions within that specific store.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <span class="card-label">STORE OWNER</span>
+                    <h3>Store Owner</h3>
+                    <div class="card-content">
+                        <p><strong>Complete store control</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>All store sections and settings</li>
+                            <li>Payment settings and plan changes</li>
+                            <li>Billing for this store</li>
+                            <li>Store deletion authority</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Important:</strong> Must be an Organization Admin. One per store.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">FULL ACCESS</span>
+                    <h3>Full Access Staff</h3>
+                    <div class="card-content">
+                        <p><strong>All store sections</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Orders, Products, Customers</li>
+                            <li>Analytics, Marketing, Discounts</li>
+                            <li>Content, Apps management</li>
+                            <li>Settings (except payments)</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Recommended for:</strong> Store managers, senior staff</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">CUSTOM ACCESS</span>
+                    <h3>Limited Access Staff</h3>
+                    <div class="card-content">
+                        <p><strong>Specific sections only</strong></p>
+                        <p>Granular control per section:</p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Orders (view/edit/manage)</li>
+                            <li>Products (view/edit/manage)</li>
+                            <li>Customers (view/manage)</li>
+                            <li>Analytics (reports only)</li>
+                            <li>Marketing, Discounts, Content</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">SPECIALIZED</span>
+                    <h3>POS Only</h3>
+                    <div class="card-content">
+                        <p><strong>Point of Sale access exclusively</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Shopify POS app access</li>
+                            <li>In-store transactions</li>
+                            <li>Register management</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Recommended for:</strong> Distributors, field sales reps</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">REPORTS ONLY</span>
+                    <h3>Reports Only</h3>
+                    <div class="card-content">
+                        <p><strong>Analytics and reporting</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>View all reports and analytics</li>
+                            <li>Export data and reports</li>
+                            <li>No transaction or content editing</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Recommended for:</strong> Finance team, analysts</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 4: Permission Matrix -->
+        <section class="section">
+            <h2>Unicity Recommended Permission Matrix</h2>
+            <p>This matrix shows recommended access levels for each role across critical functions. <span style="color: var(--green);">Green = Full Access</span>, <span style="color: var(--yellow);">Yellow = Read-Only</span>, <span style="color: var(--red);">Red = No Access</span></p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Org Settings</th>
+                            <th>User Mgmt</th>
+                            <th>Billing</th>
+                            <th>US Store</th>
+                            <th>EU Store</th>
+                            <th>JP Store</th>
+                            <th>POS</th>
+                            <th>Reports</th>
+                            <th>Payments</th>
+                            <th>Products</th>
+                            <th>Orders</th>
+                            <th>Customers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="role-name">Global Admin</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">US Store Manager</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">EU Store Manager</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">Japan Store Manager</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">Finance Team</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">POS Distributor</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-none">None</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">Analytics Team</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-read">Read</td>
+                        </tr>
+                        <tr>
+                            <td class="role-name">Customer Service</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-none">None</td>
+                            <td class="permission-read">Read</td>
+                            <td class="permission-full">Full</td>
+                            <td class="permission-full">Full</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 5: User Provisioning Workflow -->
+        <section class="section">
+            <h2>User Provisioning Workflow</h2>
+            <p>Follow this structured process to add new users to the Unicity organization with appropriate access levels.</p>
+
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Determine Role</h3>
+                    <p>Identify whether this is an organization-level or store-level role assignment</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Send Invite</h3>
+                    <p>Organization Admin > Users > Add user > Send email invitation</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Assign Org Role</h3>
+                    <p>Set organization-level role: Admin, Editor, or Viewer</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Configure Store Access</h3>
+                    <p>Select which stores and assign store-level permissions</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Setup 2FA</h3>
+                    <p>User accepts invite and sets up two-factor authentication</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <h3>Document Access</h3>
+                    <p>Record in access registry with date, role, and approver</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Best Practice:</strong> Always send invitations from the Organization Admin account. Avoid using personal email forwarding for invites.
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 6: Security Requirements -->
+        <section class="section">
+            <h2>Security Requirements</h2>
+            <p>Implement these security controls across all user accounts to protect sensitive business data and comply with regulatory standards.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <span class="card-label">MANDATORY</span>
+                    <h3>Two-Factor Authentication</h3>
+                    <div class="card-content">
+                        <p><strong>Required for all staff</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Enforced via Organization Admin > Settings</li>
+                            <li>Supported methods: SMS, authenticator app</li>
+                            <li>Recover codes required for backup access</li>
+                            <li>No exceptions—enforce on account creation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">MONITORING</span>
+                    <h3>Login Activity Monitoring</h3>
+                    <div class="card-content">
+                        <p><strong>Track all access</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Settings > Activity log (all staff logins)</li>
+                            <li>Review for unusual patterns</li>
+                            <li>Flag concurrent login sessions</li>
+                            <li>Audit failed login attempts</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">SESSION</span>
+                    <h3>Session Management</h3>
+                    <div class="card-content">
+                        <p><strong>Automatic timeout & control</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Auto-logout after 30 min inactivity</li>
+                            <li>Force logout on password change</li>
+                            <li>Terminate remote sessions remotely</li>
+                            <li>Device trust management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">NETWORK</span>
+                    <h3>IP Restrictions</h3>
+                    <div class="card-content">
+                        <p><strong>Limit access by location</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Shopify Plus feature (Premium plan)</li>
+                            <li>Restrict admin to office IPs only</li>
+                            <li>Configure per-user IP whitelist</li>
+                            <li>Requires VPN outside office network</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">API</span>
+                    <h3>API Access Tokens</h3>
+                    <div class="card-content">
+                        <p><strong>Separate from user accounts</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Scoped permissions (never full admin)</li>
+                            <li>Rotated quarterly minimum</li>
+                            <li>Never share across teams</li>
+                            <li>Revoke immediately on token leak</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 7: Audit Procedures -->
+        <section class="section">
+            <h2>Audit Procedures</h2>
+            <p>Maintain compliance and security through regular access reviews and monitoring.</p>
+
+            <h3>Monthly Review</h3>
+            <div class="info-box">
+                <strong>Tasks:</strong>
+                <ul style="margin: 10px 0; margin-left: 20px;">
+                    <li>Review all active users in organization</li>
+                    <li>Identify and deactivate inactive accounts (30+ days no login)</li>
+                    <li>Check for orphaned API tokens</li>
+                    <li>Verify 2FA is enabled on all accounts</li>
+                </ul>
+            </div>
+
+            <h3>Quarterly Audit</h3>
+            <div class="info-box warning">
+                <strong>Full Permission Review:</strong>
+                <ul style="margin: 10px 0; margin-left: 20px;">
+                    <li>Verify role assignments match current job responsibilities</li>
+                    <li>Compare actual permissions against approved matrix</li>
+                    <li>Identify excessive access (roles beyond necessity)</li>
+                    <li>Document changes and approvals</li>
+                </ul>
+            </div>
+
+            <h3>On Employee Departure</h3>
+            <div class="info-box critical">
+                <strong>Immediate Deactivation Checklist:</strong>
+                <ul style="margin: 10px 0; margin-left: 20px;">
+                    <li>Remove from Organization Admin</li>
+                    <li>Remove from all store access</li>
+                    <li>Revoke all API tokens</li>
+                    <li>Change any shared passwords/credentials</li>
+                    <li>Audit recent activity for unusual patterns</li>
+                    <li>Verify no external data access remained</li>
+                </ul>
+            </div>
+
+            <h3>Activity Log Review</h3>
+            <p style="margin-top: 20px;">Monitor for suspicious patterns including:</p>
+            <ul>
+                <li><strong>Bulk Data Exports:</strong> Large report downloads or API data pulls</li>
+                <li><strong>Settings Changes:</strong> Unauthorized permission modifications</li>
+                <li><strong>Unusual Hours:</strong> Access outside normal business times</li>
+                <li><strong>Mass Deletions:</strong> Deletion of orders, products, or customers</li>
+                <li><strong>Payment Changes:</strong> Modifications to payment methods or billing</li>
+                <li><strong>User Modifications:</strong> Unexpected account changes</li>
+            </ul>
+
+            <h3>Documentation Requirements</h3>
+            <p>Maintain audit trail for all access changes:</p>
+            <ul>
+                <li>Date of change</li>
+                <li>User affected</li>
+                <li>What changed (role, permissions, etc.)</li>
+                <li>Who requested the change</li>
+                <li>Who approved the change</li>
+                <li>Business justification</li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 8: Compliance Considerations -->
+        <section class="section">
+            <h2>Compliance Considerations</h2>
+            <p>Unicity's multi-region operations require adherence to multiple regulatory frameworks. Configure permissions to ensure compliance.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <span class="card-label">SOX</span>
+                    <h3>Sarbanes-Oxley Compliance</h3>
+                    <div class="card-content">
+                        <p><strong>Segregation of Duties</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Separate order creators from approval authority</li>
+                            <li>Refund approvers cannot create refunds</li>
+                            <li>Payment processors cannot reconcile</li>
+                            <li>Audit all financial transactions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">GDPR</span>
+                    <h3>GDPR (EU Operations)</h3>
+                    <div class="card-content">
+                        <p><strong>Data Protection & Privacy</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Only EU team accesses EU customer data</li>
+                            <li>Use store-level isolation for data boundaries</li>
+                            <li>Implement data access logging</li>
+                            <li>Support data subject requests (DSR)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">PCI DSS</span>
+                    <h3>PCI DSS Compliance</h3>
+                    <div class="card-content">
+                        <p><strong>Payment Card Security</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Limit payment settings access to authorized personnel</li>
+                            <li>Never expose full card numbers</li>
+                            <li>Encrypt payment data in transit/rest</li>
+                            <li>Regular security assessments</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="card-label">APPI</span>
+                    <h3>APPI (Japan Operations)</h3>
+                    <div class="card-content">
+                        <p><strong>Personal Data Protection</strong></p>
+                        <ul style="margin: 10px 0; margin-left: 20px; font-size: 12px;">
+                            <li>Similar to GDPR requirements</li>
+                            <li>Restrict Japan customer data to JP team</li>
+                            <li>Implement access controls</li>
+                            <li>Maintain audit trails</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Compliance Tip:</strong> Document all compliance-driven access restrictions. Review quarterly with Legal and Compliance teams to ensure controls remain current.
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 9: Offboarding Checklist -->
+        <section class="section">
+            <h2>Offboarding Checklist</h2>
+            <p>Use this interactive checklist when an employee departs or transitions roles. Complete all items before final access removal.</p>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="item1">
+                    <label for="item1"><strong>Remove from Organization Admin</strong> - Deactivate organization-level access</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item2">
+                    <label for="item2"><strong>Remove from all store access</strong> - Deactivate store-by-store permissions</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item3">
+                    <label for="item3"><strong>Revoke API tokens</strong> - Delete all API access tokens associated with the user</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item4">
+                    <label for="item4"><strong>Change shared passwords/credentials</strong> - Update any shared account passwords they had access to</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item5">
+                    <label for="item5"><strong>Review and reassign workflows</strong> - Reassign any automated workflows or integrations they owned</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item6">
+                    <label for="item6"><strong>Audit recent activity for anomalies</strong> - Review activity log for last 30 days of suspicious patterns</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item7">
+                    <label for="item7"><strong>Update access registry</strong> - Record deactivation date and reason in central access documentation</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item8">
+                    <label for="item8"><strong>Notify team of access change</strong> - Send communication to relevant teams about access removal</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item9">
+                    <label for="item9"><strong>Retrieve company devices/equipment</strong> - Collect laptop, phone, keys, and other company property</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="item10">
+                    <label for="item10"><strong>Archive email and documents</strong> - Backup and archive personal files and email records</label>
+                </div>
+            </div>
+
+            <div class="info-box success">
+                <strong>Completion Confirmation:</strong> Print this page after completion and file with HR. Maintain records for audit purposes.
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Footer -->
+        <footer style="padding-top: 20px; border-top: 1px solid var(--border); color: #8b949e; font-size: 12px;">
+            <p><strong>Document Version:</strong> 1.0 | <strong>Last Updated:</strong> 2026 | <strong>Owner:</strong> Organization Admin Team</p>
+            <p>This guide is subject to change. Always verify current Shopify Plus documentation before implementing changes. Contact IT Director for questions or updates.</p>
+        </footer>
+    </div>
+</body>
+</html>

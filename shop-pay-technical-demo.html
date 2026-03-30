@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Pay Experience - Customer + Technical View</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --shop-purple: #5a31f4;
+            --shop-purple-dark: #4a28c9;
+            --shop-black: #1a1a1a;
+            --shop-gray-700: #4a4a4a;
+            --shop-gray-500: #717171;
+            --shop-gray-300: #b3b3b3;
+            --shop-gray-100: #f5f5f5;
+            --shop-white: #ffffff;
+            --shop-green: #00875a;
+            --shop-green-light: #e6f4ed;
+            --code-bg: #1e1e2e;
+            --code-text: #cdd6f4;
+            --code-keyword: #cba6f7;
+            --code-string: #a6e3a1;
+            --code-number: #fab387;
+            --code-comment: #6c7086;
+            --webhook-orange: #f59e0b;
+            --api-blue: #3b82f6;
+            --token-green: #10b981;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: var(--shop-white);
+        }
+        .demo-container { max-width: 1600px; margin: 0 auto; padding: 30px 20px; }
+        .demo-header { text-align: center; margin-bottom: 30px; }
+        .demo-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .demo-header p { color: var(--shop-gray-300); font-size: 1rem; }
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.05);
+            padding: 6px;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .view-toggle button {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: var(--shop-gray-300);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .view-toggle button.active { background: var(--shop-purple); color: white; }
+        .flow-indicator { display: flex; justify-content: center; gap: 6px; margin-bottom: 30px; flex-wrap: wrap; }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .flow-step.active { background: var(--shop-purple); border-color: var(--shop-purple); box-shadow: 0 4px 20px rgba(90, 49, 244, 0.4); }
+        .flow-step.completed { background: rgba(16, 185, 129, 0.2); border-color: var(--token-green); color: var(--token-green); }
+        .flow-step .step-num { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.75rem; }
+        .flow-step.active .step-num { background: rgba(255,255,255,0.2); }
+        .flow-step.completed .step-num { background: var(--token-green); color: white; }
+        .main-content { display: grid; grid-template-columns: 380px 1fr; gap: 40px; align-items: start; }
+        .main-content.customer-only { grid-template-columns: 1fr; justify-items: center; }
+        .main-content.customer-only .technical-panel { display: none; }
+        .phone-wrapper { position: sticky; top: 30px; }
+        .phone-label { text-align: center; margin-bottom: 16px; font-weight: 600; color: var(--shop-gray-300); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
+        .phone-frame {
+            width: 360px;
+            height: 720px;
+            background: var(--shop-black);
+            border-radius: 48px;
+            padding: 10px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+        }
+        .phone-screen { width: 100%; height: 100%; background: var(--shop-white); border-radius: 40px; overflow: hidden; position: relative; }
+        .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 130px; height: 28px; background: var(--shop-black); border-radius: 0 0 16px 16px; z-index: 100; }
+        .screen-content { height: 100%; overflow-y: auto; padding-top: 34px; color: var(--shop-black); }
+        .technical-panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden; }
+        .tech-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .tech-tab { flex: 1; padding: 14px 20px; background: transparent; border: none; color: var(--shop-gray-300); font-weight: 500; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tech-tab.active { background: rgba(255,255,255,0.05); color: white; border-bottom: 2px solid var(--shop-purple); }
+        .tech-content { padding: 20px; max-height: 660px; overflow-y: auto; }
+        .tech-section { margin-bottom: 24px; }
+        .tech-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .tech-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tech-badge.api { background: rgba(59, 130, 246, 0.2); color: var(--api-blue); }
+        .tech-badge.webhook { background: rgba(245, 158, 11, 0.2); color: var(--webhook-orange); }
+        .tech-badge.token { background: rgba(16, 185, 129, 0.2); color: var(--token-green); }
+        .tech-badge.graphql { background: rgba(203, 166, 247, 0.2); color: var(--code-keyword); }
+        .tech-section-title { font-size: 0.9rem; font-weight: 600; }
+        .code-block { background: var(--code-bg); border-radius: 12px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; line-height: 1.5; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .code-filename { color: var(--shop-gray-300); font-size: 0.7rem; }
+        .code-body { padding: 14px; overflow-x: auto; }
+        .code-body pre { margin: 0; color: var(--code-text); white-space: pre-wrap; word-break: break-all; }
+        .code-keyword { color: var(--code-keyword); }
+        .code-string { color: var(--code-string); }
+        .code-number { color: var(--code-number); }
+        .code-comment { color: var(--code-comment); font-style: italic; }
+        .code-property { color: #89b4fa; }
+        .endpoint-url { background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; overflow-x: auto; }
+        .endpoint-url .method { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.65rem; flex-shrink: 0; }
+        .endpoint-url .method.post { background: var(--token-green); color: white; }
+        .endpoint-url .method.get { background: var(--api-blue); color: white; }
+        .endpoint-url .url { color: var(--shop-gray-300); }
+        .data-flow { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px; }
+        .flow-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .flow-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .flow-item:first-child { padding-top: 0; }
+        .flow-num { width: 24px; height: 24px; background: var(--shop-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+        .flow-text { flex: 1; }
+        .flow-text strong { display: block; margin-bottom: 4px; font-size: 0.85rem; }
+        .flow-text span { color: var(--shop-gray-300); font-size: 0.8rem; line-height: 1.4; }
+        .info-box { padding: 14px; border-radius: 10px; margin-top: 16px; border-left: 3px solid; }
+        .info-box.green { background: rgba(16, 185, 129, 0.1); border-color: var(--token-green); }
+        .info-box.orange { background: rgba(245, 158, 11, 0.1); border-color: var(--webhook-orange); }
+        .info-box.purple { background: rgba(90, 49, 244, 0.1); border-color: var(--shop-purple); }
+        .info-box strong { display: block; margin-bottom: 6px; }
+        .info-box p { color: var(--shop-gray-300); font-size: 0.85rem; margin: 0; }
+        /* Phone UI Styles */
+        .store-header { padding: 14px 16px; background: var(--shop-white); border-bottom: 1px solid var(--shop-gray-100); display: flex; justify-content: space-between; align-items: center; }
+        .store-logo { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--shop-black); }
+        .cart-icon { position: relative; width: 34px; height: 34px; background: var(--shop-gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; }
+        .cart-badge { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; background: var(--shop-purple); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .product-card { padding: 16px; }
+        .product-image { width: 100%; height: 220px; background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; position: relative; }
+        .product-badge { position: absolute; top: 12px; left: 12px; background: var(--shop-green); color: white; padding: 5px 10px; border-radius: 14px; font-size: 0.65rem; font-weight: 600; }
+        .product-image-icon { font-size: 3rem; }
+        .product-title { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; color: var(--shop-black); }
+        .product-subtitle { color: var(--shop-gray-500); font-size: 0.8rem; margin-bottom: 12px; line-height: 1.4; }
+        .product-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+        .product-price { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--shop-black); }
+        .product-price-original { font-size: 0.9rem; color: var(--shop-gray-500); text-decoration: line-through; }
+        .installment-preview { background: linear-gradient(135deg, #f8f6ff 0%, #f0eeff 100%); border: 1px solid rgba(90, 49, 244, 0.2); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .shop-logo-small { width: 46px; height: 18px; background: var(--shop-purple); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.5rem; letter-spacing: 0.5px; }
+        .installment-text { font-size: 0.75rem; color: var(--shop-gray-700); }
+        .installment-text strong { color: var(--shop-purple); }
+        .add-to-cart-btn { width: 100%; padding: 14px; background: var(--shop-black); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+        .shop-pay-btn { width: 100%; padding: 14px; background: var(--shop-purple); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .shop-pay-logo { background: white; padding: 2px 5px; border-radius: 3px; font-weight: 700; font-size: 0.6rem; color: var(--shop-purple); }
+        .cart-header { padding: 16px; border-bottom: 1px solid var(--shop-gray-100); }
+        .cart-header h2 { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 600; color: var(--shop-black); }
+        .express-checkout { padding: 14px 16px; border-bottom: 1px solid var(--shop-gray-100); }
+        .express-label { text-align: center; color: var(--shop-gray-500); font-size: 0.7rem; margin-bottom: 8px; }
+        .express-buttons { display: flex; gap: 6px; }
+        .express-btn { flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 0.7rem; }
+        .express-btn.shop-pay { background: var(--shop-purple); color: white; }
+        .express-btn.apple-pay { background: var(--shop-black); color: white; }
+        .express-btn.google-pay { background: white; border: 1px solid var(--shop-gray-300); color: var(--shop-black); }
+        .cart-items { padding: 14px 16px; }
+        .cart-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--shop-gray-100); }
+        .cart-item-image { width: 64px; height: 64px; background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 600; margin-bottom: 2px; font-size: 0.85rem; color: var(--shop-black); }
+        .cart-item-variant { color: var(--shop-gray-500); font-size: 0.75rem; margin-bottom: 6px; }
+        .cart-item-qty { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--shop-black); }
+        .qty-btn { width: 24px; height: 24px; border: 1px solid var(--shop-gray-300); background: white; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .cart-item-price { font-weight: 600; text-align: right; color: var(--shop-black); font-size: 0.9rem; }
+        .cart-summary { padding: 14px 16px; background: var(--shop-gray-100); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; color: var(--shop-black); }
+        .summary-row.total { font-weight: 700; font-size: 0.95rem; padding-top: 8px; border-top: 1px solid var(--shop-gray-300); }
+        .auth-screen { padding: 32px 20px; text-align: center; }
+        .auth-logo { width: 80px; height: 32px; background: var(--shop-purple); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.8px; margin: 0 auto 24px; }
+        .auth-title { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; color: var(--shop-black); }
+        .auth-subtitle { color: var(--shop-gray-500); margin-bottom: 24px; line-height: 1.4; font-size: 0.85rem; }
+        .auth-input-group { margin-bottom: 16px; text-align: left; }
+        .auth-label { display: block; font-size: 0.75rem; font-weight: 500; margin-bottom: 6px; color: var(--shop-gray-700); }
+        .auth-input { width: 100%; padding: 12px; border: 2px solid var(--shop-gray-300); border-radius: 8px; font-size: 0.9rem; color: var(--shop-black); }
+        .auth-input.filled { border-color: var(--shop-green); background: var(--shop-green-light); }
+        .auth-continue-btn { width: 100%; padding: 14px; background: var(--shop-purple); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 14px; }
+        .auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--shop-gray-500); font-size: 0.75rem; }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--shop-gray-300); }
+        .otp-container { display: flex; justify-content: center; gap: 8px; margin: 24px 0; }
+        .otp-input { width: 42px; height: 52px; border: 2px solid var(--shop-gray-300); border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: 600; color: var(--shop-black); }
+        .otp-input.filled { border-color: var(--shop-purple); background: rgba(90, 49, 244, 0.05); }
+        .resend-link { color: var(--shop-purple); text-decoration: none; font-weight: 500; }
+        .checkout-section { padding: 14px 16px; border-bottom: 1px solid var(--shop-gray-100); }
+        .checkout-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .checkout-section-title { font-weight: 600; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--shop-black); }
+        .section-check { width: 16px; height: 16px; background: var(--shop-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.5rem; }
+        .edit-link { color: var(--shop-purple); font-size: 0.75rem; text-decoration: none; }
+        .saved-info { background: var(--shop-gray-100); padding: 10px 12px; border-radius: 8px; }
+        .saved-info-line { font-size: 0.8rem; color: var(--shop-gray-700); margin-bottom: 2px; }
+        .payment-method { display: flex; align-items: center; gap: 10px; background: var(--shop-gray-100); padding: 10px 12px; border-radius: 8px; }
+        .card-icon { width: 40px; height: 26px; background: linear-gradient(135deg, #1a1f71 0%, #2d357a 100%); border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.5rem; }
+        .card-number { font-weight: 600; font-size: 0.8rem; color: var(--shop-black); }
+        .card-expiry { color: var(--shop-gray-500); font-size: 0.7rem; }
+        .pay-now-btn { width: 100%; padding: 16px; background: var(--shop-purple); color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+        .confirmation-screen { padding: 32px 20px; text-align: center; }
+        .success-icon { width: 64px; height: 64px; background: var(--shop-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 1.8rem; color: white; }
+        .confirmation-title { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; color: var(--shop-black); }
+        .confirmation-order { color: var(--shop-gray-500); margin-bottom: 24px; font-size: 0.85rem; }
+        .tracking-card { background: var(--shop-gray-100); border-radius: 12px; padding: 16px; margin-bottom: 18px; text-align: left; }
+        .tracking-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .tracking-header strong { color: var(--shop-black); font-size: 0.85rem; }
+        .tracking-status { color: var(--shop-green); font-weight: 600; font-size: 0.75rem; }
+        .tracking-date { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--shop-black); }
+        .tracking-progress { height: 4px; background: var(--shop-gray-300); border-radius: 2px; margin-bottom: 8px; }
+        .tracking-progress-fill { height: 100%; width: 25%; background: var(--shop-green); border-radius: 2px; }
+        .tracking-steps { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--shop-gray-500); }
+        .tracking-steps span:first-child { color: var(--shop-green); font-weight: 600; }
+        .shop-app-promo { background: linear-gradient(135deg, var(--shop-purple) 0%, var(--shop-purple-dark) 100%); border-radius: 12px; padding: 16px; color: white; text-align: left; }
+        .promo-title { font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+        .promo-text { font-size: 0.75rem; opacity: 0.9; margin-bottom: 12px; line-height: 1.4; }
+        .promo-btn { background: white; color: var(--shop-purple); padding: 10px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem; }
+        .nav-buttons { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
+        .nav-btn { padding: 12px 28px; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .nav-btn.primary { background: var(--shop-purple); color: white; border: none; }
+        .nav-btn.secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .hidden { display: none !important; }
+        @media (max-width: 1000px) {
+            .main-content { grid-template-columns: 1fr; justify-items: center; }
+            .phone-wrapper { position: static; }
+            .technical-panel { max-width: 500px; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🛒 Shop Pay Experience Demo</h1>
+            <p>Customer journey with real-time technical view of API calls, webhooks, and data flow</p>
+        </div>
+        <div class="view-toggle">
+            <button class="active" onclick="setView('split')">Split View</button>
+            <button onclick="setView('customer')">Customer Only</button>
+        </div>
+        <div class="flow-indicator">
+            <div class="flow-step active" data-step="1" onclick="goToStep(1)"><span class="step-num">1</span><span>Browse</span></div>
+            <div class="flow-step" data-step="2" onclick="goToStep(2)"><span class="step-num">2</span><span>Cart</span></div>
+            <div class="flow-step" data-step="3" onclick="goToStep(3)"><span class="step-num">3</span><span>Auth</span></div>
+            <div class="flow-step" data-step="4" onclick="goToStep(4)"><span class="step-num">4</span><span>Verify</span></div>
+            <div class="flow-step" data-step="5" onclick="goToStep(5)"><span class="step-num">5</span><span>Review</span></div>
+            <div class="flow-step" data-step="6" onclick="goToStep(6)"><span class="step-num">6</span><span>Complete</span></div>
+        </div>
+        <div class="main-content" id="mainContent">
+            <div class="phone-wrapper" id="phoneWrapper">
+                <div class="phone-label">👤 Customer View</div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="phone-notch"></div>
+                        <!-- Step 1 -->
+                        <div class="screen-content" id="step1">
+                            <div class="store-header">
+                                <div class="store-logo">Unicity Wellness</div>
+                                <div class="cart-icon" onclick="goToStep(2)">🛒<span class="cart-badge">0</span></div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image"><span class="product-badge">Best Seller</span><span class="product-image-icon">🧬</span></div>
+                                <h2 class="product-title">Unimate Lemon</h2>
+                                <p class="product-subtitle">Premium yerba mate drink for mental clarity and focus. 30 sachets per box.</p>
+                                <div class="product-price-row"><span class="product-price">$89.00</span><span class="product-price-original">$109.00</span></div>
+                                <div class="installment-preview"><span class="shop-logo-small">shop</span><span class="installment-text">Pay in 4 payments of <strong>$22.25</strong></span></div>
+                                <button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
+                                <button class="shop-pay-btn" onclick="goToStep(3)">Buy now with <span class="shop-pay-logo">shop pay</span></button>
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="screen-content hidden" id="step2">
+                            <div class="cart-header"><h2>Your Cart</h2></div>
+                            <div class="express-checkout">
+                                <div class="express-label">Express checkout</div>
+                                <div class="express-buttons">
+                                    <button class="express-btn shop-pay" onclick="goToStep(3)">shop pay</button>
+                                    <button class="express-btn apple-pay">Apple Pay</button>
+                                    <button class="express-btn google-pay">G Pay</button>
+                                </div>
+                            </div>
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div class="cart-item-image">🧬</div>
+                                    <div class="cart-item-details">
+                                        <div class="cart-item-title">Unimate Lemon</div>
+                                        <div class="cart-item-variant">30 Sachets</div>
+                                        <div class="cart-item-qty"><button class="qty-btn">−</button><span>1</span><button class="qty-btn">+</button></div>
+                                    </div>
+                                    <div class="cart-item-price">$89.00</div>
+                                </div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Subtotal</span><span>$89.00</span></div>
+                                <div class="summary-row"><span>Shipping</span><span>Calculated at checkout</span></div>
+                                <div class="summary-row total"><span>Total</span><span>$89.00</span></div>
+                            </div>
+                            <div style="padding: 16px;"><button class="shop-pay-btn" onclick="goToStep(3)">Checkout with <span class="shop-pay-logo">shop pay</span></button></div>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="screen-content hidden" id="step3">
+                            <div class="auth-screen">
+                                <div class="auth-logo">shop pay</div>
+                                <h2 class="auth-title">Welcome back</h2>
+                                <p class="auth-subtitle">Enter your email or phone to use your saved information</p>
+                                <div class="auth-input-group">
+                                    <label class="auth-label">Email or mobile phone</label>
+                                    <input type="text" class="auth-input filled" value="howard@unicity.com" readonly>
+                                </div>
+                                <button class="auth-continue-btn" onclick="goToStep(4)">Continue</button>
+                                <div class="auth-divider">or</div>
+                                <p style="color: var(--shop-gray-500); font-size: 0.75rem;">New to Shop Pay? We'll create an account.</p>
+                            </div>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="screen-content hidden" id="step4">
+                            <div class="auth-screen">
+                                <div class="auth-logo">shop pay</div>
+                                <h2 class="auth-title">Enter verification code</h2>
+                                <p class="auth-subtitle">We sent a 6-digit code to<br><strong style="color: var(--shop-black);">howard@unicity.com</strong></p>
+                                <div class="otp-container">
+                                    <input type="text" class="otp-input filled" value="4" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="8" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="2" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="7" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="1" maxlength="1" readonly>
+                                    <input type="text" class="otp-input filled" value="9" maxlength="1" readonly>
+                                </div>
+                                <button class="auth-continue-btn" onclick="goToStep(5)">Verify</button>
+                                <p style="margin-top: 16px; color: var(--shop-gray-500); font-size: 0.75rem;">Didn't receive code? <a href="#" class="resend-link">Resend</a></p>
+                            </div>
+                        </div>
+                        <!-- Step 5 -->
+                        <div class="screen-content hidden" id="step5">
+                            <div class="store-header"><div class="store-logo">🔒 Secure Checkout</div></div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Contact</span><a href="#" class="edit-link">Change</a></div>
+                                <div class="saved-info"><div class="saved-info-line">howard@unicity.com</div></div>
+                            </div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Ship to</span><a href="#" class="edit-link">Change</a></div>
+                                <div class="saved-info"><div class="saved-info-line"><strong>Howard S.</strong></div><div class="saved-info-line">1201 N Market St</div><div class="saved-info-line">Wilmington, DE 19801</div></div>
+                            </div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Payment</span><a href="#" class="edit-link">Change</a></div>
+                                <div class="payment-method"><div class="card-icon">VISA</div><div><div class="card-number">•••• •••• •••• 4242</div><div class="card-expiry">Expires 12/27</div></div></div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Unimate Lemon × 1</span><span>$89.00</span></div>
+                                <div class="summary-row"><span>Shipping</span><span>$5.99</span></div>
+                                <div class="summary-row"><span>Tax</span><span>$7.60</span></div>
+                                <div class="summary-row total"><span>Total</span><span>$102.59</span></div>
+                            </div>
+                            <div style="padding: 16px;"><button class="pay-now-btn" onclick="goToStep(6)">Pay $102.59</button></div>
+                        </div>
+                        <!-- Step 6 -->
+                        <div class="screen-content hidden" id="step6">
+                            <div class="confirmation-screen">
+                                <div class="success-icon">✓</div>
+                                <h2 class="confirmation-title">Thank you!</h2>
+                                <p class="confirmation-order">Order #UNI-78432</p>
+                                <div class="tracking-card">
+                                    <div class="tracking-header"><strong>Estimated delivery</strong><span class="tracking-status">Processing</span></div>
+                                    <div class="tracking-date">Jan 29 - Jan 31</div>
+                                    <div class="tracking-progress"><div class="tracking-progress-fill"></div></div>
+                                    <div class="tracking-steps"><span>Ordered</span><span>Shipped</span><span>In Transit</span><span>Delivered</span></div>
+                                </div>
+                                <div class="shop-app-promo">
+                                    <div class="promo-title">Track with Shop app</div>
+                                    <p class="promo-text">Get real-time tracking updates and manage all your orders.</p>
+                                    <button class="promo-btn">Open in Shop</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Technical Panel -->
+            <div class="technical-panel" id="technicalPanel">
+                <div class="tech-tabs">
+                    <button class="tech-tab active" onclick="setTechTab('api')">⚡ API Calls</button>
+                    <button class="tech-tab" onclick="setTechTab('webhooks')">🔔 Webhooks</button>
+                    <button class="tech-tab" onclick="setTechTab('flow')">📊 Data Flow</button>
+                </div>
+                <div class="tech-content" id="techContent"></div>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn secondary" id="prevBtn" onclick="prevStep()" disabled>← Previous</button>
+            <button class="nav-btn primary" id="nextBtn" onclick="nextStep()">Next Step →</button>
+        </div>
+    </div>
+    <script>
+        let currentStep = 1, currentTechTab = 'api';
+        const totalSteps = 6;
+        const techContent = {
+            1: {
+                api: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge graphql">GraphQL</span><span class="tech-section-title">Storefront API - Fetch Product</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://{store}.myshopify.com/api/2024-01/graphql.json</span></div><div class="code-block"><div class="code-header"><span class="code-filename">productQuery.graphql</span></div><div class="code-body"><pre><span class="code-keyword">query</span> getProduct($handle: String!) {
+  product(handle: $handle) {
+    <span class="code-property">id</span>
+    <span class="code-property">title</span>
+    <span class="code-property">priceRange</span> {
+      minVariantPrice { <span class="code-property">amount</span> <span class="code-property">currencyCode</span> }
+    }
+    <span class="code-property">variants</span>(first: <span class="code-number">10</span>) {
+      edges { node { <span class="code-property">id</span> <span class="code-property">price</span> { amount } } }
+    }
+  }
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge api">REST</span><span class="tech-section-title">Shop Pay Installments Check</span></div><div class="endpoint-url"><span class="method get">GET</span><span class="url">https://shop.app/pay/installments/eligible?amount=8900</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Response</span></div><div class="code-body"><pre>{
+  <span class="code-property">"eligible"</span>: <span class="code-keyword">true</span>,
+  <span class="code-property">"installment_count"</span>: <span class="code-number">4</span>,
+  <span class="code-property">"installment_amount"</span>: <span class="code-number">2225</span>,
+  <span class="code-property">"min_amount"</span>: <span class="code-number">5000</span>,
+  <span class="code-property">"max_amount"</span>: <span class="code-number">300000</span>
+}</pre></div></div></div>`,
+                webhooks: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Info</span><span class="tech-section-title">No Webhooks at This Step</span></div><p style="color: var(--shop-gray-300); font-size: 0.9rem;">Product browsing is read-only. No webhooks fire until cart actions occur.</p><div class="info-box orange"><strong style="color: var(--webhook-orange);">Coming Next:</strong><p>When customer adds to cart, <code>carts/create</code> webhook fires.</p></div></div>`,
+                flow: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Flow</span><span class="tech-section-title">Product Page Load Sequence</span></div><div class="data-flow"><div class="flow-item"><span class="flow-num">1</span><div class="flow-text"><strong>Browser → Shopify CDN</strong><span>Request product page assets</span></div></div><div class="flow-item"><span class="flow-num">2</span><div class="flow-text"><strong>Storefront → GraphQL API</strong><span>Fetch product data, variants, pricing</span></div></div><div class="flow-item"><span class="flow-num">3</span><div class="flow-text"><strong>Shop Pay SDK → Eligibility Check</strong><span>Determine installments for $50-$3000 orders</span></div></div><div class="flow-item"><span class="flow-num">4</span><div class="flow-text"><strong>Render Shop Pay Button</strong><span>Display installment preview if eligible</span></div></div></div></div>`
+            },
+            2: {
+                api: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge graphql">GraphQL</span><span class="tech-section-title">Storefront API - Create Cart</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://{store}.myshopify.com/api/2024-01/graphql.json</span></div><div class="code-block"><div class="code-header"><span class="code-filename">cartCreate.graphql</span></div><div class="code-body"><pre><span class="code-keyword">mutation</span> cartCreate($input: CartInput!) {
+  cartCreate(input: $input) {
+    cart {
+      <span class="code-property">id</span>
+      <span class="code-property">checkoutUrl</span>
+      <span class="code-property">totalQuantity</span>
+      cost { totalAmount { <span class="code-property">amount</span> } }
+      lines(first: <span class="code-number">100</span>) {
+        edges { node { <span class="code-property">id</span> <span class="code-property">quantity</span> } }
+      }
+    }
+  }
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge api">Variables</span><span class="tech-section-title">Cart Input Payload</span></div><div class="code-block"><div class="code-header"><span class="code-filename">variables.json</span></div><div class="code-body"><pre>{
+  <span class="code-property">"input"</span>: {
+    <span class="code-property">"lines"</span>: [{
+      <span class="code-property">"merchandiseId"</span>: <span class="code-string">"gid://shopify/ProductVariant/44567891234"</span>,
+      <span class="code-property">"quantity"</span>: <span class="code-number">1</span>
+    }]
+  }
+}</pre></div></div></div>`,
+                webhooks: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Webhook</span><span class="tech-section-title">carts/create</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://your-backend.com/webhooks/shopify/cart-create</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Webhook Payload</span></div><div class="code-body"><pre>{
+  <span class="code-property">"id"</span>: <span class="code-string">"gid://shopify/Cart/Z2NwLXVz..."</span>,
+  <span class="code-property">"token"</span>: <span class="code-string">"c8f4f3e2d1b0a9..."</span>,
+  <span class="code-property">"line_items"</span>: [{
+    <span class="code-property">"variant_id"</span>: <span class="code-number">44567891234</span>,
+    <span class="code-property">"quantity"</span>: <span class="code-number">1</span>,
+    <span class="code-property">"price"</span>: <span class="code-string">"89.00"</span>
+  }],
+  <span class="code-property">"created_at"</span>: <span class="code-string">"2026-01-26T15:30:00Z"</span>
+}</pre></div></div></div><div class="info-box green"><strong style="color: var(--token-green);">Use Case:</strong><p>Cart webhooks enable abandoned cart recovery, inventory holds, and analytics.</p></div>`,
+                flow: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Flow</span><span class="tech-section-title">Add to Cart Sequence</span></div><div class="data-flow"><div class="flow-item"><span class="flow-num">1</span><div class="flow-text"><strong>Click "Add to Cart"</strong><span>Frontend captures variant ID</span></div></div><div class="flow-item"><span class="flow-num">2</span><div class="flow-text"><strong>cartCreate Mutation</strong><span>Returns cartId + checkoutUrl</span></div></div><div class="flow-item"><span class="flow-num">3</span><div class="flow-text"><strong>Store cartId</strong><span>Save in localStorage for continuity</span></div></div><div class="flow-item"><span class="flow-num">4</span><div class="flow-text"><strong>Webhook Fires</strong><span>carts/create sent to backend</span></div></div></div></div>`
+            },
+            3: {
+                api: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge api">REST</span><span class="tech-section-title">Shop Pay - Lookup Buyer</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://shop.app/pay/api/buyer/lookup</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Request</span></div><div class="code-body"><pre>{
+  <span class="code-property">"email"</span>: <span class="code-string">"howard@unicity.com"</span>,
+  <span class="code-property">"merchant_id"</span>: <span class="code-string">"gid://shopify/Shop/12345678"</span>,
+  <span class="code-property">"checkout_token"</span>: <span class="code-string">"Z2NwLXVzLWVhc3Qx..."</span>
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Response</span><span class="tech-section-title">Buyer Found</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Response</span></div><div class="code-body"><pre>{
+  <span class="code-property">"buyer_exists"</span>: <span class="code-keyword">true</span>,
+  <span class="code-property">"buyer_id"</span>: <span class="code-string">"shop_buyer_abc123"</span>,
+  <span class="code-property">"verification_required"</span>: <span class="code-keyword">true</span>,
+  <span class="code-property">"verification_method"</span>: <span class="code-string">"email_otp"</span>,
+  <span class="code-property">"has_saved_addresses"</span>: <span class="code-keyword">true</span>,
+  <span class="code-property">"has_saved_payments"</span>: <span class="code-keyword">true</span>
+}</pre></div></div></div>`,
+                webhooks: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Webhook</span><span class="tech-section-title">checkouts/create</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://your-backend.com/webhooks/shopify/checkout-create</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Webhook Payload</span></div><div class="code-body"><pre>{
+  <span class="code-property">"id"</span>: <span class="code-number">28569876543</span>,
+  <span class="code-property">"token"</span>: <span class="code-string">"c8f4f3e2d1b0a9..."</span>,
+  <span class="code-property">"email"</span>: <span class="code-string">"howard@unicity.com"</span>,
+  <span class="code-property">"gateway"</span>: <span class="code-string">"shop_pay"</span>,
+  <span class="code-property">"total_price"</span>: <span class="code-string">"89.00"</span>
+}</pre></div></div></div>`,
+                flow: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Flow</span><span class="tech-section-title">Shop Pay Authentication</span></div><div class="data-flow"><div class="flow-item"><span class="flow-num">1</span><div class="flow-text"><strong>Redirect to Shop Pay</strong><span>Checkout redirects to shop.app/pay</span></div></div><div class="flow-item"><span class="flow-num">2</span><div class="flow-text"><strong>Buyer Lookup</strong><span>Check email in 100M+ buyer network</span></div></div><div class="flow-item"><span class="flow-num">3</span><div class="flow-text"><strong>Trigger OTP</strong><span>6-digit code sent via email/SMS</span></div></div><div class="flow-item"><span class="flow-num">4</span><div class="flow-text"><strong>checkouts/create Webhook</strong><span>Backend notified of checkout start</span></div></div></div></div>`
+            },
+            4: {
+                api: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge api">REST</span><span class="tech-section-title">Shop Pay - Verify OTP</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://shop.app/pay/api/auth/verify</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Request</span></div><div class="code-body"><pre>{
+  <span class="code-property">"buyer_id"</span>: <span class="code-string">"shop_buyer_abc123"</span>,
+  <span class="code-property">"otp_code"</span>: <span class="code-string">"482719"</span>,
+  <span class="code-property">"checkout_token"</span>: <span class="code-string">"Z2NwLXVz..."</span>
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Response</span><span class="tech-section-title">Auth Success + Wallet Data</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Response</span></div><div class="code-body"><pre>{
+  <span class="code-property">"verified"</span>: <span class="code-keyword">true</span>,
+  <span class="code-property">"session_token"</span>: <span class="code-string">"eyJhbGciOiJS..."</span>,
+  <span class="code-property">"wallet"</span>: {
+    <span class="code-property">"addresses"</span>: [{
+      <span class="code-property">"name"</span>: <span class="code-string">"Howard S."</span>,
+      <span class="code-property">"address1"</span>: <span class="code-string">"1201 N Market St"</span>,
+      <span class="code-property">"city"</span>: <span class="code-string">"Wilmington"</span>,
+      <span class="code-property">"province_code"</span>: <span class="code-string">"DE"</span>
+    }],
+    <span class="code-property">"payment_methods"</span>: [{
+      <span class="code-property">"brand"</span>: <span class="code-string">"visa"</span>,
+      <span class="code-property">"last4"</span>: <span class="code-string">"4242"</span>,
+      <span class="code-property">"exp_month"</span>: <span class="code-number">12</span>,
+      <span class="code-property">"exp_year"</span>: <span class="code-number">2027</span>
+    }]
+  }
+}</pre></div></div></div>`,
+                webhooks: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Webhook</span><span class="tech-section-title">checkouts/update</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://your-backend.com/webhooks/shopify/checkout-update</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Webhook Payload</span></div><div class="code-body"><pre>{
+  <span class="code-property">"id"</span>: <span class="code-number">28569876543</span>,
+  <span class="code-property">"email"</span>: <span class="code-string">"howard@unicity.com"</span>,
+  <span class="code-property">"shipping_address"</span>: {
+    <span class="code-property">"name"</span>: <span class="code-string">"Howard S."</span>,
+    <span class="code-property">"address1"</span>: <span class="code-string">"1201 N Market St"</span>,
+    <span class="code-property">"city"</span>: <span class="code-string">"Wilmington"</span>
+  }
+}</pre></div></div></div>`,
+                flow: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Flow</span><span class="tech-section-title">OTP Verification + Wallet Hydration</span></div><div class="data-flow"><div class="flow-item"><span class="flow-num">1</span><div class="flow-text"><strong>Customer Enters OTP</strong><span>6-digit code submitted</span></div></div><div class="flow-item"><span class="flow-num">2</span><div class="flow-text"><strong>Shop Pay Validates</strong><span>Session token issued</span></div></div><div class="flow-item"><span class="flow-num">3</span><div class="flow-text"><strong>Wallet Data Retrieved</strong><span>Addresses + payments from vault</span></div></div><div class="flow-item"><span class="flow-num">4</span><div class="flow-text"><strong>Auto-fill Checkout</strong><span>Skip manual entry entirely</span></div></div></div></div><div class="info-box purple"><strong style="color: #a5b4fc;">Token Security:</strong><p>Payment tokens are network tokens via Stripe. Merchant never sees raw card numbers.</p></div>`
+            },
+            5: {
+                api: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge graphql">GraphQL</span><span class="tech-section-title">Checkout Complete Mutation</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://{store}.myshopify.com/api/2024-01/graphql.json</span></div><div class="code-block"><div class="code-header"><span class="code-filename">checkoutComplete.graphql</span></div><div class="code-body"><pre><span class="code-keyword">mutation</span> checkoutCompleteWithTokenizedPayment(
+  $checkoutId: ID!
+  $payment: TokenizedPaymentInputV3!
+) {
+  checkoutCompleteWithTokenizedPaymentV3(
+    checkoutId: $checkoutId
+    payment: $payment
+  ) {
+    checkout { <span class="code-property">id</span> <span class="code-property">ready</span> }
+    payment {
+      <span class="code-property">id</span>
+      transaction { <span class="code-property">amount</span> <span class="code-property">status</span> }
+    }
+  }
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge api">Behind Scenes</span><span class="tech-section-title">Shopify → Stripe PaymentIntent</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Stripe API Call</span></div><div class="code-body"><pre>{
+  <span class="code-property">"amount"</span>: <span class="code-number">10259</span>,
+  <span class="code-property">"currency"</span>: <span class="code-string">"usd"</span>,
+  <span class="code-property">"payment_method"</span>: <span class="code-string">"pm_card_visa_4242"</span>,
+  <span class="code-property">"confirm"</span>: <span class="code-keyword">true</span>
+}</pre></div></div></div>`,
+                webhooks: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Webhook</span><span class="tech-section-title">orders/create</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://your-backend.com/webhooks/shopify/order-create</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Webhook Payload</span></div><div class="code-body"><pre>{
+  <span class="code-property">"id"</span>: <span class="code-number">5678901234</span>,
+  <span class="code-property">"order_number"</span>: <span class="code-number">78432</span>,
+  <span class="code-property">"name"</span>: <span class="code-string">"#UNI-78432"</span>,
+  <span class="code-property">"email"</span>: <span class="code-string">"howard@unicity.com"</span>,
+  <span class="code-property">"financial_status"</span>: <span class="code-string">"paid"</span>,
+  <span class="code-property">"total_price"</span>: <span class="code-string">"102.59"</span>,
+  <span class="code-property">"processing_method"</span>: <span class="code-string">"shop_pay"</span>
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Webhook</span><span class="tech-section-title">orders/paid</span></div><p style="color: var(--shop-gray-300); font-size: 0.85rem;">Fires immediately after orders/create confirming payment captured.</p></div>`,
+                flow: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Flow</span><span class="tech-section-title">Payment Processing</span></div><div class="data-flow"><div class="flow-item"><span class="flow-num">1</span><div class="flow-text"><strong>Customer Clicks "Pay"</strong><span>Checkout mutation with token</span></div></div><div class="flow-item"><span class="flow-num">2</span><div class="flow-text"><strong>Shopify → Stripe</strong><span>PaymentIntent with vault token</span></div></div><div class="flow-item"><span class="flow-num">3</span><div class="flow-text"><strong>Stripe → Card Network</strong><span>Authorization to Visa/MC</span></div></div><div class="flow-item"><span class="flow-num">4</span><div class="flow-text"><strong>Auth Approved</strong><span>Funds captured, order created</span></div></div><div class="flow-item"><span class="flow-num">5</span><div class="flow-text"><strong>Webhooks Fire</strong><span>orders/create + orders/paid</span></div></div></div></div>`
+            },
+            6: {
+                api: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge api">REST</span><span class="tech-section-title">Shop App - Order Tracking</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://shop.app/api/v1/orders/tracking</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Auto-registered by Shopify</span></div><div class="code-body"><pre>{
+  <span class="code-property">"order_id"</span>: <span class="code-string">"5678901234"</span>,
+  <span class="code-property">"shop_domain"</span>: <span class="code-string">"unicity-store.myshopify.com"</span>,
+  <span class="code-property">"buyer_email"</span>: <span class="code-string">"howard@unicity.com"</span>,
+  <span class="code-property">"estimated_delivery"</span>: {
+    <span class="code-property">"min"</span>: <span class="code-string">"2026-01-29"</span>,
+    <span class="code-property">"max"</span>: <span class="code-string">"2026-01-31"</span>
+  }
+}</pre></div></div></div><div class="tech-section"><div class="tech-section-header"><span class="tech-badge graphql">GraphQL</span><span class="tech-section-title">Admin API - Get Order</span></div><div class="code-block"><div class="code-header"><span class="code-filename">orderQuery.graphql</span></div><div class="code-body"><pre><span class="code-keyword">query</span> getOrder($id: ID!) {
+  order(id: $id) {
+    <span class="code-property">name</span>
+    <span class="code-property">displayFinancialStatus</span>
+    <span class="code-property">displayFulfillmentStatus</span>
+    <span class="code-property">totalPriceSet</span> { shopMoney { amount } }
+  }
+}</pre></div></div></div>`,
+                webhooks: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge webhook">Webhook</span><span class="tech-section-title">fulfillments/create (When Shipped)</span></div><div class="endpoint-url"><span class="method post">POST</span><span class="url">https://your-backend.com/webhooks/shopify/fulfillment-create</span></div><div class="code-block"><div class="code-header"><span class="code-filename">Webhook Payload</span></div><div class="code-body"><pre>{
+  <span class="code-property">"id"</span>: <span class="code-number">4567890123</span>,
+  <span class="code-property">"order_id"</span>: <span class="code-number">5678901234</span>,
+  <span class="code-property">"status"</span>: <span class="code-string">"success"</span>,
+  <span class="code-property">"tracking_company"</span>: <span class="code-string">"UPS"</span>,
+  <span class="code-property">"tracking_number"</span>: <span class="code-string">"1Z999AA10123456784"</span>,
+  <span class="code-property">"tracking_url"</span>: <span class="code-string">"https://ups.com/track?num=..."</span>
+}</pre></div></div></div><div class="info-box green"><strong style="color: var(--token-green);">Shop App Push:</strong><p>When fulfillment webhook fires, Shop app sends push notification to customer automatically.</p></div>`,
+                flow: `<div class="tech-section"><div class="tech-section-header"><span class="tech-badge token">Flow</span><span class="tech-section-title">Post-Purchase Journey</span></div><div class="data-flow"><div class="flow-item"><span class="flow-num">1</span><div class="flow-text"><strong>Order Created</strong><span>Shopify registers order with Shop app</span></div></div><div class="flow-item"><span class="flow-num">2</span><div class="flow-text"><strong>Confirmation Email</strong><span>Sent via Shopify with tracking link</span></div></div><div class="flow-item"><span class="flow-num">3</span><div class="flow-text"><strong>Shop App Notification</strong><span>Push: "Your order is confirmed"</span></div></div><div class="flow-item"><span class="flow-num">4</span><div class="flow-text"><strong>Fulfillment → Webhook</strong><span>fulfillments/create when shipped</span></div></div><div class="flow-item"><span class="flow-num">5</span><div class="flow-text"><strong>Tracking Updates</strong><span>Shop app polls carrier APIs</span></div></div></div></div>`
+            }
+        };
+
+        function goToStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            for (let i = 1; i <= totalSteps; i++) document.getElementById(`step${i}`).classList.add('hidden');
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            document.querySelectorAll('.flow-step').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < step) el.classList.add('completed');
+                else if (index + 1 === step) el.classList.add('active');
+            });
+            document.getElementById('prevBtn').disabled = step === 1;
+            document.getElementById('nextBtn').textContent = step === totalSteps ? 'Restart Demo' : 'Next Step →';
+            updateTechContent(step);
+            currentStep = step;
+        }
+        function nextStep() { goToStep(currentStep === totalSteps ? 1 : currentStep + 1); }
+        function prevStep() { goToStep(currentStep - 1); }
+        function addToCart() {
+            document.querySelector('.cart-badge').textContent = '1';
+            setTimeout(() => goToStep(2), 400);
+        }
+        function setView(view) {
+            document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            const main = document.getElementById('mainContent');
+            main.classList.remove('customer-only');
+            if (view === 'customer') main.classList.add('customer-only');
+        }
+        function setTechTab(tab) {
+            currentTechTab = tab;
+            document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updateTechContent(currentStep);
+        }
+        function updateTechContent(step) {
+            document.getElementById('techContent').innerHTML = techContent[step][currentTechTab];
+        }
+        updateTechContent(1);
+    </script>
+</body>
+</html>

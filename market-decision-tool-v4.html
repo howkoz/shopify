@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicity Shopify Market Decision Tool v4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d1b2a; --secondary: #1b263b; --accent: #00d4aa; --accent-hover: #00b894;
+            --warning: #ffc107; --danger: #e74c3c; --success: #27ae60;
+            --text: #e0e1dd; --text-muted: #778da9; --card-bg: rgba(27, 38, 59, 0.8);
+            --border: rgba(0, 212, 170, 0.2); --shopify-green: #95bf47; --worldpay-blue: #00a0df; --shop2-purple: #8b5cf6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Instrument Sans', sans-serif; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, #0d1b2a 100%); min-height: 100vh; color: var(--text); line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+        header { text-align: center; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; background: linear-gradient(135deg, var(--accent) 0%, #00b894 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        header p { color: var(--text-muted); font-size: 1.1rem; }
+        .version-badge { display: inline-block; background: var(--accent); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-top: 10px; }
+        .search-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 30px; margin-bottom: 30px; }
+        .search-row { display: grid; grid-template-columns: 1fr 200px 200px; gap: 20px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-weight: 600; color: var(--text); font-size: 0.9rem; }
+        .form-group select, .form-group input { background: var(--secondary); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--text); font-size: 1rem; font-family: inherit; }
+        .form-group select:focus, .form-group input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1); }
+        .btn { background: var(--accent); color: var(--primary); border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .results-section { display: none; }
+        .results-section.visible { display: block; }
+        .country-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
+        .country-flag { font-size: 4rem; }
+        .country-info h2 { font-size: 2rem; margin-bottom: 5px; }
+        .country-info .currency { color: var(--accent); font-family: 'Space Mono', monospace; font-size: 1.1rem; }
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .status-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+        .status-card .status-icon { font-size: 2rem; margin-bottom: 10px; }
+        .status-card .status-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
+        .status-card .status-value { font-weight: 700; font-size: 1rem; }
+        .status-card .status-value.yes { color: var(--success); }
+        .status-card .status-value.no { color: var(--danger); }
+        .status-card .status-value.partial { color: var(--warning); }
+        .recommendation-panel { background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border: 2px solid var(--accent); border-radius: 16px; padding: 30px; margin-bottom: 30px; }
+        .recommendation-panel h3 { font-size: 1.4rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .recommendation-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        .badge-shopify { background: var(--shopify-green); color: #000; }
+        .badge-worldpay { background: var(--worldpay-blue); color: #fff; }
+        .badge-shop2 { background: var(--shop2-purple); color: #fff; }
+        .timeline-info { display: flex; gap: 30px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+        .timeline-item { flex: 1; min-width: 150px; }
+        .timeline-item h5 { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase; }
+        .timeline-item .time { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .models-section { margin-bottom: 30px; }
+        .models-section h3 { font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .model-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .model-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 25px; transition: transform 0.2s, border-color 0.2s; }
+        .model-card:hover { transform: translateY(-3px); }
+        .model-card.recommended { border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 212, 170, 0.2); }
+        .model-card.unavailable { opacity: 0.5; }
+        .model-card .model-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .model-card h4 { font-size: 1.1rem; margin-bottom: 5px; }
+        .model-card .model-type { font-size: 0.8rem; color: var(--text-muted); }
+        .model-available { padding: 4px 10px; border-radius: 15px; font-size: 0.7rem; font-weight: 600; }
+        .model-available.yes { background: rgba(39, 174, 96, 0.2); color: var(--success); }
+        .model-available.no { background: rgba(231, 76, 60, 0.2); color: var(--danger); }
+        .model-features { list-style: none; margin: 15px 0; }
+        .model-features li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        .model-features li:last-child { border-bottom: none; }
+        .feature-icon { width: 20px; text-align: center; }
+        .model-rate { background: var(--secondary); border-radius: 10px; padding: 15px; margin-top: 15px; }
+        .model-rate .rate-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+        .model-rate .rate-value { font-size: 1.8rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent); }
+        .model-rate .rate-breakdown { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; }
+        .fee-table-section { margin-bottom: 30px; }
+        .fee-table-section h3 { font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .fee-table-wrapper { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow-x: auto; }
+        .fee-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .fee-table th, .fee-table td { padding: 15px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+        .fee-table th { background: var(--secondary); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); }
+        .fee-table tr:last-child td { border-bottom: none; }
+        .fee-table .highlight-row { background: rgba(0, 212, 170, 0.1); }
+        .fee-table .total-cell { font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent); }
+        .gateways-section { margin-bottom: 30px; }
+        .gateways-section h3 { font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .gateway-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .gateway-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+        .gateway-card.primary { border-color: var(--accent); background: rgba(0, 212, 170, 0.05); }
+        .gateway-card h5 { font-size: 1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .gateway-card .gateway-type { font-size: 0.7rem; padding: 3px 8px; background: var(--secondary); border-radius: 10px; color: var(--text-muted); }
+        .gateway-card .gateway-rate { font-family: 'Space Mono', monospace; font-size: 1.2rem; color: var(--accent); margin: 10px 0; }
+        .gateway-card .gateway-features { font-size: 0.8rem; color: var(--text-muted); }
+        .notes-section { background: rgba(255, 193, 7, 0.1); border: 1px solid var(--warning); border-radius: 12px; padding: 20px; margin-bottom: 30px; }
+        .notes-section h4 { color: var(--warning); margin-bottom: 10px; }
+        .notes-section ul { list-style: none; }
+        .notes-section li { padding: 5px 0; padding-left: 20px; position: relative; font-size: 0.9rem; }
+        .notes-section li::before { content: "\2022"; position: absolute; left: 0; color: var(--warning); }
+        .markets-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 25px; margin-bottom: 30px; }
+        .markets-section h3 { font-size: 1.2rem; margin-bottom: 15px; }
+        .markets-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+        .market-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .market-tag { background: var(--secondary); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .market-tag:hover { border-color: var(--accent); background: rgba(0, 212, 170, 0.1); }
+        .dropdown-wrapper { position: relative; }
+        .dropdown-btn { background: var(--secondary); border: 1px solid var(--border); padding: 10px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text); }
+        .dropdown-btn:hover { border-color: var(--accent); }
+        .dropdown-content { display: none; position: absolute; top: 100%; right: 0; margin-top: 5px; background: var(--secondary); border: 1px solid var(--border); border-radius: 8px; min-width: 250px; max-height: 300px; overflow-y: auto; z-index: 100; }
+        .dropdown-content.show { display: block; }
+        .dropdown-item { padding: 10px 16px; cursor: pointer; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: rgba(0, 212, 170, 0.1); }
+        footer { text-align: center; padding: 30px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
+        .autocomplete-wrapper { position: relative; }
+        .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: var(--secondary); border: 1px solid var(--border); border-radius: 8px; max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
+        .autocomplete-list.visible { display: block; }
+        .autocomplete-item { padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: rgba(0, 212, 170, 0.1); }
+        .autocomplete-item .country-name { font-weight: 500; }
+        .autocomplete-item .currency-code { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--accent); }
+        .payment-methods-section { margin-bottom: 30px; }
+        .payment-methods-section h3 { font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .payment-methods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+        .payment-method { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 15px; text-align: center; }
+        .payment-method.available { border-color: var(--success); background: rgba(39, 174, 96, 0.1); }
+        .payment-method.unavailable { opacity: 0.4; }
+        .payment-method .pm-icon { font-size: 1.8rem; margin-bottom: 8px; }
+        .payment-method .pm-name { font-size: 0.85rem; font-weight: 600; }
+        .payment-method .pm-status { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+        .rate-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 25px; }
+        .rate-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .rate-card .rc-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .rate-card .rc-rate { font-size: 1.6rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--accent); }
+        .rate-card .rc-detail { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+        .rate-card.highlight { border-color: var(--accent); background: rgba(0, 212, 170, 0.08); }
+        .rate-card.warning { border-color: var(--warning); }
+        .rate-card.warning .rc-rate { color: var(--warning); }
+        .rate-card.danger { border-color: var(--danger); }
+        .rate-card.danger .rc-rate { color: var(--danger); }
+        .channel-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .channel-table th, .channel-table td { padding: 10px 14px; text-align: center; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .channel-table th { background: var(--secondary); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+        .channel-table td:first-child { text-align: left; font-weight: 500; }
+        .channel-table .ch-yes { color: var(--success); }
+        .channel-table .ch-no { color: var(--danger); }
+        .channel-table .ch-note { color: var(--warning); font-size: 0.7rem; }
+        .fee-layer { display: flex; align-items: stretch; gap: 0; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+        .fee-layer-item { flex: 1; padding: 16px; text-align: center; border-right: 1px solid var(--border); position: relative; }
+        .fee-layer-item:last-child { border-right: none; }
+        .fee-layer-item .fl-num { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .fee-layer-item .fl-name { font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+        .fee-layer-item .fl-rate { font-family: 'Space Mono', monospace; font-size: 1rem; color: var(--accent); font-weight: 700; }
+        .fee-layer-item .fl-paid { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; }
+        .fee-layer-item.layer-1 { background: rgba(0, 212, 170, 0.15); }
+        .fee-layer-item.layer-2 { background: rgba(0, 212, 170, 0.10); }
+        .fee-layer-item.layer-3 { background: rgba(231, 76, 60, 0.10); }
+        .fee-layer-item.layer-4 { background: rgba(255, 193, 7, 0.10); }
+        .fee-layer-item.layer-5 { background: rgba(139, 92, 246, 0.10); }
+        .cost-example { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .cost-example h5 { font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        .cost-row:last-child { border-bottom: none; }
+        .cost-row .cr-label { color: var(--text-muted); }
+        .cost-row .cr-value { font-family: 'Space Mono', monospace; font-weight: 600; }
+        .cost-row.total { padding-top: 12px; margin-top: 4px; border-top: 2px solid var(--accent); border-bottom: none; }
+        .cost-row.total .cr-label { color: var(--text); font-weight: 700; }
+        .cost-row.total .cr-value { color: var(--accent); font-size: 1.1rem; }
+        .cost-row.savings .cr-value { color: var(--success); }
+        .info-callout { background: rgba(0, 212, 170, 0.08); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 20px; font-size: 0.85rem; }
+        .info-callout.warn { background: rgba(255, 193, 7, 0.08); border-left-color: var(--warning); }
+        .info-callout strong { color: var(--accent); }
+        .info-callout.warn strong { color: var(--warning); }
+        .tab-bar { display: flex; gap: 0; margin-bottom: 25px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        .tab-btn { flex: 1; padding: 12px 16px; text-align: center; background: var(--secondary); color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; font-family: inherit; border: none; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(0, 212, 170, 0.1); color: var(--text); }
+        .tab-btn.active { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        @media (max-width: 768px) {
+            .search-row { grid-template-columns: 1fr; }
+            .fee-layer { flex-direction: column; }
+            .fee-layer-item { border-right: none; border-bottom: 1px solid var(--border); }
+            .rate-cards-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Unicity Shopify Market Decision Tool</h1>
+            <p>Evaluate payment processing options for any global market</p>
+            <span class="version-badge">v4.0 | February 2026 | Verified Shopify Plus Rates</span>
+        </header>
+        <div class="markets-section">
+            <div class="markets-header">
+                <h3>Shop Pay Available Markets</h3>
+                <div class="dropdown-wrapper">
+                    <div class="dropdown-btn" onclick="toggleDropdown()">Unicity Active Markets <span style="font-size:0.7rem;">&#9660;</span></div>
+                    <div class="dropdown-content" id="unicityDropdown"></div>
+                </div>
+            </div>
+            <div class="market-tags" id="shopPayMarkets"></div>
+        </div>
+        <div class="search-section">
+            <div class="search-row">
+                <div class="form-group autocomplete-wrapper">
+                    <label for="countrySearch">Search Country or Currency</label>
+                    <input type="text" id="countrySearch" placeholder="Type country name or currency code...">
+                    <div class="autocomplete-list" id="autocompleteList"></div>
+                </div>
+                <div class="form-group">
+                    <label for="orderValue">Order Value</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="number" id="orderValue" value="150" min="1" style="flex:1;">
+                        <select id="currencyMode" onchange="updateCurrencyDisplay()" style="width:90px;background:var(--secondary);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:0.9rem;">
+                            <option value="USD">USD</option>
+                            <option value="local">Local</option>
+                        </select>
+                    </div>
+                    <div id="currencyConversion" style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;display:none;"></div>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn" onclick="analyzeMarket()">Analyze Market</button>
+                </div>
+            </div>
+        </div>
+        <div class="results-section" id="resultsSection"></div>
+        <footer>
+            <p>Built for Unicity Payment Operations | Rates verified from Shopify Plus Settings Feb 2026 | v4.0</p>
+            <p style="margin-top:6px;font-size:0.75rem;">Shopify Plus: $2,500/mo platform fee | Shopify Payments: 2.3%+$0.13 POS, 2.25%+$0.30 Online | Third-party surcharge: +0.20%</p>
+        </footer>
+    </div>
+<script>
+/* ============================================================
+   VERIFIED RATES from Shopify Plus Settings (Feb 2026)
+   Source: Ticket 8 COMPLETE screenshot from admin panel
+   ============================================================ */
+
+var VERIFIED_US_RATES = {
+    pos: {
+        cardPresent:    { rate: 2.3, flat: 0.13, label: 'Card Present (tap/chip/swipe)' },
+        manualEntry:    { rate: 3.4, flat: 0.13, label: 'Manual Card Entry' },
+        amex:           { rate: 2.3, flat: 0.13, label: 'American Express' },
+        applePay:       { rate: 2.3, flat: 0.13, label: 'Apple Pay (NFC)' },
+        googlePay:      { rate: 2.3, flat: 0.13, label: 'Google Pay (NFC)' },
+        shopPay:        { rate: 2.3, flat: 0.13, label: 'Shop Pay' },
+        installments:   { rate: 5.8, flat: 0.30, label: 'Shop Pay Installments', disabled: true }
+    },
+    online: {
+        standard:       { rate: 2.25, flat: 0.30, label: 'Cards & Wallets (Standard)' },
+        premium:        { rate: 2.95, flat: 0.30, label: 'Cards & Wallets (Premium)' },
+        amex:           { rate: 2.95, flat: 0.30, label: 'American Express' },
+        paypal:         { rate: 3.49, flat: 0.49, label: 'PayPal Wallet' },
+        shopPay:        { rate: 2.25, flat: 0.30, label: 'Shop Pay' },
+        installments:   { rate: 5.8, flat: 0.30, label: 'Shop Pay Installments', disabled: true },
+        crypto:         { rate: 2.25, flat: 0.30, label: 'USDC (Crypto)', disabled: true },
+        ach:            { rate: 1.0, flat: 0.01, label: 'ACH Direct Debit (B2B)', cap: 7.50 }
+    },
+    international: {
+        standard:       { rate: 3.25, flat: 0.30, label: 'Cards & Wallets (Standard)' },
+        premium:        { rate: 3.95, flat: 0.30, label: 'Cards & Wallets (Premium)' },
+        amex:           { rate: 3.95, flat: 0.30, label: 'American Express' },
+        paypal:         { rate: 4.99, flat: 0.49, label: 'PayPal Wallet' },
+        shopPay:        { rate: 3.25, flat: 0.30, label: 'Shop Pay' }
+    },
+    platform: {
+        monthlyFee: 2500,
+        variableOnline: 0.40,
+        variablePOS: 0.25,
+        variableION: 0.18,
+        variableThreshold: 625000,
+        thirdPartySurcharge: 0.20,
+        internationalSurcharge: 1.0,
+        currencyConversion: 1.5,
+        renewalDate: 'January 30, 2027'
+    },
+    channelAvailability: {
+        visa:           { pos: true, online: true, headless: true },
+        mastercard:     { pos: true, online: true, headless: true },
+        amex:           { pos: true, online: true, headless: true },
+        dinersClub:     { pos: true, online: true, headless: true },
+        discover:       { pos: false, online: true, headless: true },
+        applePay:       { pos: 'NFC', online: true, headless: true },
+        googlePay:      { pos: 'NFC', online: true, headless: true },
+        shopPay:        { pos: true, online: true, headless: true },
+        paypalWallet:   { pos: false, online: true, headless: true },
+        amazonPay:      { pos: false, online: false, headless: false, disabled: true },
+        achDebit:       { pos: false, online: 'B2B', headless: 'B2B' },
+        usdcCrypto:     { pos: false, online: false, headless: false, disabled: true }
+    },
+    decisions: [
+        { item: 'Shop Pay Installments (POS)', status: 'disabled', reason: 'BNPL not appropriate for Unicity Health products at POS without leadership approval' },
+        { item: 'Shop Pay Installments (Online)', status: 'disabled', reason: 'Same rationale as POS. Re-enable if leadership approves' },
+        { item: 'Amazon Pay', status: 'disabled', reason: 'Not appropriate; no physical POS card readers needed for pilot' },
+        { item: 'USDC Crypto', status: 'disabled', reason: 'Not needed for pilot. Can enable later if requested' },
+        { item: 'ACH Direct Debit', status: 'enabled', reason: 'Used for large B2B distributors with lower rate (1% cap $7.50)' },
+        { item: 'PayPal Wallet', status: 'enabled', reason: 'Available for members/dropship online. Not available at POS hardware' }
+    ]
+};
+
+var MARKET_DATA = {
+    "US": { name: "United States", currency: "USD", flag: "\ud83c\uddfa\ud83c\uddf8", region: "North America", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.25, domesticFlat: 0.30, posRate: 2.3, posFlat: 0.13, crossBorderRate: 3.25, fxFee: 1.5, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, affirm: true, afterpay: true, ach: true }, localGateways: ["Authorize.net", "Stripe", "Affirm"], notes: ["Primary US entity", "Verified rates from Shopify Plus Settings", "Premium cards (corporate/rewards): 2.95% + $0.30", "ACH B2B available: 1.0% cap $7.50"], unicityActive: true, hasVerifiedRates: true },
+    "CA": { name: "Canada", currency: "CAD", flag: "\ud83c\udde8\ud83c\udde6", region: "North America", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.4, crossBorderRate: 3.3, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, interac: true }, localGateways: ["Moneris", "Interac"], notes: ["Shopify HQ"], unicityActive: true },
+    "MX": { name: "Mexico", currency: "MXN", flag: "\ud83c\uddf2\ud83c\uddfd", region: "North America", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 3.6, crossBorderRate: 4.2, fxFee: 2.0, setupTime: "3-5 days", worldpayMCP: true, worldpayRate: 3.2, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, oxxo: true, spei: true, dimo: true }, localGateways: ["Conekta", "OXXO"], notes: ["OXXO cash essential", "DiMo 7M+ users"], unicityActive: false, topMobilePayments: ["DiMo", "Spin by OXXO"] },
+    "GB": { name: "United Kingdom", currency: "GBP", flag: "\ud83c\uddec\ud83c\udde7", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.6, crossBorderRate: 2.8, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, clearpay: true }, localGateways: ["Klarna", "Clearpay"], notes: ["Excellent rates"], unicityActive: true },
+    "DE": { name: "Germany", currency: "EUR", flag: "\ud83c\udde9\ud83c\uddea", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, giropay: true, sofort: true }, localGateways: ["Klarna", "SEPA", "Giropay"], notes: ["Klarna very popular"], unicityActive: true },
+    "FR": { name: "France", currency: "EUR", flag: "\ud83c\uddeb\ud83c\uddf7", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, alma: true }, localGateways: ["Alma", "Mollie"], notes: ["Alma BNPL growing"], unicityActive: true },
+    "IT": { name: "Italy", currency: "EUR", flag: "\ud83c\uddee\ud83c\uddf9", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, satispay: true }, localGateways: ["Nexi", "Satispay"], notes: ["Satispay growing"], unicityActive: true },
+    "ES": { name: "Spain", currency: "EUR", flag: "\ud83c\uddea\ud83c\uddf8", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, bizum: true }, localGateways: ["Bizum", "SeQura"], notes: ["Bizum P2P popular"], unicityActive: false },
+    "NL": { name: "Netherlands", currency: "EUR", flag: "\ud83c\uddf3\ud83c\uddf1", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, ideal: true }, localGateways: ["iDEAL", "Mollie"], notes: ["iDEAL dominates 60%+"], unicityActive: true },
+    "BE": { name: "Belgium", currency: "EUR", flag: "\ud83c\udde7\ud83c\uddea", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, bancontact: true }, localGateways: ["Bancontact"], notes: ["Bancontact dominant"], unicityActive: false },
+    "AT": { name: "Austria", currency: "EUR", flag: "\ud83c\udde6\ud83c\uddf9", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, eps: true }, localGateways: ["EPS", "Sofort"], notes: ["EPS bank transfers"], unicityActive: false },
+    "CH": { name: "Switzerland", currency: "CHF", flag: "\ud83c\udde8\ud83c\udded", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.3, crossBorderRate: 3.2, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, twint: true }, localGateways: ["TWINT", "PostFinance"], notes: ["TWINT dominant"], unicityActive: true },
+    "IE": { name: "Ireland", currency: "EUR", flag: "\ud83c\uddee\ud83c\uddea", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true }, localGateways: ["Stripe"], notes: ["Stripe HQ"], unicityActive: false },
+    "PT": { name: "Portugal", currency: "EUR", flag: "\ud83c\uddf5\ud83c\uddf9", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, mbway: true }, localGateways: ["MB WAY", "Multibanco"], notes: ["MB WAY popular"], unicityActive: false },
+    "DK": { name: "Denmark", currency: "DKK", flag: "\ud83c\udde9\ud83c\uddf0", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, mobilepay: true }, localGateways: ["MobilePay"], notes: ["MobilePay dominant"], unicityActive: true },
+    "SE": { name: "Sweden", currency: "SEK", flag: "\ud83c\uddf8\ud83c\uddea", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, swish: true }, localGateways: ["Swish", "Klarna"], notes: ["Swish dominant", "Klarna home"], unicityActive: true },
+    "NO": { name: "Norway", currency: "NOK", flag: "\ud83c\uddf3\ud83c\uddf4", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.1, crossBorderRate: 3.0, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, vipps: true }, localGateways: ["Vipps"], notes: ["Vipps dominant"], unicityActive: false },
+    "FI": { name: "Finland", currency: "EUR", flag: "\ud83c\uddeb\ud83c\uddee", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.9, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true }, localGateways: ["MobilePay"], notes: ["Strong digital"], unicityActive: false },
+    "PL": { name: "Poland", currency: "PLN", flag: "\ud83c\uddf5\ud83c\uddf1", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.2, crossBorderRate: 3.1, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, blik: true, p24: true }, localGateways: ["Przelewy24", "BLIK"], notes: ["BLIK essential"], unicityActive: false },
+    "CZ": { name: "Czech Republic", currency: "CZK", flag: "\ud83c\udde8\ud83c\uddff", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.2, crossBorderRate: 3.1, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true }, localGateways: ["Comgate"], unicityActive: false },
+    "RO": { name: "Romania", currency: "RON", flag: "\ud83c\uddf7\ud83c\uddf4", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.5, crossBorderRate: 3.3, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true }, localGateways: ["PayU Romania"], unicityActive: false },
+    "HU": { name: "Hungary", currency: "HUF", flag: "\ud83c\udded\ud83c\uddfa", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.5, crossBorderRate: 3.3, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true }, localGateways: ["SimplePay"], unicityActive: false },
+    "HR": { name: "Croatia", currency: "EUR", flag: "\ud83c\udded\ud83c\uddf7", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.2, crossBorderRate: 3.1, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true }, localGateways: ["CorvusPay"], unicityActive: false },
+    "GR": { name: "Greece", currency: "EUR", flag: "\ud83c\uddec\ud83c\uddf7", region: "Europe", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.3, crossBorderRate: 3.1, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true }, localGateways: ["Viva Wallet"], unicityActive: false },
+    "AU": { name: "Australia", currency: "AUD", flag: "\ud83c\udde6\ud83c\uddfa", region: "Asia Pacific", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 1.75, crossBorderRate: 2.9, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, klarna: true, afterpay: true, zip: true }, localGateways: ["Afterpay", "Zip"], notes: ["Afterpay dominant"], unicityActive: true },
+    "NZ": { name: "New Zealand", currency: "NZD", flag: "\ud83c\uddf3\ud83c\uddff", region: "Asia Pacific", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 2.5, crossBorderRate: 3.3, fxFee: 2.0, setupTime: "1-2 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, afterpay: true, laybuy: true }, localGateways: ["Afterpay", "Laybuy"], notes: ["Key Unicity store"], unicityActive: true },
+    "JP": { name: "Japan", currency: "JPY", flag: "\ud83c\uddef\ud83c\uddf5", region: "Asia Pacific", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 3.4, crossBorderRate: 3.9, fxFee: 2.0, setupTime: "3-5 days", worldpayMCP: true, worldpayRate: 3.5, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, konbini: true, paidy: true, paypay: true }, localGateways: ["KOMOJU", "Paidy", "Konbini"], notes: ["Konbini essential", "PayPay dominant"], unicityActive: true, topMobilePayments: ["PayPay", "LINE Pay"] },
+    "SG": { name: "Singapore", currency: "SGD", flag: "\ud83c\uddf8\ud83c\uddec", region: "Asia Pacific", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 3.2, crossBorderRate: 3.8, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, grabpay: true, paynow: true }, localGateways: ["GrabPay", "PayNow"], notes: ["GrabPay popular"], unicityActive: true, topMobilePayments: ["PayNow", "GrabPay"] },
+    "HK": { name: "Hong Kong", currency: "HKD", flag: "\ud83c\udded\ud83c\uddf0", region: "Asia Pacific", shopifyPayments: true, shopPay: true, subscriptionsWork: true, domesticRate: 3.2, crossBorderRate: 3.8, fxFee: 2.0, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: true, applePay: true, googlePay: true, paypal: true, alipayhk: true, wechatpayhk: true }, localGateways: ["Alipay HK", "WeChat Pay HK"], notes: ["Alipay/WeChat for tourists"], unicityActive: true },
+    "AE": { name: "United Arab Emirates", currency: "AED", flag: "\ud83c\udde6\ud83c\uddea", region: "Middle East", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, tabby: true, tamara: true }, localGateways: ["Tap Payments", "Checkout.com", "Tabby"], notes: ["One-Leg-Out favorable", "Tabby BNPL growing"], unicityActive: true, topMobilePayments: ["Apple Pay", "Tabby"] },
+    "SA": { name: "Saudi Arabia", currency: "SAR", flag: "\ud83c\uddf8\ud83c\udde6", region: "Middle East", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, tabby: true, tamara: true, mada: true }, localGateways: ["Tap Payments", "Checkout.com"], notes: ["MADA debit dominant"], unicityActive: false },
+    "KW": { name: "Kuwait", currency: "KWD", flag: "\ud83c\uddf0\ud83c\uddfc", region: "Middle East", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, knet: true }, localGateways: ["Tap Payments", "MyFatoorah"], notes: ["KNET local debit"], unicityActive: false },
+    "TH": { name: "Thailand", currency: "THB", flag: "\ud83c\uddf9\ud83c\udded", region: "Southeast Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, localRate: 3.5, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, promptpay: true, truemoney: true, linepay: true }, localGateways: ["2C2P", "PromptPay"], notes: ["PromptPay QR dominant"], unicityActive: true, topMobilePayments: ["PromptPay", "TrueMoney"] },
+    "MY": { name: "Malaysia", currency: "MYR", flag: "\ud83c\uddf2\ud83c\uddfe", region: "Southeast Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, localRate: 3.5, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, fpx: true, grabpay: true, touchngo: true }, localGateways: ["2C2P", "FPX", "GrabPay"], notes: ["FPX dominant"], unicityActive: true, topMobilePayments: ["Touch 'n Go", "GrabPay"] },
+    "ID": { name: "Indonesia", currency: "IDR", flag: "\ud83c\uddee\ud83c\udde9", region: "Southeast Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 3.2, localRate: 3.8, paymentMethods: { shopPay: false, applePay: false, googlePay: true, paypal: true, gopay: true, ovo: true, dana: true }, localGateways: ["2C2P", "Xendit", "GoPay", "OVO"], notes: ["E-wallets dominant"], unicityActive: true, topMobilePayments: ["GoPay", "OVO"] },
+    "PH": { name: "Philippines", currency: "PHP", flag: "\ud83c\uddf5\ud83c\udded", region: "Southeast Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, localRate: 3.5, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, gcash: true, maya: true }, localGateways: ["2C2P", "GCash", "Maya"], notes: ["GCash dominant"], unicityActive: true, topMobilePayments: ["GCash", "Maya"] },
+    "VN": { name: "Vietnam", currency: "VND", flag: "\ud83c\uddfb\ud83c\uddf3", region: "Southeast Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, localRate: 3.5, paymentMethods: { shopPay: false, applePay: false, googlePay: true, paypal: true, momo: true, zalopay: true }, localGateways: ["2C2P", "MoMo", "ZaloPay"], notes: ["MoMo/ZaloPay dominant"], unicityActive: true, topMobilePayments: ["MoMo", "ZaloPay"] },
+    "IN": { name: "India", currency: "INR", flag: "\ud83c\uddee\ud83c\uddf3", region: "South Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "5-7 days", worldpayMCP: false, localRate: 2.5, paymentMethods: { shopPay: false, applePay: false, googlePay: true, paypal: true, upi: true, paytm: true }, localGateways: ["Razorpay", "PayU", "Juspay"], notes: ["UPI dominant", "Juspay for orchestration"], unicityActive: false, topMobilePayments: ["UPI (PhonePe/GPay)", "Paytm"] },
+    "KR": { name: "South Korea", currency: "KRW", flag: "\ud83c\uddf0\ud83c\uddf7", region: "East Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "5-7 days", worldpayMCP: true, worldpayRate: 3.5, localRate: 3.5, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, kakaopay: true, naverpay: true }, localGateways: ["KG Inicis", "Toss", "KakaoPay"], notes: ["KakaoPay popular"], unicityActive: true, topMobilePayments: ["KakaoPay", "Naver Pay"] },
+    "TW": { name: "Taiwan", currency: "TWD", flag: "\ud83c\uddf9\ud83c\uddfc", region: "East Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "5-7 days", worldpayMCP: true, worldpayRate: 3.2, localRate: 3.2, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, linepay: true }, localGateways: ["TapPay", "ECPay", "LINE Pay"], notes: ["LINE Pay popular"], unicityActive: true },
+    "CN": { name: "China", currency: "CNY", flag: "\ud83c\udde8\ud83c\uddf3", region: "East Asia", shopifyPayments: false, shopPay: false, subscriptionsWork: false, thirdPartyFee: 0.20, setupTime: "30+ days", worldpayMCP: false, localRate: 3.5, paymentMethods: { shopPay: false, applePay: false, googlePay: false, paypal: false, alipay: true, wechatpay: true }, localGateways: ["Alipay", "WeChat Pay"], notes: ["Complex regulations", "ICP license needed"], unicityActive: true, topMobilePayments: ["WeChat Pay", "Alipay"] },
+    "CR": { name: "Costa Rica", currency: "CRC", flag: "\ud83c\udde8\ud83c\uddf7", region: "Latin America", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "2-3 days", worldpayMCP: true, worldpayRate: 2.85, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, sinpemovil: true }, localGateways: ["Tilopay"], notes: ["WP MCP best solution", "SINPE Movil dominant"], unicityActive: false, topMobilePayments: ["SINPE Movil", "Tilopay"] },
+    "BR": { name: "Brazil", currency: "BRL", flag: "\ud83c\udde7\ud83c\uddf7", region: "Latin America", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "5-7 days", worldpayMCP: true, worldpayRate: 4.2, localRate: 4.0, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, pix: true, boleto: true }, localGateways: ["Mercado Pago", "Pix"], notes: ["Pix revolutionary", "70%+ of transactions"], unicityActive: false, topMobilePayments: ["Pix", "PicPay"] },
+    "PE": { name: "Peru", currency: "PEN", flag: "\ud83c\uddf5\ud83c\uddea", region: "Latin America", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "3-5 days", worldpayMCP: true, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, yape: true, plin: true }, localGateways: ["Culqi", "PagoEfectivo"], notes: ["Yape dominates 54% of in-person transactions", "PLIN 34% share"], unicityActive: false, topMobilePayments: ["Yape", "PLIN"] },
+    "CL": { name: "Chile", currency: "CLP", flag: "\ud83c\udde8\ud83c\uddf1", region: "Latin America", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "3-5 days", worldpayMCP: true, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, webpay: true, mach: true, tenpo: true }, localGateways: ["Transbank", "Webpay"], notes: ["MACH and Tenpo wallets popular", "Webpay dominant for cards"], unicityActive: false, topMobilePayments: ["MACH", "Tenpo"] },
+    "CO": { name: "Colombia", currency: "COP", flag: "\ud83c\udde8\ud83c\uddf4", region: "Latin America", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "3-5 days", worldpayMCP: true, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, pse: true, nequi: true, daviplata: true }, localGateways: ["PayU", "PSE"], notes: ["Nequi 13M+ users", "Daviplata 19M customers"], unicityActive: false, topMobilePayments: ["Nequi", "Daviplata"] },
+    "ZA": { name: "South Africa", currency: "ZAR", flag: "\ud83c\uddff\ud83c\udde6", region: "Africa", shopifyPayments: false, shopPay: false, subscriptionsWork: true, thirdPartyFee: 0.20, setupTime: "5-7 days", worldpayMCP: true, worldpayRate: 3.5, localRate: 3.5, paymentMethods: { shopPay: false, applePay: true, googlePay: true, paypal: true, snapscan: true }, localGateways: ["Paystack", "SnapScan"], notes: ["Paystack Africa leader"], unicityActive: false }
+};
+
+var WORLDPAY_MCP = { processingRate: 0.15, fxRate: 1.7, interchangeRate: 1.0, totalRate: 2.85 };
+var SHOPIFY_PLUS = { domesticUS: 2.25, domesticUSFlat: 0.30, posUS: 2.3, posUSFlat: 0.13, crossBorder: 3.25, crossBorderFlat: 0.30, fxFee: 1.5, thirdPartyFee: 0.20, monthlyPlatform: 2500 };
+
+var EXCHANGE_RATES = {
+    USD: 1.00, CAD: 0.70, MXN: 0.058, GBP: 1.27, EUR: 1.08, CHF: 1.12,
+    DKK: 0.145, SEK: 0.095, NOK: 0.091, PLN: 0.25, CZK: 0.043, HUF: 0.0027,
+    RON: 0.22, AUD: 0.64, NZD: 0.58, JPY: 0.0067, SGD: 0.74, HKD: 0.128,
+    AED: 0.272, SAR: 0.267, KWD: 3.25, THB: 0.029, MYR: 0.22, IDR: 0.000063,
+    PHP: 0.018, VND: 0.00004, INR: 0.012, KRW: 0.00071, TWD: 0.031, CNY: 0.14,
+    CRC: 0.002, BRL: 0.17, ZAR: 0.054, PEN: 0.27, CLP: 0.001, COP: 0.00024
+};
+
+var PM_CONFIG = {
+    shopPay: { name: "Shop Pay", icon: "\ud83d\uded2" }, applePay: { name: "Apple Pay", icon: "\ud83c\udf4e" }, googlePay: { name: "Google Pay", icon: "\ud83d\udcf1" },
+    paypal: { name: "PayPal", icon: "\ud83c\udd7f\ufe0f" }, klarna: { name: "Klarna", icon: "\ud83d\udcb3" }, afterpay: { name: "Afterpay", icon: "\ud83d\udcb0" },
+    affirm: { name: "Affirm", icon: "\u2713" }, ideal: { name: "iDEAL", icon: "\ud83c\udfe6" }, bancontact: { name: "Bancontact", icon: "\ud83c\udde7\ud83c\uddea" },
+    giropay: { name: "Giropay", icon: "\ud83c\udde9\ud83c\uddea" }, sofort: { name: "Sofort", icon: "\u26a1" }, blik: { name: "BLIK", icon: "\ud83c\uddf5\ud83c\uddf1" },
+    swish: { name: "Swish", icon: "\ud83c\uddf8\ud83c\uddea" }, vipps: { name: "Vipps", icon: "\ud83c\uddf3\ud83c\uddf4" }, mobilepay: { name: "MobilePay", icon: "\ud83d\udcf2" },
+    twint: { name: "TWINT", icon: "\ud83c\udde8\ud83c\udded" }, mbway: { name: "MB WAY", icon: "\ud83c\uddf5\ud83c\uddf9" }, bizum: { name: "Bizum", icon: "\ud83c\uddea\ud83c\uddf8" },
+    interac: { name: "Interac", icon: "\ud83c\udde8\ud83c\udde6" }, oxxo: { name: "OXXO", icon: "\ud83c\udfea" }, konbini: { name: "Konbini", icon: "\ud83c\udfea" },
+    paidy: { name: "Paidy", icon: "\ud83c\uddef\ud83c\uddf5" }, paypay: { name: "PayPay", icon: "\ud83d\udcb4" }, grabpay: { name: "GrabPay", icon: "\ud83d\ude97" },
+    paynow: { name: "PayNow", icon: "\ud83c\uddf8\ud83c\uddec" }, fpx: { name: "FPX", icon: "\ud83c\uddf2\ud83c\uddfe" }, touchngo: { name: "Touch 'n Go", icon: "\ud83d\udc46" },
+    promptpay: { name: "PromptPay", icon: "\ud83c\uddf9\ud83c\udded" }, truemoney: { name: "TrueMoney", icon: "\ud83d\udcb5" }, linepay: { name: "LINE Pay", icon: "\ud83d\udc9a" },
+    momo: { name: "MoMo", icon: "\ud83c\uddfb\ud83c\uddf3" }, zalopay: { name: "ZaloPay", icon: "\ud83d\udc99" }, gcash: { name: "GCash", icon: "\ud83c\uddf5\ud83c\udded" },
+    maya: { name: "Maya", icon: "\ud83d\udc9c" }, gopay: { name: "GoPay", icon: "\ud83c\uddee\ud83c\udde9" }, ovo: { name: "OVO", icon: "\ud83d\udc9c" },
+    dana: { name: "DANA", icon: "\ud83d\udd35" }, upi: { name: "UPI", icon: "\ud83c\uddee\ud83c\uddf3" }, paytm: { name: "Paytm", icon: "\ud83d\udcf2" },
+    pix: { name: "Pix", icon: "\ud83c\udde7\ud83c\uddf7" }, boleto: { name: "Boleto", icon: "\ud83d\udcc4" }, alipay: { name: "Alipay", icon: "\ud83c\udd70\ufe0f" },
+    wechatpay: { name: "WeChat Pay", icon: "\ud83d\udcac" }, alipayhk: { name: "Alipay HK", icon: "\ud83c\udd70\ufe0f" }, wechatpayhk: { name: "WeChat Pay HK", icon: "\ud83d\udcac" },
+    kakaopay: { name: "KakaoPay", icon: "\ud83c\uddf0\ud83c\uddf7" }, naverpay: { name: "Naver Pay", icon: "\ud83d\udc9a" }, tabby: { name: "Tabby", icon: "\ud83d\udc31" },
+    tamara: { name: "Tamara", icon: "\ud83c\udf19" }, mada: { name: "MADA", icon: "\ud83d\udcb3" }, knet: { name: "KNET", icon: "\ud83c\uddf0\ud83c\uddfc" },
+    clearpay: { name: "Clearpay", icon: "\ud83d\udcb3" }, zip: { name: "Zip", icon: "\ud83e\udd10" }, laybuy: { name: "Laybuy", icon: "\ud83d\udcb0" },
+    alma: { name: "Alma", icon: "\ud83d\udcb3" }, satispay: { name: "Satispay", icon: "\ud83d\udc9a" }, eps: { name: "EPS", icon: "\ud83c\udfe6" },
+    p24: { name: "Przelewy24", icon: "\ud83c\uddf5\ud83c\uddf1" }, snapscan: { name: "SnapScan", icon: "\ud83d\udcf1" }, ach: { name: "ACH Debit", icon: "\ud83c\udfe6" },
+    webpay: { name: "Webpay", icon: "\ud83c\udde8\ud83c\uddf1" }, pse: { name: "PSE", icon: "\ud83c\udde8\ud83c\uddf4" },
+    sinpemovil: { name: "SINPE Movil", icon: "\ud83c\udde8\ud83c\uddf7" }, yape: { name: "Yape", icon: "\ud83c\uddf5\ud83c\uddea" }, plin: { name: "PLIN", icon: "\ud83c\uddf5\ud83c\uddea" },
+    nequi: { name: "Nequi", icon: "\ud83c\udde8\ud83c\uddf4" }, daviplata: { name: "Daviplata", icon: "\ud83c\udde8\ud83c\uddf4" },
+    mach: { name: "MACH", icon: "\ud83c\udde8\ud83c\uddf1" }, tenpo: { name: "Tenpo", icon: "\ud83c\udde8\ud83c\uddf1" },
+    spei: { name: "SPEI", icon: "\ud83c\uddf2\ud83c\uddfd" }, dimo: { name: "DiMo", icon: "\ud83c\uddf2\ud83c\uddfd" }
+};
+
+var currentStore = 'us';
+
+function convertToUSD(amount, currency) { return amount * (EXCHANGE_RATES[currency] || 1); }
+function convertFromUSD(amount, currency) { return amount / (EXCHANGE_RATES[currency] || 1); }
+function formatCurrency(amount) { return '$' + amount.toFixed(2); }
+function formatPercent(value) { return value.toFixed(2) + '%'; }
+
+function toggleDropdown() { document.getElementById('unicityDropdown').classList.toggle('show'); }
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown-wrapper')) document.getElementById('unicityDropdown').classList.remove('show');
+    if (!e.target.closest('.autocomplete-wrapper')) document.getElementById('autocompleteList').classList.remove('visible');
+});
+
+function updateCurrencyDisplay() {
+    var input = document.getElementById('countrySearch');
+    var code = input.dataset.selectedCode;
+    var convDiv = document.getElementById('currencyConversion');
+    var mode = document.getElementById('currencyMode').value;
+    if (!code || !MARKET_DATA[code]) { convDiv.style.display = 'none'; return; }
+    var market = MARKET_DATA[code];
+    var ov = parseFloat(document.getElementById('orderValue').value) || 150;
+    if (mode === 'local' && market.currency !== 'USD') {
+        convDiv.textContent = ov.toLocaleString() + ' ' + market.currency + ' \u2248 $' + convertToUSD(ov, market.currency).toFixed(2) + ' USD';
+        convDiv.style.display = 'block';
+    } else if (mode === 'USD' && market.currency !== 'USD') {
+        convDiv.textContent = '$' + ov + ' USD \u2248 ' + convertFromUSD(ov, market.currency).toLocaleString(undefined, {maximumFractionDigits: 0}) + ' ' + market.currency;
+        convDiv.style.display = 'block';
+    } else { convDiv.style.display = 'none'; }
+}
+
+function getOrderValueUSD() {
+    var input = document.getElementById('countrySearch');
+    var code = input.dataset.selectedCode;
+    var mode = document.getElementById('currencyMode').value;
+    var ov = parseFloat(document.getElementById('orderValue').value) || 150;
+    if (mode === 'local' && code && MARKET_DATA[code]) return convertToUSD(ov, MARKET_DATA[code].currency);
+    return ov;
+}
+
+function initAutocomplete() {
+    var input = document.getElementById('countrySearch');
+    var list = document.getElementById('autocompleteList');
+    input.addEventListener('input', function() {
+        var v = this.value.toLowerCase();
+        if (v.length < 1) { list.classList.remove('visible'); return; }
+        var matches = Object.entries(MARKET_DATA).filter(function(e) {
+            return e[1].name.toLowerCase().includes(v) || e[1].currency.toLowerCase().includes(v) || e[0].toLowerCase().includes(v);
+        }).slice(0, 10);
+        if (matches.length === 0) { list.classList.remove('visible'); return; }
+        list.innerHTML = matches.map(function(e) {
+            return '<div class="autocomplete-item" onclick="selectCountry(\'' + e[0] + '\')"><span class="country-name">' + e[1].flag + ' ' + e[1].name + '</span><span class="currency-code">' + e[1].currency + '</span></div>';
+        }).join('');
+        list.classList.add('visible');
+    });
+}
+
+function selectCountry(code) {
+    var d = MARKET_DATA[code];
+    var input = document.getElementById('countrySearch');
+    input.value = d.flag + ' ' + d.name + ' (' + d.currency + ')';
+    input.dataset.selectedCode = code;
+    document.getElementById('autocompleteList').classList.remove('visible');
+    document.getElementById('unicityDropdown').classList.remove('show');
+    analyzeMarket();
+}
+
+function switchTab(tabGroup, tabId) {
+    document.querySelectorAll('[data-tabgroup="' + tabGroup + '"] .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('[data-tabgroup="' + tabGroup + '"] .tab-content').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelector('[data-tabgroup="' + tabGroup + '"] .tab-btn[data-tab="' + tabId + '"]').classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+}
+
+function analyzeMarket() {
+    var input = document.getElementById('countrySearch');
+    var code = input.dataset.selectedCode;
+    if (!code || !MARKET_DATA[code]) { alert('Please select a valid country'); return; }
+    var market = MARKET_DATA[code];
+    var orderValueUSD = getOrderValueUSD();
+    var analysis = analyzeOptions(code, market, orderValueUSD);
+    var resultsSection = document.getElementById('resultsSection');
+    resultsSection.innerHTML = generateResultsHTML(code, market, orderValueUSD, analysis);
+    resultsSection.classList.add('visible');
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+    updateCurrencyDisplay();
+}
+
+function analyzeOptions(code, market, orderValue) {
+    var analysis = { recommended: null, models: [] };
+    if (market.shopifyPayments) {
+        var isDomestic = (currentStore === 'us' && code === 'US') || (currentStore === 'nz' && code === 'NZ') || (currentStore === 'local');
+        var onlineRate = isDomestic ? market.domesticRate : market.crossBorderRate;
+        var onlineFlat = market.domesticFlat || 0.30;
+        var posRate = market.posRate || market.domesticRate;
+        var posFlat = market.posFlat || 0.13;
+        var fxFee = isDomestic ? 0 : (market.fxFee || 0);
+        var effectiveOnlineRate = onlineRate + fxFee;
+        var onlineFees = (orderValue * effectiveOnlineRate / 100) + onlineFlat;
+        var posFees = (orderValue * posRate / 100) + posFlat;
+        analysis.models.push({
+            name: 'Shopify Payments (Online)', type: isDomestic ? 'Domestic' : 'Cross-Border', available: true,
+            features: { shopPay: true, subscriptions: market.subscriptionsWork, applePay: true, localMethods: true },
+            rate: effectiveOnlineRate, flat: onlineFlat, rateBreakdown: onlineRate + '% + $' + onlineFlat.toFixed(2) + (fxFee ? ' + ' + fxFee + '% FX' : ''),
+            fees: onlineFees, setupTime: market.setupTime || '1-2 days', shopifyFee: 0
+        });
+        if (isDomestic && market.posRate) {
+            analysis.models.push({
+                name: 'Shopify Payments (POS)', type: 'In-Person Card Present', available: true,
+                features: { shopPay: true, subscriptions: false, applePay: true, localMethods: false },
+                rate: posRate, flat: posFlat, rateBreakdown: posRate + '% + $' + posFlat.toFixed(2),
+                fees: posFees, setupTime: market.setupTime || '1-2 days', shopifyFee: 0
+            });
+        }
+    } else {
+        analysis.models.push({
+            name: 'Shopify Payments', type: 'Not Available', available: false,
+            features: { shopPay: false, subscriptions: false, applePay: false, localMethods: false },
+            rate: null, rateBreakdown: 'Not available in this market', fees: null, setupTime: 'N/A'
+        });
+    }
+
+    var wpBaseRate = market.worldpayRate || WORLDPAY_MCP.totalRate;
+    var wpShopifyFee = market.shopifyPayments ? SHOPIFY_PLUS.thirdPartyFee : 0;
+    var wpEffectiveRate = wpBaseRate + wpShopifyFee;
+    var wpFees = (orderValue * wpBaseRate / 100);
+    analysis.models.push({
+        name: 'Worldpay MCP', type: 'Third-Party Gateway' + (wpShopifyFee > 0 ? ' (+0.20% surcharge)' : ''), available: market.worldpayMCP !== false,
+        features: { shopPay: false, subscriptions: true, applePay: true, localMethods: false },
+        rate: wpEffectiveRate, rateBreakdown: wpBaseRate + '%' + (wpShopifyFee ? ' + ' + wpShopifyFee + '% Shopify surcharge' : ''),
+        fees: wpFees, setupTime: '2-3 days', shopifyFee: wpShopifyFee
+    });
+
+    var shop2Rate = market.worldpayRate || WORLDPAY_MCP.totalRate;
+    analysis.models.push({
+        name: 'Shop2 + Worldpay MCP', type: 'Alternative Platform (no surcharge)', available: true,
+        features: { shopPay: false, subscriptions: true, applePay: true, localMethods: false },
+        rate: shop2Rate, rateBreakdown: '0.15% + 1.7% FX + ~1% IC (no Shopify surcharge)',
+        fees: (orderValue * shop2Rate / 100), setupTime: '4-6 weeks', shopifyFee: 0
+    });
+
+    if (market.shopifyPayments && market.subscriptionsWork) {
+        analysis.recommended = 'shopify';
+        analysis.recommendedModel = analysis.models[0];
+    } else if (market.worldpayMCP !== false) {
+        analysis.recommended = 'worldpay';
+        analysis.recommendedModel = analysis.models.find(function(m) { return m.name === 'Worldpay MCP'; });
+    } else {
+        analysis.recommended = 'shop2';
+        analysis.recommendedModel = analysis.models.find(function(m) { return m.name.includes('Shop2'); });
+    }
+    return analysis;
+}
+
+function generatePaymentMethodsHTML(market) {
+    if (!market.paymentMethods) return '';
+    var html = '<div class="payment-methods-section"><h3>Available Payment Methods</h3><div class="payment-methods-grid">';
+    var coreOrder = ['shopPay', 'applePay', 'googlePay', 'paypal'];
+    coreOrder.forEach(function(method) {
+        if (market.paymentMethods.hasOwnProperty(method)) {
+            var config = PM_CONFIG[method] || { name: method, icon: '\ud83d\udcb3' };
+            var avail = market.paymentMethods[method];
+            html += '<div class="payment-method ' + (avail ? 'available' : 'unavailable') + '"><div class="pm-icon">' + config.icon + '</div><div class="pm-name">' + config.name + '</div><div class="pm-status">' + (avail ? '\u2713 Available' : '\u2717 N/A') + '</div></div>';
+        }
+    });
+    Object.entries(market.paymentMethods).forEach(function(entry) {
+        if (!coreOrder.includes(entry[0]) && entry[1]) {
+            var config = PM_CONFIG[entry[0]] || { name: entry[0], icon: '\ud83d\udcb3' };
+            html += '<div class="payment-method available"><div class="pm-icon">' + config.icon + '</div><div class="pm-name">' + config.name + '</div><div class="pm-status">\u2713 Available</div></div>';
+        }
+    });
+    html += '</div></div>';
+    return html;
+}
+
+function generateVerifiedRatesHTML(orderValue) {
+    var V = VERIFIED_US_RATES;
+    var posTotal = (orderValue * V.pos.cardPresent.rate / 100) + V.pos.cardPresent.flat;
+    var onlineTotal = (orderValue * V.online.standard.rate / 100) + V.online.standard.flat;
+    var premiumTotal = (orderValue * V.online.premium.rate / 100) + V.online.premium.flat;
+    var paypalTotal = (orderValue * V.online.paypal.rate / 100) + V.online.paypal.flat;
+    var achTotal = Math.min((orderValue * V.online.ach.rate / 100) + V.online.ach.flat, V.online.ach.cap);
+    var wpTotal = (orderValue * 2.85 / 100);
+    var wpWithSurcharge = wpTotal + (orderValue * 0.20 / 100);
+    var thirdPartyRate = 2.9;
+    var thirdPartyFlat = 0.30;
+    var thirdPartyTotal = (orderValue * thirdPartyRate / 100) + thirdPartyFlat + (orderValue * 0.20 / 100);
+
+    var html = '';
+
+    // Rate summary cards
+    html += '<div style="margin-bottom:25px;"><h3 style="font-size:1.3rem;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border);">Verified Rates (Shopify Plus Settings)</h3>';
+    html += '<div class="info-callout"><strong>Source:</strong> Ticket 8 COMPLETE. Rates verified from Shopify admin panel Feb 2026. Fixed by Shopify/Stripe with no interchange-plus option. Premium card rates (2.95%) apply to corporate and rewards cards.</div>';
+    html += '<div class="rate-cards-grid">';
+    html += '<div class="rate-card highlight"><div class="rc-label">POS Card Present</div><div class="rc-rate">2.3%</div><div class="rc-detail">+ $0.13</div></div>';
+    html += '<div class="rate-card"><div class="rc-label">POS Manual Entry</div><div class="rc-rate">3.4%</div><div class="rc-detail">+ $0.13</div></div>';
+    html += '<div class="rate-card highlight"><div class="rc-label">Online Domestic</div><div class="rc-rate">2.25%</div><div class="rc-detail">+ $0.30</div></div>';
+    html += '<div class="rate-card"><div class="rc-label">Online International</div><div class="rc-rate">3.25%</div><div class="rc-detail">+ $0.30</div></div>';
+    html += '<div class="rate-card warning"><div class="rc-label">PayPal Domestic</div><div class="rc-rate">3.49%</div><div class="rc-detail">+ $0.49</div></div>';
+    html += '<div class="rate-card"><div class="rc-label">ACH Direct Debit</div><div class="rc-rate">1.0%</div><div class="rc-detail">Cap $7.50</div></div>';
+    html += '</div></div>';
+
+    // Tabbed sections
+    html += '<div data-tabgroup="usdetails">';
+    html += '<div class="tab-bar">';
+    html += '<button class="tab-btn active" data-tab="tab-rates" onclick="switchTab(\'usdetails\',\'tab-rates\')">Rate Tables</button>';
+    html += '<button class="tab-btn" data-tab="tab-layers" onclick="switchTab(\'usdetails\',\'tab-layers\')">Fee Layers</button>';
+    html += '<button class="tab-btn" data-tab="tab-cost" onclick="switchTab(\'usdetails\',\'tab-cost\')">Cost Calculator</button>';
+    html += '<button class="tab-btn" data-tab="tab-channels" onclick="switchTab(\'usdetails\',\'tab-channels\')">Channel Matrix</button>';
+    html += '<button class="tab-btn" data-tab="tab-decisions" onclick="switchTab(\'usdetails\',\'tab-decisions\')">Decisions</button>';
+    html += '</div>';
+
+    // TAB: Rate Tables
+    html += '<div class="tab-content active" id="tab-rates">';
+    html += '<div class="fee-table-section"><h3>In-Person Payment Rates (POS Card Readers)</h3><div class="fee-table-wrapper"><table class="fee-table"><thead><tr><th>Method</th><th>Rate</th><th>Status</th></tr></thead><tbody>';
+    Object.values(V.pos).forEach(function(r) {
+        html += '<tr class="' + (r.disabled ? '' : '') + '"><td>' + r.label + '</td><td style="font-family:Space Mono,monospace;">' + r.rate + '% + $' + r.flat.toFixed(2) + '</td><td>' + (r.disabled ? '<span style="color:var(--danger);font-weight:600;">DISABLED</span>' : '<span style="color:var(--success);">Enabled</span>') + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    html += '<div class="fee-table-section"><h3>Online Payment Rates (Headless API + Online Store)</h3><div class="fee-table-wrapper"><table class="fee-table"><thead><tr><th>Method</th><th>Domestic</th><th>International</th><th>Status</th></tr></thead><tbody>';
+    var onlineMethods = ['standard', 'premium', 'amex', 'paypal', 'shopPay', 'installments', 'crypto', 'ach'];
+    onlineMethods.forEach(function(key) {
+        var r = V.online[key];
+        if (!r) return;
+        var intl = V.international[key];
+        html += '<tr><td>' + r.label + '</td>';
+        html += '<td style="font-family:Space Mono,monospace;">' + r.rate + '% + $' + r.flat.toFixed(2) + (r.cap ? ' (cap $' + r.cap.toFixed(2) + ')' : '') + '</td>';
+        html += '<td style="font-family:Space Mono,monospace;">' + (intl ? intl.rate + '% + $' + intl.flat.toFixed(2) : '\u2014') + '</td>';
+        html += '<td>' + (r.disabled ? '<span style="color:var(--danger);font-weight:600;">DISABLED</span>' : '<span style="color:var(--success);">Enabled</span>') + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+    html += '</div>';
+
+    // TAB: Fee Layers
+    html += '<div class="tab-content" id="tab-layers">';
+    html += '<h3 style="font-size:1.2rem;margin-bottom:15px;">Understanding the Fee Layers (They Stack)</h3>';
+    html += '<div class="fee-layer">';
+    html += '<div class="fee-layer-item layer-1"><div class="fl-num">Layer 1</div><div class="fl-name">Platform Fee</div><div class="fl-rate">$2,500/mo</div><div class="fl-paid">Paid to Shopify</div></div>';
+    html += '<div class="fee-layer-item layer-2"><div class="fl-num">Layer 2</div><div class="fl-name">Processing</div><div class="fl-rate">2.3% POS / 2.25% Online</div><div class="fl-paid">Paid to Shopify Payments</div></div>';
+    html += '<div class="fee-layer-item layer-3"><div class="fl-num">Layer 3</div><div class="fl-name">3rd Party Surcharge</div><div class="fl-rate">+0.20%</div><div class="fl-paid">ONLY if not using Shopify Payments</div></div>';
+    html += '<div class="fee-layer-item layer-4"><div class="fl-num">Layer 4</div><div class="fl-name">International</div><div class="fl-rate">+1.0%</div><div class="fl-paid">Cards issued outside US</div></div>';
+    html += '<div class="fee-layer-item layer-5"><div class="fl-num">Layer 5</div><div class="fl-name">Currency FX</div><div class="fl-rate">1.5%</div><div class="fl-paid">When payment currency differs</div></div>';
+    html += '</div>';
+
+    html += '<div class="info-callout warn"><strong>Variable platform fees:</strong> You pay whichever is greater: $2,500 fixed OR the variable % of sales. Variable fees only kick in above ~$625K/month. For the pilot this will not apply.</div>';
+
+    html += '<div class="fee-table-wrapper" style="margin-top:20px;"><table class="fee-table"><thead><tr><th>Fee Type</th><th>Amount</th><th>Notes</th></tr></thead><tbody>';
+    html += '<tr><td>Fixed Platform Fee</td><td style="font-family:Space Mono,monospace;">$2,500 USD/month</td><td>1-year term, renews Jan 30, 2027</td></tr>';
+    html += '<tr><td>Variable Online</td><td style="font-family:Space Mono,monospace;">0.40%</td><td>Above $625K/month threshold</td></tr>';
+    html += '<tr><td>Variable Retail (POS)</td><td style="font-family:Space Mono,monospace;">0.25%</td><td>Above $625K/month threshold</td></tr>';
+    html += '<tr><td>Variable ION</td><td style="font-family:Space Mono,monospace;">0.18%</td><td>Above $625K/month threshold</td></tr>';
+    html += '</tbody></table></div>';
+
+    html += '<div class="info-callout" style="margin-top:20px;"><strong>Key insight:</strong> Standard storefront and Headless API have identical payment rates. The storefront type (standard vs headless) does NOT change your Shopify Payments processing fees. Headless costs no extra for payments.</div>';
+    html += '</div>';
+
+    // TAB: Cost Calculator
+    html += '<div class="tab-content" id="tab-cost">';
+    html += '<h3 style="font-size:1.2rem;margin-bottom:15px;">Real Cost on $' + orderValue.toFixed(0) + ' Sale</h3>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px;">';
+
+    // POS cost
+    html += '<div class="cost-example"><h5 style="color:var(--accent);">POS Sale (Card Present)</h5>';
+    html += '<div class="cost-row"><span class="cr-label">Processing (2.3% + $0.13)</span><span class="cr-value">' + formatCurrency(posTotal) + '</span></div>';
+    html += '<div class="cost-row"><span class="cr-label">Shopify surcharge</span><span class="cr-value" style="color:var(--success);">$0.00</span></div>';
+    html += '<div class="cost-row total"><span class="cr-label">Total cost</span><span class="cr-value">' + formatCurrency(posTotal) + ' (' + (posTotal/orderValue*100).toFixed(2) + '%)</span></div>';
+    html += '</div>';
+
+    // Online cost
+    html += '<div class="cost-example"><h5 style="color:var(--accent);">Online Sale (Standard Card)</h5>';
+    html += '<div class="cost-row"><span class="cr-label">Processing (2.25% + $0.30)</span><span class="cr-value">' + formatCurrency(onlineTotal) + '</span></div>';
+    html += '<div class="cost-row"><span class="cr-label">Shopify surcharge</span><span class="cr-value" style="color:var(--success);">$0.00</span></div>';
+    html += '<div class="cost-row total"><span class="cr-label">Total cost</span><span class="cr-value">' + formatCurrency(onlineTotal) + ' (' + (onlineTotal/orderValue*100).toFixed(2) + '%)</span></div>';
+    html += '</div>';
+
+    // Premium card
+    html += '<div class="cost-example"><h5 style="color:var(--warning);">Online Sale (Premium Card)</h5>';
+    html += '<div class="cost-row"><span class="cr-label">Processing (2.95% + $0.30)</span><span class="cr-value">' + formatCurrency(premiumTotal) + '</span></div>';
+    html += '<div class="cost-row"><span class="cr-label">Shopify surcharge</span><span class="cr-value" style="color:var(--success);">$0.00</span></div>';
+    html += '<div class="cost-row total"><span class="cr-label">Total cost</span><span class="cr-value">' + formatCurrency(premiumTotal) + ' (' + (premiumTotal/orderValue*100).toFixed(2) + '%)</span></div>';
+    html += '</div>';
+
+    // Third-party comparison
+    html += '<div class="cost-example" style="border-color:var(--danger);"><h5 style="color:var(--danger);">Third-Party Gateway (e.g. Stripe Direct)</h5>';
+    html += '<div class="cost-row"><span class="cr-label">Processing (~2.9% + $0.30)</span><span class="cr-value">' + formatCurrency((orderValue * thirdPartyRate / 100) + thirdPartyFlat) + '</span></div>';
+    html += '<div class="cost-row"><span class="cr-label">Shopify surcharge (+0.20%)</span><span class="cr-value" style="color:var(--danger);">' + formatCurrency(orderValue * 0.20 / 100) + '</span></div>';
+    html += '<div class="cost-row total"><span class="cr-label">Total cost</span><span class="cr-value" style="color:var(--danger);">' + formatCurrency(thirdPartyTotal) + ' (' + (thirdPartyTotal/orderValue*100).toFixed(2) + '%)</span></div>';
+    html += '<div class="cost-row savings"><span class="cr-label">Extra cost vs Shopify Payments (POS)</span><span class="cr-value" style="color:var(--danger);">+' + formatCurrency(thirdPartyTotal - posTotal) + ' per sale</span></div>';
+    html += '</div>';
+
+    // PayPal
+    html += '<div class="cost-example"><h5 style="color:var(--warning);">PayPal Wallet (Online)</h5>';
+    html += '<div class="cost-row"><span class="cr-label">Processing (3.49% + $0.49)</span><span class="cr-value">' + formatCurrency(paypalTotal) + '</span></div>';
+    html += '<div class="cost-row"><span class="cr-label">Shopify surcharge</span><span class="cr-value" style="color:var(--success);">$0.00 (Plus waives)</span></div>';
+    html += '<div class="cost-row total"><span class="cr-label">Total cost</span><span class="cr-value">' + formatCurrency(paypalTotal) + ' (' + (paypalTotal/orderValue*100).toFixed(2) + '%)</span></div>';
+    html += '</div>';
+
+    // ACH
+    html += '<div class="cost-example" style="border-color:var(--success);"><h5 style="color:var(--success);">ACH Direct Debit (B2B)</h5>';
+    html += '<div class="cost-row"><span class="cr-label">Processing (1.0% + $0.01, cap $7.50)</span><span class="cr-value">' + formatCurrency(achTotal) + '</span></div>';
+    html += '<div class="cost-row"><span class="cr-label">Shopify surcharge</span><span class="cr-value" style="color:var(--success);">$0.00</span></div>';
+    html += '<div class="cost-row total"><span class="cr-label">Total cost</span><span class="cr-value">' + formatCurrency(achTotal) + ' (' + (achTotal/orderValue*100).toFixed(2) + '%)</span></div>';
+    html += '<div class="cost-row savings"><span class="cr-label">Savings vs standard card (POS)</span><span class="cr-value">' + formatCurrency(posTotal - achTotal) + ' per sale</span></div>';
+    html += '</div>';
+
+    html += '</div>';
+
+    // Volume impact
+    html += '<div class="info-callout" style="margin-top:20px;"><strong>Volume Impact:</strong> At $50K/month in POS sales, the difference between Shopify Payments ($1,200) and a third-party gateway (~$1,850) is roughly $650/month or $7,800/year. At $500K/month the gap grows to ~$6,500/month.</div>';
+    html += '</div>';
+
+    // TAB: Channel Matrix
+    html += '<div class="tab-content" id="tab-channels">';
+    html += '<h3 style="font-size:1.2rem;margin-bottom:15px;">Payment Methods Enabled by Channel</h3>';
+    html += '<div class="fee-table-wrapper"><table class="channel-table"><thead><tr><th style="text-align:left;">Payment Method</th><th>POS (In-Person)</th><th>Online Store</th><th>Headless API</th></tr></thead><tbody>';
+    var chData = V.channelAvailability;
+    var chLabels = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', dinersClub: 'Diners Club', discover: 'Discover', applePay: 'Apple Pay', googlePay: 'Google Pay', shopPay: 'Shop Pay', paypalWallet: 'PayPal Wallet', amazonPay: 'Amazon Pay', achDebit: 'ACH Direct Debit', usdcCrypto: 'USDC Crypto' };
+    Object.entries(chData).forEach(function(e) {
+        var key = e[0], ch = e[1];
+        var label = chLabels[key] || key;
+        function renderCell(val) {
+            if (val === true) return '<span class="ch-yes">\u2713 Yes</span>';
+            if (val === false) return '<span class="ch-no">\u2717 No</span>';
+            return '<span class="ch-yes">\u2713 ' + val + '</span>';
+        }
+        var rowClass = ch.disabled ? ' style="opacity:0.5;"' : '';
+        html += '<tr' + rowClass + '><td>' + label + (ch.disabled ? ' <span style="color:var(--danger);font-size:0.7rem;">(DISABLED)</span>' : '') + '</td><td>' + renderCell(ch.pos) + '</td><td>' + renderCell(ch.online) + '</td><td>' + renderCell(ch.headless) + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '</div>';
+
+    // TAB: Decisions
+    html += '<div class="tab-content" id="tab-decisions">';
+    html += '<h3 style="font-size:1.2rem;margin-bottom:15px;">Configuration Decisions and Reasons</h3>';
+    html += '<div class="fee-table-wrapper"><table class="fee-table"><thead><tr><th>Item</th><th>Status</th><th>Reason</th></tr></thead><tbody>';
+    V.decisions.forEach(function(d) {
+        var statusColor = d.status === 'enabled' ? 'var(--success)' : 'var(--danger)';
+        var statusLabel = d.status === 'enabled' ? 'ENABLED' : 'DISABLED';
+        html += '<tr><td><strong>' + d.item + '</strong></td><td style="color:' + statusColor + ';font-weight:600;">' + statusLabel + '</td><td style="font-size:0.85rem;">' + d.reason + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<div class="info-callout" style="margin-top:20px;"><strong>3-Year term option:</strong> Shopify suggests renewing on a 3-year term to save on the monthly platform fee. Current: $2,500/mo (1-year). Renewal date: January 30, 2027.</div>';
+    html += '</div>';
+
+    html += '</div>'; // close tabgroup
+    return html;
+}
+
+function getRecommendationText(market, analysis) {
+    if (market.shopifyPayments && market.subscriptionsWork) {
+        return '<strong>Use Shopify Payments</strong> for ' + market.name + '. Full feature availability including Shop Pay express checkout, native subscriptions, and best transaction rates. No third-party surcharge.';
+    } else if (market.shopifyPayments && !market.subscriptionsWork) {
+        return '<strong>Hybrid Model:</strong> Shopify Payments for one-time purchases (with Shop Pay), but use <strong>Shop2 + Worldpay MCP</strong> for subscription orders.';
+    } else if (market.worldpayMCP !== false) {
+        return '<strong>Use Worldpay MCP</strong> as primary gateway. Shopify Payments not available in ' + market.name + '. Note: +0.20% surcharge applies when not using Shopify Payments.';
+    } else {
+        return '<strong>Shop2 + Worldpay MCP</strong> recommended. Local gateways (' + (market.localGateways ? market.localGateways.join(', ') : 'limited') + ') may require direct relationships.';
+    }
+}
+
+function generateResultsHTML(code, market, orderValue, analysis) {
+    var recBadge = analysis.recommended === 'shopify' ? 'badge-shopify' : analysis.recommended === 'worldpay' ? 'badge-worldpay' : 'badge-shop2';
+    var recLabel = analysis.recommended === 'shopify' ? 'Shopify Payments' : analysis.recommended === 'worldpay' ? 'Worldpay MCP' : 'Shop2 + Worldpay';
+
+    var html = '<div class="country-header"><span class="country-flag">' + market.flag + '</span>';
+    html += '<div class="country-info"><h2>' + market.name + '</h2>';
+    html += '<div class="currency">' + market.currency + ' \u2022 ' + market.region + (market.hasVerifiedRates ? ' \u2022 <span style="color:var(--success);font-size:0.85rem;">Verified Rates</span>' : '') + '</div></div></div>';
+
+    // Status grid
+    html += '<div class="status-grid">';
+    html += '<div class="status-card"><div class="status-icon">' + (market.shopifyPayments ? '\u2705' : '\u274c') + '</div><div class="status-label">Shopify Payments</div><div class="status-value ' + (market.shopifyPayments ? 'yes' : 'no') + '">' + (market.shopifyPayments ? 'Available' : 'Not Available') + '</div></div>';
+    html += '<div class="status-card"><div class="status-icon">' + (market.shopPay ? '\ud83d\uded2' : '\u2796') + '</div><div class="status-label">Shop Pay</div><div class="status-value ' + (market.shopPay ? 'yes' : 'no') + '">' + (market.shopPay ? 'Available' : 'Not Available') + '</div></div>';
+    html += '<div class="status-card"><div class="status-icon">' + (market.subscriptionsWork ? '\ud83d\udd04' : '\u26a0\ufe0f') + '</div><div class="status-label">Subscriptions</div><div class="status-value ' + (market.subscriptionsWork ? 'yes' : 'partial') + '">' + (market.subscriptionsWork ? 'Supported' : 'Limited') + '</div></div>';
+    html += '<div class="status-card"><div class="status-icon">' + (market.worldpayMCP !== false ? '\ud83c\udf10' : '\u2796') + '</div><div class="status-label">Worldpay MCP</div><div class="status-value ' + (market.worldpayMCP !== false ? 'yes' : 'partial') + '">' + (market.worldpayMCP !== false ? 'Available' : 'Limited') + '</div></div>';
+    html += '<div class="status-card"><div class="status-icon">' + (market.unicityActive ? '\u2b50' : '\ud83c\udd95') + '</div><div class="status-label">Unicity Status</div><div class="status-value ' + (market.unicityActive ? 'yes' : 'partial') + '">' + (market.unicityActive ? 'Active' : 'New Market') + '</div></div>';
+    html += '</div>';
+
+    // Recommendation
+    html += '<div class="recommendation-panel"><h3><span class="recommendation-badge ' + recBadge + '">' + recLabel + '</span> Recommended Solution</h3>';
+    html += '<p>' + getRecommendationText(market, analysis) + '</p>';
+    html += '<div class="timeline-info">';
+    html += '<div class="timeline-item"><h5>Setup Time</h5><div class="time">' + (analysis.recommendedModel ? analysis.recommendedModel.setupTime : '2-3 days') + '</div></div>';
+    html += '<div class="timeline-item"><h5>Processing Rate</h5><div class="time">' + formatPercent(analysis.recommendedModel ? analysis.recommendedModel.rate : WORLDPAY_MCP.totalRate) + '</div></div>';
+    html += '<div class="timeline-item"><h5>Fees on $' + orderValue.toFixed(0) + '</h5><div class="time">' + formatCurrency(analysis.recommendedModel ? analysis.recommendedModel.fees : (orderValue * WORLDPAY_MCP.totalRate / 100)) + '</div></div>';
+    if (market.shopifyPayments) {
+        html += '<div class="timeline-item"><h5>3rd Party Surcharge</h5><div class="time" style="color:var(--success);">$0 (waived)</div></div>';
+    }
+    html += '</div></div>';
+
+    // Verified US rates section
+    if (code === 'US' && market.hasVerifiedRates) {
+        html += generateVerifiedRatesHTML(orderValue);
+    }
+
+    // Mobile payments
+    if (market.topMobilePayments && market.topMobilePayments.length > 0) {
+        html += '<div style="background:linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(0,212,170,0.1) 100%);border:1px solid var(--shop2-purple);border-radius:12px;padding:20px;margin-bottom:30px;">';
+        html += '<h3 style="font-size:1.1rem;margin-bottom:15px;">Top Mobile Payment Methods in ' + market.name + '</h3>';
+        html += '<div style="display:flex;gap:15px;flex-wrap:wrap;">';
+        market.topMobilePayments.forEach(function(method, i) {
+            html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:15px 20px;flex:1;min-width:150px;display:flex;align-items:center;gap:10px;">';
+            html += '<span style="font-size:1.5rem;">' + (i === 0 ? '\ud83e\udd47' : '\ud83e\udd48') + '</span>';
+            html += '<div><div style="font-weight:600;">' + method + '</div><div style="font-size:0.75rem;color:var(--text-muted);">' + (i === 0 ? 'Most Popular' : 'Second Most Popular') + '</div></div></div>';
+        });
+        html += '</div></div>';
+    }
+
+    // Payment methods grid
+    html += generatePaymentMethodsHTML(market);
+
+    // Model comparison cards
+    html += '<div class="models-section"><h3>Available Payment Models</h3><div class="model-cards">';
+    analysis.models.forEach(function(model) {
+        var isRec = model === analysis.recommendedModel;
+        html += '<div class="model-card ' + (isRec ? 'recommended' : '') + ' ' + (!model.available ? 'unavailable' : '') + '">';
+        html += '<div class="model-header"><div><h4>' + model.name + '</h4><div class="model-type">' + model.type + '</div></div>';
+        html += '<span class="model-available ' + (model.available ? 'yes' : 'no') + '">' + (model.available ? (isRec ? '\u2605 RECOMMENDED' : 'Available') : 'Unavailable') + '</span></div>';
+        html += '<ul class="model-features">';
+        html += '<li><span class="feature-icon">' + (model.features.shopPay ? '\u2705' : '\u274c') + '</span> Shop Pay Express</li>';
+        html += '<li><span class="feature-icon">' + (model.features.subscriptions ? '\u2705' : '\u274c') + '</span> Subscriptions</li>';
+        html += '<li><span class="feature-icon">' + (model.features.applePay ? '\u2705' : '\u274c') + '</span> Apple/Google Pay</li>';
+        html += '<li><span class="feature-icon">' + (model.features.localMethods ? '\u2705' : '\u2796') + '</span> Local Methods</li>';
+        html += '</ul>';
+        if (model.available && model.rate) {
+            html += '<div class="model-rate"><div class="rate-label">Effective Rate</div><div class="rate-value">' + formatPercent(model.rate) + '</div><div class="rate-breakdown">' + model.rateBreakdown + '</div></div>';
+        }
+        html += '</div>';
+    });
+    html += '</div></div>';
+
+    // Fee comparison table
+    html += '<div class="fee-table-section"><h3>Fee Comparison for ' + formatCurrency(orderValue) + ' Order</h3>';
+    html += '<div class="fee-table-wrapper"><table class="fee-table"><thead><tr><th>Solution</th><th>Rate</th><th>Processing Fee</th><th>Shopify Surcharge</th><th>Total</th><th>Net</th></tr></thead><tbody>';
+    analysis.models.filter(function(m) { return m.available; }).forEach(function(model) {
+        var shopifyFee = model.shopifyFee ? (orderValue * model.shopifyFee / 100) : 0;
+        var totalFees = model.fees + shopifyFee;
+        var net = orderValue - totalFees;
+        var isRec = model === analysis.recommendedModel;
+        html += '<tr class="' + (isRec ? 'highlight-row' : '') + '"><td><strong>' + model.name + '</strong><br><small>' + model.type + '</small></td>';
+        html += '<td>' + formatPercent(model.rate) + '</td><td>' + formatCurrency(model.fees) + '</td>';
+        html += '<td>' + (model.shopifyFee ? formatCurrency(shopifyFee) + ' <small style="color:var(--danger);">(+0.20%)</small>' : '<span style="color:var(--success);">$0.00</span>') + '</td>';
+        html += '<td class="total-cell">' + formatCurrency(totalFees) + '</td><td class="total-cell">' + formatCurrency(net) + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+
+    // Gateways
+    html += '<div class="gateways-section"><h3>Available Gateways</h3><div class="gateway-grid">';
+    if (market.worldpayMCP !== false) {
+        html += '<div class="gateway-card primary"><h5>Worldpay MCP <span class="gateway-type">Unicity Partner</span></h5><div class="gateway-rate">' + formatPercent(market.worldpayRate || WORLDPAY_MCP.totalRate) + '</div><div class="gateway-features">Global \u2022 Subscriptions \u2713 \u2022 2-3 days' + (market.shopifyPayments ? ' \u2022 +0.20% surcharge' : '') + '</div></div>';
+    }
+    if (market.localGateways) {
+        market.localGateways.forEach(function(gw) {
+            html += '<div class="gateway-card"><h5>' + gw + ' <span class="gateway-type">Local</span></h5><div class="gateway-rate">' + (market.localRate ? formatPercent(market.localRate) : 'Varies') + '</div><div class="gateway-features">Local expertise</div></div>';
+        });
+    }
+    html += '</div></div>';
+
+    // Notes
+    if (market.notes && market.notes.length > 0) {
+        html += '<div class="notes-section"><h4>Market Notes</h4><ul>';
+        market.notes.forEach(function(note) { html += '<li>' + note + '</li>'; });
+        html += '</ul></div>';
+    }
+    return html;
+}
+
+function initShopPayMarkets() {
+    var c = document.getElementById('shopPayMarkets');
+    var m = Object.entries(MARKET_DATA).filter(function(e) { return e[1].shopPay === true; }).sort(function(a,b) { return a[1].name.localeCompare(b[1].name); });
+    c.innerHTML = m.map(function(e) { return '<div class="market-tag" onclick="selectCountry(\'' + e[0] + '\')">' + e[1].flag + ' ' + e[1].name + '</div>'; }).join('');
+}
+
+function initUnicityDropdown() {
+    var c = document.getElementById('unicityDropdown');
+    var m = Object.entries(MARKET_DATA).filter(function(e) { return e[1].unicityActive === true; }).sort(function(a,b) { return a[1].name.localeCompare(b[1].name); });
+    c.innerHTML = m.map(function(e) { return '<div class="dropdown-item" onclick="selectCountry(\'' + e[0] + '\')"><span>' + e[1].flag + ' ' + e[1].name + '</span><span style="color:var(--accent);font-size:0.8rem;">' + e[1].currency + '</span></div>'; }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initAutocomplete();
+    initShopPayMarkets();
+    initUnicityDropdown();
+});
+</script>
+</body>
+</html>

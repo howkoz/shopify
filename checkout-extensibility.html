@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Extensibility - Shopify Plus for Unicity International</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        html, body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+        }
+
+        nav a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #79c0ff;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #8b949e;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            background-color: var(--surface2);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            margin-bottom: 0.75rem;
+            color: #d0d9e3;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            background-color: transparent;
+            border: none;
+            color: #8b949e;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            color: var(--accent);
+        }
+
+        .tab-button.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .checklist li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .checklist input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+            accent-color: var(--green);
+        }
+
+        .checklist label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Diagram */
+        .checkout-diagram {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .checkout-step {
+            background-color: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            padding: 1.2rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text);
+            position: relative;
+        }
+
+        .checkout-step.extension {
+            border-left: 4px solid var(--accent);
+        }
+
+        .checkout-step.extension::after {
+            content: "UI Extension";
+            position: absolute;
+            top: -0.5rem;
+            right: 0.5rem;
+            background-color: var(--accent);
+            color: var(--bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .arrow {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Grid for cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        /* Code block styling */
+        code {
+            background-color: var(--surface2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--cyan);
+        }
+
+        pre {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: var(--cyan);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--surface2);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: var(--surface2);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #d0d9e3;
+        }
+
+        /* Highlights */
+        .highlight {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .highlight.success {
+            background-color: rgba(63, 185, 80, 0.1);
+            border-left-color: var(--green);
+        }
+
+        .highlight.warning {
+            background-color: rgba(210, 153, 34, 0.1);
+            border-left-color: var(--yellow);
+        }
+
+        .highlight.error {
+            background-color: rgba(248, 81, 73, 0.1);
+            border-left-color: var(--red);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            nav .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .checkout-diagram {
+                padding: 1rem;
+            }
+
+            .checkout-step {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Badge styling */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge.new {
+            background-color: rgba(63, 185, 80, 0.2);
+            color: var(--green);
+        }
+
+        .badge.recommended {
+            background-color: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .badge.required {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--red);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="index.html">← Back to Index</a>
+            <span style="color: #8b949e;">Shopify Plus Documentation</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Checkout Extensibility</h1>
+            <p class="subtitle">Customizing the Shopify checkout experience with UI extensions, Functions, and branding for US, EU, and Japan markets.</p>
+        </header>
+
+        <!-- Overview Section -->
+        <section>
+            <h2>Checkout Extensibility Overview</h2>
+            <p>Shopify Plus allows comprehensive checkout customization through multiple tools that replace deprecated checkout.liquid. These tools enable merchants to create branded, personalized checkout experiences while maintaining security and compliance.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Checkout UI Extensions</div>
+                    <p>Visual components sandboxed in checkout. Create custom fields, displays, and interactive elements using React-like components from the Checkout UI components library.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Shopify Functions</div>
+                    <p>Server-side logic for discounts, delivery customization, payment customization, cart transform, and order routing. Replaces deprecated Shopify Scripts.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Checkout Branding API</div>
+                    <p>Customize visual appearance including logo, colors, typography, corner radius, and form field styling. Configure per market for regional branding.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Web Pixels</div>
+                    <p>Track customer interactions and analytics. Supports Google Analytics 4, Meta Pixel, TikTok Pixel, Pinterest Tag, and custom tracking.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout UI Extensions -->
+        <section>
+            <h2>Checkout UI Extensions</h2>
+            <p>Custom UI components can be placed at multiple points throughout the checkout flow. Each extension runs in a sandboxed iframe and uses the Checkout UI components library for consistent styling.</p>
+
+            <h3>Placement Points in Checkout Flow</h3>
+            <div class="checkout-diagram">
+                <div class="checkout-step">Contact Information</div>
+                <div class="checkout-step extension">Before Contact Info (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step">Email & Address</div>
+                <div class="checkout-step extension">After Contact Info (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step">Shipping Method</div>
+                <div class="checkout-step extension">Before Shipping (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step">Select Rate</div>
+                <div class="checkout-step extension">After Shipping (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step">Payment Method</div>
+                <div class="checkout-step extension">Before Payment (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step">Credit Card / Digital Wallet</div>
+                <div class="checkout-step extension">After Payment (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step extension">Order Summary Sidebar (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step extension">Thank You Page (UI Extension Point)</div>
+                <div class="arrow">↓</div>
+                <div class="checkout-step extension">Order Status Page (UI Extension Point)</div>
+            </div>
+
+            <h3>Common UI Extension Examples</h3>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Unity ID Capture</div>
+                    <p>Text field allowing customers to enter distributor or customer Unity ID for attribution and loyalty tracking.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Loyalty Points Display</div>
+                    <p>Show earned points, point balance, and point-redemption options during checkout.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Gift Message</div>
+                    <p>Optional text field for customers to add personalized messages to their order.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Upsell Offers</div>
+                    <p>Promote complementary products or subscription upgrades at checkout.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Delivery Date Picker</div>
+                    <p>Calendar widget allowing customers to select preferred delivery date.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Distributor Info Display</div>
+                    <p>Show "Your distributor: [Name]" with contact information during checkout.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shopify Functions at Checkout -->
+        <section>
+            <h2>Shopify Functions at Checkout</h2>
+            <p>Server-side logic that runs during checkout to modify behavior based on cart contents, customer data, and custom rules. Shopify Functions replace the deprecated Shopify Scripts (retired June 2026).</p>
+
+            <h3>Function Types</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Function Type</th>
+                        <th>Purpose</th>
+                        <th>Unicity Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Discount Functions</strong></td>
+                        <td>Apply product or order-level discounts based on conditions</td>
+                        <td>Volume discounts, distributor loyalty discounts, subscription bonuses</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Delivery Customization</strong></td>
+                        <td>Hide, rename, reorder, or add shipping rates</td>
+                        <td>Region-specific shipping options, priority methods first (Konbini in Japan)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Customization</strong></td>
+                        <td>Hide, reorder, or rename payment methods</td>
+                        <td>Show local payment first (Klarna for EU, Konbini for Japan)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cart Transform</strong></td>
+                        <td>Create bundles, modify line items, add/remove products</td>
+                        <td>Auto-add samples when threshold met, bundle recommendations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Order Routing</strong></td>
+                        <td>Select fulfillment location based on order data</td>
+                        <td>Route to regional warehouse (US, EU, Japan)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Implementation Example: Payment Customization</h3>
+            <pre><code>// Reorder payment methods by region
+export function run(input) {
+  const { paymentMethods, deliveryAddress } = input;
+  const country = deliveryAddress?.country?.code;
+
+  if (country === 'JP') {
+    // Move Konbini to top for Japan
+    return paymentMethods.sort((a, b) => {
+      if (a.name.includes('Konbini')) return -1;
+      if (b.name.includes('Konbini')) return 1;
+      return 0;
+    });
+  }
+
+  if (country === 'DE' || country === 'AT' || country === 'NL') {
+    // Move Klarna to top for EU
+    return paymentMethods.sort((a, b) => {
+      if (a.name.includes('Klarna')) return -1;
+      if (b.name.includes('Klarna')) return 1;
+      return 0;
+    });
+  }
+
+  return paymentMethods;
+}</code></pre>
+        </section>
+
+        <!-- Checkout Branding -->
+        <section>
+            <h2>Checkout Branding</h2>
+            <p>Customize the visual appearance of checkout independently per market. Access via Shopify Admin: <code>Settings > Checkout > Customize</code></p>
+
+            <h3>Branding Elements</h3>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Logo & Header</div>
+                    <p>Upload logo, set header background color, add custom header content</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Colors</div>
+                    <p>Primary, secondary, background, text, borders, button colors per region</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Typography</div>
+                    <p>Font family, sizes, weights for headings, body, and labels</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Corner Radius</div>
+                    <p>Global shape preference: rounded buttons/fields vs sharp/minimal</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Form Fields</div>
+                    <p>Input styling, label positioning, placeholder text, error states</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Footer Content</div>
+                    <p>Links, trust badges, legal information, contact details</p>
+                </div>
+            </div>
+
+            <div class="highlight warning">
+                <strong>Pro Tip:</strong> Create separate checkout branding configurations for each market (US, EU, Japan) to comply with regional preferences and legal requirements. Use checkout A/B testing to measure impact on conversion rates.
+            </div>
+        </section>
+
+        <!-- Unicity Checkout Customizations -->
+        <section>
+            <h2>Unicity Checkout Customizations (Recommended)</h2>
+            <p>These customizations enhance Unicity's brand presence, improve customer experience, and increase order value.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <span class="badge recommended">Recommended</span>
+                    <div class="card-title">Unity ID Capture</div>
+                    <p>Text field at checkout to enter distributor/customer Unity ID for attribution and loyalty tracking. Place before/after contact info.</p>
+                </div>
+                <div class="card">
+                    <span class="badge recommended">Recommended</span>
+                    <div class="card-title">Distributor Attribution Display</div>
+                    <p>Show "Your distributor: [Name]" in checkout along with contact info. Builds trust and shows direct relationships.</p>
+                </div>
+                <div class="card">
+                    <span class="badge recommended">Recommended</span>
+                    <div class="card-title">Subscription Upsell</div>
+                    <p>"Subscribe & Save 15%" offer on product page and during checkout. Use Cart Transform Function to modify pricing dynamically.</p>
+                </div>
+                <div class="card">
+                    <span class="badge required">Required</span>
+                    <div class="card-title">Regional Payment Ordering</div>
+                    <p>Show local payment methods first via Payment Customization Function. Konbini first in Japan, Klarna first in Germany/Austria/Netherlands.</p>
+                </div>
+                <div class="card">
+                    <span class="badge recommended">Recommended</span>
+                    <div class="card-title">Gift with Purchase</div>
+                    <p>Use Cart Transform Function to auto-add sample product when cart exceeds threshold (e.g., $50). Drives AOV and customer trial.</p>
+                </div>
+                <div class="card">
+                    <span class="badge recommended">Recommended</span>
+                    <div class="card-title">Delivery Date Selection</div>
+                    <p>Calendar UI extension before shipping method. Allows customers to choose preferred delivery date for better logistics.</p>
+                </div>
+                <div class="card">
+                    <span class="badge recommended">Recommended</span>
+                    <div class="card-title">Post-Purchase Upsell</div>
+                    <p>Show complementary products on thank you page. Use thank you page UI extension to recommend related items.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout A/B Testing -->
+        <section>
+            <h2>Checkout A/B Testing</h2>
+            <p>Test checkout variants to optimize conversion rates. Shopify's built-in checkout analytics provide detailed metrics.</p>
+
+            <h3>Test Variables</h3>
+            <ul>
+                <li><strong>Button colors:</strong> Compare primary color impact on CTA visibility</li>
+                <li><strong>Payment method order:</strong> Test which ordering increases payment method acceptance</li>
+                <li><strong>Shipping presentation:</strong> Single best option vs. full list of rates</li>
+                <li><strong>Trust badges:</strong> Position and visibility of security/trust elements</li>
+                <li><strong>Field layout:</strong> Single column vs. multi-column form layouts</li>
+                <li><strong>Upsell placement:</strong> Before vs. after payment method selection</li>
+                <li><strong>Subscription offer:</strong> Highlight vs. de-emphasize subscription option</li>
+            </ul>
+
+            <h3>Key Metrics to Monitor</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Definition</th>
+                        <th>Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Checkout Started</strong></td>
+                        <td>Customers who entered checkout</td>
+                        <td>Track baseline from top of funnel</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Checkout Completed</strong></td>
+                        <td>Customers who placed order</td>
+                        <td>Increase across variants</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conversion Rate</strong></td>
+                        <td>Completed / Started</td>
+                        <td>Industry avg 2-5% for B2C, target 5%+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Avg Checkout Time</strong></td>
+                        <td>Minutes from start to completion</td>
+                        <td>Reduce friction, target 3-5 min</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cart Abandonment</strong></td>
+                        <td>Checkout started but not completed</td>
+                        <td>Reduce with targeted follow-up</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Avg Order Value (AOV)</strong></td>
+                        <td>Total revenue / completed orders</td>
+                        <td>Increase via upsells/cross-sells</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight success">
+                <strong>Running Tests:</strong> In Shopify Admin, go to Settings > Checkout and create A/B tests with minimum 1-2 week durations. Monitor statistical significance before implementing winners.
+            </div>
+        </section>
+
+        <!-- Regional Checkout Differences -->
+        <section>
+            <h2>Regional Checkout Differences</h2>
+            <p>Configure checkout experiences per market to meet local regulations, payment preferences, and customer expectations.</p>
+
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab(event, 'us')">US Checkout</button>
+                <button class="tab-button" onclick="switchTab(event, 'eu')">EU Checkout</button>
+                <button class="tab-button" onclick="switchTab(event, 'japan')">Japan Checkout</button>
+            </div>
+
+            <div id="us" class="tab-content active">
+                <div class="card">
+                    <div class="card-title">United States</div>
+                    <div style="margin-top: 1rem;">
+                        <h4 style="color: var(--cyan); margin-bottom: 0.5rem;">Key Features:</h4>
+                        <ul>
+                            <li><strong>Standard checkout flow:</strong> Email → Address → Shipping → Payment</li>
+                            <li><strong>Tip option for POS:</strong> Optional tip collection after payment (hospitality/services)</li>
+                            <li><strong>Address autocomplete:</strong> Google Places integration for fast address entry</li>
+                            <li><strong>State-specific tax:</strong> Auto-calculate sales tax by state/zip code</li>
+                            <li><strong>Popular payments:</strong> Credit cards, PayPal, Apple Pay, Google Pay, Amazon Pay</li>
+                            <li><strong>Shipping:</strong> USPS, FedEx, UPS with real-time rate shopping</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="eu" class="tab-content">
+                <div class="card">
+                    <div class="card-title">European Union</div>
+                    <div style="margin-top: 1rem;">
+                        <h4 style="color: var(--cyan); margin-bottom: 0.5rem;">Key Features:</h4>
+                        <ul>
+                            <li><span class="badge required">Required:</span> <strong>GDPR consent checkbox:</strong> Explicit opt-in for marketing emails and data processing</li>
+                            <li><span class="badge required">Required:</span> <strong>VAT number field:</strong> For B2B customers in EU, allow VAT exemption with valid number</li>
+                            <li><strong>Country-specific payment methods:</strong> Klarna, iDeal (NL), Bancontact (BE), Giropay (DE), PayU (PL)</li>
+                            <li><strong>Cookie consent:</strong> Full compliance with ePrivacy Directive (cookie banner before tracking)</li>
+                            <li><strong>Dynamic VAT calculation:</strong> Show VAT separately based on delivery country</li>
+                            <li><strong>Shipping:</strong> DPD, DHL, GLS with cross-border rates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="japan" class="tab-content">
+                <div class="card">
+                    <div class="card-title">Japan</div>
+                    <div style="margin-top: 1rem;">
+                        <h4 style="color: var(--cyan); margin-bottom: 0.5rem;">Key Features:</h4>
+                        <ul>
+                            <li><strong>Postal code → address auto-fill:</strong> Reverse of US flow (postal code lookup)</li>
+                            <li><strong>Name order (family first):</strong> Display "Tanaka Taro" not "Taro Tanaka"</li>
+                            <li><span class="badge required">Required:</span> <strong>Konbini payment first:</strong> Convenience store payment (7-Eleven, Lawson, FamilyMart) most popular</li>
+                            <li><span class="badge required">Required:</span> <strong>Furigana fields:</strong> Hiragana reading of name for phonetic clarity</li>
+                            <li><strong>Phone number format:</strong> Validate as +81-XX-XXXX-XXXX</li>
+                            <li><strong>Shipping options:</strong> Yamato, Sagawa, Japan Post with same-day delivery available</li>
+                            <li><strong>Gift wrapping:</strong> Common expectation—offer gift wrap option</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Web Pixels for Tracking -->
+        <section>
+            <h2>Web Pixels for Tracking</h2>
+            <p>Install tracking pixels via checkout extensibility to monitor customer journeys, measure conversions, and retarget abandoned carts. All pixels run in sandboxed environment for privacy compliance.</p>
+
+            <h3>Supported Pixel Types</h3>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">Google Analytics 4</div>
+                    <p>Track pageviews, conversions, revenue, user properties. Standard for web analytics and ROAS measurement.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Meta Pixel</div>
+                    <p>Track Facebook/Instagram events for retargeting and lookalike audiences. Essential for FB/IG ad performance.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">TikTok Pixel</div>
+                    <p>Track TikTok Shop conversions and drive retargeting. Growing importance for Gen Z demographics.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Pinterest Tag</div>
+                    <p>Track pins, conversions, and user interactions. Important for visual commerce and female-skewed audiences.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Custom Pixels</div>
+                    <p>Build custom tracking via JavaScript. Use for internal tools, loyalty programs, or proprietary analytics.</p>
+                </div>
+            </div>
+
+            <h3>Installation Instructions</h3>
+            <ol>
+                <li>In Shopify Admin, go to <code>Settings > Customer events > Custom pixels</code></li>
+                <li>Click "Create pixel" and select the platform (GA4, Meta, TikTok, etc.)</li>
+                <li>Paste the tracking ID or installation code</li>
+                <li>Choose which events to track (purchase, add to cart, view item, etc.)</li>
+                <li>Select markets where pixel should fire (US, EU, JP)</li>
+                <li>Test using Shopify's pixel validator before going live</li>
+            </ol>
+
+            <div class="highlight success">
+                <strong>Privacy Note:</strong> Web pixels in Shopify checkout are sandboxed and compliant with GDPR, CCPA, and regional privacy laws. Customer consent is handled via cookie banner and consent management system.
+            </div>
+        </section>
+
+        <!-- Implementation Checklist -->
+        <section>
+            <h2>Implementation Checklist</h2>
+            <p>Follow this step-by-step checklist to ensure complete checkout customization rollout across all markets.</p>
+
+            <div class="card">
+                <ul class="checklist">
+                    <li><input type="checkbox" id="item1"><label for="item1">Design checkout flow wireframes for US, EU, and Japan markets</label></li>
+                    <li><input type="checkbox" id="item2"><label for="item2">Document UI extension requirements (placement, components, data)</label></li>
+                    <li><input type="checkbox" id="item3"><label for="item3">Create Shopify Function code for payment/delivery customization</label></li>
+                    <li><input type="checkbox" id="item4"><label for="item4">Build UI extensions in development store (React/TypeScript)</label></li>
+                    <li><input type="checkbox" id="item5"><label for="item5">Test extensions in each market variant</label></li>
+                    <li><input type="checkbox" id="item6"><label for="item6">Configure checkout branding per market (logo, colors, fonts)</label></li>
+                    <li><input type="checkbox" id="item7"><label for="item7">Deploy payment/delivery Functions to staging</label></li>
+                    <li><input type="checkbox" id="item8"><label for="item8">Install Web Pixels (GA4, Meta, TikTok, Pinterest)</label></li>
+                    <li><input type="checkbox" id="item9"><label for="item9">Test pixel events and conversion tracking</label></li>
+                    <li><input type="checkbox" id="item10"><label for="item10">Configure GDPR consent for EU checkout</label></li>
+                    <li><input type="checkbox" id="item11"><label for="item11">Validate Japan-specific fields (furigana, name order)</label></li>
+                    <li><input type="checkbox" id="item12"><label for="item12">Run end-to-end checkout tests in production (place test orders)</label></li>
+                    <li><input type="checkbox" id="item13"><label for="item13">Set up A/B test variants in Shopify Admin</label></li>
+                    <li><input type="checkbox" id="item14"><label for="item14">Launch checkout variants (1-2 week test period)</label></li>
+                    <li><input type="checkbox" id="item15"><label for="item15">Monitor conversion rates, AOV, and checkout time daily</label></li>
+                    <li><input type="checkbox" id="item16"><label for="item16">Identify winning variants statistically</label></li>
+                    <li><input type="checkbox" id="item17"><label for="item17">Roll out winners to 100% of traffic</label></li>
+                    <li><input type="checkbox" id="item18"><label for="item18">Set up weekly reporting on checkout metrics</label></li>
+                    <li><input type="checkbox" id="item19"><label for="item19">Create runbook for future checkout updates</label></li>
+                    <li><input type="checkbox" id="item20"><label for="item20">Document all customizations for future maintenance</label></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section>
+            <h2>Best Practices & Tips</h2>
+
+            <div class="highlight">
+                <strong>Performance:</strong> UI extensions add load time. Lazy-load heavy components and minimize JavaScript bundle size. Test checkout performance metrics on mobile (slower networks).
+            </div>
+
+            <div class="highlight success">
+                <strong>Mobile First:</strong> Over 60% of online purchases are on mobile. Design extensions responsively and test on iPhone/Android before launch.
+            </div>
+
+            <div class="highlight warning">
+                <strong>Regulatory Compliance:</strong> EU checkouts require GDPR consent, VAT handling, and payment method compliance. Japan requires furigana fields and correct name ordering. Test with legal before launch.
+            </div>
+
+            <div class="highlight">
+                <strong>Accessibility:</strong> All extensions must meet WCAG 2.1 AA standards. Use semantic HTML, proper color contrast (4.5:1), and keyboard navigation.
+            </div>
+
+            <div class="highlight success">
+                <strong>Testing:</strong> Use Shopify's development and staging stores. Test all extensions and Functions end-to-end before rolling to production. Place test orders to verify pixel firing.
+            </div>
+
+            <div class="highlight error">
+                <strong>Deprecated Technology:</strong> Shopify Scripts are retired June 2026. Migrate all script-based logic to Shopify Functions before deadline.
+            </div>
+        </section>
+
+        <footer>
+            <p>Checkout Extensibility Guide | Shopify Plus for Unicity International | Last updated: 2026</p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;">For questions or updates, contact the Unicity Shopify Plus team.</p>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(event, tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Prevent form submission on checkbox clicks
+        document.querySelectorAll('.checklist input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                if (this.checked) {
+                    label.style.textDecoration = 'line-through';
+                    label.style.color = '#6e7681';
+                } else {
+                    label.style.textDecoration = 'none';
+                    label.style.color = '#d0d9e3';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

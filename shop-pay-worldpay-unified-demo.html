@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicity Checkout Demo - Shop Pay vs Worldpay</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --shop-purple: #5a31f4;
+            --shop-black: #1a1a1a;
+            --shop-gray-700: #4a4a4a;
+            --shop-gray-500: #717171;
+            --shop-gray-300: #b3b3b3;
+            --shop-gray-100: #f5f5f5;
+            --shop-white: #ffffff;
+            --shop-green: #00875a;
+            --shop-green-light: #e6f4ed;
+            --code-bg: #1e1e2e;
+            --code-text: #cdd6f4;
+            --code-keyword: #cba6f7;
+            --code-string: #a6e3a1;
+            --code-number: #fab387;
+            --unicity-green: #00a651;
+            --worldpay-blue: #003087;
+            --shopify-payments: #f59e0b;
+            --api-blue: #3b82f6;
+            --token-green: #10b981;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%); min-height: 100vh; color: #fff; }
+        .demo-container { max-width: 1600px; margin: 0 auto; padding: 30px 20px; }
+        .demo-header { text-align: center; margin-bottom: 20px; }
+        .demo-header h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .demo-header p { color: var(--shop-gray-300); }
+        .path-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 12px; width: fit-content; margin-left: auto; margin-right: auto; }
+        .path-toggle button { padding: 14px 28px; border: none; background: transparent; color: var(--shop-gray-300); font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+        .path-toggle button.active.shopify-path { background: var(--shop-purple); color: white; }
+        .path-toggle button.active.worldpay-path { background: var(--worldpay-blue); color: white; }
+        .path-toggle .path-icon { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; }
+        .path-toggle .shopify-icon { background: var(--shop-purple); color: white; }
+        .path-toggle .worldpay-icon { background: var(--worldpay-blue); color: white; }
+        .path-toggle button.active .shopify-icon { background: white; color: var(--shop-purple); }
+        .path-toggle button.active .worldpay-icon { background: white; color: var(--worldpay-blue); }
+        .view-toggle { display: flex; justify-content: center; gap: 4px; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 12px; width: fit-content; margin-left: auto; margin-right: auto; }
+        .view-toggle button { padding: 10px 20px; border: none; background: transparent; color: var(--shop-gray-300); font-weight: 600; cursor: pointer; border-radius: 8px; font-size: 0.85rem; }
+        .view-toggle button.active { background: rgba(255,255,255,0.1); color: white; }
+        .flow-indicator { display: flex; justify-content: center; gap: 6px; margin-bottom: 30px; flex-wrap: wrap; }
+        .flow-step { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; cursor: pointer; font-size: 0.85rem; }
+        .flow-step.active { box-shadow: 0 4px 20px rgba(90, 49, 244, 0.4); }
+        .flow-step.completed { background: rgba(16, 185, 129, 0.2); border-color: var(--token-green); color: var(--token-green); }
+        .flow-step .step-num { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.75rem; }
+        .flow-step.active .step-num { background: rgba(255,255,255,0.2); }
+        .flow-step.completed .step-num { background: var(--token-green); color: white; }
+        .flow-step.unicity-step { background: rgba(0, 166, 81, 0.2); border-color: var(--unicity-green); }
+        .flow-step.unicity-step.active { background: var(--unicity-green); }
+        .flow-step.unicity-step .step-num { background: var(--unicity-green); color: white; }
+        .flow-step.shopify-step { background: rgba(90, 49, 244, 0.2); border-color: var(--shop-purple); }
+        .flow-step.shopify-step.active { background: var(--shop-purple); }
+        .flow-step.shopify-step .step-num { background: var(--shop-purple); color: white; }
+        .flow-step.worldpay-step { background: rgba(0, 48, 135, 0.3); border-color: var(--worldpay-blue); }
+        .flow-step.worldpay-step.active { background: var(--worldpay-blue); }
+        .flow-step.worldpay-step .step-num { background: var(--worldpay-blue); color: white; }
+        .flow-step.handoff-marker { background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; cursor: default; padding: 10px 12px; }
+        .main-content { display: grid; grid-template-columns: 380px 1fr; gap: 40px; align-items: start; }
+        .main-content.customer-only { grid-template-columns: 1fr; justify-items: center; }
+        .main-content.customer-only .technical-panel { display: none; }
+        .phone-wrapper { position: sticky; top: 30px; }
+        .phone-label { text-align: center; margin-bottom: 16px; font-weight: 600; color: var(--shop-gray-300); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; }
+        .phone-frame { width: 360px; height: 720px; background: var(--shop-black); border-radius: 48px; padding: 10px; box-shadow: 0 50px 100px rgba(0,0,0,0.4); }
+        .phone-screen { width: 100%; height: 100%; background: var(--shop-white); border-radius: 40px; overflow: hidden; position: relative; }
+        .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 130px; height: 28px; background: var(--shop-black); border-radius: 0 0 16px 16px; z-index: 100; }
+        .screen-content { height: 100%; overflow-y: auto; padding-top: 34px; color: var(--shop-black); }
+        .screen-content.hidden { display: none; }
+        .store-header { padding: 14px 16px; background: var(--shop-white); border-bottom: 1px solid var(--shop-gray-100); display: flex; justify-content: space-between; align-items: center; }
+        .store-header.unicity-header { background: var(--unicity-green); color: white; }
+        .store-header.worldpay-header { background: var(--worldpay-blue); color: white; }
+        .store-logo { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.1rem; }
+        .cart-icon { position: relative; width: 34px; height: 34px; background: var(--shop-gray-100); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .cart-badge { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; background: var(--shop-purple); color: white; border-radius: 50%; font-size: 0.6rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        .product-card { padding: 16px; }
+        .product-image { width: 100%; height: 180px; background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; position: relative; }
+        .product-badge { position: absolute; top: 12px; left: 12px; background: var(--shop-green); color: white; padding: 5px 10px; border-radius: 14px; font-size: 0.65rem; font-weight: 600; }
+        .product-image-icon { font-size: 3rem; }
+        .product-title { font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
+        .product-subtitle { color: var(--shop-gray-500); font-size: 0.8rem; margin-bottom: 12px; }
+        .product-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+        .product-price { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 700; }
+        .product-price-original { font-size: 0.9rem; color: var(--shop-gray-500); text-decoration: line-through; }
+        .subscription-options { margin-bottom: 14px; }
+        .subscription-option { display: flex; align-items: center; gap: 10px; padding: 12px; border: 2px solid var(--shop-gray-100); border-radius: 10px; cursor: pointer; margin-bottom: 8px; }
+        .subscription-option.selected { border-color: var(--unicity-green); background: rgba(0, 166, 81, 0.05); }
+        .subscription-radio { width: 20px; height: 20px; border: 2px solid var(--shop-gray-300); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .subscription-option.selected .subscription-radio { border-color: var(--unicity-green); background: var(--unicity-green); }
+        .subscription-radio-inner { width: 8px; height: 8px; background: white; border-radius: 50%; display: none; }
+        .subscription-option.selected .subscription-radio-inner { display: block; }
+        .subscription-details { flex: 1; }
+        .subscription-name { font-weight: 600; font-size: 0.85rem; }
+        .subscription-desc { font-size: 0.75rem; color: var(--shop-gray-500); }
+        .subscription-price { font-weight: 700; color: var(--unicity-green); }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+        .btn-black { background: var(--shop-black); color: white; }
+        .btn-purple { background: var(--shop-purple); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-red { background: #dc2626; color: white; }
+        .btn-blue { background: var(--worldpay-blue); color: white; }
+        .btn-green { background: var(--unicity-green); color: white; }
+        .shop-pay-logo { background: white; padding: 2px 5px; border-radius: 3px; font-weight: 700; font-size: 0.6rem; color: var(--shop-purple); }
+        .express-checkout { padding: 14px 16px; border-bottom: 1px solid var(--shop-gray-100); }
+        .express-label { text-align: center; color: var(--shop-gray-500); font-size: 0.7rem; margin-bottom: 8px; }
+        .express-buttons { display: flex; gap: 6px; }
+        .express-btn { flex: 1; padding: 10px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 0.7rem; }
+        .express-btn.shop-pay { background: var(--shop-purple); color: white; }
+        .express-btn.apple-pay { background: var(--shop-black); color: white; }
+        .express-btn.google-pay { background: white; border: 1px solid var(--shop-gray-300); }
+        .cart-items { padding: 14px 16px; }
+        .cart-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--shop-gray-100); }
+        .cart-item-image { width: 64px; height: 64px; background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 600; font-size: 0.85rem; }
+        .cart-item-variant { color: var(--shop-gray-500); font-size: 0.75rem; }
+        .cart-item-price { font-weight: 600; font-size: 0.9rem; }
+        .cart-summary { padding: 14px 16px; background: var(--shop-gray-100); }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
+        .summary-row.total { font-weight: 700; font-size: 0.95rem; padding-top: 8px; border-top: 1px solid var(--shop-gray-300); }
+        .auth-screen { padding: 32px 20px; text-align: center; }
+        .auth-logo { width: 80px; height: 32px; background: var(--shop-purple); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.7rem; margin: 0 auto 24px; }
+        .auth-title { font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; }
+        .auth-subtitle { color: var(--shop-gray-500); margin-bottom: 24px; font-size: 0.85rem; }
+        .auth-input { width: 100%; padding: 12px; border: 2px solid var(--shop-green); border-radius: 8px; font-size: 0.9rem; background: var(--shop-green-light); margin-bottom: 16px; }
+        .otp-container { display: flex; justify-content: center; gap: 8px; margin: 24px 0; }
+        .otp-input { width: 42px; height: 52px; border: 2px solid var(--shop-purple); border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: 600; background: rgba(90, 49, 244, 0.05); }
+        .checkout-section { padding: 14px 16px; border-bottom: 1px solid var(--shop-gray-100); }
+        .checkout-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .checkout-section-title { font-weight: 600; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+        .section-check { width: 16px; height: 16px; background: var(--shop-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.5rem; }
+        .edit-link { color: var(--shop-purple); font-size: 0.75rem; cursor: pointer; }
+        .saved-info { font-size: 0.8rem; color: var(--shop-gray-700); }
+        .saved-info-line { margin-bottom: 2px; }
+        .shipping-methods { padding: 16px; }
+        .shipping-option { display: flex; gap: 12px; padding: 14px; border: 2px solid var(--shop-gray-100); border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        .shipping-option.selected { border-color: var(--shop-purple); background: rgba(90, 49, 244, 0.03); }
+        .shipping-option.selected.wp { border-color: var(--worldpay-blue); background: rgba(0, 48, 135, 0.03); }
+        .shipping-radio { width: 20px; height: 20px; border: 2px solid var(--shop-gray-300); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .shipping-option.selected .shipping-radio { border-color: var(--shop-purple); }
+        .shipping-option.selected.wp .shipping-radio { border-color: var(--worldpay-blue); }
+        .shipping-radio-inner { width: 10px; height: 10px; background: var(--shop-purple); border-radius: 50%; display: none; }
+        .shipping-option.selected .shipping-radio-inner { display: block; }
+        .shipping-option.selected.wp .shipping-radio-inner { background: var(--worldpay-blue); }
+        .shipping-details { flex: 1; }
+        .shipping-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .shipping-name { font-weight: 600; font-size: 0.85rem; }
+        .shipping-price { font-weight: 600; font-size: 0.85rem; }
+        .shipping-time { font-size: 0.75rem; color: var(--shop-gray-500); }
+        .payment-method { display: flex; align-items: center; gap: 12px; padding: 10px; background: var(--shop-gray-100); border-radius: 8px; }
+        .card-icon { padding: 6px 10px; background: #1a365d; color: white; border-radius: 4px; font-size: 0.65rem; font-weight: 700; }
+        .card-number { font-weight: 600; font-size: 0.85rem; }
+        .card-expiry { font-size: 0.75rem; color: var(--shop-gray-500); }
+        .processor-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-top: 8px; }
+        .processor-badge.shopify { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .processor-badge.worldpay { background: rgba(0, 48, 135, 0.2); color: var(--worldpay-blue); }
+        .form-row { display: flex; gap: 12px; margin-bottom: 14px; }
+        .form-group { flex: 1; }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 500; margin-bottom: 6px; color: var(--shop-gray-700); }
+        .form-input { width: 100%; padding: 12px; border: 2px solid var(--shop-gray-300); border-radius: 8px; font-size: 0.9rem; }
+        .form-select { width: 100%; padding: 12px; border: 2px solid var(--shop-gray-300); border-radius: 8px; font-size: 0.9rem; background: white; }
+        .worldpay-form { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .worldpay-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .worldpay-logo-icon { padding: 6px 12px; background: var(--worldpay-blue); color: white; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+        .payment-options { margin-bottom: 16px; }
+        .payment-option { display: flex; gap: 12px; padding: 14px; border: 2px solid var(--shop-gray-100); border-radius: 10px; margin-bottom: 10px; cursor: pointer; align-items: center; }
+        .payment-option.selected { border-color: var(--worldpay-blue); background: rgba(0, 48, 135, 0.03); }
+        .payment-icon { width: 48px; height: 32px; background: #1a365d; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
+        .payment-icon.apple { background: black; }
+        .payment-icon.paypal { background: #003087; }
+        .confirmation-header { text-align: center; padding: 24px 16px; }
+        .confirmation-icon { font-size: 3.5rem; margin-bottom: 12px; }
+        .confirmation-title { font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--unicity-green); margin-bottom: 6px; }
+        .confirmation-subtitle { color: var(--shop-gray-500); font-size: 0.85rem; }
+        .order-details { background: #f9f9f9; border-radius: 12px; padding: 16px; margin: 0 16px 16px; }
+        .order-number { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.8rem; }
+        .rewards-box { background: rgba(0,166,81,0.1); border: 1px solid var(--unicity-green); border-radius: 10px; padding: 14px; margin: 0 16px 16px; }
+        .rewards-title { font-weight: 600; font-size: 0.85rem; color: var(--unicity-green); margin-bottom: 8px; }
+        .rewards-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+        .technical-panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden; }
+        .tech-tabs { display: flex; background: rgba(0,0,0,0.3); }
+        .tech-tab { flex: 1; padding: 14px 20px; background: transparent; border: none; color: var(--shop-gray-300); font-weight: 500; cursor: pointer; font-size: 0.85rem; }
+        .tech-tab.active { background: rgba(255,255,255,0.05); color: white; border-bottom: 2px solid var(--shop-purple); }
+        .tech-content { padding: 20px; max-height: 660px; overflow-y: auto; }
+        .tech-section { margin-bottom: 24px; }
+        .tech-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-right: 10px; }
+        .tech-badge.api { background: rgba(59, 130, 246, 0.2); color: var(--api-blue); }
+        .tech-badge.graphql { background: rgba(203, 166, 247, 0.2); color: var(--code-keyword); }
+        .tech-badge.webhook { background: rgba(245, 158, 11, 0.2); color: var(--shopify-payments); }
+        .tech-badge.worldpay { background: rgba(0, 48, 135, 0.2); color: #6699ff; }
+        .tech-title { font-size: 0.9rem; font-weight: 600; display: inline; }
+        .endpoint { background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; margin: 12px 0; display: flex; align-items: center; gap: 10px; }
+        .method { padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.65rem; background: var(--token-green); color: white; }
+        .url { color: var(--shop-gray-300); }
+        .code-block { background: var(--code-bg); border-radius: 12px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--code-text); white-space: pre-wrap; margin: 12px 0; }
+        .info-box { padding: 14px; border-radius: 10px; margin-top: 16px; border-left: 3px solid; }
+        .info-box.green { background: rgba(16, 185, 129, 0.1); border-color: var(--token-green); }
+        .info-box.orange { background: rgba(245, 158, 11, 0.1); border-color: var(--shopify-payments); }
+        .info-box.purple { background: rgba(90, 49, 244, 0.1); border-color: var(--shop-purple); }
+        .info-box.blue { background: rgba(0, 48, 135, 0.1); border-color: var(--worldpay-blue); }
+        .info-box strong { display: block; margin-bottom: 6px; }
+        .info-box p { color: var(--shop-gray-300); font-size: 0.85rem; margin: 0; }
+        .nav-buttons { display: flex; justify-content: center; gap: 16px; margin-top: 30px; }
+        .nav-btn { padding: 14px 32px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .nav-btn.primary { background: var(--shop-purple); color: white; border: none; }
+        .nav-btn.secondary { background: transparent; color: var(--shop-gray-300); border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .diagrams-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .diagrams-section h2 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; text-align: center; margin-bottom: 30px; }
+        .mermaid { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .scenario { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
+        .scenario-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .scenario-badge { padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+        .badge-shopify { background: var(--shop-purple); color: white; }
+        .badge-worldpay { background: var(--worldpay-blue); color: white; }
+        .scenario h3 { font-size: 1.3rem; }
+        .scenario-desc { color: #a1a1aa; margin-bottom: 20px; }
+        .comparison-table { width: 100%; border-collapse: collapse; }
+        .comparison-table th, .comparison-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .comparison-table th { background: rgba(90, 49, 244, 0.2); color: #a5b4fc; }
+        .comparison-table td { color: #d4d4d8; }
+        .check { color: var(--token-green); font-weight: bold; }
+        .cross { color: #ef4444; font-weight: bold; }
+        .partial { color: var(--shopify-payments); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>Unicity Hybrid Checkout</h1>
+            <p>Shop Component API (Shop Pay) vs Native Checkout (Worldpay)</p>
+        </div>
+        
+        <div class="path-toggle">
+            <button class="shopify-path active" onclick="setPath('shopify')"><span class="path-icon shopify-icon">Shop</span>Shop Pay Path</button>
+            <button class="worldpay-path" onclick="setPath('worldpay')"><span class="path-icon worldpay-icon">WP</span>Worldpay Path</button>
+        </div>
+        
+        <div class="view-toggle">
+            <button class="active" onclick="setView('both')">Customer + Technical</button>
+            <button onclick="setView('customer')">Customer Only</button>
+        </div>
+        
+        <div class="flow-indicator" id="shopifyFlow">
+            <div class="flow-step unicity-step active" data-step="-1" onclick="goToStep(-1)"><span class="step-num">0</span><span>Browse</span></div>
+            <div class="flow-step unicity-step" data-step="0" onclick="goToStep(0)"><span class="step-num">1</span><span>Product</span></div>
+            <div class="flow-step unicity-step" data-step="1" onclick="goToStep(1)"><span class="step-num">2</span><span>Cart</span></div>
+            <div class="flow-step unicity-step" data-step="2" onclick="goToStep(2)"><span class="step-num">3</span><span>Address</span></div>
+            <div class="flow-step unicity-step" data-step="3" onclick="goToStep(3)"><span class="step-num">4</span><span>Shipping</span></div>
+            <div class="flow-step shopify-step" data-step="4" onclick="goToStep(4)"><span class="step-num">5</span><span>Payment</span></div>
+            <div class="flow-step handoff-marker">→</div>
+            <div class="flow-step shopify-step" data-step="5" onclick="goToStep(5)"><span class="step-num">6</span><span>Auth</span></div>
+            <div class="flow-step shopify-step" data-step="51" onclick="goToStep(51)"><span class="step-num">7</span><span>OTP</span></div>
+            <div class="flow-step shopify-step" data-step="52" onclick="goToStep(52)"><span class="step-num">8</span><span>Review</span></div>
+            <div class="flow-step unicity-step" data-step="6" onclick="goToStep(6)"><span class="step-num">9</span><span>Confirm</span></div>
+        </div>
+        
+        <div class="flow-indicator" id="worldpayFlow" style="display: none;">
+            <div class="flow-step unicity-step active" data-step="-1" onclick="goToStep(-1)"><span class="step-num">0</span><span>Browse</span></div>
+            <div class="flow-step unicity-step" data-step="0" onclick="goToStep(0)"><span class="step-num">1</span><span>Product</span></div>
+            <div class="flow-step unicity-step" data-step="100" onclick="goToStep(100)"><span class="step-num">2</span><span>Address</span></div>
+            <div class="flow-step unicity-step" data-step="101" onclick="goToStep(101)"><span class="step-num">3</span><span>Shipping</span></div>
+            <div class="flow-step worldpay-step" data-step="102" onclick="goToStep(102)"><span class="step-num">4</span><span>Payment</span></div>
+            <div class="flow-step unicity-step" data-step="103" onclick="goToStep(103)"><span class="step-num">5</span><span>Review</span></div>
+            <div class="flow-step unicity-step" data-step="104" onclick="goToStep(104)"><span class="step-num">6</span><span>Confirm</span></div>
+        </div>
+        
+        <div class="main-content" id="mainContent">
+            <div class="phone-wrapper">
+                <div class="phone-label">Customer View</div>
+                <div class="phone-frame">
+                    <div class="phone-screen">
+                        <div class="phone-notch"></div>
+                        
+                        <!-- STEP -1: Browse/Catalog -->
+                        <div class="screen-content" id="step-1">
+                            <div class="store-header">
+                                <div style="font-size: 1.2rem;">←</div>
+                                <div class="store-logo" style="color: var(--unicity-green);">UNICITY</div>
+                                <div class="cart-icon">🛒<span class="cart-badge">0</span></div>
+                            </div>
+                            <div style="padding: 12px;">
+                                <div style="background: #f5f5f5; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                    <span style="color: #999;">🔍</span>
+                                    <span style="color: #999; font-size: 0.9rem;">Search products...</span>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto;">
+                                    <span style="background: var(--shop-purple); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">All</span>
+                                    <span style="background: #f0f0f0; color: #666; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem;">Wellness</span>
+                                    <span style="background: #f0f0f0; color: #666; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem;">Nutrition</span>
+                                    <span style="background: #f0f0f0; color: #666; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem;">Weight</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div onclick="goToStep(0)" style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border-radius: 12px; padding: 12px; cursor: pointer; position: relative;">
+                                        <div style="position: absolute; top: 8px; right: 8px; color: #ccc;">♡</div>
+                                        <div style="height: 60px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🧬</div>
+                                        <div style="font-weight: 600; font-size: 0.85rem; margin-top: 8px;">Unimate</div>
+                                        <div style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #666;">⭐ 4.8</div>
+                                        <div style="color: var(--shop-purple); font-weight: 600; font-size: 0.9rem;">$45.00</div>
+                                    </div>
+                                    <div style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); border-radius: 12px; padding: 12px; cursor: pointer; position: relative; opacity: 0.7;">
+                                        <div style="position: absolute; top: 8px; right: 8px; color: #ccc;">♡</div>
+                                        <div style="height: 60px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">⚖️</div>
+                                        <div style="font-weight: 600; font-size: 0.85rem; margin-top: 8px;">Balance</div>
+                                        <div style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #666;">⭐ 4.9</div>
+                                        <div style="color: var(--shop-purple); font-weight: 600; font-size: 0.9rem;">$89.00</div>
+                                    </div>
+                                    <div style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-radius: 12px; padding: 12px; cursor: pointer; position: relative; opacity: 0.7;">
+                                        <div style="position: absolute; top: 8px; right: 8px; color: #ccc;">♡</div>
+                                        <div style="height: 60px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">💪</div>
+                                        <div style="font-weight: 600; font-size: 0.85rem; margin-top: 8px;">Core Health</div>
+                                        <div style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #666;">⭐ 4.7</div>
+                                        <div style="color: var(--shop-purple); font-weight: 600; font-size: 0.9rem;">$65.00</div>
+                                    </div>
+                                    <div style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border-radius: 12px; padding: 12px; cursor: pointer; position: relative; opacity: 0.7;">
+                                        <div style="position: absolute; top: 8px; right: 8px; color: #ccc;">♡</div>
+                                        <div style="height: 60px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">🍄</div>
+                                        <div style="font-weight: 600; font-size: 0.85rem; margin-top: 8px;">Bio Reishi</div>
+                                        <div style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #666;">⭐ 4.6</div>
+                                        <div style="color: var(--shop-purple); font-weight: 600; font-size: 0.9rem;">$52.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 0: Product Page -->
+                        <div class="screen-content hidden" id="step0">
+                            <div class="store-header">
+                                <div style="font-size: 1.2rem; cursor: pointer;" onclick="goToStep(-1)">←</div>
+                                <div class="store-logo" style="color: var(--unicity-green);">UNICITY</div>
+                                <div class="cart-icon" style="background: #333; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; position: relative;">🛒<span class="cart-badge" style="position: absolute; top: -4px; right: -4px; background: var(--unicity-green); color: white; font-size: 0.6rem; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">0</span></div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
+                                    <span class="product-badge">Best Seller</span>
+                                    <span class="product-image-icon">🧬</span>
+                                </div>
+                                <h2 class="product-title">Unimate Lemon</h2>
+                                <p class="product-subtitle">Yerba mate drink for mental clarity and energy</p>
+                                <div class="product-price-row">
+                                    <span class="product-price" id="productPrice">$89.00</span>
+                                    <span class="product-price-original">$89.00</span>
+                                </div>
+                                <div class="subscription-options">
+                                    <div class="subscription-option selected" onclick="selectPurchaseType(this, 'onetime')">
+                                        <div class="subscription-radio"><div class="subscription-radio-inner"></div></div>
+                                        <div class="subscription-details">
+                                            <div class="subscription-name">One-time purchase</div>
+                                            <div class="subscription-desc">$89.00</div>
+                                        </div>
+                                    </div>
+                                    <div class="subscription-option" onclick="selectPurchaseType(this, 'subscription')">
+                                        <div class="subscription-radio"><div class="subscription-radio-inner"></div></div>
+                                        <div class="subscription-details">
+                                            <div class="subscription-name">Subscribe & Save 15%</div>
+                                            <div class="subscription-desc">$75.65/month</div>
+                                        </div>
+                                        <span class="subscription-price">$75.65</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-black" onclick="addToCart()">Add to Cart</button>
+                                <button class="btn btn-purple" onclick="proceedWithShopPay()">
+                                    Buy with <span class="shop-pay-logo">Shop Pay</span>
+                                </button>
+                                <button class="btn btn-green" onclick="proceedToCheckout()">Proceed to Checkout</button>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 1: Cart -->
+                        <div class="screen-content hidden" id="step1">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">🛒 Cart</div></div>
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div class="cart-item-image">🧬</div>
+                                    <div class="cart-item-details">
+                                        <div class="cart-item-title">Unimate Lemon</div>
+                                        <div class="cart-item-variant" id="cartItemVariant">One-time purchase</div>
+                                    </div>
+                                    <div class="cart-item-price" id="cartItemPrice">$89.00</div>
+                                </div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Subtotal</span><span id="cartSubtotal">$89.00</span></div>
+                                <div class="summary-row"><span>Shipping</span><span>Calculated next</span></div>
+                                <div class="summary-row total"><span>Total</span><span id="cartTotal">$89.00</span></div>
+                            </div>
+                            <div style="padding: 16px;">
+                                <button class="btn btn-green" onclick="goToStep(2)">Continue to Shipping</button>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 2: Address Entry (Unicity Owned) -->
+                        <div class="screen-content hidden" id="step2">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">Shipping Address</div></div>
+                            <div style="padding: 16px;">
+                                <div class="form-row"><div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" value="Howard"></div><div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" value="K."></div></div>
+                                <div class="form-row"><div class="form-group" style="flex: 100%;"><label class="form-label">Email</label><input type="email" class="form-input" value="howard@unicity.com"></div></div>
+                                <div class="form-row"><div class="form-group" style="flex: 100%;"><label class="form-label">Address</label><input type="text" class="form-input" value="1201 N Market St"></div></div>
+                                <div class="form-row"><div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" value="Wilmington"></div><div class="form-group"><label class="form-label">State</label><select class="form-select"><option selected>Delaware</option></select></div></div>
+                                <div class="form-row"><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" value="19801"></div><div class="form-group"><label class="form-label">Country</label><select class="form-select"><option selected>United States</option></select></div></div>
+                                <button class="btn btn-green" onclick="goToStep(3)">Continue to Shipping</button>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 3: Shipping Selection (Unicity Owned) -->
+                        <div class="screen-content hidden" id="step3">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">Shipping Method</div></div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Ship to</span><span class="edit-link" onclick="goToStep(2)">Edit</span></div>
+                                <div class="saved-info"><div class="saved-info-line">Howard K., 1201 N Market St, Wilmington, DE 19801</div></div>
+                            </div>
+                            <div class="shipping-methods">
+                                <div class="shipping-option" onclick="selectShipping(this, 5.99)">
+                                    <div class="shipping-radio"><div class="shipping-radio-inner"></div></div>
+                                    <div class="shipping-details"><div class="shipping-row"><span class="shipping-name">Ground</span><span class="shipping-price">$5.99</span></div><div class="shipping-time">5-7 business days</div></div>
+                                </div>
+                                <div class="shipping-option selected" onclick="selectShipping(this, 9.99)">
+                                    <div class="shipping-radio"><div class="shipping-radio-inner"></div></div>
+                                    <div class="shipping-details"><div class="shipping-row"><span class="shipping-name">Priority</span><span class="shipping-price">$9.99</span></div><div class="shipping-time">2-3 business days</div></div>
+                                </div>
+                                <div class="shipping-option" onclick="selectShipping(this, 24.99)">
+                                    <div class="shipping-radio"><div class="shipping-radio-inner"></div></div>
+                                    <div class="shipping-details"><div class="shipping-row"><span class="shipping-name">Next Day</span><span class="shipping-price">$24.99</span></div><div class="shipping-time">1 business day</div></div>
+                                </div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Subtotal</span><span>$89.00</span></div>
+                                <div class="summary-row"><span>Shipping</span><span id="shippingCostShopify">$9.99</span></div>
+                                <div class="summary-row total"><span>Total</span><span id="totalShopify">$98.99</span></div>
+                            </div>
+                            <div style="padding: 16px;"><button class="btn btn-green" onclick="goToStep(4)">Continue to Payment</button></div>
+                        </div>
+                        
+                        <!-- STEP 4: Payment Selection - Shop Pay or Card -->
+                        <div class="screen-content hidden" id="step4">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">Choose Payment</div></div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Ship to</span></div>
+                                <div class="saved-info"><div class="saved-info-line">Howard K., 1201 N Market St, Wilmington, DE 19801</div></div>
+                            </div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Shipping</span></div>
+                                <div class="saved-info"><div class="saved-info-line">Priority (2-3 days) - $9.99</div></div>
+                            </div>
+                            <div style="padding: 16px;" id="paymentOptions">
+                                <p style="text-align: center; color: var(--shop-gray-500); font-size: 0.75rem; margin-bottom: 10px;">Express checkout</p>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                                    <button onclick="goToStep(5)" style="background: var(--shop-purple); color: white; border: none; border-radius: 6px; padding: 12px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <span style="background: white; padding: 2px 4px; border-radius: 2px; font-size: 0.6rem; font-weight: 700; color: var(--shop-purple);">Shop</span> Pay
+                                    </button>
+                                    <button onclick="goToStep(5)" style="background: #000; color: white; border: none; border-radius: 6px; padding: 12px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                         Pay
+                                    </button>
+                                    <button onclick="goToStep(5)" style="background: #fff; color: #000; border: 1px solid #ddd; border-radius: 6px; padding: 12px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <span style="color: #4285F4;">G</span><span style="color: #EA4335;">o</span><span style="color: #FBBC05;">o</span><span style="color: #4285F4;">g</span><span style="color: #34A853;">l</span><span style="color: #EA4335;">e</span> Pay
+                                    </button>
+                                    <button onclick="goToStep(5)" style="background: #0070ba; color: white; border: none; border-radius: 6px; padding: 12px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <span style="font-style: italic; font-weight: 800;">Pay</span><span style="color: #003087; font-style: italic; font-weight: 800;">Pal</span>
+                                    </button>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                    <div style="flex: 1; height: 1px; background: #ddd;"></div>
+                                    <span style="color: var(--shop-gray-500); font-size: 0.75rem;">or pay with card</span>
+                                    <div style="flex: 1; height: 1px; background: #ddd;"></div>
+                                </div>
+                                <button class="btn btn-blue" onclick="startWorldpayFromPayment()">
+                                    💳 Pay with Credit Card
+                                </button>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Subtotal</span><span id="paymentSubtotal">$89.00</span></div>
+                                <div class="summary-row"><span>Shipping</span><span>$9.99</span></div>
+                                <div class="summary-row total"><span>Total</span><span id="paymentTotal">$98.99</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 5: Shop Pay Auth - Email -->
+                        <div class="screen-content hidden" id="step5">
+                            <div class="auth-screen" style="background: linear-gradient(180deg, #5a31f4 0%, #7c3aed 100%); min-height: 100%; padding-top: 80px;">
+                                <div style="background: white; border-radius: 16px; padding: 32px 24px; margin: 0 16px; text-align: center;">
+                                    <div class="auth-logo" style="margin: 0 auto 24px;">Shop Pay</div>
+                                    <h2 class="auth-title">Welcome back</h2>
+                                    <p class="auth-subtitle">Enter your email to access saved addresses and payment methods</p>
+                                    <input type="email" class="auth-input" value="howard@unicity.com" readonly>
+                                    <button class="btn btn-purple" onclick="goToStep(51)">Continue</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 5.1: Shop Pay OTP -->
+                        <div class="screen-content hidden" id="step51">
+                            <div class="auth-screen" style="background: linear-gradient(180deg, #5a31f4 0%, #7c3aed 100%); min-height: 100%; padding-top: 80px;">
+                                <div style="background: white; border-radius: 16px; padding: 32px 24px; margin: 0 16px; text-align: center;">
+                                    <div class="auth-logo" style="margin: 0 auto 24px;">Shop Pay</div>
+                                    <h2 class="auth-title">Check your email</h2>
+                                    <p class="auth-subtitle">We sent a 6-digit code to howard@unicity.com</p>
+                                    <div class="otp-container">
+                                        <input type="text" class="otp-input" value="4" maxlength="1" readonly>
+                                        <input type="text" class="otp-input" value="8" maxlength="1" readonly>
+                                        <input type="text" class="otp-input" value="2" maxlength="1" readonly>
+                                        <input type="text" class="otp-input" value="9" maxlength="1" readonly>
+                                        <input type="text" class="otp-input" value="1" maxlength="1" readonly>
+                                        <input type="text" class="otp-input" value="6" maxlength="1" readonly>
+                                    </div>
+                                    <button class="btn btn-purple" onclick="goToStep(52)">Verify</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 5.2: Shop Pay Review & Pay -->
+                        <div class="screen-content hidden" id="step52">
+                            <div class="auth-screen" style="background: linear-gradient(180deg, #5a31f4 0%, #7c3aed 100%); min-height: 100%; padding-top: 60px;">
+                                <div style="background: white; border-radius: 16px; padding: 24px; margin: 0 8px; text-align: left;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                                        <div class="auth-logo" style="margin: 0;">Shop Pay</div>
+                                        <span style="color: var(--shop-gray-500); font-size: 0.8rem;">Express Checkout</span>
+                                    </div>
+                                    <div class="checkout-section" style="border: none; padding: 0;">
+                                        <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Contact</span></div>
+                                        <div class="saved-info"><div class="saved-info-line">howard@unicity.com</div></div>
+                                    </div>
+                                    <div class="checkout-section" style="border: none; padding: 12px 0;">
+                                        <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Ship to</span></div>
+                                        <div class="saved-info"><div class="saved-info-line">1201 N Market St, Wilmington, DE 19801</div></div>
+                                    </div>
+                                    <div class="checkout-section" style="border: none; padding: 12px 0;">
+                                        <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Payment</span></div>
+                                        <div class="payment-method"><div class="card-icon">VISA</div><div><div class="card-number">•••• 4242</div><div class="card-expiry">From Shop Pay wallet</div></div></div>
+                                    </div>
+                                    <div class="cart-summary" style="background: var(--shop-gray-100); border-radius: 8px; margin: 16px 0;">
+                                        <div class="summary-row"><span>Unimate Lemon</span><span id="shopPayItemPrice">$89.00</span></div>
+                                        <div class="summary-row"><span>Shipping</span><span>$9.99</span></div>
+                                        <div class="summary-row total"><span>Total</span><span id="shopPayTotal">$98.99</span></div>
+                                    </div>
+                                    <button class="btn btn-purple" onclick="goToStep(6)">Pay <span id="shopPayBtnTotal">$98.99</span></button>
+                                    <div class="processor-badge shopify" style="margin-top: 12px;">💳 Processed by Shopify Payments</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- STEP 6: Confirmation -->
+                        <div class="screen-content hidden" id="step6">
+                            <div class="store-header unicity-header"><div class="store-logo">UNICITY</div><span style="font-size: 0.75rem;">Order Complete</span></div>
+                            <div class="confirmation-header">
+                                <div class="confirmation-icon">🎉</div>
+                                <h2 class="confirmation-title">Thank You!</h2>
+                                <p class="confirmation-subtitle">Your order has been placed</p>
+                            </div>
+                            <div class="order-details">
+                                <div class="order-number"><span style="color: var(--shop-gray-500);">Order #</span><span style="font-weight: 600;">UNI-2026012701234</span></div>
+                                <div style="display: flex; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧬</div>
+                                    <div><div style="font-weight: 600; font-size: 0.85rem;">Unimate Lemon</div><div style="font-size: 0.75rem; color: var(--shop-gray-500);">One-time purchase</div></div>
+                                </div>
+                            </div>
+                            <div class="rewards-box">
+                                <div class="rewards-title">✨ Your Rewards</div>
+                                <div class="rewards-row"><span>Personal Volume (PV)</span><span style="font-weight: 600;">+45 PV</span></div>
+                                <div class="rewards-row"><span>Commissionable Volume (CV)</span><span style="font-weight: 600;">+60 CV</span></div>
+                            </div>
+                            <div style="padding: 0 16px 16px; text-align: center;">
+                                <div class="processor-badge shopify">💳 Paid via Shop Pay</div>
+                                <button class="btn btn-green" style="margin-top: 16px;" onclick="goToStep(0)">Continue Shopping</button>
+                            </div>
+                        </div>
+                        
+                        <!-- WORLDPAY STEP 100: Address -->
+                        <div class="screen-content hidden" id="step100">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">Shipping Address</div></div>
+                            <div style="padding: 16px;">
+                                <div class="form-row"><div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" value="Howard"></div><div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" value="K."></div></div>
+                                <div class="form-row"><div class="form-group" style="flex: 100%;"><label class="form-label">Email</label><input type="email" class="form-input" value="howard@unicity.com"></div></div>
+                                <div class="form-row"><div class="form-group" style="flex: 100%;"><label class="form-label">Address</label><input type="text" class="form-input" value="1201 N Market St"></div></div>
+                                <div class="form-row"><div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" value="Wilmington"></div><div class="form-group"><label class="form-label">State</label><select class="form-select"><option selected>Delaware</option></select></div></div>
+                                <div class="form-row"><div class="form-group"><label class="form-label">ZIP</label><input type="text" class="form-input" value="19801"></div><div class="form-group"><label class="form-label">Country</label><select class="form-select"><option selected>United States</option></select></div></div>
+                                <button class="btn btn-blue" onclick="goToStep(101)">Continue to Shipping</button>
+                            </div>
+                        </div>
+                        
+                        <!-- WORLDPAY STEP 101: Shipping -->
+                        <div class="screen-content hidden" id="step101">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">Shipping Method</div></div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Ship to</span><span class="edit-link" onclick="goToStep(100)">Edit</span></div>
+                                <div class="saved-info"><div class="saved-info-line">Howard K., 1201 N Market St, Wilmington, DE 19801</div></div>
+                            </div>
+                            <div class="shipping-methods">
+                                <div class="shipping-option wp" onclick="selectShippingWP(this, 5.99)">
+                                    <div class="shipping-radio"><div class="shipping-radio-inner"></div></div>
+                                    <div class="shipping-details"><div class="shipping-row"><span class="shipping-name">Ground</span><span class="shipping-price">$5.99</span></div><div class="shipping-time">5-7 days</div></div>
+                                </div>
+                                <div class="shipping-option wp selected" onclick="selectShippingWP(this, 9.99)">
+                                    <div class="shipping-radio"><div class="shipping-radio-inner"></div></div>
+                                    <div class="shipping-details"><div class="shipping-row"><span class="shipping-name">Express</span><span class="shipping-price">$9.99</span></div><div class="shipping-time">2-3 days</div></div>
+                                </div>
+                                <div class="shipping-option wp" onclick="selectShippingWP(this, 24.99)">
+                                    <div class="shipping-radio"><div class="shipping-radio-inner"></div></div>
+                                    <div class="shipping-details"><div class="shipping-row"><span class="shipping-name">Overnight</span><span class="shipping-price">$24.99</span></div><div class="shipping-time">Next day</div></div>
+                                </div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Subtotal</span><span>$75.65</span></div>
+                                <div class="summary-row"><span>Shipping</span><span id="shippingCostWP">$9.99</span></div>
+                                <div class="summary-row total"><span>Total</span><span id="totalWP">$85.64</span></div>
+                            </div>
+                            <div style="padding: 16px;"><button class="btn btn-blue" onclick="goToStep(102)">Continue to Payment</button></div>
+                        </div>
+                        
+                        <!-- WORLDPAY STEP 102: Payment -->
+                        <div class="screen-content hidden" id="step102">
+                            <div class="store-header worldpay-header"><div class="store-logo">🔒 Secure Payment</div></div>
+                            <div style="padding: 16px;">
+                                <div class="payment-options">
+                                    <div class="payment-option selected" onclick="selectPayment(this, 'card')">
+                                        <div class="shipping-radio"><div class="shipping-radio-inner" style="background: var(--worldpay-blue); display: block;"></div></div>
+                                        <div class="payment-icon">VISA</div>
+                                        <div><div style="font-weight: 600; font-size: 0.85rem;">Credit / Debit Card</div><div style="font-size: 0.75rem; color: var(--shop-gray-500);">Visa, Mastercard, Amex</div></div>
+                                    </div>
+                                    <div class="payment-option" onclick="selectPayment(this, 'apple')">
+                                        <div class="shipping-radio"><div class="shipping-radio-inner" style="background: var(--worldpay-blue);"></div></div>
+                                        <div class="payment-icon apple"> Pay</div>
+                                        <div><div style="font-weight: 600; font-size: 0.85rem;">Apple Pay</div></div>
+                                    </div>
+                                    <div class="payment-option" onclick="selectPayment(this, 'paypal')">
+                                        <div class="shipping-radio"><div class="shipping-radio-inner" style="background: var(--worldpay-blue);"></div></div>
+                                        <div class="payment-icon paypal">PayPal</div>
+                                        <div><div style="font-weight: 600; font-size: 0.85rem;">PayPal</div></div>
+                                    </div>
+                                </div>
+                                <div class="worldpay-form" id="cardForm">
+                                    <div class="worldpay-logo"><span class="worldpay-logo-icon">WORLDPAY</span><span style="color: var(--shop-gray-500); font-size: 0.8rem;">Secure Card Entry</span></div>
+                                    <div class="form-group" style="margin-bottom: 14px;"><label class="form-label">Card Number</label><input type="text" class="form-input" value="4242 4242 4242 4242"></div>
+                                    <div class="form-row"><div class="form-group"><label class="form-label">Expiry</label><input type="text" class="form-input" value="12/27"></div><div class="form-group"><label class="form-label">CVC</label><input type="text" class="form-input" value="123"></div></div>
+                                </div>
+                                <div class="processor-badge worldpay">🔐 Processed by Worldpay (2.65%)</div>
+                                <button class="btn btn-blue" style="margin-top: 16px;" onclick="goToStep(103)">Continue to Review</button>
+                            </div>
+                        </div>
+                        
+                        <!-- WORLDPAY STEP 103: Review -->
+                        <div class="screen-content hidden" id="step103">
+                            <div class="store-header"><div class="store-logo" style="color: var(--unicity-green);">Review Order</div></div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Contact</span><span class="edit-link" onclick="goToStep(100)">Edit</span></div>
+                                <div class="saved-info"><div class="saved-info-line">howard@unicity.com</div></div>
+                            </div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Ship to</span><span class="edit-link" onclick="goToStep(100)">Edit</span></div>
+                                <div class="saved-info"><div class="saved-info-line">Howard K., 1201 N Market St, Wilmington, DE 19801</div></div>
+                            </div>
+                            <div class="checkout-section">
+                                <div class="checkout-section-header"><span class="checkout-section-title"><span class="section-check">✓</span>Payment</span><span class="edit-link" onclick="goToStep(102)">Edit</span></div>
+                                <div class="payment-method"><div class="card-icon">VISA</div><div><div class="card-number">•••• 4242</div><div class="card-expiry">Expires 12/27</div></div></div>
+                                <div class="processor-badge worldpay">🔐 Processed by Worldpay</div>
+                            </div>
+                            <div class="cart-summary">
+                                <div class="summary-row"><span>Unimate Lemon</span><span>$75.65</span></div>
+                                <div class="summary-row"><span>Shipping</span><span>$9.99</span></div>
+                                <div class="summary-row total"><span>Total</span><span>$85.64</span></div>
+                            </div>
+                            <div style="padding: 16px;"><button class="btn btn-blue" onclick="goToStep(104)">Pay $85.64</button></div>
+                        </div>
+                        
+                        <!-- WORLDPAY STEP 104: Confirmation -->
+                        <div class="screen-content hidden" id="step104">
+                            <div class="store-header unicity-header"><div class="store-logo">UNICITY</div><span style="font-size: 0.75rem;">Order Complete</span></div>
+                            <div class="confirmation-header">
+                                <div class="confirmation-icon">🎉</div>
+                                <h2 class="confirmation-title">Thank You!</h2>
+                                <p class="confirmation-subtitle">Your order has been placed</p>
+                            </div>
+                            <div class="order-details">
+                                <div class="order-number"><span style="color: var(--shop-gray-500);">Order #</span><span style="font-weight: 600;">UNI-2026012701235</span></div>
+                                <div style="display: flex; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🧬</div>
+                                    <div><div style="font-weight: 600; font-size: 0.85rem;">Unimate Lemon</div><div style="font-size: 0.75rem; color: var(--unicity-green);">Subscribe & Save</div></div>
+                                </div>
+                            </div>
+                            <div class="rewards-box">
+                                <div class="rewards-title">✨ Your Rewards</div>
+                                <div class="rewards-row"><span>Personal Volume (PV)</span><span style="font-weight: 600;">+45 PV</span></div>
+                                <div class="rewards-row"><span>Commissionable Volume (CV)</span><span style="font-weight: 600;">+60 CV</span></div>
+                            </div>
+                            <div style="padding: 0 16px 16px; text-align: center;">
+                                <div class="processor-badge worldpay">🔐 Paid via Worldpay (2.65%)</div>
+                                <button class="btn btn-green" style="margin-top: 16px;" onclick="goToStep(0)">Continue Shopping</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technical Panel -->
+            <div class="technical-panel">
+                <div class="tech-tabs">
+                    <button class="tech-tab active" onclick="setTechTab('api')">⚡ API Calls</button>
+                    <button class="tech-tab" onclick="setTechTab('flow')">📊 Data Flow</button>
+                </div>
+                <div class="tech-content" id="techContent"></div>
+            </div>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn secondary" id="prevBtn" onclick="prevStep()" disabled>← Previous</button>
+            <button class="nav-btn primary" id="nextBtn" onclick="nextStep()">Next Step →</button>
+        </div>
+        
+        <!-- Diagrams Section -->
+        <div class="diagrams-section">
+            <h2>Shop Component Architecture</h2>
+            <div class="scenario">
+                <div class="scenario-header"><span class="scenario-badge badge-shopify">SHOP COMPONENT</span><h3>Separation of Responsibilities</h3></div>
+                <p class="scenario-desc">Shop Component allows non-Shopify storefronts to offer Shop Pay. Unicity remains source of truth for products, pricing, taxes, and shipping. Shopify only handles payment UI and processing.</p>
+                <div class="mermaid">
+flowchart LR
+    subgraph UNICITY["🟢 UNICITY HANDLES"]
+        U1[Product Catalog]
+        U2[Cart Management]
+        U3[Tax Calculation]
+        U4[Shipping Rates]
+        U5[Inventory]
+        U6[Order Management]
+    end
+    
+    subgraph SHOPIFY["🟣 SHOPIFY HANDLES"]
+        S1[Shop Pay Modal]
+        S2[Customer Auth]
+        S3[Saved Wallets]
+        S4[Payment Processing]
+    end
+    
+    U1 --> S1
+    S3 --> U4
+    U4 --> S1
+    S1 --> S4
+    S4 --> U6
+                </div>
+            </div>
+            <div class="scenario">
+                <div class="scenario-header"><span class="scenario-badge badge-shopify">SHOP PAY PATH</span><h3>Shop Component Event Flow</h3></div>
+                <p class="scenario-desc">Event-driven architecture. Shopify popup emits events, Unicity backend responds with updated PaymentRequest within 15 seconds.</p>
+                <div class="mermaid">
+flowchart LR
+    C[Customer] --> SP[Shop Pay Popup]
+    SP -->|"shippingaddresschange"| FE[Unicity Frontend]
+    FE -->|"Calculate rates"| BE[Unicity Backend]
+    BE -->|"Return rates"| FE
+    FE -->|"complete()"| SP
+    SP -->|"Pay Now"| PAY[Shopify Payments]
+    PAY -->|"Webhook"| BE
+                </div>
+            </div>
+            <div class="scenario">
+                <div class="scenario-header"><span class="scenario-badge badge-worldpay">WORLDPAY PATH</span><h3>Native Checkout Flow</h3></div>
+                <p class="scenario-desc">Traditional checkout. Unicity owns entire flow. Worldpay tokenizes card, token stored in Unicity vault for subscription billing.</p>
+                <div class="mermaid">
+flowchart LR
+    C[Customer] --> A[Address Form]
+    A --> S[Shipping Selection]
+    S --> WP[Worldpay Tokenize]
+    WP --> R[Review]
+    R --> PAY[Worldpay Process]
+    PAY --> V[Vault Token]
+    V --> O[Order Complete]
+                </div>
+            </div>
+            <div class="scenario">
+                <div class="scenario-header"><span class="scenario-badge" style="background:#dc2626;">⚠️ LIMITATION</span><h3>Subscription Support</h3></div>
+                <p class="scenario-desc">Shop Component does NOT currently support subscriptions. For subscription products, customers must use the Worldpay path where Unicity owns the token for recurring billing.</p>
+                <table class="comparison-table">
+                    <thead><tr><th>Scenario</th><th>Recommended Path</th><th>Reason</th></tr></thead>
+                    <tbody>
+                        <tr><td>One-time purchase</td><td class="check">Shop Pay ✓</td><td>Higher conversion, wallet auto-fill</td></tr>
+                        <tr><td>First subscription order</td><td class="partial">Worldpay ⚠</td><td>Need token for recurring billing</td></tr>
+                        <tr><td>Recurring subscription</td><td class="check">Worldpay ✓</td><td>Batch system charges vaulted token</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentPath = 'shopify', currentStep = -1, currentTechTab = 'api';
+        const shopifySteps = [-1, 0, 1, 2, 3, 4, 5, 51, 52, 6];
+        const worldpaySteps = [-1, 0, 100, 101, 102, 103, 104];
+        
+        const techContent = {
+            '-1': { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY</span><span class="tech-title">Product Catalog</span><p style="color:#b3b3b3;margin-top:12px;">Customer browses Unicity product catalog. All catalog data served from Unicity backend.</p><div class="info-box green"><strong style="color:#10b981;">Unicity Owned</strong><p>• Product listings & images<br>• Category filters<br>• Search functionality<br>• Pricing & ratings<br>• Inventory status</p></div><div class="info-box orange" style="margin-top:12px;"><strong style="color:#f59e0b;">No Shopify Yet</strong><p>Shop Pay not involved until payment step. Customer browses native Unicity storefront.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Browse to Product</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Starting Point</strong><p>1. Customer lands on catalog<br>2. Browses by category or search<br>3. Clicks product card<br>4. Goes to product detail page</p></div></div>' 
+            },
+            0: { 
+                api: '<div class="tech-section"><span class="tech-badge api">SHOP COMPONENT</span><span class="tech-title">Product Page (Unicity Owned)</span><p style="color:#b3b3b3;margin-top:12px;">Customer browses Unicity storefront. One-time purchase selected (Shop Pay eligible).</p><div class="info-box green"><strong style="color:#10b981;">Unicity Handles</strong><p>• Product catalog, pricing, SKUs<br>• Cart management<br>• Tax calculation per jurisdiction<br>• Shipping rate calculation<br>• Inventory validation</p></div><div class="info-box orange" style="margin-top:12px;"><strong style="color:#f59e0b;">Shop Pay Eligible</strong><p>One-time purchases can use Shop Pay. Subscription orders must use Worldpay path.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Shop Component Architecture</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Key Principle</strong><p>"Shopify does NOT calculate your prices, taxes, or shipping. Every value comes from YOUR backend."</p></div><div class="info-box purple" style="margin-top:12px;"><strong style="color:#a5b4fc;">New Flow</strong><p>Cart → Address → Shipping → Payment Choice<br>Shop Pay offered AFTER address/shipping collected</p></div></div>' 
+            },
+            1: { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY</span><span class="tech-title">Cart Review</span><p style="color:#b3b3b3;margin-top:12px;">Standard cart page. No Shop Pay button here - customer proceeds to enter address first.</p><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Why Address First?</strong><p>• Capture customer data in Unicity system<br>• Calculate exact shipping before Shop Pay<br>• Detect subscription items (would hide Shop Pay)<br>• Better UX - customer already committed</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Cart to Address</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Unicity Owned</strong><p>1. Cart displayed with items<br>2. No payment choice yet<br>3. Single "Continue" button<br>4. Routes to address entry</p></div></div>' 
+            },
+            2: { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY API</span><span class="tech-title">Address Entry & Validation</span><div class="endpoint"><span class="method">POST</span><span class="url">https://api.unicity.com/v1/address/validate</span></div><div class="code-block">{\n  "firstName": "Howard",\n  "lastName": "K.",\n  "address1": "1201 N Market St",\n  "city": "Wilmington",\n  "state": "DE",\n  "zip": "19801"\n}</div><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Address Captured First</strong><p>Even if customer switches to Shop Pay later, Unicity has their address in system.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Address Collection</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Unicity Benefits</strong><p>1. Customer enters full address<br>2. Address validated against USPS/carriers<br>3. Data stored in Unicity CRM<br>4. Enables accurate shipping calculation</p></div></div>' 
+            },
+            3: { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY API</span><span class="tech-title">Shipping Rate Calculation</span><div class="endpoint"><span class="method">POST</span><span class="url">https://api.unicity.com/v1/shipping/rates</span></div><div class="code-block">// Unicity calculates shipping\n{\n  "address": {\n    "address1": "1201 N Market St",\n    "city": "Wilmington",\n    "state": "DE",\n    "zip": "19801"\n  },\n  "items": [{ "sku": "UNIMATE-LEMON", "qty": 1 }]\n}\n\n// Response\n{\n  "rates": [\n    { "method": "ground", "price": 5.99 },\n    { "method": "priority", "price": 9.99 },\n    { "method": "overnight", "price": 24.99 }\n  ]\n}</div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Shipping Selection</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Totals Known</strong><p>1. Address already collected<br>2. Unicity calculates carrier rates<br>3. Customer selects shipping<br>4. Final total now known<br>5. Ready for payment choice</p></div></div>' 
+            },
+            4: { 
+                api: '<div class="tech-section"><span class="tech-badge graphql">SHOP COMPONENT</span><span class="tech-title">Payment Selection</span><p style="color:#b3b3b3;margin-top:12px;">Customer chooses Shop Pay or Card. Shop Pay SDK initialized here.</p><div class="code-block">// Initialize Shop Component SDK\nShopPay.configure({\n  shopId: "12345678",        // YOUR SHOP ID\n  clientId: "abc123...",\n  locale: "en",\n  currency: "USD"\n});\n\n// Pre-populate PaymentRequest with known data\nconst paymentRequest = {\n  subtotal: { amount: "89.00", currencyCode: "USD" },\n  shipping: { amount: "9.99", currencyCode: "USD" },\n  total: { amount: "98.99", currencyCode: "USD" },\n  shippingAddress: {\n    // Already collected!\n    address1: "1201 N Market St",\n    city: "Wilmington"...\n  }\n};</div><div class="info-box purple" style="margin-top:12px;"><strong style="color:#a5b4fc;">Shop Pay Advantage Here</strong><p>Address & shipping already known. Shop Pay popup skips those steps - goes straight to wallet card selection.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Payment Choice</span><div class="info-box purple" style="margin-top:12px;"><strong style="color:#a5b4fc;">Two Options</strong><p><strong>Shop Pay:</strong> Opens popup with wallet cards. Address pre-filled from step 2.<br><br><strong>Credit Card:</strong> Switches to Worldpay path for manual card entry.</p></div><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Why This Works</strong><p>• Totals already calculated<br>• No recalculation needed in popup<br>• Faster Shop Pay experience<br>• Unicity has all data either way</p></div></div>' 
+            },
+            5: { 
+                api: '<div class="tech-section"><span class="tech-badge graphql">STOREFRONT API</span><span class="tech-title">Shop Pay Popup</span><div class="endpoint"><span class="method">POST</span><span class="url">https://{shop}.myshopify.com/api/2025-01/graphql.json</span></div><div class="code-block">// Session already has address & shipping\nmutation shopPayPaymentRequestSessionCreate(\n  $sourceIdentifier: String!\n  $paymentRequest: ShopPayPaymentRequestInput!\n) {\n  shopPayPaymentRequestSessionCreate(\n    sourceIdentifier: $sourceIdentifier\n    paymentRequest: $paymentRequest  // Pre-filled!\n  ) {\n    shopPayPaymentRequestSession { token }\n  }\n}\n\n// Then submit with wallet card\nmutation shopPayPaymentRequestSessionSubmit(\n  $token: String!\n  $paymentRequest: ShopPayPaymentRequestInput!\n  $idempotencyKey: String!\n) { ... }</div><div class="info-box orange" style="margin-top:12px;"><strong style="color:#f59e0b;">Streamlined Popup</strong><p>Customer only sees payment confirmation. No address or shipping selection needed - already done!</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Express Payment</span><div class="info-box purple" style="margin-top:12px;"><strong style="color:#a5b4fc;">Shop Pay Popup Flow</strong><p>1. Popup opens with pre-filled data<br>2. Customer sees saved wallet cards<br>3. One-tap to select card<br>4. Click "Pay" to complete<br>5. Shopify Payments processes</p></div></div>' 
+            },
+            6: { 
+                api: '<div class="tech-section"><span class="tech-badge webhook">WEBHOOK</span><span class="tech-title">Order Reconciliation</span><div class="endpoint"><span class="method">POST</span><span class="url">https://unicity.com/webhooks/shopify/orders-create</span></div><div class="code-block">// ORDERS_CREATE webhook\n{\n  "id": 5678901234,\n  "source_identifier": "UNICITY-CART-12345",\n  "order_number": 1234,\n  "total_price": "98.99",\n  "financial_status": "paid"\n}</div><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Unicity Processing</strong><p>• Match order via source_identifier<br>• Calculate PV/CV<br>• Credit commissions<br>• Trigger fulfillment</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api" style="background:rgba(0,166,81,0.2);color:#00a651;">FLOW</span><span class="tech-title">Order Complete</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Post-Order Actions</strong><p>1. Webhook confirms payment<br>2. Order linked via source_identifier<br>3. PV/CV calculated from SKUs<br>4. Commissions credited to sponsor tree<br>5. Fulfillment triggered<br>6. Update Shopify with tracking (Shop App)</p></div></div>' 
+            },
+            100: { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY API</span><span class="tech-title">Address Entry (Worldpay Path)</span><div class="endpoint"><span class="method">POST</span><span class="url">https://api.unicity.com/v1/address/validate</span></div><div class="code-block">{\n  "firstName": "Howard",\n  "lastName": "K.",\n  "address1": "1201 N Market St",\n  "city": "Wilmington",\n  "state": "DE",\n  "zip": "19801",\n  "country": "US"\n}</div><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Subscription Path</strong><p>For subscription orders, this is the only path. No Shop Pay option available.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api">FLOW</span><span class="tech-title">Worldpay Address Entry</span><div class="info-box blue" style="margin-top:12px;"><strong style="color:#6699ff;">Same as Shop Pay Steps 2-3</strong><p>Worldpay path uses same address/shipping collection. Diverges at payment step.</p></div></div>' 
+            },
+            101: { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY API</span><span class="tech-title">Shipping Rate Calculation</span><div class="endpoint"><span class="method">POST</span><span class="url">https://api.unicity.com/v1/shipping/rates</span></div><div class="code-block">{\n  "rates": [\n    { "method": "ground", "price": 5.99, "days": "5-7" },\n    { "method": "express", "price": 9.99, "days": "2-3" },\n    { "method": "overnight", "price": 24.99, "days": "1" }\n  ]\n}</div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api" style="background:rgba(0,166,81,0.2);color:#00a651;">FLOW</span><span class="tech-title">Shipping Selection</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Same Calculation</strong><p>Same Unicity shipping API for both paths.</p></div></div>' 
+            },
+            102: { 
+                api: '<div class="tech-section"><span class="tech-badge worldpay">WORLDPAY</span><span class="tech-title">Card Tokenization</span><div class="endpoint"><span class="method">POST</span><span class="url">https://api.worldpay.com/v1/tokens</span></div><div class="code-block">// Worldpay client-side tokenization\n{\n  "paymentMethod": {\n    "type": "card",\n    "number": "4242424242424242",\n    "expiryMonth": 12,\n    "expiryYear": 2027,\n    "cvc": "123"\n  }\n}\n\n// Response\n{\n  "token": "tok_wp_abc123...",\n  "last4": "4242"\n}</div><div class="info-box blue" style="margin-top:12px;"><strong style="color:#6699ff;">Processing Rate: 2.65%</strong><p>Negotiated Worldpay rate. Token stored in Unicity vault for subscriptions.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge worldpay">WORLDPAY</span><span class="tech-title">Tokenization Flow</span><div class="info-box blue" style="margin-top:12px;"><strong style="color:#6699ff;">PCI Compliant</strong><p>1. Card entered in Worldpay iframe<br>2. Tokenized client-side<br>3. Token sent to Unicity backend<br>4. Raw card data never touches Unicity</p></div><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Token Ownership</strong><p>Unicity OWNS the token. Can charge for subscriptions via batch system.</p></div></div>' 
+            },
+            103: { 
+                api: '<div class="tech-section"><span class="tech-badge api">UNICITY API</span><span class="tech-title">Order Review</span><div class="code-block">{\n  "items": [{\n    "sku": "UNIMATE-LEMON",\n    "name": "Unimate Lemon",\n    "price": 75.65,\n    "subscription": true\n  }],\n  "shipping": 9.99,\n  "total": 85.64,\n  "processor": "worldpay",\n  "paymentToken": "tok_wp_abc123..."\n}</div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api" style="background:rgba(0,166,81,0.2);color:#00a651;">FLOW</span><span class="tech-title">Pre-Submit Review</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Final Validation</strong><p>• All data validated<br>• Edit links allow changes<br>• Payment token ready</p></div></div>' 
+            },
+            104: { 
+                api: '<div class="tech-section"><span class="tech-badge worldpay">WORLDPAY</span><span class="tech-title">Payment Authorization</span><div class="endpoint"><span class="method">POST</span><span class="url">https://api.worldpay.com/v1/payments</span></div><div class="code-block">{\n  "token": "tok_wp_abc123...",\n  "amount": 8564,\n  "currency": "USD",\n  "merchantReference": "UNI-2026012701235"\n}\n\n// Response\n{\n  "status": "AUTHORIZED",\n  "transactionId": "txn_789xyz"\n}</div><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Token Vaulted</strong><p>Token stored for recurring subscription billing via batch system.</p></div></div>', 
+                flow: '<div class="tech-section"><span class="tech-badge api" style="background:rgba(0,166,81,0.2);color:#00a651;">FLOW</span><span class="tech-title">Order Complete</span><div class="info-box green" style="margin-top:12px;"><strong style="color:#10b981;">Unicity Processing</strong><p>1. Worldpay authorizes at 2.65%<br>2. Token vaulted for subscriptions<br>3. Order created in Unicity<br>4. PV/CV calculated<br>5. Commissions credited<br>6. Fulfillment triggered</p></div></div>' 
+            }
+        };
+        
+        function setPath(path) {
+            currentPath = path;
+            document.querySelectorAll('.path-toggle button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.${path}-path`).classList.add('active');
+            document.getElementById('shopifyFlow').style.display = path === 'shopify' ? 'flex' : 'none';
+            document.getElementById('worldpayFlow').style.display = path === 'worldpay' ? 'flex' : 'none';
+            goToStep(0);
+        }
+        
+        function setView(view) {
+            document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('mainContent').classList.toggle('customer-only', view === 'customer');
+        }
+        
+        function setTechTab(tab) {
+            currentTechTab = tab;
+            document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updateTechContent(currentStep);
+        }
+        
+        function goToStep(step) {
+            currentStep = step;
+            document.querySelectorAll('.screen-content').forEach(el => el.classList.add('hidden'));
+            const stepId = step === -1 ? 'step-1' : 'step' + step;
+            const stepEl = document.getElementById(stepId);
+            if (stepEl) stepEl.classList.remove('hidden');
+            
+            const flowId = currentPath === 'shopify' ? 'shopifyFlow' : 'worldpayFlow';
+            document.querySelectorAll('#' + flowId + ' .flow-step[data-step]').forEach(el => {
+                const stepNum = parseInt(el.dataset.step);
+                el.classList.remove('active', 'completed');
+                if (stepNum < step) el.classList.add('completed');
+                else if (stepNum === step) el.classList.add('active');
+            });
+            
+            const steps = currentPath === 'shopify' ? shopifySteps : worldpaySteps;
+            const idx = steps.indexOf(step);
+            document.getElementById('prevBtn').disabled = idx === 0;
+            document.getElementById('nextBtn').textContent = idx === steps.length - 1 ? 'Restart Demo' : 'Next Step →';
+            updateTechContent(step);
+        }
+        
+        function updateTechContent(step) {
+            const content = techContent[step];
+            document.getElementById('techContent').innerHTML = content ? (content[currentTechTab] || '<p style="color:#b3b3b3;">No content for this tab.</p>') : '';
+        }
+        
+        function nextStep() {
+            const steps = currentPath === 'shopify' ? shopifySteps : worldpaySteps;
+            const idx = steps.indexOf(currentStep);
+            goToStep(idx === steps.length - 1 ? -1 : steps[idx + 1]);
+        }
+        
+        function prevStep() {
+            const steps = currentPath === 'shopify' ? shopifySteps : worldpaySteps;
+            const idx = steps.indexOf(currentStep);
+            if (idx > 0) goToStep(steps[idx - 1]);
+        }
+        
+        let isSubscription = false;
+        let currentPrice = 89.00;
+        
+        function addToCart() { 
+            document.querySelectorAll('.cart-badge').forEach(b => b.textContent = '1');
+            updateCartDisplay();
+            setTimeout(() => goToStep(1), 400); 
+        }
+        
+        function proceedToCheckout() {
+            document.querySelectorAll('.cart-badge').forEach(b => b.textContent = '1');
+            updateCartDisplay();
+            goToStep(1);
+        }
+        
+        function updateCartDisplay() {
+            // Update cart page
+            document.getElementById('cartItemVariant').textContent = isSubscription ? 'Subscribe & Save • Monthly' : 'One-time purchase';
+            document.getElementById('cartItemPrice').textContent = '$' + currentPrice.toFixed(2);
+            document.getElementById('cartSubtotal').textContent = '$' + currentPrice.toFixed(2);
+            document.getElementById('cartTotal').textContent = '$' + currentPrice.toFixed(2);
+            
+            // Update payment page
+            document.getElementById('paymentSubtotal').textContent = '$' + currentPrice.toFixed(2);
+            document.getElementById('paymentTotal').textContent = '$' + (currentPrice + 9.99).toFixed(2);
+        }
+        
+        function startShopPayPath() { setPath('shopify'); document.querySelectorAll('.cart-badge').forEach(b => b.textContent = '1'); setTimeout(() => goToStep(1), 300); }
+        function startWorldpayPath() { setPath('worldpay'); document.querySelectorAll('.cart-badge').forEach(b => b.textContent = '1'); setTimeout(() => goToStep(100), 300); }
+        function startWorldpayFromPayment() { setPath('worldpay'); goToStep(102); }
+        
+        function selectPurchaseType(el, type) {
+            document.querySelectorAll('.subscription-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            isSubscription = (type === 'subscription');
+            currentPrice = isSubscription ? 75.65 : 89.00;
+            document.getElementById('productPrice').textContent = '$' + currentPrice.toFixed(2);
+            // Show strikethrough price only for subscription (discount visible)
+            document.querySelector('.product-price-original').style.visibility = isSubscription ? 'visible' : 'hidden';
+        }
+        
+        function proceedWithShopPay() {
+            document.querySelectorAll('.cart-badge').forEach(b => b.textContent = '1');
+            updateCartDisplay();
+            setPath('shopify');
+            goToStep(5); // Go to Shop Pay popup/auth
+        }
+        
+        function selectShipping(el, price) {
+            document.querySelectorAll('#step3 .shipping-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('shippingCostShopify').textContent = '$' + price.toFixed(2);
+            document.getElementById('totalShopify').textContent = '$' + (currentPrice + price).toFixed(2);
+        }
+        
+        function selectShippingWP(el, price) {
+            document.querySelectorAll('#step101 .shipping-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('shippingCostWP').textContent = '$' + price.toFixed(2);
+            document.getElementById('totalWP').textContent = '$' + (currentPrice + price).toFixed(2);
+        }
+        
+        function selectPayment(el, method) {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('cardForm').style.display = method === 'card' ? 'block' : 'none';
+        }
+        
+        mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { useMaxWidth: true } });
+        goToStep(-1);
+    </script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Demos | Unicity Shopify Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --text: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --border: #30363d;
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-hover);
+            background-color: var(--surface-light);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .page-title {
+            margin: 40px 0 60px;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .page-title p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 800px;
+        }
+
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .demo-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .demo-card:hover {
+            background-color: var(--surface-light);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(88, 166, 255, 0.1);
+        }
+
+        .demo-card-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .demo-card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .demo-card-file {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .demo-card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .demo-card-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-size {
+            background-color: rgba(88, 166, 255, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .badge-type {
+            background-color: rgba(63, 185, 80, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .demo-card-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-weight: 500;
+            margin-top: 8px;
+            transition: gap 0.2s ease;
+        }
+
+        .demo-card:hover .demo-card-cta {
+            gap: 12px;
+        }
+
+        .demo-card-cta svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        footer {
+            background-color: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+
+        footer .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .page-title h1 {
+                font-size: 1.8rem;
+            }
+
+            .page-title p {
+                font-size: 1rem;
+            }
+
+            .demos-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            footer .container {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                margin: 24px 0 32px;
+            }
+
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .demo-card {
+                padding: 16px;
+            }
+
+            .demo-card h2 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="back-link">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 12H5m7 7l-7-7 7-7"/>
+                </svg>
+                Back to Hub
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>Interactive Demos</h1>
+            <p>Walk through checkout flows, Shop Pay experiences, and gateway comparisons in interactive simulations.</p>
+        </div>
+
+        <div class="demos-grid">
+            <!-- Demo 1: Checkout Demo -->
+            <a href="shopify-demo-v3.html" class="demo-card">
+                <div class="demo-card-header">
+                    <h2>Checkout Demo</h2>
+                    <div class="demo-card-file">shopify-demo-v3.html</div>
+                </div>
+                <p class="demo-card-description">
+                    Full interactive phone simulation showing Online and Tap to Pay checkout flows. Covers Apple Pay, Shop Pay, standard card payments, new vs returning customers, and POS staff attribution.
+                </p>
+                <div class="demo-card-meta">
+                    <span class="badge badge-size">132 KB</span>
+                    <span class="badge badge-type">Interactive Simulation</span>
+                </div>
+                <div class="demo-card-cta">
+                    Open Demo
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 12h14m-4-4l4 4-4 4"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Demo 2: Dual Checkout Demo -->
+            <a href="dual-checkout-demo.html" class="demo-card">
+                <div class="demo-card-header">
+                    <h2>Dual Checkout Demo</h2>
+                    <div class="demo-card-file">dual-checkout-demo.html</div>
+                </div>
+                <p class="demo-card-description">
+                    Side-by-side comparison of Shop Pay vs Unicity Native checkout. Shows both flows simultaneously for easy comparison and decision-making.
+                </p>
+                <div class="demo-card-meta">
+                    <span class="badge badge-size">66 KB</span>
+                    <span class="badge badge-type">Comparison Demo</span>
+                </div>
+                <div class="demo-card-cta">
+                    Open Demo
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 12h14m-4-4l4 4-4 4"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Demo 3: Shop Pay Customer Experience -->
+            <a href="shop-pay-experience.html" class="demo-card">
+                <div class="demo-card-header">
+                    <h2>Shop Pay Customer Experience</h2>
+                    <div class="demo-card-file">shop-pay-experience.html</div>
+                </div>
+                <p class="demo-card-description">
+                    Customer-facing Shop Pay flow demonstration. Shows one-tap checkout, saved payment methods, and shipping acceleration features.
+                </p>
+                <div class="demo-card-meta">
+                    <span class="badge badge-size">49 KB</span>
+                    <span class="badge badge-type">Customer Flow Demo</span>
+                </div>
+                <div class="demo-card-cta">
+                    Open Demo
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 12h14m-4-4l4 4-4 4"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Demo 4: Shop Pay Technical Demo -->
+            <a href="shop-pay-technical-demo.html" class="demo-card">
+                <div class="demo-card-header">
+                    <h2>Shop Pay Technical Demo</h2>
+                    <div class="demo-card-file">shop-pay-technical-demo.html</div>
+                </div>
+                <p class="demo-card-description">
+                    Combined customer and technical view. Shows API calls, webhook events, and data flow alongside the customer experience for integrated understanding.
+                </p>
+                <div class="demo-card-meta">
+                    <span class="badge badge-size">60 KB</span>
+                    <span class="badge badge-type">Technical Demo</span>
+                </div>
+                <div class="demo-card-cta">
+                    Open Demo
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 12h14m-4-4l4 4-4 4"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Demo 5: Shop Pay + WorldPay Unified Demo -->
+            <a href="shop-pay-worldpay-unified-demo.html" class="demo-card">
+                <div class="demo-card-header">
+                    <h2>Shop Pay + WorldPay Unified Demo</h2>
+                    <div class="demo-card-file">shop-pay-worldpay-unified-demo.html</div>
+                </div>
+                <p class="demo-card-description">
+                    Comparison of Shop Pay vs WorldPay checkout experiences. Provides decision support for gateway selection and feature differentiation.
+                </p>
+                <div class="demo-card-meta">
+                    <span class="badge badge-size">97 KB</span>
+                    <span class="badge badge-type">Gateway Comparison</span>
+                </div>
+                <div class="demo-card-cta">
+                    Open Demo
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 12h14m-4-4l4 4-4 4"/>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Demo 6: Shop Pay + WorldPay Flow Scenarios -->
+            <a href="shop-pay-worldpay-flows.html" class="demo-card">
+                <div class="demo-card-header">
+                    <h2>Shop Pay + WorldPay Flow Scenarios</h2>
+                    <div class="demo-card-file">shop-pay-worldpay-flows.html</div>
+                </div>
+                <p class="demo-card-description">
+                    Integration scenario diagrams for dual gateway setup. Covers routing logic, fallback scenarios, and split processing configurations.
+                </p>
+                <div class="demo-card-meta">
+                    <span class="badge badge-size">26 KB</span>
+                    <span class="badge badge-type">Flow Diagrams</span>
+                </div>
+                <div class="demo-card-cta">
+                    Open Demo
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 12h14m-4-4l4 4-4 4"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div>Unicity Shopify Hub &copy; 2024</div>
+            <div>
+                <a href="index.html" style="color: var(--accent); text-decoration: none;">Return to Hub</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

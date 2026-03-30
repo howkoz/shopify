@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Audiences</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 40px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #8b949e;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--purple);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 24px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        section {
+            padding: 60px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            font-size: 28px;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #c9d1d9;
+            line-height: 1.8;
+        }
+
+        .flow-diagram {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 40px;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            white-space: nowrap;
+        }
+
+        .flow-box {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: var(--cyan);
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .platform-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .platform-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 16px rgba(88, 166, 255, 0.1);
+        }
+
+        .platform-logo {
+            width: 64px;
+            height: 64px;
+            background-color: var(--surface2);
+            border-radius: 8px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .platform-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: rgba(63, 185, 80, 0.1);
+            color: var(--green);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid var(--green);
+        }
+
+        .audience-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .audience-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .audience-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .audience-card p {
+            font-size: 15px;
+            color: #a0aec0;
+        }
+
+        .setup-steps {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .setup-steps ol {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .setup-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 20px;
+            padding-left: 40px;
+            position: relative;
+            font-size: 15px;
+        }
+
+        .setup-steps li:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            width: 32px;
+            height: 32px;
+            background-color: var(--accent);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .metric-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cyan);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .benchmark-box {
+            background-color: rgba(63, 185, 80, 0.05);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .benchmark-box strong {
+            color: var(--green);
+        }
+
+        .warning-box {
+            background-color: rgba(248, 81, 73, 0.05);
+            border-left: 4px solid var(--red);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .warning-icon {
+            color: var(--red);
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .compliance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .compliance-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .regulation-badge {
+            display: inline-block;
+            background-color: var(--red);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .strategy-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            border-top: 3px solid var(--cyan);
+        }
+
+        .strategy-card h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--cyan);
+        }
+
+        .strategy-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .strategy-card li {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .strategy-card li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .kpi-list {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .kpi-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .kpi-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .kpi-list li:last-child {
+            border-bottom: none;
+        }
+
+        .kpi-list li:before {
+            content: "•";
+            color: var(--green);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .best-practices {
+            background-color: rgba(191, 140, 255, 0.05);
+            border: 1px solid rgba(191, 140, 255, 0.3);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .best-practices ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .best-practices li {
+            padding: 12px 0;
+            font-size: 15px;
+            color: #a0aec0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .best-practices li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--purple);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: #8b949e;
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .flow-step {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .flow-box {
+                min-width: 100%;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .platforms-grid,
+            .audience-types,
+            .metrics-grid,
+            .compliance-grid,
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Back to Index</a>
+            <h1>Shopify Audiences</h1>
+            <p class="subtitle">AI-powered audience targeting for advertising across Google, Meta, Pinterest, TikTok, and more. Plus-exclusive feature.</p>
+            <span class="badge">Plus-Exclusive</span>
+        </header>
+
+        <!-- What Is Shopify Audiences -->
+        <section>
+            <h2><span class="section-icon">🎯</span> What Is Shopify Audiences</h2>
+            <p>Shopify Audiences is a Plus-exclusive feature that uses aggregated, anonymized commerce data from Shopify's network to generate high-intent audience lists for advertising platforms. Shopify analyzes purchase signals across its network (millions of stores) to find lookalike buyers likely to purchase from your store.</p>
+            <p><strong>Privacy-First Design:</strong> No individual customer data is shared between stores. All audience targeting is built from aggregated, anonymized signals. This means your customer data remains private while you benefit from the collective purchase patterns of Shopify's entire merchant network.</p>
+        </section>
+
+        <!-- How It Works -->
+        <section>
+            <h2><span class="section-icon">⚙️</span> How It Works</h2>
+            <p>Shopify Audiences processes your store data alongside network-wide signals to create custom audience lists optimized for each advertising platform:</p>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="flow-box">Your Store Data</div>
+                </div>
+                <div class="flow-arrow">+</div>
+                <div class="flow-step">
+                    <div class="flow-box">Shopify Network Signals</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-box">Shopify AI Model</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-box">Custom Audience List</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-box">Ad Platform</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-box">New Customers</div>
+                </div>
+            </div>
+
+            <p>The system continuously learns from purchase patterns, updating your audience lists with fresh signals to keep your campaigns targeting the most relevant prospects.</p>
+        </section>
+
+        <!-- Supported Ad Platforms -->
+        <section>
+            <h2><span class="section-icon">📡</span> Supported Ad Platforms</h2>
+            <p>Shopify Audiences integrates seamlessly with leading advertising platforms. Your audiences are automatically synced and ready to use:</p>
+
+            <div class="platforms-grid">
+                <div class="platform-card">
+                    <div class="platform-logo">📊</div>
+                    <div class="platform-name">Google Ads</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Performance Max, Search, Display, YouTube</p>
+                    <span class="status-badge">Active</span>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo">f</div>
+                    <div class="platform-name">Meta</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Facebook & Instagram</p>
+                    <span class="status-badge">Active</span>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo">📌</div>
+                    <div class="platform-name">Pinterest</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Pinners & Audiences</p>
+                    <span class="status-badge">Active</span>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo">🎵</div>
+                    <div class="platform-name">TikTok</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Ads Manager</p>
+                    <span class="status-badge">Active</span>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo">👻</div>
+                    <div class="platform-name">Snapchat</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Audience Manager</p>
+                    <span class="status-badge">Active</span>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo">🎯</div>
+                    <div class="platform-name">Criteo</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-bottom: 12px;">Audiences & Segments</p>
+                    <span class="status-badge">Active</span>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; color: #8b949e; font-size: 14px;">More platforms are being added. Check the Shopify Audiences dashboard for the latest supported integrations in your region.</p>
+        </section>
+
+        <!-- Audience Types -->
+        <section>
+            <h2><span class="section-icon">👥</span> Audience Types</h2>
+            <p>Shopify Audiences generates three distinct audience types, each optimized for different campaign goals:</p>
+
+            <div class="audience-types">
+                <div class="audience-card">
+                    <h4>Prospecting Audiences</h4>
+                    <p>New customers who haven't purchased from your store. Shopify identifies buyers similar to your existing customers based on cross-network purchase patterns. Highest value for growth campaigns.</p>
+                </div>
+
+                <div class="audience-card">
+                    <h4>Retargeting Boost</h4>
+                    <p>Enhanced retargeting that layers Shopify intent signals on top of your existing retargeting lists. Increases relevance and conversion likelihood among people who've already engaged with your store.</p>
+                </div>
+
+                <div class="audience-card">
+                    <h4>Lookalike Enhancement</h4>
+                    <p>Better lookalikes than platform-native options because Shopify uses cross-store purchase data. Find customers more similar to your best buyers using signals from millions of Shopify stores.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Setup Steps -->
+        <section>
+            <h2><span class="section-icon">🚀</span> Setup Steps</h2>
+            <p>Getting started with Shopify Audiences takes just a few minutes. Follow these steps to enable the feature and connect your ad platforms:</p>
+
+            <div class="setup-steps">
+                <ol>
+                    <li><strong>Go to Settings > Apps and sales channels > Shopify Audiences</strong> - Navigate to the Shopify Audiences dashboard in your admin</li>
+                    <li><strong>Enable Audiences and accept data sharing terms</strong> - Review and accept Shopify's data handling practices</li>
+                    <li><strong>Connect ad platform accounts</strong> - Link Google Ads, Meta Business Manager, Pinterest, TikTok, Snapchat, and Criteo accounts</li>
+                    <li><strong>Shopify generates audience lists automatically</strong> - The AI model builds audiences from your store data and network signals</li>
+                    <li><strong>Audiences appear in your ad platform's audience manager</strong> - Look for "Shopify Audiences" tags in your Google Ads or Meta audience lists</li>
+                    <li><strong>Create campaigns targeting Shopify Audiences</strong> - Set up new campaigns or add audiences to existing ones</li>
+                    <li><strong>Monitor performance in Shopify Audiences dashboard</strong> - Track KPIs and optimize your approach</li>
+                </ol>
+            </div>
+
+            <p style="margin-top: 30px; font-style: italic; color: #8b949e;">Estimated time to setup: 5-10 minutes. First audiences available within 24-48 hours.</p>
+        </section>
+
+        <!-- Performance Metrics -->
+        <section>
+            <h2><span class="section-icon">📈</span> Performance Metrics</h2>
+            <p>Shopify Audiences provides detailed performance tracking. Monitor these key metrics in the dashboard:</p>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Audience Size</div>
+                    <div class="metric-value">N</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">Number of potential customers</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Orders Attributed</div>
+                    <div class="metric-value">X</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">From Audience campaigns</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Revenue Attributed</div>
+                    <div class="metric-value">$</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">From Audience campaigns</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">CAC Improvement</div>
+                    <div class="metric-value">%</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">vs. standard targeting</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">ROAS Comparison</div>
+                    <div class="metric-value">2x+</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">Audiences vs. standard</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Audience Refresh</div>
+                    <div class="metric-value">Daily</div>
+                    <p style="font-size: 13px; color: #8b949e; margin-top: 8px;">Updated with new signals</p>
+                </div>
+            </div>
+
+            <h3>Industry Benchmarks</h3>
+            <div class="benchmark-box">
+                <p><strong>2x Better ROAS</strong> - Shopify Audiences typically deliver 2x better ROAS (Return on Ad Spend) compared to standard prospecting campaigns.</p>
+            </div>
+
+            <div class="benchmark-box">
+                <p><strong>50% Lower CPA</strong> - Average customer acquisition cost (CPA) is approximately 50% lower with Shopify Audiences due to improved targeting accuracy.</p>
+            </div>
+
+            <div class="benchmark-box">
+                <p><strong>Regular Updates</strong> - Audiences are refreshed regularly (daily) with new purchase signals to keep your campaigns aligned with market trends.</p>
+            </div>
+
+            <p style="margin-top: 30px; color: #8b949e; font-size: 14px;">These benchmarks represent typical merchant performance and will vary based on industry, product type, and campaign optimization.</p>
+        </section>
+
+        <!-- Privacy & Compliance -->
+        <section>
+            <h2><span class="section-icon">🔒</span> Privacy & Compliance</h2>
+            <p>Shopify Audiences is built on privacy-first principles. However, you must ensure compliance with regional regulations before enabling the feature:</p>
+
+            <div class="compliance-grid">
+                <div class="compliance-card">
+                    <span class="regulation-badge">GDPR</span>
+                    <h4 style="font-size: 15px; margin-bottom: 12px;">EU/UK Stores</h4>
+                    <p style="font-size: 14px; color: #8b949e;">Audiences may require valid consent for ad targeting under GDPR Article 6. Assess your legal basis for processing.</p>
+                </div>
+
+                <div class="compliance-card">
+                    <span class="regulation-badge">CCPA</span>
+                    <h4 style="font-size: 15px; margin-bottom: 12px;">California Stores</h4>
+                    <p style="font-size: 14px; color: #8b949e;">Audiences may constitute a "sale" of data under CCPA. Implement "Do Not Sell" options and disclose in your privacy policy.</p>
+                </div>
+
+                <div class="compliance-card">
+                    <span class="regulation-badge">APPI</span>
+                    <h4 style="font-size: 15px; margin-bottom: 12px;">Japan Stores</h4>
+                    <p style="font-size: 14px; color: #8b949e;">Review cross-border data handling requirements. APPI has specific rules for international data transfers.</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <span class="warning-icon">⚠️</span>
+                <strong>Legal Recommendation:</strong> Consult your legal team before enabling Shopify Audiences in EU, California, or Japan stores. Data handling practices must align with regional privacy laws.
+            </div>
+
+            <h3>Privacy Safeguards</h3>
+            <ul style="margin: 20px 0; color: #a0aec0; font-size: 15px;">
+                <li>✓ No individual customer data shared between stores</li>
+                <li>✓ All audience signals aggregated and anonymized</li>
+                <li>✓ Customer privacy preserved across network</li>
+                <li>✓ Transparent data handling practices</li>
+                <li>✓ User opt-out controls available</li>
+            </ul>
+        </section>
+
+        <!-- Unicity Strategy for Audiences -->
+        <section>
+            <h2><span class="section-icon">🗺️</span> Unicity Strategy for Audiences</h2>
+            <p>Unicity International should implement Shopify Audiences strategically across regional stores, with varying timelines based on legal review:</p>
+
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <h4>US Store</h4>
+                    <ul>
+                        <li>Enable immediately</li>
+                        <li>Target health/wellness buyers</li>
+                        <li>Products: Feel Great system, Unimate, Balance</li>
+                        <li>Focus: New customer acquisition</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-card">
+                    <h4>EU Store</h4>
+                    <ul>
+                        <li>Enable after legal review for GDPR compliance</li>
+                        <li>Target fitness/supplement buyers</li>
+                        <li>Products: Premium supplement lines</li>
+                        <li>Focus: Consent-based campaigns</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-card">
+                    <h4>Japan Store</h4>
+                    <ul>
+                        <li>Enable after APPI review</li>
+                        <li>Target health-conscious consumers</li>
+                        <li>Products: Japanese market offerings</li>
+                        <li>Focus: Local market optimization</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-card">
+                    <h4>Campaign Types</h4>
+                    <ul>
+                        <li>Product awareness campaigns</li>
+                        <li>Distributor recruitment targeting</li>
+                        <li>Seasonal promotion pushes</li>
+                        <li>Category-specific prospecting</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-card">
+                    <h4>Budget Allocation</h4>
+                    <ul>
+                        <li>Phase 1: 20% of ad spend on Audiences</li>
+                        <li>Performance tracking: 30-45 days</li>
+                        <li>Phase 2: Scale based on ROAS</li>
+                        <li>Target: 30-40% of total spend</li>
+                    </ul>
+                </div>
+
+                <div class="strategy-card">
+                    <h4>Success Metrics</h4>
+                    <ul>
+                        <li>ROAS 2x+ vs baseline</li>
+                        <li>CAC 40-50% reduction</li>
+                        <li>New customer acquisition +25%</li>
+                        <li>Monthly audience growth 10%+</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section>
+            <h2><span class="section-icon">⭐</span> Best Practices</h2>
+            <p>Maximize Shopify Audiences performance by following these proven strategies:</p>
+
+            <div class="best-practices">
+                <ul>
+                    <li><strong>Let the algorithm run for 7-14 days</strong> - Don't judge performance too early. AI models need time to optimize and learn from your traffic patterns.</li>
+                    <li><strong>Don't over-segment</strong> - Let Shopify's AI do the optimization work. Too many custom segments can reduce audience size and effectiveness.</li>
+                    <li><strong>Use alongside existing targeting</strong> - Shopify Audiences should complement, not replace, your existing audience strategies and retargeting efforts.</li>
+                    <li><strong>Refresh audiences monthly</strong> - Update your audience definitions and check for new audiences generated by Shopify's model.</li>
+                    <li><strong>A/B test thoroughly</strong> - Compare Shopify Audiences performance against your best-performing custom audiences to quantify the lift.</li>
+                    <li><strong>Track incrementality</strong> - Measure whether Shopify Audiences are attracting truly new customers or cannibalizing existing traffic.</li>
+                    <li><strong>Monitor audience size trends</strong> - Growing audience size indicates increasing purchase signals. Declining size may indicate market changes.</li>
+                    <li><strong>Adjust budgets based on ROAS</strong> - Scale spending on platforms and audience types showing the strongest returns.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Measurement Framework -->
+        <section>
+            <h2><span class="section-icon">📊</span> Measurement Framework</h2>
+            <p>Track these KPIs monthly to measure Shopify Audiences success and optimize your strategy:</p>
+
+            <div class="kpi-list">
+                <ul>
+                    <li><strong>New Customer Acquisition from Audiences</strong> - Total new customers attributed to Shopify Audiences campaigns</li>
+                    <li><strong>Blended CAC</strong> - Combined customer acquisition cost across Shopify Audiences and other channels</li>
+                    <li><strong>ROAS by Platform</strong> - Compare return on ad spend across Google, Meta, TikTok, and other platforms</li>
+                    <li><strong>Revenue Attribution Accuracy</strong> - Validate that attributed revenue is properly tracked and reported</li>
+                    <li><strong>Audience Size Trends</strong> - Monitor growth or decline in audience counts as a proxy for signal quality</li>
+                    <li><strong>Campaign Performance Variance</strong> - Identify which campaigns, products, or platforms benefit most from Audiences</li>
+                    <li><strong>Platform-Specific Lift</strong> - Measure incremental impact of Audiences on each advertising platform</li>
+                    <li><strong>Seasonality Impact</strong> - Track how Audiences perform across different seasons and promotional periods</li>
+                </ul>
+            </div>
+
+            <h3>Monthly Review Checklist</h3>
+            <p style="margin: 20px 0; color: #8b949e;">Each month, review:</p>
+            <ul style="margin: 20px 0; color: #a0aec0; font-size: 15px;">
+                <li>✓ Total orders and revenue from Audiences vs target</li>
+                <li>✓ CAC and ROAS trends (improving or declining)</li>
+                <li>✓ Audience size changes for each platform</li>
+                <li>✓ Top-performing products in Audiences campaigns</li>
+                <li>✓ Budget allocation efficiency</li>
+                <li>✓ Competitive landscape and market changes</li>
+                <li>✓ Recommendations for next month's optimization</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>Shopify Audiences Guide for Unicity International Plus Stores</p>
+            <p style="margin-top: 10px; color: #6e7681;">Last updated: 2026 | For Shopify Plus merchants only</p>
+        </footer>
+    </div>
+</body>
+</html>

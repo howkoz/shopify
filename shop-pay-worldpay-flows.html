@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Pay + Worldpay Integration Scenarios</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e4e4e7;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { 
+            text-align: center; 
+            font-size: 2.5rem; 
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #5a31f4, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #a1a1aa;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .scenario {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .scenario-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .scenario-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .badge-recommended { background: #00a651; color: white; }
+        .badge-current { background: #f59e0b; color: white; }
+        .badge-theoretical { background: #8b5cf6; color: white; }
+        .badge-not-recommended { background: #ef4444; color: white; }
+        .scenario h2 {
+            font-size: 1.5rem;
+            color: #f4f4f5;
+        }
+        .scenario-desc {
+            color: #a1a1aa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .mermaid {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .pros { background: rgba(0, 166, 81, 0.1); border: 1px solid rgba(0, 166, 81, 0.3); }
+        .cons { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .pros h4 { color: #00a651; margin-bottom: 10px; }
+        .cons h4 { color: #ef4444; margin-bottom: 10px; }
+        .pros ul, .cons ul { padding-left: 20px; }
+        .pros li, .cons li { margin-bottom: 6px; color: #d4d4d8; }
+        .key-point {
+            background: rgba(90, 49, 244, 0.1);
+            border: 1px solid rgba(90, 49, 244, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-top: 20px;
+        }
+        .key-point strong { color: #a5b4fc; }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .color-unicity { background: #00a651; }
+        .color-shopify { background: #5a31f4; }
+        .color-shopify-payments { background: #f59e0b; }
+        .color-worldpay { background: #3b82f6; }
+        .color-recharge { background: #8b5cf6; }
+        .color-customer { background: #ec4899; }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .comparison-table th {
+            background: rgba(90, 49, 244, 0.2);
+            color: #a5b4fc;
+            font-weight: 600;
+        }
+        .comparison-table td { color: #d4d4d8; }
+        .check { color: #00a651; font-weight: bold; }
+        .cross { color: #ef4444; font-weight: bold; }
+        .partial { color: #f59e0b; font-weight: bold; }
+        
+        @media (max-width: 768px) {
+            .pros-cons { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shop Pay + Worldpay Integration Scenarios</h1>
+        <p class="subtitle">Payment Architecture Options for Unicity</p>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color color-unicity"></div><span>Unicity</span></div>
+            <div class="legend-item"><div class="legend-color color-shopify"></div><span>Shopify Platform</span></div>
+            <div class="legend-item"><div class="legend-color color-shopify-payments"></div><span>Shopify Payments</span></div>
+            <div class="legend-item"><div class="legend-color color-worldpay"></div><span>Worldpay</span></div>
+            <div class="legend-item"><div class="legend-color color-recharge"></div><span>Recharge</span></div>
+            <div class="legend-item"><div class="legend-color color-customer"></div><span>Customer</span></div>
+        </div>
+
+        <!-- OPTION A: Full Shopify Payments -->
+        <div class="scenario">
+            <div class="scenario-header">
+                <span class="scenario-badge badge-recommended">RECOMMENDED</span>
+                <h2>Option A: Full Shopify Payments</h2>
+            </div>
+            <p class="scenario-desc">Use Shopify Payments as your sole payment processor. Enables all Shop Pay features and native subscription support. This is the cleanest architecture for subscription-heavy businesses.</p>
+            
+            <div class="mermaid">
+flowchart TB
+    subgraph CUSTOMER["👤 CUSTOMER"]
+        C1[Browse Products]
+    end
+    
+    subgraph UNICITY["🟢 UNICITY STOREFRONT"]
+        U1[Product Catalog]
+        U2[Subscription Options]
+        U3[PV/CV Display]
+    end
+    
+    subgraph SHOPIFY["🟣 SHOPIFY CHECKOUT"]
+        S1{Payment Method?}
+        S2[Shop Pay<br/>One-Click]
+        S3[Apple Pay /<br/>Google Pay]
+        S4[Credit Card<br/>Form]
+        S5[PayPal<br/>Redirect]
+        S6[Klarna<br/>BNPL]
+    end
+    
+    subgraph SP["🟡 SHOPIFY PAYMENTS"]
+        SP1[Process Payment]
+        SP2[Fraud Analysis]
+        SP3[Card Vaulting]
+    end
+    
+    subgraph RECHARGE["🟣 RECHARGE"]
+        R1[Subscription Contract]
+        R2[Recurring Billing]
+    end
+    
+    subgraph BACKEND["🟢 UNICITY BACKEND"]
+        B1[orders/create Webhook]
+        B2[Commission Calc]
+        B3[Fulfillment]
+    end
+    
+    C1 --> U1
+    U1 --> U2
+    U2 --> U3
+    U3 --> S1
+    
+    S1 -->|Shop Pay| S2
+    S1 -->|Digital Wallet| S3
+    S1 -->|Card| S4
+    S1 -->|PayPal| S5
+    S1 -->|Buy Now Pay Later| S6
+    
+    S2 --> SP1
+    S3 --> SP1
+    S4 --> SP1
+    S5 --> SP1
+    S6 --> SP1
+    
+    SP1 --> SP2
+    SP2 --> SP3
+    SP3 -->|Subscription?| R1
+    SP3 -->|One-time| B1
+    
+    R1 --> R2
+    R2 -->|Recurring Order| B1
+    B1 --> B2
+    B2 --> B3
+    
+    style CUSTOMER fill:#ec4899,color:#fff
+    style UNICITY fill:#00a651,color:#fff
+    style SHOPIFY fill:#5a31f4,color:#fff
+    style SP fill:#f59e0b,color:#fff
+    style RECHARGE fill:#8b5cf6,color:#fff
+    style BACKEND fill:#00a651,color:#fff
+            </div>
+            
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✓ Advantages</h4>
+                    <ul>
+                        <li>Full Shop Pay functionality (50% conversion lift)</li>
+                        <li>Shop Pay Installments (BNPL)</li>
+                        <li>Shop app order tracking</li>
+                        <li>Native subscription support</li>
+                        <li>Single payment reconciliation</li>
+                        <li>No Shopify transaction fees</li>
+                        <li>AI-powered fraud protection</li>
+                        <li>Apple Pay, Google Pay included</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>✗ Disadvantages</h4>
+                    <ul>
+                        <li>Must abandon Worldpay relationship</li>
+                        <li>Rates may be higher than negotiated 2.65%</li>
+                        <li>Locked into Shopify ecosystem</li>
+                        <li>Less flexibility for multi-processor strategy</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <strong>Key Point:</strong> This is the ONLY option that fully supports both Shop Pay AND native Shopify subscriptions. All payment methods flow through Shopify Payments.
+            </div>
+        </div>
+
+        <!-- OPTION B: Worldpay Only -->
+        <div class="scenario">
+            <div class="scenario-header">
+                <span class="scenario-badge badge-current">CURRENT STATE</span>
+                <h2>Option B: Worldpay Only (No Shop Pay)</h2>
+            </div>
+            <p class="scenario-desc">Keep Worldpay as your payment processor. You retain your negotiated rates but lose access to Shop Pay and native Shopify subscriptions. Subscriptions must be processed through your existing batch system.</p>
+            
+            <div class="mermaid">
+flowchart TB
+    subgraph CUSTOMER["👤 CUSTOMER"]
+        C1[Browse Products]
+    end
+    
+    subgraph UNICITY["🟢 UNICITY STOREFRONT"]
+        U1[Product Catalog]
+        U2[Subscription Options]
+        U3[PV/CV Display]
+    end
+    
+    subgraph SHOPIFY["🟣 SHOPIFY CHECKOUT"]
+        S1{Payment Method?}
+        S2[❌ Shop Pay<br/>NOT AVAILABLE]
+        S3[Apple Pay /<br/>Google Pay]
+        S4[Credit Card<br/>Form]
+        S5[PayPal]
+    end
+    
+    subgraph WORLDPAY["🔵 WORLDPAY"]
+        W1[Process Payment]
+        W2[Fraud Detection]
+        W3[Card Vaulting]
+    end
+    
+    subgraph UNICITY_SUB["🟢 UNICITY SUBSCRIPTION SYSTEM"]
+        US1[Internal Card Vault]
+        US2[Batch Processing]
+        US3[Scheduled Billing]
+    end
+    
+    subgraph BACKEND["🟢 UNICITY BACKEND"]
+        B1[Order Received]
+        B2[Commission Calc]
+        B3[Fulfillment]
+    end
+    
+    C1 --> U1
+    U1 --> U2
+    U2 --> U3
+    U3 --> S1
+    
+    S1 -.->|NOT AVAILABLE| S2
+    S1 -->|Digital Wallet| S3
+    S1 -->|Card| S4
+    S1 -->|PayPal| S5
+    
+    S3 --> W1
+    S4 --> W1
+    S5 --> W1
+    
+    W1 --> W2
+    W2 --> W3
+    W3 -->|One-time| B1
+    W3 -->|Card Token| US1
+    
+    US1 --> US2
+    US2 --> US3
+    US3 -->|Recurring| W1
+    
+    B1 --> B2
+    B2 --> B3
+    
+    style CUSTOMER fill:#ec4899,color:#fff
+    style UNICITY fill:#00a651,color:#fff
+    style SHOPIFY fill:#5a31f4,color:#fff
+    style WORLDPAY fill:#3b82f6,color:#fff
+    style UNICITY_SUB fill:#00a651,color:#fff
+    style BACKEND fill:#00a651,color:#fff
+    style S2 fill:#ef4444,color:#fff,stroke:#ef4444
+            </div>
+            
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✓ Advantages</h4>
+                    <ul>
+                        <li>Keep existing Worldpay relationship</li>
+                        <li>Negotiated 2.65% rate preserved</li>
+                        <li>Existing integration, familiar processes</li>
+                        <li>Worldpay handles Apple/Google Pay</li>
+                        <li>Full control over card vaulting</li>
+                        <li>No migration effort</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>✗ Disadvantages</h4>
+                    <ul>
+                        <li>NO Shop Pay (lose 50% conversion lift)</li>
+                        <li>NO native Shopify subscriptions</li>
+                        <li>Shopify charges 0.5-2% transaction fee</li>
+                        <li>No Shop app tracking</li>
+                        <li>Must maintain separate subscription system</li>
+                        <li>No Shop Pay Installments</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <strong>Key Point:</strong> Worldpay is NOT on Shopify's approved subscription gateway list. Your 40K monthly autoships must continue through your existing internal system, not Shopify's native subscription features.
+            </div>
+        </div>
+
+        <!-- OPTION C: Hybrid (Theoretical) -->
+        <div class="scenario">
+            <div class="scenario-header">
+                <span class="scenario-badge badge-theoretical">THEORETICAL</span>
+                <h2>Option C: Hybrid Model (Shop Pay + Worldpay)</h2>
+            </div>
+            <p class="scenario-desc">Attempt to run both Shop Pay (via Shopify Payments) and Worldpay simultaneously. This is technically possible in some regions but creates significant complexity and may not support subscriptions properly.</p>
+            
+            <div class="mermaid">
+flowchart TB
+    subgraph CUSTOMER["👤 CUSTOMER"]
+        C1[Browse Products]
+    end
+    
+    subgraph UNICITY["🟢 UNICITY STOREFRONT"]
+        U1[Product Catalog]
+        U2[Subscription Options]
+    end
+    
+    subgraph SHOPIFY["🟣 SHOPIFY CHECKOUT"]
+        S1{Payment Method?}
+        S2[Shop Pay<br/>Accelerated]
+        S3[Credit Card /<br/>Apple Pay / Google Pay]
+    end
+    
+    subgraph SP["🟡 SHOPIFY PAYMENTS"]
+        SP1[Process Shop Pay]
+        SP2[Shopify Fees Apply]
+    end
+    
+    subgraph WORLDPAY["🔵 WORLDPAY"]
+        W1[Process Standard Cards]
+        W2[Your Negotiated Rates]
+    end
+    
+    subgraph RECONCILE["⚠️ DUAL RECONCILIATION"]
+        R1[Shopify Payments<br/>Settlements]
+        R2[Worldpay<br/>Settlements]
+        R3[Merge Reports]
+    end
+    
+    subgraph SUBSCRIPTIONS["❓ SUBSCRIPTIONS"]
+        SUB1[Which Processor?]
+        SUB2[Shopify Payments<br/>Required for Native]
+        SUB3[Worldpay<br/>NOT Supported]
+    end
+    
+    C1 --> U1
+    U1 --> U2
+    U2 --> S1
+    
+    S1 -->|Shop Pay| S2
+    S1 -->|Other Methods| S3
+    
+    S2 --> SP1
+    S3 --> W1
+    
+    SP1 --> SP2
+    SP2 --> R1
+    
+    W1 --> W2
+    W2 --> R2
+    
+    R1 --> R3
+    R2 --> R3
+    
+    U2 -.->|Subscription Order| SUB1
+    SUB1 -.-> SUB2
+    SUB1 -.->|❌| SUB3
+    
+    style CUSTOMER fill:#ec4899,color:#fff
+    style UNICITY fill:#00a651,color:#fff
+    style SHOPIFY fill:#5a31f4,color:#fff
+    style SP fill:#f59e0b,color:#fff
+    style WORLDPAY fill:#3b82f6,color:#fff
+    style RECONCILE fill:#ef4444,color:#fff
+    style SUBSCRIPTIONS fill:#f59e0b,color:#fff
+    style SUB3 fill:#ef4444,color:#fff
+            </div>
+            
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✓ Potential Advantages</h4>
+                    <ul>
+                        <li>Shop Pay for accelerated checkout</li>
+                        <li>Worldpay for standard transactions</li>
+                        <li>Customer choice of payment method</li>
+                        <li>Preserve some Worldpay relationship</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>✗ Disadvantages</h4>
+                    <ul>
+                        <li>Dual reconciliation nightmare</li>
+                        <li>Subscriptions still problematic</li>
+                        <li>May not be officially supported</li>
+                        <li>Complex reporting across two systems</li>
+                        <li>Higher total operational cost</li>
+                        <li>Requires Shopify Plus confirmation</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <strong>⚠️ Warning:</strong> Shopify documentation states "one credit card provider at a time." This hybrid model MAY work in limited scenarios but requires explicit confirmation from Shopify Plus support. Subscriptions would still require Shopify Payments.
+            </div>
+        </div>
+
+        <!-- Decision Flow -->
+        <div class="scenario">
+            <div class="scenario-header">
+                <h2>Decision Flow: Which Option is Right?</h2>
+            </div>
+            <p class="scenario-desc">Use this decision tree to determine the best payment architecture for your specific needs.</p>
+            
+            <div class="mermaid">
+flowchart TB
+    START([Start: Choose Payment Strategy]) --> Q1{Do you sell<br/>subscriptions?}
+    
+    Q1 -->|Yes, 40K+ monthly| Q2{Is Shop Pay<br/>conversion lift<br/>important?}
+    Q1 -->|No subscriptions| Q3{Want Shop Pay?}
+    
+    Q2 -->|Yes, critical| A[✅ OPTION A<br/>Shopify Payments Only]
+    Q2 -->|No, keep current| B[⚠️ OPTION B<br/>Worldpay Only<br/>No native subscriptions]
+    
+    Q3 -->|Yes| Q4{OK with Shopify<br/>Payments rates?}
+    Q3 -->|No| B
+    
+    Q4 -->|Yes| A
+    Q4 -->|No, need Worldpay rates| C[🔶 OPTION C<br/>Hybrid - Confirm with Shopify]
+    
+    A --> RESULT1([Full Shop Pay + Subscriptions<br/>Single reconciliation])
+    B --> RESULT2([Keep Worldpay rates<br/>Lose Shop Pay benefits])
+    C --> RESULT3([Complex dual system<br/>Requires Shopify Plus approval])
+    
+    style START fill:#5a31f4,color:#fff
+    style Q1 fill:#f59e0b,color:#fff
+    style Q2 fill:#f59e0b,color:#fff
+    style Q3 fill:#f59e0b,color:#fff
+    style Q4 fill:#f59e0b,color:#fff
+    style A fill:#00a651,color:#fff
+    style B fill:#3b82f6,color:#fff
+    style C fill:#8b5cf6,color:#fff
+    style RESULT1 fill:#00a651,color:#fff
+    style RESULT2 fill:#3b82f6,color:#fff
+    style RESULT3 fill:#8b5cf6,color:#fff
+            </div>
+        </div>
+
+        <!-- Subscription Flow Comparison -->
+        <div class="scenario">
+            <div class="scenario-header">
+                <h2>Subscription Flow Comparison</h2>
+            </div>
+            <p class="scenario-desc">How recurring billing works under each option.</p>
+            
+            <div class="mermaid">
+flowchart LR
+    subgraph OPTION_A["Option A: Shopify Payments"]
+        A1[Customer<br/>Subscribes] --> A2[Shopify<br/>Checkout]
+        A2 --> A3[Shopify<br/>Payments]
+        A3 --> A4[Subscription<br/>Contract Created]
+        A4 --> A5[Recharge<br/>Manages]
+        A5 --> A6[Auto-Billing<br/>via Shopify Payments]
+        A6 --> A7[✅ Native<br/>Support]
+    end
+    
+    subgraph OPTION_B["Option B: Worldpay"]
+        B1[Customer<br/>Subscribes] --> B2[Shopify<br/>Checkout]
+        B2 --> B3[Worldpay<br/>Payment]
+        B3 --> B4[Token Stored<br/>in Unicity Vault]
+        B4 --> B5[Unicity Batch<br/>System]
+        B5 --> B6[Manual Billing<br/>via Worldpay]
+        B6 --> B7[⚠️ External<br/>System Required]
+    end
+    
+    style OPTION_A fill:#00a651,color:#fff
+    style OPTION_B fill:#3b82f6,color:#fff
+    style A7 fill:#00a651,color:#fff
+    style B7 fill:#f59e0b,color:#fff
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="scenario">
+            <div class="scenario-header">
+                <h2>Feature Comparison Matrix</h2>
+            </div>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Option A: Shopify Payments</th>
+                        <th>Option B: Worldpay Only</th>
+                        <th>Option C: Hybrid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Shop Pay</td>
+                        <td class="check">✓ Full Support</td>
+                        <td class="cross">✗ Not Available</td>
+                        <td class="partial">⚠ Limited</td>
+                    </tr>
+                    <tr>
+                        <td>Shop Pay Installments</td>
+                        <td class="check">✓ Available</td>
+                        <td class="cross">✗ Not Available</td>
+                        <td class="partial">⚠ Shop Pay orders only</td>
+                    </tr>
+                    <tr>
+                        <td>Native Subscriptions</td>
+                        <td class="check">✓ Full Support</td>
+                        <td class="cross">✗ Not Supported</td>
+                        <td class="partial">⚠ Shopify Payments only</td>
+                    </tr>
+                    <tr>
+                        <td>Apple Pay / Google Pay</td>
+                        <td class="check">✓ Included</td>
+                        <td class="check">✓ Via Worldpay</td>
+                        <td class="check">✓ Both paths</td>
+                    </tr>
+                    <tr>
+                        <td>PayPal</td>
+                        <td class="check">✓ No extra fee</td>
+                        <td class="check">✓ Available</td>
+                        <td class="check">✓ Available</td>
+                    </tr>
+                    <tr>
+                        <td>Shop App Tracking</td>
+                        <td class="check">✓ Full Support</td>
+                        <td class="cross">✗ Not Available</td>
+                        <td class="partial">⚠ Shop Pay orders only</td>
+                    </tr>
+                    <tr>
+                        <td>Processing Rate</td>
+                        <td>~2.4-2.9%</td>
+                        <td>2.65% (negotiated)</td>
+                        <td>Mixed rates</td>
+                    </tr>
+                    <tr>
+                        <td>Shopify Transaction Fee</td>
+                        <td class="check">✓ Waived</td>
+                        <td class="cross">0.5-2% additional</td>
+                        <td class="partial">⚠ On Worldpay txns</td>
+                    </tr>
+                    <tr>
+                        <td>Reconciliation</td>
+                        <td class="check">✓ Single system</td>
+                        <td class="check">✓ Single system</td>
+                        <td class="cross">✗ Dual systems</td>
+                    </tr>
+                    <tr>
+                        <td>Implementation Effort</td>
+                        <td>Medium (migration)</td>
+                        <td>None (current state)</td>
+                        <td>High (complex setup)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="scenario" style="border: 2px solid #00a651;">
+            <div class="scenario-header">
+                <span class="scenario-badge badge-recommended">RECOMMENDATION</span>
+                <h2>For Unicity: Option A (Shopify Payments)</h2>
+            </div>
+            <p class="scenario-desc">Given your subscription-heavy business model with 40,000 monthly autoships, Option A is the recommended path. The Shop Pay conversion benefits combined with native subscription support outweigh the rate differential.</p>
+            
+            <div class="mermaid">
+flowchart TB
+    subgraph RECOMMENDED["✅ RECOMMENDED ARCHITECTURE"]
+        direction TB
+        
+        subgraph FRONT["Customer-Facing"]
+            F1[Unicity Storefront]
+            F2[Product + Subscription Selection]
+            F3[Shop Pay Button]
+        end
+        
+        subgraph CHECKOUT["Shopify Checkout"]
+            C1[Shop Pay - 50% Conversion Lift]
+            C2[Apple Pay / Google Pay]
+            C3[Credit Card]
+            C4[PayPal]
+            C5[Klarna BNPL]
+        end
+        
+        subgraph PROCESSING["Payment Processing"]
+            P1[Shopify Payments<br/>All transactions]
+        end
+        
+        subgraph SUBSCRIPTIONS["Subscription Management"]
+            S1[Recharge]
+            S2[Native Shopify Contracts]
+            S3[Automatic Recurring Billing]
+        end
+        
+        subgraph BACKEND["Unicity Backend"]
+            B1[Webhooks]
+            B2[Commission Calculation]
+            B3[Fulfillment]
+            B4[Single Reconciliation]
+        end
+        
+        F1 --> F2 --> F3
+        F3 --> C1
+        F2 --> C2
+        F2 --> C3
+        F2 --> C4
+        F2 --> C5
+        
+        C1 --> P1
+        C2 --> P1
+        C3 --> P1
+        C4 --> P1
+        C5 --> P1
+        
+        P1 --> S1
+        S1 --> S2
+        S2 --> S3
+        S3 --> P1
+        
+        P1 --> B1
+        B1 --> B2
+        B2 --> B3
+        B3 --> B4
+    end
+    
+    style RECOMMENDED fill:#1a1a2e,color:#fff
+    style FRONT fill:#00a651,color:#fff
+    style CHECKOUT fill:#5a31f4,color:#fff
+    style PROCESSING fill:#f59e0b,color:#fff
+    style SUBSCRIPTIONS fill:#8b5cf6,color:#fff
+    style BACKEND fill:#00a651,color:#fff
+            </div>
+            
+            <div class="key-point">
+                <strong>Next Steps:</strong><br/>
+                1. Contact Shopify Plus to negotiate rates (target 2.4% or better with your volume)<br/>
+                2. Calculate ROI: 50% conversion lift vs rate difference<br/>
+                3. Plan migration timeline for existing subscriptions<br/>
+                4. Configure Recharge for native Shopify subscription contracts
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

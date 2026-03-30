@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launchpad Campaign Manager | Shopify Plus</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+            --spacing: 1rem;
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: #79c0ff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing);
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+
+        .back-link::before {
+            content: "←";
+            margin-right: 0.5rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #8b949e;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 3rem 0 1.5rem 0;
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem 0;
+            color: var(--text);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #c9d1d9;
+        }
+
+        .content-section {
+            margin-bottom: 3rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            background: var(--surface2);
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(88, 166, 255, 0.15);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-type {
+            display: inline-block;
+            background: var(--surface2);
+            color: var(--accent);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-list {
+            background: var(--surface);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: var(--radius);
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            background: var(--accent);
+            color: var(--bg);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .step-content h4 {
+            margin: 0 0 0.25rem 0;
+            font-weight: 600;
+        }
+
+        .step-content p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .timezone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .timezone-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .timezone-label {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .timezone-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--green);
+            margin-bottom: 0.5rem;
+        }
+
+        .timezone-abbr {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .calendar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-day-name {
+            text-align: center;
+            font-weight: 600;
+            color: var(--cyan);
+            padding: 0.5rem;
+            font-size: 14px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-size: 12px;
+            min-height: 80px;
+            overflow-y: auto;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .event-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            width: 100%;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .event-badge.us {
+            background: rgba(88, 166, 255, 0.3);
+            color: var(--accent);
+        }
+
+        .event-badge.eu {
+            background: rgba(63, 185, 80, 0.3);
+            color: var(--green);
+        }
+
+        .event-badge.japan {
+            background: rgba(188, 140, 255, 0.3);
+            color: var(--purple);
+        }
+
+        .event-badge.global {
+            background: rgba(240, 136, 62, 0.3);
+            color: var(--orange);
+        }
+
+        .best-practices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .practice-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            border-left: 4px solid var(--green);
+        }
+
+        .practice-item h4 {
+            color: var(--green);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .practice-item p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .integration-box {
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.1), rgba(57, 210, 192, 0.1));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .integration-box h3 {
+            margin-top: 0;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #c9d1d9;
+        }
+
+        code {
+            background: var(--surface2);
+            color: var(--cyan);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .highlight-box {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+        }
+
+        .section-nav {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-nav h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .section-nav ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .section-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .section-nav a {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .section-nav a::before {
+            content: "→";
+            margin-right: 0.5rem;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timezone-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar {
+                font-size: 12px;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+                padding: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">Back to Index</a>
+            <h1>Launchpad Campaign Manager</h1>
+            <p class="subtitle">Schedule and automate flash sales, product launches, and promotional events across US, EU, and Japan markets.</p>
+        </div>
+
+        <div class="section-nav">
+            <h3>Quick Navigation</h3>
+            <ul>
+                <li><a href="#what-is-launchpad">What Is Launchpad</a></li>
+                <li><a href="#capabilities">Key Capabilities</a></li>
+                <li><a href="#campaign-types">Campaign Types for Unicity</a></li>
+                <li><a href="#timezone-scheduling">Multi-Timezone Scheduling</a></li>
+                <li><a href="#setup-steps">Setting Up a Launchpad Event</a></li>
+                <li><a href="#best-practices">Best Practices</a></li>
+                <li><a href="#campaign-calendar">Campaign Calendar</a></li>
+                <li><a href="#analytics">Analytics During Events</a></li>
+                <li><a href="#integration">Integration with Shopify Flow</a></li>
+            </ul>
+        </div>
+
+        <!-- Section 1: What Is Launchpad -->
+        <div class="content-section" id="what-is-launchpad">
+            <h2>What Is Launchpad</h2>
+            <p>Launchpad is a Shopify Plus-exclusive tool for scheduling time-sensitive events and promotional campaigns. It enables Unicity International to automate and coordinate complex, multi-market campaigns with precision timing and automatic rollback.</p>
+
+            <div class="highlight-box">
+                <strong>Launchpad Automates:</strong>
+                <ul style="margin-top: 0.5rem; margin-bottom: 0;">
+                    <li>Price changes across products and collections</li>
+                    <li>Theme switches for event-specific branding</li>
+                    <li>Script activation and deactivation</li>
+                    <li>Product publishing and unpublishing</li>
+                    <li>Inventory visibility and allocation</li>
+                </ul>
+            </div>
+
+            <p>Each Launchpad event creates a defined start and end window with real-time analytics monitoring during the event. When the event ends, all changes automatically revert to their pre-event state—no manual cleanup required.</p>
+        </div>
+
+        <!-- Section 2: Key Capabilities -->
+        <div class="content-section" id="capabilities">
+            <h2>Key Capabilities</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">💲</div>
+                    <h3>Price Changes</h3>
+                    <p>Schedule price adjustments across products and collections for the event window, with automatic rollback to original pricing.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎨</div>
+                    <h3>Theme Switching</h3>
+                    <p>Activate event-specific themes for branded visual experiences, then revert to standard theme automatically.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📦</div>
+                    <h3>Product Publishing</h3>
+                    <p>Publish or unpublish products at specific times, perfect for coordinated product launches across markets.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚙️</div>
+                    <h3>Script Activation</h3>
+                    <p>Activate or deactivate scripts during events. Note: Script management via Launchpad is deprecated as of June 2026.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h3>Real-Time Analytics</h3>
+                    <p>Monitor event performance with live revenue tracking, conversion rates, traffic sources, and product performance.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">↩️</div>
+                    <h3>Automatic Rollback</h3>
+                    <p>Everything reverts to pre-event state when the event ends—pricing, products, themes, and scripts all restore automatically.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Campaign Types for Unicity -->
+        <div class="content-section" id="campaign-types">
+            <h2>Campaign Types for Unicity</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-type">Flash Sale</div>
+                    <h3>Flash Sale</h3>
+                    <p><strong>Duration:</strong> 24–48 hours</p>
+                    <p><strong>Example:</strong> "Feel Great Friday" - 20% off starter kits, Friday midnight to Sunday midnight across all markets.</p>
+                    <p>Perfect for driving urgency and clearing inventory on seasonal or promotional products.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-type">Product Launch</div>
+                    <h3>Product Launch</h3>
+                    <p><strong>Duration:</strong> Launch moment (can extend multi-day)</p>
+                    <p><strong>Example:</strong> Unimate lemon flavor launches at 9am across all markets simultaneously.</p>
+                    <p>Coordinates product publishing with promotional activities for maximum impact.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">❄️</div>
+                    <div class="card-type">Seasonal Promotion</div>
+                    <h3>Seasonal Promotion</h3>
+                    <p><strong>Duration:</strong> Multi-week (typically 2-6 weeks)</p>
+                    <p><strong>Example:</strong> New Year wellness campaign January 1–31 with theme change and discounts.</p>
+                    <p>Extended campaigns with consistent branding and messaging throughout the season.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🌏</div>
+                    <div class="card-type">Market-Specific Event</div>
+                    <h3>Market-Specific Event</h3>
+                    <p><strong>Duration:</strong> 3-14 days</p>
+                    <p><strong>Example:</strong> Golden Week promotion for Japan market only (April 29 – May 5).</p>
+                    <p>Region-only pricing and promotions to comply with local market conditions and holidays.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🎤</div>
+                    <div class="card-type">Distributor Convention</div>
+                    <h3>Distributor Convention</h3>
+                    <p><strong>Duration:</strong> 2-4 days</p>
+                    <p><strong>Example:</strong> Global convention pricing active for 3-day event with special distributor discounts.</p>
+                    <p>Aligns online pricing with live event promotions to coordinate with field activities.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📉</div>
+                    <div class="card-type">End-of-Season Clearance</div>
+                    <h3>End-of-Season Clearance</h3>
+                    <p><strong>Duration:</strong> 1-4 weeks</p>
+                    <p><strong>Example:</strong> Summer inventory clearance with markdown progression and automatic price rollback.</p>
+                    <p>Coordinates clearance pricing with automatic restoration to regular pricing on schedule.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Multi-Timezone Scheduling -->
+        <div class="content-section" id="timezone-scheduling">
+            <h2>Multi-Timezone Scheduling</h2>
+            <p>Unicity operates across three major markets with different timezones. Launchpad uses the store's local timezone for scheduling, so proper timezone conversion is essential for global campaigns.</p>
+
+            <h3>Standard Timezone Reference (Simultaneous Launch)</h3>
+            <div class="timezone-grid">
+                <div class="timezone-card">
+                    <div class="timezone-label">United States</div>
+                    <div class="timezone-abbr">Eastern Time</div>
+                    <div class="timezone-time">12:00 AM</div>
+                    <div class="timezone-abbr">EST/EDT</div>
+                </div>
+                <div class="timezone-card">
+                    <div class="timezone-label">Europe</div>
+                    <div class="timezone-abbr">Central European Time</div>
+                    <div class="timezone-time">6:00 AM</div>
+                    <div class="timezone-abbr">CET/CEST</div>
+                </div>
+                <div class="timezone-card">
+                    <div class="timezone-label">Japan</div>
+                    <div class="timezone-abbr">Japan Standard Time</div>
+                    <div class="timezone-time">2:00 PM</div>
+                    <div class="timezone-abbr">JST</div>
+                </div>
+            </div>
+
+            <h3>Launch Strategy Considerations</h3>
+            <p>When scheduling global events, choose one of these approaches:</p>
+            <ul>
+                <li><strong>Simultaneous Launch:</strong> All markets go live at the same UTC time. Works well for product launches and creates a unified brand moment.</li>
+                <li><strong>Rolling Launch:</strong> Start in Japan, then EU 6 hours later, then US 12 hours later. Spreads server load and allows for regional adjustments.</li>
+                <li><strong>Market-Specific Times:</strong> Schedule each market for optimal local engagement (morning for US, afternoon for EU, evening for Japan).</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong>Pro Tip:</strong> During daylight saving time transitions (March and October), pay careful attention to timezone offsets. CET/CEST changes can affect calculated simultaneous times. Always double-check your Launchpad times 48 hours before the event.
+            </div>
+        </div>
+
+        <!-- Section 5: Setting Up a Launchpad Event -->
+        <div class="content-section" id="setup-steps">
+            <h2>Setting Up a Launchpad Event</h2>
+            <p>Follow these steps to create and schedule a successful Launchpad campaign:</p>
+
+            <div class="step-list">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Navigate to Launchpad</h4>
+                        <p>In your Shopify Admin, go to <code>Apps > Launchpad</code>. You'll see a dashboard with all scheduled events and historical campaigns.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Create New Event</h4>
+                        <p>Click "Create event" button. This opens the event creation wizard where you'll define the campaign parameters.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Event Details</h4>
+                        <p>Enter event name (use the naming convention: <code>[MARKET]-[TYPE]-[DATE]</code>, e.g., <code>US-FLASH-2026-04-15</code>) and a clear description of the campaign's goals.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Set Timing</h4>
+                        <p>Define the start date/time and end date/time. Always verify timezone is set correctly. Never leave events open-ended—always specify an end time for automatic rollback.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Add Actions</h4>
+                        <p>Configure what changes during the event: price adjustments, theme switch, product publishing status, or script activation. You can add multiple actions to a single event.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h4>Preview Changes</h4>
+                        <p>Review all scheduled changes. This is critical—verify prices, products, and timing are correct before scheduling.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <h4>Schedule Event</h4>
+                        <p>Click "Schedule event" to commit. The event will execute automatically at the scheduled time. You'll receive confirmation and can monitor from the Launchpad dashboard.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">8</div>
+                    <div class="step-content">
+                        <h4>Monitor Event</h4>
+                        <p>On event day, monitor performance in the Launchpad analytics dashboard. Track revenue, conversion rate, and customer response. Have a team member assigned to watch for issues.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Best Practices -->
+        <div class="content-section" id="best-practices">
+            <h2>Best Practices</h2>
+            <div class="best-practices">
+                <div class="practice-item">
+                    <h4>Schedule in Advance</h4>
+                    <p>Create events at least 24 hours before they go live. This allows time for testing, coordination, and any last-minute adjustments.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Test with Small Set</h4>
+                    <p>For new campaign types, test with a small product set first. Once validated, scale to full collection or entire store.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Always Set End Date</h4>
+                    <p>Never leave events open-ended. Automatic rollback is a key safety feature—always specify an end date/time so changes revert automatically.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Use Naming Convention</h4>
+                    <p>Follow <code>[MARKET]-[TYPE]-[DATE]</code> format (e.g., <code>US-FLASH-2026-04-15</code>) to keep campaigns organized and searchable.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Document in Shared Calendar</h4>
+                    <p>Add all scheduled events to a team calendar so stakeholders know about upcoming campaigns and can coordinate marketing activities.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Assign Event Owner</h4>
+                    <p>Designate one person per event to monitor during the live campaign. They should watch analytics, respond to issues, and communicate status to the team.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Have Rollback Plan</h4>
+                    <p>In case of issues, have a manual rollback process documented. You can manually cancel a Launchpad event from the dashboard if needed.</p>
+                </div>
+
+                <div class="practice-item">
+                    <h4>Coordinate Multi-Market</h4>
+                    <p>For global events running across US, EU, and Japan, coordinate start times, messaging, and support across teams. Use a shared campaign brief.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Campaign Calendar -->
+        <div class="content-section" id="campaign-calendar">
+            <h2>Campaign Calendar Template</h2>
+            <p>Below is an example April 2026 calendar showing how Unicity's campaigns might be distributed across markets. Color coding: <span style="color: var(--accent);">Blue</span> = US, <span style="color: var(--green);">Green</span> = EU, <span style="color: var(--purple);">Purple</span> = Japan, <span style="color: var(--orange);">Orange</span> = Global.</p>
+
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="calendar-day-name">Sun</div>
+                    <div class="calendar-day-name">Mon</div>
+                    <div class="calendar-day-name">Tue</div>
+                    <div class="calendar-day-name">Wed</div>
+                    <div class="calendar-day-name">Thu</div>
+                    <div class="calendar-day-name">Fri</div>
+                    <div class="calendar-day-name">Sat</div>
+                </div>
+                <div class="calendar-grid">
+                    <!-- April 2026 starts on Wednesday -->
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">30</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">31</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">1</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">2</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">3</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">4</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">5</div>
+                        <div class="event-badge global">Global Launch</div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">6</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">7</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">8</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">9</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">10</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">11</div>
+                        <div class="event-badge us">US Flash</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">12</div>
+                        <div class="event-badge us">US Flash</div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">13</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">14</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">15</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">16</div>
+                        <div class="event-badge eu">EU Promo</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">17</div>
+                        <div class="event-badge eu">EU Promo</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">18</div>
+                        <div class="event-badge eu">EU Promo</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">19</div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">20</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">21</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">22</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">23</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">24</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">25</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">26</div>
+                    </div>
+
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">27</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">28</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">29</div>
+                        <div class="event-badge japan">Golden Week</div>
+                    </div>
+                    <div class="calendar-day">
+                        <div class="calendar-day-number">30</div>
+                        <div class="event-badge japan">Golden Week</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">1</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">2</div>
+                    </div>
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <p><strong>Legend:</strong> This calendar shows typical Unicity campaign distribution. Global launches coordinate all markets simultaneously. Regional campaigns target specific market timing (US weekends, EU mid-week, Japan holidays). Always adjust based on business priorities and marketing calendar.</p>
+        </div>
+
+        <!-- Section 8: Analytics During Events -->
+        <div class="content-section" id="analytics">
+            <h2>Analytics During Events</h2>
+            <p>Launchpad provides real-time performance data during active events. Monitor these key metrics from the Launchpad dashboard:</p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">💰</div>
+                    <h3>Real-Time Revenue</h3>
+                    <p>Total revenue generated during the event window. Compare to baseline periods to measure campaign effectiveness.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <h3>Conversion Rate</h3>
+                    <p>Percentage of visitors who make a purchase during the event. Track against pre-event baseline to assess promotional impact.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🚗</div>
+                    <h3>Traffic Sources</h3>
+                    <p>Breakdown of where traffic originates: organic search, paid ads, social, email, direct, etc. Helps optimize future promotional spend.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⭐</div>
+                    <h3>Top Products</h3>
+                    <p>Which products are driving the most revenue during the event. Identify breakout products and bestsellers.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💳</div>
+                    <h3>Average Order Value</h3>
+                    <p>Compare AOV during the event to normal periods. Indicates whether promotions are driving larger or smaller basket sizes.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <h3>Customer Insights</h3>
+                    <p>New vs. repeat customer breakdown, geographic distribution, and customer segment performance during the event.</p>
+                </div>
+            </div>
+
+            <h3>Using Launchpad Analytics for Campaign Optimization</h3>
+            <ul>
+                <li><strong>Real-time monitoring:</strong> Watch metrics during the event to catch issues early and make real-time adjustments if needed.</li>
+                <li><strong>Post-event analysis:</strong> Compare event metrics to baseline periods and previous similar campaigns to measure success.</li>
+                <li><strong>Product insights:</strong> Identify which products performed best during promotional periods. Use this for future bundle planning.</li>
+                <li><strong>Channel attribution:</strong> Track which marketing channels drove traffic to the event. Optimize budget allocation accordingly.</li>
+                <li><strong>Regional performance:</strong> For multi-market events, compare results across US, EU, and Japan to understand regional preferences.</li>
+            </ul>
+        </div>
+
+        <!-- Section 9: Integration with Shopify Flow -->
+        <div class="content-section" id="integration">
+            <h2>Integration with Shopify Flow</h2>
+            <p>Enhance your Launchpad campaigns by automating workflows with Shopify Flow. Here are key integration opportunities:</p>
+
+            <div class="integration-box">
+                <h3>Slack Notifications</h3>
+                <p>Create Flow automations that send Slack notifications when a Launchpad event starts or ends. Keep your team informed in real-time without manual monitoring.</p>
+                <p><strong>Example:</strong> "When Launchpad event begins, send message to #marketing-alerts with event name, start time, and expected duration."</p>
+            </div>
+
+            <div class="integration-box">
+                <h3>Order Tagging</h3>
+                <p>Automatically tag orders placed during Launchpad events with the event name. This makes it easy to filter and analyze event-driven revenue in your backend.</p>
+                <p><strong>Example:</strong> "When order is created during Launchpad event 'US-FLASH-2026-04-15', add tag 'event:us-flash-2026-04-15' and 'campaign:flash-sale' to the order."</p>
+            </div>
+
+            <div class="integration-box">
+                <h3>Post-Event Customer Follow-Up</h3>
+                <p>Trigger email sequences automatically when the event ends. Send thank you emails, product recommendations, or exclusive follow-up offers to event participants.</p>
+                <p><strong>Example:</strong> "When Launchpad event ends, send email to customers who purchased during the event with subject line 'Thank you for your purchase—here's 10% off your next order.'"</p>
+            </div>
+
+            <div class="integration-box">
+                <h3>Inventory Alerts</h3>
+                <p>Increase inventory alert thresholds during high-demand Launchpad events. Notify your fulfillment team if inventory levels drop unexpectedly during the campaign.</p>
+                <p><strong>Example:</strong> "When Launchpad event 'GLOBAL-LAUNCH-2026-05-01' is active and product inventory drops below 50 units, send alert to #fulfillment-team."</p>
+            </div>
+
+            <div class="highlight-box">
+                <strong>Pro Tip:</strong> Set up Flow automations before your event is scheduled. Test them on a small-scale test event first to ensure they work as expected, then enable them for production campaigns.
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Shopify Plus Launchpad Campaign Playbook for Unicity International</p>
+            <p>For support or questions about Launchpad, contact your Shopify Plus Success Manager or visit the Shopify Help Center.</p>
+        </div>
+    </div>
+</body>
+</html>

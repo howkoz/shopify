@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS Sales Dashboard | Unicity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#07090e;--surface:#0d1017;--card:#111520;--border:#1a1f2e;--border-bright:#232840;--accent:#00d4ff;--ms-color:#00d4ff;--fl-color:#3fb950;--green:#3fb950;--amber:#d29922;--purple:#bc8cff;--red:#f85149;--text:#e6edf3;--text-dim:#8b949e;--text-muted:#484f58}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-top:49px}
+.mono{font-family:'Space Mono',monospace}
+#stickyBar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,9,14,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-bright);display:flex;align-items:center;height:49px;padding:0 16px}
+.sb-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;padding:0 10px}
+.sb-sep{width:1px;height:22px;background:var(--border-bright);margin:0 6px}
+.filter-btn{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:5px;border:1px solid transparent;background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.filter-btn:hover{color:var(--text);border-color:var(--border-bright)}
+.filter-btn.active{color:var(--accent);border-color:var(--accent);background:rgba(0,212,255,.08)}
+.filter-btn.ms.active{color:var(--ms-color);border-color:var(--ms-color);background:rgba(0,212,255,.08)}
+.filter-btn.fl.active{color:var(--fl-color);border-color:var(--fl-color);background:rgba(63,185,80,.08)}
+.sb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.staff-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase}
+.staff-select{font-family:'Space Mono',monospace;font-size:10px;color:var(--text);background:var(--surface);border:1px solid var(--border-bright);border-radius:5px;padding:4px 8px;outline:none;cursor:pointer}
+.staff-select.ms{border-color:rgba(0,212,255,.3)}.staff-select.fl{border-color:rgba(63,185,80,.3)}
+.staff-select option{background:var(--surface)}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.header h1{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.header h1 span{color:var(--accent)}
+.header .sub{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);margin-top:3px}
+.header-left{flex:1}
+.header-badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:1px solid;white-space:nowrap}
+.badge-cyan{color:var(--accent);border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.06)}
+.badge-green{color:var(--green);border-color:rgba(63,185,80,.3);background:rgba(63,185,80,.06)}
+.badge-purple{color:var(--purple);border-color:rgba(188,140,255,.3);background:rgba(188,140,255,.06)}
+.badge-dim{color:var(--text-muted);border-color:var(--border)}
+.main{max-width:1400px;margin:0 auto;padding:20px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.kpi.green::before{background:var(--green)}.kpi.amber::before{background:var(--amber)}.kpi.purple::before{background:var(--purple)}.kpi.red::before{background:var(--red)}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.kpi-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:11px;color:var(--text-muted);margin-top:6px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+.chart-wrap{position:relative}.chart-wrap canvas{width:100%!important}
+.h240{height:240px}.h280{height:280px}.h320{height:320px}
+.lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.lb-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.lb-title.ms{color:var(--ms-color)}.lb-title.fl{color:var(--fl-color)}
+.lb-item{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.lb-rank{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;width:26px;text-align:center;flex-shrink:0;color:var(--text-muted)}
+.lb-rank.gold{color:#f0c040}.lb-rank.silver{color:#9ba3af}.lb-rank.bronze{color:#cd7f32}
+.lb-name{font-size:12px;font-weight:600;flex-shrink:0;width:140px;line-height:1.3}
+.lb-loc{font-size:10px;color:var(--text-muted);font-weight:400}
+.lb-bar-wrap{flex:1;background:var(--border);border-radius:3px;height:5px}
+.lb-bar{height:5px;border-radius:3px;background:var(--ms-color)}.lb-bar.fl{background:var(--fl-color)}
+.lb-val{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0;color:var(--text)}.lb-val.fl{color:var(--fl-color)}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.prod-name{font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:6px;line-height:1.3}
+.prod-rev{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--purple)}
+.prod-qty{font-size:10px;color:var(--text-muted);margin-top:3px;font-family:'Space Mono',monospace}
+.loc-stats{display:flex;gap:16px;flex-wrap:wrap}
+.stat-item{flex:1;min-width:120px}
+.stat-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.stat-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700}
+.loc-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.loc-ms{background:var(--ms-color)}.loc-fl{background:var(--fl-color)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border-bright);text-align:left;white-space:nowrap}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.tbl-money{font-family:'Space Mono',monospace;text-align:right}
+.sync-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.5px;padding:3px 8px;border-radius:4px;text-transform:uppercase}
+.sync-yes{background:#0d2010;color:#3fb950;border:1px solid #1a4020}
+.sync-refunded{background:#200d0d;color:#f85149;border:1px solid #401a1a}
+.sync-pended{background:#1a1500;color:#d29922;border:1px solid #3a3000}
+.footer{background:var(--surface);border-top:1px solid var(--border);padding:12px 20px;display:flex;gap:20px;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted)}
+#auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);flex-direction:column}
+#auth-gate::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 40%,rgba(0,212,255,.05) 0%,transparent 70%);pointer-events:none}
+#auth-gate.hidden{display:none!important}
+.gate-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:380px;padding:0 24px}
+.gate-icon{width:60px;height:60px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:24px;animation:gate-pulse 2.5s ease-in-out infinite}
+@keyframes gate-pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,.15)}50%{box-shadow:0 0 0 12px rgba(0,212,255,0)}}
+.gate-eyebrow{font-family:'Space Mono',monospace;font-size:10px;font-weight:600;letter-spacing:2.5px;color:var(--text-muted);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.gate-eyebrow::before,.gate-eyebrow::after{content:'';display:block;width:28px;height:1px;background:var(--border-bright)}
+.gate-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.8px;text-align:center;margin-bottom:8px}
+.gate-title span{color:var(--accent)}
+.gate-subtitle{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:28px;line-height:1.5}
+.gate-form{width:100%;display:flex;flex-direction:column;gap:10px}
+.gate-input{width:100%;background:var(--surface);border:1px solid var(--border-bright);border-radius:8px;padding:13px 16px;font-family:'Space Mono',monospace;font-size:13px;color:var(--text);outline:none;text-align:center;letter-spacing:3px;transition:border-color .2s,box-shadow .2s}
+.gate-input::placeholder{color:var(--text-muted);letter-spacing:1px;font-size:11px}
+.gate-input:focus{border-color:rgba(0,212,255,.4);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+.gate-btn{width:100%;background:linear-gradient(135deg,#00d4ff,#0099cc);border:none;border-radius:8px;padding:13px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#07090e;cursor:pointer;transition:opacity .2s,transform .1s}
+.gate-btn:hover{opacity:.88}.gate-btn:active{transform:scale(.98)}
+.gate-error{font-size:11px;color:var(--red);text-align:center;min-height:16px;font-family:'Space Mono',monospace;letter-spacing:.5px}
+.gate-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border-bright),transparent);margin:6px 0}
+.gate-footer-txt{position:absolute;bottom:32px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:1px;opacity:.4}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .35s ease;border-color:var(--red)!important}
+#page-content{display:none}#page-content.unlocked{display:block}
+</style>
+</head>
+<body>
+<div id="auth-gate">
+  <div class="gate-inner">
+    <div class="gate-icon">&#128274;</div>
+    <div class="gate-eyebrow">Restricted Access</div>
+    <div class="gate-title">POS Sales <span>Dashboard</span></div>
+    <div class="gate-subtitle">Enter your access code to view sales data and reports.</div>
+    <form class="gate-form" onsubmit="return checkGate()">
+      <input class="gate-input" id="gate-pwd" type="password" placeholder="Access code" autocomplete="off" autofocus>
+      <div class="gate-error" id="gate-error"></div>
+      <div class="gate-divider"></div>
+      <button class="gate-btn" type="submit">Authenticate &#8594;</button>
+    </form>
+  </div>
+  <div class="gate-footer-txt">Unicity International &middot; POS Team Only</div>
+</div>
+<div id="page-content">
+<div id="stickyBar">
+  <span class="sb-label">Location</span>
+  <button class="filter-btn active" onclick="filterLoc('all',this)">All</button>
+  <button class="filter-btn ms" onclick="filterLoc('Mississippi Location',this)">Mississippi</button>
+  <button class="filter-btn fl" onclick="filterLoc('Florida Location',this)">Florida</button>
+  <div class="sb-sep"></div>
+  <span class="sb-label">Sync</span>
+  <button class="filter-btn active" onclick="filterSync('all',this)">All</button>
+  <button class="filter-btn" onclick="filterSync('Yes',this)">Synced</button>
+  <button class="filter-btn" onclick="filterSync('Pended',this)">Pended</button>
+  <button class="filter-btn" onclick="filterSync('Refunded',this)">Refunded</button>
+  <div class="sb-sep"></div>
+  <div class="sb-right">
+    <span class="staff-label">MS Staff</span>
+    <select class="staff-select ms" id="msStaffSelect" onchange="filterStaff()"><option value="all">All Staff</option></select>
+    <span class="staff-label" style="color:var(--fl-color)">FL Staff</span>
+    <select class="staff-select fl" id="flStaffSelect" onchange="filterStaff()"><option value="all">All Staff</option></select>
+  </div>
+</div>
+<div class="header">
+  <div class="header-left">
+    <h1>POS Sales <span>Dashboard</span></h1>
+    <div class="sub">Source: orders_export_1.csv &nbsp;|&nbsp; </div>
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-cyan"   id="hdr-orders">&#128230; 0 Orders</span>
+    <span class="badge badge-green"  id="hdr-rev">&#128181; $0.00 Revenue</span>
+    <span class="badge badge-purple" id="hdr-staff">0 Staff</span>
+    <span class="badge badge-dim"    id="hdr-locs">0 Locations</span>
+    <span class="badge badge-dim">Built 2026-03-30 08:07</span>
+  </div>
+</div>
+<div class="main">
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value mono" id="kpi-orders">0</div>
+      <div class="kpi-sub">Active (excl. refunds)</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-value mono" id="kpi-rev">$0.00</div>
+      <div class="kpi-sub">incl. tax &amp; shipping</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-label">Subtotal</div>
+      <div class="kpi-value mono" id="kpi-sub">$0.00</div>
+      <div class="kpi-sub">before tax</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Avg Order</div>
+      <div class="kpi-value mono" id="kpi-avg">$0.00</div>
+      <div class="kpi-sub">per transaction</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">Tax Collected</div>
+      <div class="kpi-value mono" id="kpi-tax">$0.00</div>
+      <div class="kpi-sub" id="kpi-tax-pct">0% of revenue</div>
+    </div>
+  </div>
+  <div class="charts-row">
+    <div class="card"><div class="section-title">Daily Revenue by Location</div><div class="chart-wrap h280"><canvas id="chartDailyRev"></canvas></div></div>
+    <div class="card"><div class="section-title">Daily Order Count by Location</div><div class="chart-wrap h280"><canvas id="chartDailyOrders"></canvas></div></div>
+  </div>
+  <div class="charts-row">
+    <div class="card"><div class="section-title">Staff Revenue Performance</div><div class="chart-wrap h320"><canvas id="chartStaffBar"></canvas></div></div>
+    <div class="card"><div class="section-title">Revenue by Location</div><div class="chart-wrap h320"><canvas id="chartLocDonut"></canvas></div></div>
+  </div>
+  <div class="charts-row">
+    <div class="card"><div class="section-title">Product Revenue Mix</div><div class="chart-wrap h280"><canvas id="chartProducts"></canvas></div></div>
+    <div class="card"><div class="section-title">Top Sponsors</div><div class="chart-wrap h280"><canvas id="chartSponsors"></canvas></div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px"><div class="section-title">Staff Order Count</div><div class="chart-wrap h240"><canvas id="chartStaffOrders"></canvas></div></div>
+  <div class="lb-grid">
+    <div class="card"><div class="lb-title ms" style="margin-bottom:12px">Mississippi</div><div id="leaderboard-ms"></div></div>
+    <div class="card"><div class="lb-title fl" style="margin-bottom:12px">Florida</div><div id="leaderboard-fl"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px"><div class="section-title">Product Breakdown</div><div class="prod-grid" id="productGrid"></div></div>
+  <div class="card" style="margin-bottom:16px"><div class="section-title">Location Summary</div><div class="loc-stats" id="locStats"></div></div>
+  <div class="card">
+    <div class="section-title">Order Detail</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Order</th><th>Date</th><th>Employee</th><th>Location</th><th>Sponsor</th><th>Items</th><th>Subtotal</th><th>Tax</th><th>Total</th><th>Sync</th></tr></thead>
+        <tbody id="orderTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="footer">
+  <span>Source: orders_export_1.csv</span>
+  <span></span>
+  <span>0 active</span>
+  <span>Generated: 2026-03-30 08:07</span>
+</div>
+</div>
+<script>
+const ORDERS = [];
+const CHART_DAYS     = [];
+const CHART_MS       = [];
+const CHART_FL       = [];
+const CHART_MS_ORD   = [];
+const CHART_FL_ORD   = [];
+const EMP_NAMES      = [];
+const EMP_TOTALS     = [];
+const EMP_ORDERS     = [];
+const EMP_LOCS       = [];
+const PROD_NAMES     = [];
+const PROD_REV       = [];
+const PROD_QTY       = [];
+const LOC_NAMES      = [];
+const LOC_TOTALS     = [];
+const LOC_ORDERS     = [];
+const SPONSOR_DATA   = [];
+const P = {ms:'#00d4ff',fl:'#3fb950',amber:'#d29922',purple:'#bc8cff',red:'#f85149'};
+const BASE = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{
+    legend:{display:true,labels:{color:'#8b949e',font:{family:'Space Mono',size:10},boxWidth:12,padding:12}},
+    tooltip:{backgroundColor:'#1c2030',titleColor:'#e6edf3',bodyColor:'#8b949e',borderColor:'#2d3348',borderWidth:1,
+      callbacks:{label:ctx=>' $'+ctx.parsed.y?.toLocaleString('en-US',{minimumFractionDigits:2})}}
+  },
+  scales:{
+    x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#484f58',font:{family:'Space Mono',size:9}}},
+    y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#484f58',font:{family:'Space Mono',size:9},callback:v=>'$'+v.toLocaleString()},beginAtZero:true}
+  }
+};
+let cRev,cOrd,cStaff,cDonut,cProd,cSponsor,cStaffO;
+
+function initCharts() {
+  cRev = new Chart(document.getElementById('chartDailyRev'),{type:'bar',
+    data:{labels:CHART_DAYS,datasets:[
+      {label:'Mississippi',data:CHART_MS,backgroundColor:'rgba(0,212,255,0.7)',borderColor:P.ms,borderWidth:1,borderRadius:3},
+      {label:'Florida',    data:CHART_FL,backgroundColor:'rgba(63,185,80,0.7)', borderColor:P.fl,borderWidth:1,borderRadius:3}
+    ]},options:{...BASE,scales:{...BASE.scales,y:{...BASE.scales.y,stacked:true}}}});
+
+  cOrd = new Chart(document.getElementById('chartDailyOrders'),{type:'line',
+    data:{labels:CHART_DAYS,datasets:[
+      {label:'Mississippi',data:CHART_MS_ORD,borderColor:P.ms,backgroundColor:'rgba(0,212,255,0.08)',borderWidth:2,pointBackgroundColor:P.ms,pointRadius:4,fill:true,tension:0.3},
+      {label:'Florida',    data:CHART_FL_ORD,borderColor:P.fl,backgroundColor:'rgba(63,185,80,0.08)', borderWidth:2,pointBackgroundColor:P.fl,pointRadius:4,fill:true,tension:0.3}
+    ]},options:{...BASE,scales:{x:BASE.scales.x,y:{...BASE.scales.y,ticks:{...BASE.scales.y.ticks,callback:v=>v+' orders'}}}}});
+
+  cStaff = new Chart(document.getElementById('chartStaffBar'),{type:'bar',
+    data:{labels:EMP_NAMES,datasets:[{label:'Revenue',data:EMP_TOTALS,
+      backgroundColor:EMP_LOCS.map(l=>l.includes('Florida')?'rgba(63,185,80,0.75)':'rgba(0,212,255,0.75)'),
+      borderColor:EMP_LOCS.map(l=>l.includes('Florida')?P.fl:P.ms),borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{...BASE.plugins,legend:{display:false}},
+      scales:{x:{...BASE.scales.x,ticks:{...BASE.scales.x.ticks,callback:v=>'$'+v.toLocaleString()}},
+              y:{grid:{display:false},ticks:{color:'#e6edf3',font:{family:'Space Mono',size:10}}}}}});
+
+  cDonut = new Chart(document.getElementById('chartLocDonut'),{type:'doughnut',
+    data:{labels:LOC_NAMES,datasets:[{data:LOC_TOTALS,
+      backgroundColor:['rgba(0,212,255,0.8)','rgba(63,185,80,0.8)'],
+      borderColor:['#00d4ff','#3fb950'],borderWidth:2,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+      plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{family:'Space Mono',size:10},boxWidth:12,padding:16}},
+               tooltip:{...BASE.plugins.tooltip,callbacks:{label:ctx=>' $'+ctx.parsed.toLocaleString('en-US',{minimumFractionDigits:2})}}}}});
+
+  cProd = new Chart(document.getElementById('chartProducts'),{type:'bar',
+    data:{labels:PROD_NAMES,datasets:[{label:'Revenue',data:PROD_REV,
+      backgroundColor:'rgba(188,140,255,0.75)',borderColor:P.purple,borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{...BASE.plugins,legend:{display:false}},
+      scales:{x:{...BASE.scales.x,ticks:{...BASE.scales.x.ticks,callback:v=>'$'+v.toLocaleString()}},
+              y:{grid:{display:false},ticks:{color:'#8b949e',font:{family:'Space Mono',size:9}}}}}});
+
+  cSponsor = new Chart(document.getElementById('chartSponsors'),{type:'bar',
+    data:{labels:SPONSOR_DATA.map(s=>s.name),datasets:[{label:'Revenue',data:SPONSOR_DATA.map(s=>s.total),
+      backgroundColor:'rgba(210,153,34,0.75)',borderColor:P.amber,borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{...BASE.plugins,legend:{display:false}},
+      scales:{x:{...BASE.scales.x,ticks:{...BASE.scales.x.ticks,callback:v=>'$'+v.toLocaleString()}},
+              y:{grid:{display:false},ticks:{color:'#8b949e',font:{family:'Space Mono',size:10}}}}}});
+
+  cStaffO = new Chart(document.getElementById('chartStaffOrders'),{type:'bar',
+    data:{labels:EMP_NAMES,datasets:[{label:'Orders',data:EMP_ORDERS,
+      backgroundColor:EMP_LOCS.map(l=>l.includes('Florida')?'rgba(63,185,80,0.6)':'rgba(0,212,255,0.6)'),
+      borderColor:EMP_LOCS.map(l=>l.includes('Florida')?P.fl:P.ms),borderWidth:1,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{...BASE.plugins,legend:{display:false}},
+      scales:{x:{...BASE.scales.x,ticks:{...BASE.scales.x.ticks,callback:v=>v+' orders'},beginAtZero:true},
+              y:{grid:{display:false},ticks:{color:'#e6edf3',font:{family:'Space Mono',size:10}}}}}});
+}
+
+function computeFrom(list) {
+  const days = [...new Set(ORDERS.map(o=>o.date.slice(0,5)))].sort();
+  const bMs={},bFl={},bMsO={},bFlO={};
+  days.forEach(d=>{bMs[d]=0;bFl[d]=0;bMsO[d]=0;bFlO[d]=0;});
+  const eT={},eO={},eL={},pR={},pQ={},sT={},sO={},lT={},lO={};
+  list.forEach(o=>{
+    const d=o.date.slice(0,5), ms=o.location.includes('Mississippi');
+    if(ms){bMs[d]=(bMs[d]||0)+o.total;bMsO[d]=(bMsO[d]||0)+1;}
+    else  {bFl[d]=(bFl[d]||0)+o.total;bFlO[d]=(bFlO[d]||0)+1;}
+    eT[o.employee]=(eT[o.employee]||0)+o.total;
+    eO[o.employee]=(eO[o.employee]||0)+1;
+    eL[o.employee]=o.location;
+    if(o.items) o.items.split(', ').forEach(it=>{
+      const m=it.match(/^(.+?) x(\d+)$/);
+      if(m){const n=m[1],q=parseInt(m[2]),parts=o.items.split(', ').length||1;
+            pR[n]=(pR[n]||0)+q*(o.total/parts);pQ[n]=(pQ[n]||0)+q;}
+    });
+    sT[o.sponsor]=(sT[o.sponsor]||0)+o.total;sO[o.sponsor]=(sO[o.sponsor]||0)+1;
+    lT[o.location]=(lT[o.location]||0)+o.total;lO[o.location]=(lO[o.location]||0)+1;
+  });
+  const s=d=>Object.entries(d).sort((a,b)=>b[1]-a[1]);
+  const eS=s(eT),pS=s(pR),spS=s(sT).slice(0,8),lS=s(lT);
+  return{days,
+    msRev:days.map(d=>+(bMs[d]||0).toFixed(2)),flRev:days.map(d=>+(bFl[d]||0).toFixed(2)),
+    msOrd:days.map(d=>bMsO[d]||0),flOrd:days.map(d=>bFlO[d]||0),
+    eN:eS.map(e=>e[0]),eT:eS.map(e=>+e[1].toFixed(2)),eO:eS.map(e=>eO[e[0]]),eL:eS.map(e=>eL[e[0]]||''),
+    pN:pS.map(e=>e[0]),pR:pS.map(e=>+e[1].toFixed(2)),pQ:pS.map(e=>pQ[e[0]]||0),
+    spN:spS.map(e=>e[0]),spT:spS.map(e=>+e[1].toFixed(2)),
+    lN:lS.map(e=>e[0]),lT:lS.map(e=>+e[1].toFixed(2)),lO:lS.map(e=>lO[e[0]]||0)};
+}
+
+function applyFilters() {
+  const lF=aLocF, sF=aSyncF, eF=aEmpF;
+  const filtered = ORDERS.filter(o=>
+    (lF==='all'||o.location===lF)&&(sF==='all'||o.sync===sF)&&(eF==='all'||o.employee===eF));
+  const active = filtered.filter(o=>o.sync.toLowerCase()!=='refunded');
+
+  // KPI tiles + header badges
+  const rev = active.reduce((s,o)=>s+o.total,0);
+  const sub = active.reduce((s,o)=>s+o.subtotal,0);
+  const tax = active.reduce((s,o)=>s+o.taxes,0);
+  const avg = active.length ? rev/active.length : 0;
+  const nStaff = new Set(active.map(o=>o.employee)).size;
+  const nLocs  = new Set(active.map(o=>o.location)).size;
+  const tPct   = rev ? (tax/rev*100).toFixed(1) : '0.0';
+  const fmt    = n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  document.getElementById('hdr-orders').textContent = '\u{1F4E6} '+active.length+' Orders';
+  document.getElementById('hdr-rev').textContent    = '\u{1F4B5} $'+fmt(rev)+' Revenue';
+  document.getElementById('hdr-staff').textContent  = nStaff+' Staff';
+  document.getElementById('hdr-locs').textContent   = nLocs+' Location'+(nLocs!==1?'s':'');
+  document.getElementById('kpi-orders').textContent = active.length;
+  document.getElementById('kpi-rev').textContent    = '$'+fmt(rev);
+  document.getElementById('kpi-sub').textContent    = '$'+fmt(sub);
+  document.getElementById('kpi-avg').textContent    = '$'+fmt(avg);
+  document.getElementById('kpi-tax').textContent    = '$'+fmt(tax);
+  document.getElementById('kpi-tax-pct').textContent= tPct+'% of revenue';
+
+  // Charts
+  const d = computeFrom(active);
+  cRev.data.labels=d.days; cRev.data.datasets[0].data=d.msRev; cRev.data.datasets[1].data=d.flRev; cRev.update();
+  cOrd.data.labels=d.days; cOrd.data.datasets[0].data=d.msOrd; cOrd.data.datasets[1].data=d.flOrd; cOrd.update();
+  cStaff.data.labels=d.eN; cStaff.data.datasets[0].data=d.eT;
+  cStaff.data.datasets[0].backgroundColor=d.eL.map(l=>l.includes('Florida')?'rgba(63,185,80,0.75)':'rgba(0,212,255,0.75)');
+  cStaff.data.datasets[0].borderColor=d.eL.map(l=>l.includes('Florida')?P.fl:P.ms); cStaff.update();
+  cDonut.data.labels=d.lN; cDonut.data.datasets[0].data=d.lT; cDonut.update();
+  cProd.data.labels=d.pN;  cProd.data.datasets[0].data=d.pR;  cProd.update();
+  cSponsor.data.labels=d.spN; cSponsor.data.datasets[0].data=d.spT; cSponsor.update();
+  cStaffO.data.labels=d.eN; cStaffO.data.datasets[0].data=d.eO;
+  cStaffO.data.datasets[0].backgroundColor=d.eL.map(l=>l.includes('Florida')?'rgba(63,185,80,0.6)':'rgba(0,212,255,0.6)');
+  cStaffO.data.datasets[0].borderColor=d.eL.map(l=>l.includes('Florida')?P.fl:P.ms); cStaffO.update();
+
+  // Leaderboards
+  const ranks=['#1','#2','#3'],rc=['gold','silver','bronze'];
+  const msS=d.eN.map((n,i)=>({name:n,total:d.eT[i],orders:d.eO[i],loc:d.eL[i]})).filter(e=>e.loc.includes('Mississippi'));
+  const flS=d.eN.map((n,i)=>({name:n,total:d.eT[i],orders:d.eO[i],loc:d.eL[i]})).filter(e=>e.loc.includes('Florida'));
+  const mxMs=Math.max(...msS.map(e=>e.total),1), mxFl=Math.max(...flS.map(e=>e.total),1);
+  const lbRow=(e,i,isFl,mx)=>
+    '<div class="lb-item">'+
+    '<span class="lb-rank '+(i<3?rc[i]:'')+'">'+( i<3?ranks[i]:'#'+(i+1))+'</span>'+
+    '<span class="lb-name">'+e.name+'<br><span class="lb-loc">'+e.orders+' orders</span></span>'+
+    '<div class="lb-bar-wrap"><div class="lb-bar'+(isFl?' fl':'')+'" style="width:'+Math.round(e.total/mx*100)+'%"></div></div>'+
+    '<span class="lb-val'+(isFl?' fl':'')+'">$'+e.total.toLocaleString('en-US',{minimumFractionDigits:2})+'</span></div>';
+  document.getElementById('leaderboard-ms').innerHTML=msS.map((e,i)=>lbRow(e,i,false,mxMs)).join('');
+  document.getElementById('leaderboard-fl').innerHTML=flS.map((e,i)=>lbRow(e,i,true, mxFl)).join('');
+
+  // Product cards
+  document.getElementById('productGrid').innerHTML=d.pN.map((n,i)=>
+    '<div class="prod-card"><div class="prod-name">'+n+'</div>'+
+    '<div class="prod-rev">$'+d.pR[i].toLocaleString('en-US',{minimumFractionDigits:0})+'</div>'+
+    '<div class="prod-qty">Qty: '+d.pQ[i]+'</div></div>').join('');
+
+  // Location stats
+  document.getElementById('locStats').innerHTML=d.lN.map((n,i)=>{
+    const fl=n.includes('Florida');
+    return '<div class="stat-item">'+
+      '<div class="stat-label"><span class="loc-dot '+(fl?'loc-fl':'loc-ms')+'"></span>'+n+'</div>'+
+      '<div class="stat-val" style="color:'+(fl?'var(--fl-color)':'var(--ms-color)')+'">$'+d.lT[i].toLocaleString('en-US',{minimumFractionDigits:2})+'</div>'+
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;font-family:\'Space Mono\',monospace;">'+d.lO[i]+' orders</div></div>';
+  }).join('');
+
+  // Order table
+  const tbody=document.getElementById('orderTableBody');
+  tbody.innerHTML='';
+  filtered.forEach(o=>{
+    const fl=o.location.includes('Florida');
+    const sc={Yes:'sync-yes',Refunded:'sync-refunded',Pended:'sync-pended'}[o.sync]||'';
+    tbody.innerHTML+='<tr>'+
+      '<td class="mono" style="color:var(--accent);font-size:11px;">'+o.order+'</td>'+
+      '<td class="mono" style="font-size:11px;color:var(--text-dim);">'+o.date+'</td>'+
+      '<td style="font-size:12px;font-weight:600;">'+o.employee+'</td>'+
+      '<td><span class="loc-dot '+(fl?'loc-fl':'loc-ms')+'" style="display:inline-block;margin-right:5px;"></span><span style="font-size:11px;">'+(fl?'Florida':'Mississippi')+'</span></td>'+
+      '<td style="font-size:11px;color:var(--text-dim);">'+o.sponsor+'</td>'+
+      '<td style="font-size:11px;color:var(--text-dim);max-width:180px;">'+o.items+'</td>'+
+      '<td class="tbl-money" style="color:var(--text-dim);">$'+o.subtotal.toFixed(2)+'</td>'+
+      '<td class="tbl-money" style="color:var(--amber);">$'+o.taxes.toFixed(2)+'</td>'+
+      '<td class="tbl-money" style="color:var(--green);">$'+o.total.toFixed(2)+'</td>'+
+      '<td><span class="sync-badge '+sc+'">'+o.sync+'</span></td></tr>';
+  });
+}
+
+// Populate staff dropdowns
+const msSelect=document.getElementById('msStaffSelect');
+const flSelect=document.getElementById('flStaffSelect');
+EMP_NAMES.forEach((name,i)=>{
+  const opt=document.createElement('option');
+  opt.value=name; opt.textContent=name;
+  if(EMP_LOCS[i].includes('Mississippi')) msSelect.appendChild(opt);
+  else flSelect.appendChild(opt);
+});
+
+let aLocF='all', aSyncF='all', aEmpF='all';
+
+function filterStaff(){
+  const ms=msSelect.value, fl=flSelect.value;
+  if(ms==='all'&&fl==='all') aEmpF='all';
+  else if(ms!=='all'){aEmpF=ms; flSelect.value='all';}
+  else{aEmpF=fl; msSelect.value='all';}
+  applyFilters();
+}
+function filterLoc(val,btn){
+  aLocF=val;
+  document.querySelectorAll('#stickyBar .filter-btn').forEach(b=>{
+    if((b.getAttribute('onclick')||'').startsWith('filterLoc')) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  msSelect.value='all'; flSelect.value='all'; aEmpF='all';
+  applyFilters();
+}
+function filterSync(val,btn){
+  aSyncF=val;
+  document.querySelectorAll('#stickyBar .filter-btn').forEach(b=>{
+    if((b.getAttribute('onclick')||'').startsWith('filterSync')) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  applyFilters();
+}
+
+// Auth gate
+(function(){
+  var TK='pos_auth',PW='pos2026';
+  if(sessionStorage.getItem(TK)==='granted'){
+    document.getElementById('auth-gate').classList.add('hidden');
+    document.getElementById('page-content').classList.add('unlocked');
+  }
+  window.checkGate=function(){
+    var inp=document.getElementById('gate-pwd'),err=document.getElementById('gate-error');
+    if(inp.value===PW){
+      sessionStorage.setItem(TK,'granted');
+      document.getElementById('auth-gate').classList.add('hidden');
+      document.getElementById('page-content').classList.add('unlocked');
+    } else {
+      inp.classList.add('shake');err.textContent='Invalid access code';
+      setTimeout(function(){inp.classList.remove('shake');},400);
+      inp.value='';inp.focus();
+    }
+    return false;
+  };
+})();
+
+initCharts();
+applyFilters();
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Architecture - Unicity Shopify Plus</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #8b949e;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--purple);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #c9d1d9;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #c9d1d9;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        /* Diagram Container */
+        .diagram {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .architecture-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .org-level, .store-level, .location-level {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            background-color: var(--surface2);
+        }
+
+        .org-level {
+            background: linear-gradient(135deg, rgba(58, 166, 255, 0.1) 0%, rgba(58, 166, 255, 0.05) 100%);
+            border-color: var(--accent);
+        }
+
+        .store-level {
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.1) 0%, rgba(63, 185, 80, 0.05) 100%);
+            border-color: var(--green);
+        }
+
+        .location-level {
+            background: linear-gradient(135deg, rgba(57, 210, 192, 0.1) 0%, rgba(57, 210, 192, 0.05) 100%);
+            border-color: var(--cyan);
+        }
+
+        .org-level h4 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        .store-level h4 {
+            color: var(--green);
+            margin-top: 0;
+        }
+
+        .location-level h4 {
+            color: var(--cyan);
+            margin-top: 0;
+        }
+
+        .stores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .store-card {
+            background-color: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+        }
+
+        .store-card h4 {
+            color: var(--green);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .locations-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .locations-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .locations-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--cyan);
+        }
+
+        /* Model Options Cards */
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .model-card {
+            background-color: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+
+        .model-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .model-card.recommended {
+            border-color: var(--green);
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.1) 0%, rgba(63, 185, 80, 0.02) 100%);
+        }
+
+        .model-card h4 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recommendation-badge {
+            background-color: var(--green);
+            color: var(--bg);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .pros, .cons {
+            margin-bottom: 1rem;
+        }
+
+        .pros {
+            border-left: 3px solid var(--green);
+            padding-left: 1rem;
+        }
+
+        .cons {
+            border-left: 3px solid var(--red);
+            padding-left: 1rem;
+        }
+
+        .pros-title, .cons-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .pros-title {
+            color: var(--green);
+        }
+
+        .cons-title {
+            color: var(--red);
+        }
+
+        .pros ul, .cons ul {
+            margin: 0;
+            margin-left: 1rem;
+        }
+
+        .pros li {
+            color: #90ee90;
+            font-size: 0.95rem;
+        }
+
+        .cons li {
+            color: #ff9999;
+            font-size: 0.95rem;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background-color: var(--surface2);
+            color: var(--accent);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: #c9d1d9;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .check {
+            color: var(--green);
+        }
+
+        .cross {
+            color: var(--red);
+        }
+
+        /* Location Types */
+        .location-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .location-type {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--cyan);
+        }
+
+        .location-type h4 {
+            margin-top: 0;
+            color: var(--cyan);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .location-type p {
+            font-size: 0.95rem;
+            color: #8b949e;
+            margin-bottom: 0;
+        }
+
+        /* Code/Technical blocks */
+        .code-block {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: #c9d1d9;
+        }
+
+        .example {
+            background-color: var(--surface);
+            border-left: 4px solid var(--purple);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .example strong {
+            color: var(--purple);
+        }
+
+        /* Checklist */
+        .checklist {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background-color: var(--surface2);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .checklist-item:hover {
+            background-color: rgba(88, 166, 255, 0.1);
+        }
+
+        .checklist-item input {
+            margin-top: 0.25rem;
+            cursor: pointer;
+            accent-color: var(--green);
+            width: 20px;
+            height: 20px;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+            color: #c9d1d9;
+        }
+
+        .checklist-item input:checked + label {
+            color: var(--green);
+            text-decoration: line-through;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .models-grid, .location-types-grid, .stores-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+
+            .comparison-table th, .comparison-table td {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Utility classes */
+        .number-badge {
+            background-color: var(--accent);
+            color: var(--bg);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .highlight {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        strong {
+            color: var(--accent);
+        }
+
+        em {
+            color: var(--yellow);
+            font-style: normal;
+        }
+
+        .section-number {
+            display: inline-block;
+            background-color: var(--accent);
+            color: var(--bg);
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <header>
+            <h1>Inventory Architecture</h1>
+            <p class="subtitle">Multi-store, multi-location inventory management across US, EU, and Japan on Shopify Plus.</p>
+        </header>
+
+        <!-- 1. Inventory Architecture Overview -->
+        <section class="section">
+            <h2><span class="section-number">1</span>Inventory Architecture Overview</h2>
+            <p>Unicity operates a complex multi-store, multi-location inventory system across three major markets. Understanding the hierarchy and relationships between organizations, stores, and locations is essential for effective inventory management.</p>
+
+            <div class="diagram">
+                <div class="architecture-diagram">
+                    <div class="org-level">
+                        <h4>Organization Level (Shared)</h4>
+                        <p><strong>Master Product Catalog</strong> — All SKUs, variants, and product data managed centrally for organization-wide visibility</p>
+                    </div>
+
+                    <div style="text-align: center; color: var(--accent); font-size: 1.5rem;">↓</div>
+
+                    <div class="store-level">
+                        <h4>Store Level</h4>
+                        <div class="stores-grid">
+                            <div style="padding: 0.5rem;">
+                                <strong>US Store</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">3 Locations</p>
+                            </div>
+                            <div style="padding: 0.5rem;">
+                                <strong>EU Store</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">2 Locations</p>
+                            </div>
+                            <div style="padding: 0.5rem;">
+                                <strong>Japan Store</strong>
+                                <p style="font-size: 0.9rem; margin-top: 0.5rem;">1 Location</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; color: var(--accent); font-size: 1.5rem;">↓</div>
+
+                    <div class="location-level">
+                        <h4>Location Level (Independent Inventory)</h4>
+                        <div class="stores-grid">
+                            <div>
+                                <strong style="color: var(--cyan);">US Locations</strong>
+                                <ul class="locations-list">
+                                    <li>US Warehouse</li>
+                                    <li>MS POS</li>
+                                    <li>FL POS</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong style="color: var(--cyan);">EU Locations</strong>
+                                <ul class="locations-list">
+                                    <li>EU Warehouse</li>
+                                    <li>UK Fulfillment</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong style="color: var(--cyan);">Japan Locations</strong>
+                                <ul class="locations-list">
+                                    <li>Japan Warehouse</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p><em>Key Principle:</em> The organization level maintains the single source of truth for products, while each store operates independently for inventory tracking and order fulfillment.</p>
+        </section>
+
+        <!-- 2. Inventory Model Options -->
+        <section class="section">
+            <h2><span class="section-number">2</span>Inventory Model Options</h2>
+            <p>Shopify Plus supports multiple inventory management approaches. The right model depends on your product catalog strategy, regional customization needs, and operational complexity.</p>
+
+            <div class="models-grid">
+                <div class="model-card recommended">
+                    <h4>
+                        Shared Catalog, Separate Inventory
+                        <span class="recommendation-badge">Recommended</span>
+                    </h4>
+                    <p style="color: #8b949e; font-size: 0.95rem; margin-bottom: 1rem;"><strong style="color: var(--cyan);">Best for:</strong> Unicity's core product strategy</p>
+
+                    <div class="pros">
+                        <div class="pros-title">✓ Pros</div>
+                        <ul>
+                            <li>Single product management across all stores</li>
+                            <li>Regional inventory control independent</li>
+                            <li>Scalable to new markets</li>
+                            <li>Lower maintenance overhead</li>
+                        </ul>
+                    </div>
+
+                    <div class="cons">
+                        <div class="cons-title">✗ Cons</div>
+                        <ul>
+                            <li>Requires stock allocation strategy</li>
+                            <li>Need cross-store replenishment workflow</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <h4>Separate Catalogs Per Store</h4>
+                    <p style="color: #8b949e; font-size: 0.95rem; margin-bottom: 1rem;"><strong style="color: var(--cyan);">Best for:</strong> Highly regional product offerings</p>
+
+                    <div class="pros">
+                        <div class="pros-title">✓ Pros</div>
+                        <ul>
+                            <li>Full regional isolation</li>
+                            <li>Unique product catalogs per market</li>
+                            <li>No shared dependencies</li>
+                        </ul>
+                    </div>
+
+                    <div class="cons">
+                        <div class="cons-title">✗ Cons</div>
+                        <ul>
+                            <li>Triple the product management work</li>
+                            <li>Difficult to maintain consistency</li>
+                            <li>Complex integration with ERP</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <h4>Hybrid Approach</h4>
+                    <p style="color: #8b949e; font-size: 0.95rem; margin-bottom: 1rem;"><strong style="color: var(--cyan);">Best for:</strong> Unicity's global product mix</p>
+
+                    <div class="pros">
+                        <div class="pros-title">✓ Pros</div>
+                        <ul>
+                            <li>Core products shared globally</li>
+                            <li>Market-specific variants allowed</li>
+                            <li>Balanced flexibility and simplicity</li>
+                        </ul>
+                    </div>
+
+                    <div class="cons">
+                        <div class="cons-title">✗ Cons</div>
+                        <ul>
+                            <li>Requires clear catalog segmentation</li>
+                            <li>Moderate integration complexity</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Unicity Implementation Strategy</h3>
+            <p>Unicity should adopt a <strong>Shared Catalog with Hybrid Inventory</strong> model:</p>
+            <ul>
+                <li><strong>Core Products (All Stores):</strong> Feel Great system, nutritional supplements, common wellness products</li>
+                <li><strong>Market-Specific Products:</strong> Matcha products (Japan only), regional flavors, localized packaging</li>
+                <li><strong>Inventory Management:</strong> Each store/location tracks independent stock levels</li>
+                <li><strong>Fulfillment:</strong> Orders fulfilled from nearest warehouse to customer location</li>
+            </ul>
+        </section>
+
+        <!-- 3. Location Types -->
+        <section class="section">
+            <h2><span class="section-number">3</span>Location Types</h2>
+            <p>Shopify's location system supports multiple fulfillment and inventory models. Each location type has distinct characteristics and operational requirements.</p>
+
+            <div class="location-types-grid">
+                <div class="location-type">
+                    <h4>Warehouse</h4>
+                    <p>Primary fulfillment center. Ships online orders. Full inventory tracking. Example: US Warehouse, EU Warehouse, Japan Warehouse.</p>
+                </div>
+
+                <div class="location-type">
+                    <h4>POS Location</h4>
+                    <p>Retail or distributor point of sale. Limited inventory allocation. Can receive transfers and stock. Example: MS POS, FL POS.</p>
+                </div>
+
+                <div class="location-type">
+                    <h4>3PL (Third-Party Logistics)</h4>
+                    <p>External fulfillment partner. Managed via fulfillment service integration. Inventory tracked but not directly controlled.</p>
+                </div>
+
+                <div class="location-type">
+                    <h4>Drop Ship</h4>
+                    <p>Vendor ships directly to customer. No Unicity inventory held. Tracked for visibility but fulfillment external.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Inventory Tracking -->
+        <section class="section">
+            <h2><span class="section-number">4</span>Inventory Tracking</h2>
+
+            <h3>SKU Management</h3>
+            <p>Establish a consistent SKU naming convention across all stores for easy identification and cross-location tracking.</p>
+            <div class="code-block">
+UC-[REGION]-[CATEGORY]-[NUMBER]
+
+Examples:
+UC-US-FG-001  (US Feel Great #1)
+UC-EU-FG-001  (EU Feel Great #1)
+UC-JP-MT-001  (Japan Matcha #1)
+            </div>
+
+            <h3>Barcode & UPC Assignment</h3>
+            <p>Assign unique UPC codes to each variant for POS scanning and accurate inventory deduction at retail locations.</p>
+
+            <h3>Inventory Quantities</h3>
+            <p>Shopify tracks inventory across four dimensions per location:</p>
+            <ul>
+                <li><strong>Available:</strong> Stock ready to fulfill orders</li>
+                <li><strong>Committed:</strong> Stock allocated to unpaid/processing orders</li>
+                <li><strong>Incoming:</strong> Stock in transit from supplier/warehouse</li>
+                <li><strong>Damaged:</strong> Defective inventory removed from availability</li>
+            </ul>
+
+            <h3>Safety Stock & Reorder Points</h3>
+            <p>Set minimum inventory levels per location to trigger automatic reorder alerts and prevent stockouts.</p>
+            <div class="example">
+                <strong>Example:</strong> US Warehouse maintains 500 units of Feel Great System as safety stock. When inventory drops below 500, Shopify Flow triggers an alert to initiate purchase order.
+            </div>
+
+            <h3>Inventory Adjustments</h3>
+            <p>Manually adjust inventory with documented reason codes to track shrinkage, corrections, and variances:</p>
+            <ul>
+                <li>Damage/Loss</li>
+                <li>Found/Recovery</li>
+                <li>Count Correction</li>
+                <li>Inventory Write-Off</li>
+                <li>Audit Adjustment</li>
+            </ul>
+        </section>
+
+        <!-- 5. Stock Transfers -->
+        <section class="section">
+            <h2><span class="section-number">5</span>Stock Transfers</h2>
+
+            <h3>Intra-Store Transfers</h3>
+            <p>Move inventory between locations within the same store (e.g., warehouse to POS, warehouse to warehouse within US).</p>
+            <ul>
+                <li><strong>Process:</strong> Create transfer → Pick items → Ship → Receive at destination</li>
+                <li><strong>Tracking:</strong> In-transit inventory tracked separately</li>
+                <li><strong>Timeline:</strong> Typically 1-7 days depending on distance</li>
+            </ul>
+
+            <h3>Cross-Store Replenishment</h3>
+            <p><span class="highlight">Important:</span> Shopify does NOT support direct transfers between stores. Expansion stores (US, EU, Japan) are independent from an inventory perspective.</p>
+            <p>To replenish across stores, use the purchase order workflow:</p>
+            <ol>
+                <li>Create PO in EU for shipment from US warehouse</li>
+                <li>Receive goods as incoming inventory at EU warehouse</li>
+                <li>Update ERP to reflect inter-company inventory movement</li>
+            </ol>
+
+            <h3>Transfer Order Management</h3>
+            <p>Use Shopify's transfer order interface to:</p>
+            <ul>
+                <li>View all active and completed transfers</li>
+                <li>Track items in-transit with expected arrival dates</li>
+                <li>Receive partial shipments incrementally</li>
+                <li>Cancel transfers if needed</li>
+            </ul>
+        </section>
+
+        <!-- 6. Inventory Sync with ERP -->
+        <section class="section">
+            <h2><span class="section-number">6</span>Inventory Sync with ERP</h2>
+
+            <h3>Event-Driven Sync</h3>
+            <p><strong>Webhook:</strong> <code>inventory_levels/update</code> fires on every stock change, enabling real-time inventory updates to ERP system.</p>
+
+            <h3>API-Based Updates</h3>
+            <p><strong>Inventory Level Set (POST):</strong> Update Shopify inventory from ERP to sync replenishment quantities and correct discrepancies.</p>
+            <div class="code-block">
+POST /inventory_levels/set.json
+{
+  "inventory_level": {
+    "inventory_item_id": "....",
+    "location_id": "....",
+    "quantities": [{
+      "name": "available",
+      "quantity": 250
+    }]
+  }
+}
+            </div>
+
+            <h3>Scheduled Batch Sync</h3>
+            <p><strong>Bulk Operations API:</strong> Daily reconciliation job to sync large inventory updates efficiently.</p>
+            <ul>
+                <li>Reduces API calls and improves performance</li>
+                <li>Ideal for bulk replenishment and transfers</li>
+                <li>Scheduled during off-peak hours</li>
+            </ul>
+
+            <h3>Source of Truth Definition</h3>
+            <div class="code-block">
+ERP = Source of Truth for Replenishment
+Shopify = Source of Truth for Sales Deductions
+
+Example:
+- ERP initiates: "Send 100 units to EU warehouse"
+  → Shopify updated via API
+- Customer places order: "5 units sold"
+  → Shopify deducts automatically
+  → Webhook fires to ERP
+            </div>
+
+            <h3>Real-Time vs. Batch Sync</h3>
+            <ul>
+                <li><strong>Real-Time:</strong> Sales order inventory deductions (immediate webhook)</li>
+                <li><strong>Batch:</strong> Replenishment orders, inventory adjustments (daily sync job)</li>
+            </ul>
+        </section>
+
+        <!-- 7. Reorder & Replenishment -->
+        <section class="section">
+            <h2><span class="section-number">7</span>Reorder & Replenishment</h2>
+
+            <h3>Reorder Point Configuration</h3>
+            <p>Define minimum inventory levels per SKU per location. When inventory falls below this threshold, triggering mechanism activates.</p>
+            <ul>
+                <li><strong>High-Volume SKUs:</strong> Higher safety stock (e.g., 500 units)</li>
+                <li><strong>Seasonal Products:</strong> Increased before promotional periods</li>
+                <li><strong>Slow-Moving SKUs:</strong> Lower safety stock (e.g., 50 units)</li>
+            </ul>
+
+            <h3>Automated Alert System</h3>
+            <p><strong>Shopify Flow:</strong> Create workflows to automatically alert when inventory thresholds are breached.</p>
+            <div class="example">
+                <strong>Example Workflow:</strong> IF (Product X inventory < 100 units at US Warehouse) THEN (Send Slack notification to Supply Chain team)
+            </div>
+
+            <h3>Purchase Order Generation</h3>
+            <p>Create POs manually or integrate with ERP for automated generation:</p>
+            <ol>
+                <li>Flow trigger detects low stock</li>
+                <li>PO automatically generated in ERP</li>
+                <li>PO transmitted to supplier</li>
+                <li>Expected receipt date set in Shopify</li>
+            </ol>
+
+            <h3>Incoming Inventory Management</h3>
+            <p>Track inventory in-transit using transfer orders and purchase receipts:</p>
+            <ul>
+                <li>Set expected arrival date</li>
+                <li>Forecast availability based on incoming stock</li>
+                <li>Prepare warehouse for receiving</li>
+                <li>Verify and receive goods upon arrival</li>
+            </ul>
+
+            <h3>Seasonal Adjustments</h3>
+            <p>Adjust safety stock levels seasonally to accommodate demand spikes:</p>
+            <div class="example">
+                <strong>Example:</strong> Before summer health season, increase Feel Great System safety stock from 500 to 1000 units at all warehouses. Post-season, revert to normal levels.
+            </div>
+        </section>
+
+        <!-- 8. Inventory Reporting -->
+        <section class="section">
+            <h2><span class="section-number">8</span>Inventory Reporting</h2>
+
+            <h3>Available Reports in Shopify Admin</h3>
+            <p>Navigate to <strong>Analytics > Reports > Inventory</strong> for the following insights:</p>
+            <ul>
+                <li><strong>Inventory Valuation:</strong> Total value using FIFO, weighted average, or LIFO methods</li>
+                <li><strong>Stock by Location:</strong> Inventory quantities per warehouse/POS location</li>
+                <li><strong>Days of Supply:</strong> Calculate weeks of inventory on hand</li>
+                <li><strong>Slow-Moving Inventory:</strong> Products with minimal recent sales</li>
+                <li><strong>Shrinkage Tracking:</strong> Expected vs. actual inventory variances</li>
+            </ul>
+
+            <h3>Key Metrics to Monitor</h3>
+            <ul>
+                <li><strong>Inventory Turnover Ratio:</strong> How many times inventory is sold and replaced per period</li>
+                <li><strong>Carry Cost %:</strong> Cost of holding inventory relative to sales</li>
+                <li><strong>Stockout Rate:</strong> % of orders that cannot be fulfilled due to lack of stock</li>
+                <li><strong>Forecast Accuracy:</strong> Comparison of predicted vs. actual demand</li>
+            </ul>
+
+            <h3>Custom Reporting via API</h3>
+            <p>For advanced analytics, export inventory data via GraphQL API for analysis in business intelligence tools (Tableau, Looker, etc.)</p>
+        </section>
+
+        <!-- 9. POS Inventory Considerations -->
+        <section class="section">
+            <h2><span class="section-number">9</span>POS Inventory Considerations</h2>
+
+            <h3>POS Location Inventory Model</h3>
+            <ul>
+                <li>Each POS location receives allocated inventory from parent warehouse</li>
+                <li>Real-time inventory sync between POS system and online store</li>
+                <li>Prevents overselling across channels</li>
+            </ul>
+
+            <h3>Buy Online, Pick Up In Store (BOPIS)</h3>
+            <p>Enable customers to purchase online and pick up at nearby POS location:</p>
+            <ul>
+                <li>Requires shared inventory visibility across POS and online</li>
+                <li>Shopify handles inventory reservation automatically</li>
+                <li>POS system receives pickup notification</li>
+                <li>Reduces shipping costs for customers</li>
+            </ul>
+
+            <h3>Distributor POS Management</h3>
+            <p>For distributor locations (MS POS, FL POS):</p>
+            <ul>
+                <li>Typically hold smaller inventory quantities</li>
+                <li>Frequent replenishment from warehouse (weekly/bi-weekly)</li>
+                <li>Limited local carrying capacity</li>
+                <li>Higher inventory turnover rate</li>
+            </ul>
+
+            <h3>Cycle Counting Schedule</h3>
+            <p>Implement regular physical inventory counts at POS locations to verify system accuracy:</p>
+            <ul>
+                <li><strong>Frequency:</strong> Monthly for distributor POS, quarterly for major warehouses</li>
+                <li><strong>Process:</strong> Count sample SKUs, verify quantities in Shopify, adjust discrepancies</li>
+                <li><strong>Variance Investigation:</strong> Investigate counts exceeding 5% variance</li>
+            </ul>
+
+            <h3>POS System Integration</h3>
+            <p>Ensure POS system is integrated with Shopify for real-time inventory sync:</p>
+            <ul>
+                <li>POS sales immediately deduct from Shopify inventory</li>
+                <li>Stock transfers from warehouse reflected in POS system</li>
+                <li>Manual adjustments synced to Shopify within 15 minutes</li>
+            </ul>
+        </section>
+
+        <!-- 10. Setup Checklist -->
+        <section class="section">
+            <h2><span class="section-number">10</span>Setup Checklist</h2>
+            <p>Use this interactive checklist to track implementation of inventory architecture components. Check off items as you complete each step.</p>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="check1">
+                    <label for="check1">Define location hierarchy (warehouses, POS locations, 3PL partners)</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2">
+                    <label for="check2">Create all locations in Shopify Admin (US, EU, Japan stores)</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3">
+                    <label for="check3">Assign fulfillment priority per location (primary, secondary, fallback)</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4">
+                    <label for="check4">Set up SKU naming convention (UC-[REGION]-[CATEGORY]-[NUMBER])</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5">
+                    <label for="check5">Assign unique UPC/barcode codes to all product variants</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6">
+                    <label for="check6">Import initial inventory quantities per location into Shopify</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7">
+                    <label for="check7">Configure safety stock levels per SKU per location</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check8">
+                    <label for="check8">Set up inventory sync webhook with ERP (inventory_levels/update)</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check9">
+                    <label for="check9">Create Shopify Flow alerts for inventory below threshold</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check10">
+                    <label for="check10">Configure POS system integration for real-time sync</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check11">
+                    <label for="check11">Document transfer procedures and approval workflows</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check12">
+                    <label for="check12">Establish cycle count schedule for all POS locations</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check13">
+                    <label for="check13">Test inventory deduction on test orders across all channels</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check14">
+                    <label for="check14">Set up custom inventory reports in Analytics dashboard</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="check15">
+                    <label for="check15">Document reorder points and replenishment thresholds</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section class="section">
+            <h2>Model Comparison & Tradeoffs</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Shared Catalog</th>
+                        <th>Separate Catalogs</th>
+                        <th>Hybrid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Product Management</strong></td>
+                        <td><span class="check">✓</span> Single source</td>
+                        <td><span class="cross">✗</span> Triple work</td>
+                        <td><span class="check">✓</span> Mixed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Inventory Control</strong></td>
+                        <td><span class="check">✓</span> Per-location</td>
+                        <td><span class="check">✓</span> Per-store</td>
+                        <td><span class="check">✓</span> Per-location</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Regional Customization</strong></td>
+                        <td><span class="cross">✗</span> Limited</td>
+                        <td><span class="check">✓</span> Full</td>
+                        <td><span class="check">✓</span> Flexible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td><span class="check">✓</span> Easy</td>
+                        <td><span class="cross">✗</span> Complex</td>
+                        <td><span class="check">✓</span> Moderate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ERP Integration</strong></td>
+                        <td><span class="check">✓</span> Simple</td>
+                        <td><span class="cross">✗</span> Complex</td>
+                        <td><span class="check">✓</span> Moderate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cross-Store Visibility</strong></td>
+                        <td><span class="check">✓</span> Full</td>
+                        <td><span class="cross">✗</span> Isolated</td>
+                        <td><span class="check">✓</span> Partial</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cost (Maintenance)</strong></td>
+                        <td><span class="check">✓</span> Low</td>
+                        <td><span class="cross">✗</span> High</td>
+                        <td><span class="check">✓</span> Moderate</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Footer -->
+        <footer style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); color: #8b949e; font-size: 0.9rem;">
+            <p>For additional information on Shopify Plus inventory management, visit the <a href="#" style="color: var(--accent); text-decoration: none;">Shopify Help Center</a>.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Persist checklist state to localStorage
+        document.querySelectorAll('.checklist-item input').forEach((checkbox, index) => {
+            const key = `inventory-checklist-${index}`;
+
+            // Load saved state
+            if (localStorage.getItem(key) === 'true') {
+                checkbox.checked = true;
+            }
+
+            // Save state on change
+            checkbox.addEventListener('change', () => {
+                localStorage.setItem(key, checkbox.checked);
+            });
+        });
+    </script>
+</body>
+</html>

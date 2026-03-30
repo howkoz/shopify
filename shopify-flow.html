@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Flow Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+            --blue: #58a6ff;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+        }
+
+        .card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+        }
+
+        .card p {
+            font-size: 0.95rem;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .flow-trigger {
+            background-color: rgba(88, 166, 255, 0.15);
+            border: 2px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .flow-condition {
+            background-color: rgba(210, 153, 34, 0.15);
+            border: 2px solid var(--yellow);
+            color: var(--yellow);
+        }
+
+        .flow-action {
+            background-color: rgba(63, 185, 80, 0.15);
+            border: 2px solid var(--green);
+            color: var(--green);
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--border);
+        }
+
+        .workflow-card {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+        }
+
+        .workflow-card h3 {
+            margin-bottom: 1rem;
+        }
+
+        .workflow-description {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .trigger-badge, .condition-badge, .action-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .trigger-badge {
+            background-color: rgba(88, 166, 255, 0.2);
+            color: var(--blue);
+        }
+
+        .condition-badge {
+            background-color: rgba(210, 153, 34, 0.2);
+            color: var(--yellow);
+        }
+
+        .action-badge {
+            background-color: rgba(63, 185, 80, 0.2);
+            color: var(--green);
+        }
+
+        .list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .list-item {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.25rem;
+        }
+
+        .list-item h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .list-item p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .category-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--yellow);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .connector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .connector {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .connector:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.1);
+        }
+
+        .connector-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .connector-name {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .best-practices {
+            background-color: var(--surface);
+            border-left: 4px solid var(--green);
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .best-practices ol {
+            margin-left: 1.5rem;
+            color: var(--text);
+        }
+
+        .best-practices li {
+            margin-bottom: 0.75rem;
+        }
+
+        .setup-steps {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .setup-steps ol {
+            margin-left: 1.5rem;
+        }
+
+        .setup-steps li {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .code-block {
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .flow-diagram {
+                gap: 0.5rem;
+            }
+
+            .flow-box {
+                min-width: 90px;
+                font-size: 0.8rem;
+                padding: 0.75rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <header>
+            <h1>Shopify Flow Automation</h1>
+            <p class="subtitle">No-code workflow automation for order routing, fraud detection, inventory management, and multi-market operations.</p>
+        </header>
+
+        <!-- Section 1: What Is Shopify Flow -->
+        <section>
+            <h2>What Is Shopify Flow</h2>
+            <p>Shopify Flow is a <span class="highlight">Shopify Plus-exclusive</span> no-code automation platform that enables you to create powerful workflows without writing a single line of code. It replaces manual, repetitive tasks with intelligent, server-side automation.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>Core Concept</h4>
+                    <p>Flow uses a simple Trigger → Condition → Action model. When an event happens (trigger), Flow evaluates whether conditions are met, then automatically executes the specified action(s).</p>
+                </div>
+                <div class="card">
+                    <h4>Runs Server-Side</h4>
+                    <p>Workflows execute on Shopify's servers, not on your device. This ensures flows run reliably, 24/7, even when your store is offline.</p>
+                </div>
+                <div class="card">
+                    <h4>Third-Party Integrations</h4>
+                    <p>Connect with Slack, Google Sheets, Klaviyo, ShipStation, Recharge, LoyaltyLion, Gorgias, Zendesk, Zapier, and Asana for extended functionality.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: How Flow Works -->
+        <section>
+            <h2>How Flow Works</h2>
+            <p>Every workflow follows a three-step model:</p>
+
+            <div class="flow-diagram" style="justify-content: center; margin: 3rem 0;">
+                <div class="flow-box flow-trigger">Event<br>Happens</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box flow-condition">Condition<br>Evaluated</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box flow-action">Action<br>Executed</div>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>Trigger (Event)</h4>
+                    <p>A trigger is an event that starts the workflow. Examples: a new order is created, customer info changes, inventory level drops, or a refund is processed.</p>
+                </div>
+                <div class="card">
+                    <h4>Condition (Logic)</h4>
+                    <p>Conditions are if/then rules that determine whether to proceed. Example: "If order risk level is HIGH, then continue." Multiple conditions can be combined with AND/OR logic.</p>
+                </div>
+                <div class="card">
+                    <h4>Action (Execution)</h4>
+                    <p>Actions are the tasks Flow performs when conditions are met. Examples: add tags, send notifications, update inventory, or send data to external systems.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Available Triggers -->
+        <section>
+            <h2>Available Triggers</h2>
+            <p>Triggers are events that initiate a workflow. Organize them by category:</p>
+
+            <h3 style="margin-top: 2rem;">Orders</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Order Created</h4>
+                    <p>Fires when a new order is placed in your store.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Order Fulfilled</h4>
+                    <p>Fires when an order is fully fulfilled and shipped.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Order Cancelled</h4>
+                    <p>Fires when an order is cancelled by the customer or merchant.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Order Payment Status Changed</h4>
+                    <p>Fires when payment is authorized, captured, or fails.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Refund Created</h4>
+                    <p>Fires when a refund is initiated for an order.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Draft Order Created</h4>
+                    <p>Fires when a new draft order is created by a merchant.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Customers</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Customers</div>
+                    <h4>Customer Created</h4>
+                    <p>Fires when a new customer account is created in your store.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Customers</div>
+                    <h4>Customer Updated</h4>
+                    <p>Fires when customer profile information is modified.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Customers</div>
+                    <h4>Customer Deleted</h4>
+                    <p>Fires when a customer account is deleted.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Customers</div>
+                    <h4>Customer Account Enabled</h4>
+                    <p>Fires when a deactivated customer account is re-enabled.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Products & Inventory</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Products</div>
+                    <h4>Product Created</h4>
+                    <p>Fires when a new product is added to your catalog.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Products</div>
+                    <h4>Product Updated</h4>
+                    <p>Fires when product details are modified.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Products</div>
+                    <h4>Collection Changed</h4>
+                    <p>Fires when a product collection is updated.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Products</div>
+                    <h4>Inventory Quantity Changed</h4>
+                    <p>Fires when stock levels are updated for any SKU.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Fulfillment & Other</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Fulfillment</div>
+                    <h4>Fulfillment Created</h4>
+                    <p>Fires when a fulfillment is created for an order.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Fulfillment</div>
+                    <h4>Fulfillment Event Created</h4>
+                    <p>Fires when a fulfillment event occurs (shipped, delivered, etc).</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Fulfillment</div>
+                    <h4>Shipping Label Created</h4>
+                    <p>Fires when a shipping label is generated.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Other</div>
+                    <h4>Company Created (B2B)</h4>
+                    <p>Fires when a new B2B company account is created.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Other</div>
+                    <h4>Subscription Contract Created</h4>
+                    <p>Fires when a new subscription is created.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Other</div>
+                    <h4>App Uninstalled</h4>
+                    <p>Fires when an app is uninstalled from your store.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Available Actions -->
+        <section>
+            <h2>Available Actions</h2>
+            <p>Actions are the tasks Flow performs when a trigger fires and conditions are met.</p>
+
+            <h3 style="margin-top: 2rem;">Tags</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Tags</div>
+                    <h4>Add/Remove Order Tags</h4>
+                    <p>Organize and categorize orders with tags for easy filtering and management.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Tags</div>
+                    <h4>Add/Remove Customer Tags</h4>
+                    <p>Tag customers for segmentation, VIP status, or campaign targeting.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Tags</div>
+                    <h4>Add/Remove Product Tags</h4>
+                    <p>Tag products for inventory tracking, promotion, or organization.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Communication</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Communication</div>
+                    <h4>Send Email</h4>
+                    <p>Send automated emails to customers, staff, or external contacts.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Communication</div>
+                    <h4>Send Slack Message</h4>
+                    <p>Post notifications to Slack channels for real-time team alerts.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Communication</div>
+                    <h4>Send HTTP Webhook</h4>
+                    <p>Send data to external systems via HTTP POST requests.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Communication</div>
+                    <h4>Create Note</h4>
+                    <p>Add internal notes to orders or customers for staff reference.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Orders & Inventory</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Cancel Order</h4>
+                    <p>Automatically cancel an order based on specified conditions.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Capture Payment</h4>
+                    <p>Capture authorized payments automatically.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Archive Order</h4>
+                    <p>Archive completed orders to keep your list organized.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Orders</div>
+                    <h4>Create Draft Order</h4>
+                    <p>Automatically generate draft orders for manual review.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Inventory</div>
+                    <h4>Update Inventory Quantity</h4>
+                    <p>Automatically adjust stock levels based on events.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Inventory</div>
+                    <h4>Reserve Inventory</h4>
+                    <p>Reserve stock for specific orders or customers.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Customers & Products</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">Customers</div>
+                    <h4>Update Customer Metafield</h4>
+                    <p>Update custom customer fields with dynamic data.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Customers</div>
+                    <h4>Add Customer to Segment</h4>
+                    <p>Automatically add customers to marketing segments.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Products</div>
+                    <h4>Hide/Publish Product</h4>
+                    <p>Control product visibility based on conditions.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">Products</div>
+                    <h4>Update Product Metafield</h4>
+                    <p>Update custom product fields automatically.</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">External Integrations</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <div class="category-label">External</div>
+                    <h4>Send Data to External URL</h4>
+                    <p>POST data to any external API or webhook endpoint.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">External</div>
+                    <h4>Google Sheets</h4>
+                    <p>Automatically append rows to a Google Sheet for tracking.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">External</div>
+                    <h4>Klaviyo</h4>
+                    <p>Send customer data to Klaviyo for email marketing.</p>
+                </div>
+                <div class="list-item">
+                    <div class="category-label">External</div>
+                    <h4>ShipStation</h4>
+                    <p>Sync orders and shipment data to ShipStation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Recommended Flows for Unicity -->
+        <section>
+            <h2>Recommended Flows for Unicity International</h2>
+            <p>These workflows are specifically designed for Unicity's business model, including distributor networks, multi-market operations, and compliance requirements.</p>
+
+            <!-- Flow 1: High-Risk Order Review -->
+            <div class="workflow-card">
+                <h3>High-Risk Order Review</h3>
+                <p class="workflow-description">Automatically flag and review potentially fraudulent orders before fulfillment.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Order Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Risk Level = HIGH</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Tag & Alert</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Order created</li>
+                    <li>Condition: Order risk level equals "HIGH"</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Add tag "REVIEW"</li>
+                        <li>Send Slack message to #payments-ops with order details</li>
+                        <li>Add internal note: "High-risk order flagged for manual review"</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 2: Region-Based Order Routing -->
+            <div class="workflow-card">
+                <h3>Region-Based Order Routing</h3>
+                <p class="workflow-description">Route orders to appropriate fulfillment centers based on shipping destination.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Order Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Shipping Country = US</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Route & Tag</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Order created</li>
+                    <li>Condition: Shipping country/state matches your region list</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Tag with region code (e.g., "region-midwest", "region-southeast")</li>
+                        <li>Assign fulfillment location accordingly</li>
+                        <li>Send order to regional warehouse system</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 3: Distributor Attribution -->
+            <div class="workflow-card">
+                <h3>Distributor Attribution Notification</h3>
+                <p class="workflow-description">Notify distributors of orders attributed to them for commission tracking and relationship management.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Order Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Has Distributor Tag</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Notify Distributor</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Order created</li>
+                    <li>Condition: Order contains distributor tag or referral code</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Send email notification to distributor with order summary</li>
+                        <li>Update distributor dashboard with commission data</li>
+                        <li>Log order in CRM for distributor attribution</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 4: Low Inventory Alert -->
+            <div class="workflow-card">
+                <h3>Low Inventory Alert</h3>
+                <p class="workflow-description">Alert operations team when product stock falls below critical threshold.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Inventory Changed</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Quantity < 10</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Alert & Tag</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Inventory quantity changed</li>
+                    <li>Condition: Available inventory quantity is less than 10 units</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Send Slack alert to #inventory with product name and current stock</li>
+                        <li>Tag product "LOW-STOCK"</li>
+                        <li>Create note for inventory team</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 5: New Customer Welcome -->
+            <div class="workflow-card">
+                <h3>New Customer Welcome</h3>
+                <p class="workflow-description">Automatically onboard new customers with welcome email and marketing segment enrollment.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Customer Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Accepts Marketing</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Enroll & Tag</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Customer created</li>
+                    <li>Condition: Customer accepts marketing communications</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Add to Klaviyo "Welcome Series" segment</li>
+                        <li>Tag customer "new-customer"</li>
+                        <li>Send welcome email via Klaviyo</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 6: Subscription Renewal Reminder -->
+            <div class="workflow-card">
+                <h3>Subscription Renewal Reminder</h3>
+                <p class="workflow-description">Send renewal reminders before subscriptions expire to reduce churn.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Renewal Approaching</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Days Until < 7</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Send Reminder</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Subscription contract approaching renewal date</li>
+                    <li>Condition: Days until renewal is 7 or fewer</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Send reminder email 7 days before renewal</li>
+                        <li>Tag customer "renewal-pending"</li>
+                        <li>Add to Recharge dashboard for manual follow-up if needed</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 7: EU VAT Compliance -->
+            <div class="workflow-card">
+                <h3>EU VAT Compliance Tagging</h3>
+                <p class="workflow-description">Automatically tag EU orders with country codes for VAT reporting and compliance.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Order Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Country in EU List</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Tag & Document</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Order created</li>
+                    <li>Condition: Shipping country is in your EU country list</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Tag order with VAT country code (e.g., "VAT-DE", "VAT-FR")</li>
+                        <li>Add compliance note with VAT ID verification status</li>
+                        <li>Log to Google Sheets for VAT reporting</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 8: Japan Order Processing -->
+            <div class="workflow-card">
+                <h3>Japan Order Processing</h3>
+                <p class="workflow-description">Route and process Japanese orders with local language support and region-specific fulfillment.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Order Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Currency = JPY</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Route Japan</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Order created</li>
+                    <li>Condition: Order currency equals JPY (Japanese Yen)</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Tag "japan-fulfillment"</li>
+                        <li>Route to Japan warehouse location</li>
+                        <li>Send order confirmation in Japanese (via Shopify template or integration)</li>
+                        <li>Notify Japan operations team via Slack</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 9: Refund Alert -->
+            <div class="workflow-card">
+                <h3>Refund Alert</h3>
+                <p class="workflow-description">Monitor high-value refunds for potential issues or fraud patterns.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Refund Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Amount > $100</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Alert Finance</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Refund created</li>
+                    <li>Condition: Refund amount is greater than $100</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Send Slack alert to #finance with refund details</li>
+                        <li>Tag order "high-refund"</li>
+                        <li>Log to Google Sheets for finance review</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <!-- Flow 10: VIP Customer Identification -->
+            <div class="workflow-card">
+                <h3>VIP Customer Identification</h3>
+                <p class="workflow-description">Automatically identify and segment high-value customers for premium service and marketing.</p>
+                <div>
+                    <span class="trigger-badge">TRIGGER</span>
+                    <span class="condition-badge">CONDITION</span>
+                    <span class="action-badge">ACTION</span>
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-box flow-trigger">Order Created</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-condition">Total Spent > $1000</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box flow-action">Tag VIP</div>
+                </div>
+                <p><strong>Setup:</strong></p>
+                <ul style="margin-left: 1.5rem;">
+                    <li>Trigger: Order created</li>
+                    <li>Condition: Customer lifetime total spent exceeds $1000</li>
+                    <li>Actions:</li>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Tag customer "VIP"</li>
+                        <li>Add to Klaviyo "VIP Exclusive" segment</li>
+                        <li>Notify customer success team for special handling</li>
+                    </ul>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 6: Third-Party Connectors -->
+        <section>
+            <h2>Third-Party Connectors</h2>
+            <p>Extend Flow's capabilities by connecting with industry-leading tools:</p>
+
+            <div class="connector-grid">
+                <div class="connector">
+                    <div class="connector-icon">💬</div>
+                    <div class="connector-name">Slack</div>
+                    <p style="font-size: 0.9rem;">Real-time notifications to channels and direct messages.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">📊</div>
+                    <div class="connector-name">Google Sheets</div>
+                    <p style="font-size: 0.9rem;">Append rows for tracking and reporting.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">📧</div>
+                    <div class="connector-name">Klaviyo</div>
+                    <p style="font-size: 0.9rem;">Email marketing and customer segmentation.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">📦</div>
+                    <div class="connector-name">ShipStation</div>
+                    <p style="font-size: 0.9rem;">Order and shipment management integration.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">🔄</div>
+                    <div class="connector-name">Recharge</div>
+                    <p style="font-size: 0.9rem;">Subscription management and renewal tracking.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">⭐</div>
+                    <div class="connector-name">LoyaltyLion</div>
+                    <p style="font-size: 0.9rem;">Loyalty program integration and rewards.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">💬</div>
+                    <div class="connector-name">Gorgias</div>
+                    <p style="font-size: 0.9rem;">Customer support and ticket management.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">🎫</div>
+                    <div class="connector-name">Zendesk</div>
+                    <p style="font-size: 0.9rem;">Help desk ticketing system integration.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">🔗</div>
+                    <div class="connector-name">Zapier</div>
+                    <p style="font-size: 0.9rem;">Connect to 1000+ apps through Zapier.</p>
+                </div>
+                <div class="connector">
+                    <div class="connector-icon">✓</div>
+                    <div class="connector-name">Asana</div>
+                    <p style="font-size: 0.9rem;">Project management and task creation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Flow Best Practices -->
+        <section>
+            <h2>Flow Best Practices</h2>
+
+            <div class="best-practices">
+                <ol>
+                    <li><strong>Name Flows Descriptively:</strong> Use clear naming like "Order > High Risk > Slack Alert" so anyone can understand the workflow's purpose at a glance.</li>
+                    <li><strong>Test Flows Before Going Live:</strong> Create test orders or use Shopify's draft order feature to verify flows work as intended.</li>
+                    <li><strong>Monitor Flow Runs:</strong> Check Settings > Apps and sales channels > Shopify Flow > Activity log regularly to monitor execution and catch errors.</li>
+                    <li><strong>Prevent Infinite Loops:</strong> Use conditions to prevent a flow from triggering itself. For example, if a flow tags an order, don't have another flow trigger on that tag that modifies the same order.</li>
+                    <li><strong>Group Related Flows:</strong> Use naming conventions to group similar workflows (e.g., all region flows start with "Region-", all fraud flows start with "Fraud-").</li>
+                    <li><strong>Document Flow Purpose:</strong> Use the flow description field to explain why the flow exists and what business problem it solves.</li>
+                    <li><strong>Review and Audit Monthly:</strong> Conduct monthly reviews of active flows to ensure they're still relevant and functioning correctly. Archive deprecated flows.</li>
+                    <li><strong>Use Conditions Wisely:</strong> Combine multiple conditions with AND logic for more targeted flows, reducing unnecessary actions and costs.</li>
+                    <li><strong>Handle Edge Cases:</strong> Consider what happens if required fields are missing or if a condition partially fails. Build robustness into your flows.</li>
+                    <li><strong>Version Control:</strong> Keep a spreadsheet or document listing all flows, their triggers, conditions, and actions for your team's reference.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 8: Setting Up Your First Flow -->
+        <section>
+            <h2>Setting Up Your First Flow</h2>
+            <p>Follow these steps to create and activate your first Shopify Flow workflow:</p>
+
+            <div class="setup-steps">
+                <ol>
+                    <li>
+                        <strong>Navigate to Shopify Flow:</strong>
+                        Go to your Shopify Admin > Settings > Apps and sales channels > Shopify Flow.
+                    </li>
+                    <li>
+                        <strong>Click "Create Workflow":</strong>
+                        This opens the flow builder where you'll design your automation.
+                    </li>
+                    <li>
+                        <strong>Select a Trigger:</strong>
+                        Choose the event that initiates your workflow (e.g., "Order created"). Click the trigger to confirm.
+                    </li>
+                    <li>
+                        <strong>Add Conditions (Optional):</strong>
+                        Click the "+" button to add conditions. Set up if/then logic (e.g., "If order total > $100, then proceed"). You can add multiple conditions with AND/OR logic.
+                    </li>
+                    <li>
+                        <strong>Add Actions:</strong>
+                        Click "Add action" and select what Flow should do when the trigger and conditions are met. Examples: add tag, send Slack message, update inventory. You can add multiple actions.
+                    </li>
+                    <li>
+                        <strong>Name and Save:</strong>
+                        Give your workflow a descriptive name (e.g., "High-Risk Order > Slack Alert"). Optionally add a description. Click "Save".
+                    </li>
+                    <li>
+                        <strong>Activate Your Flow:</strong>
+                        The workflow is now active and monitoring for triggers. You can toggle it on/off anytime using the switch in the Flow list.
+                    </li>
+                    <li>
+                        <strong>Test Your Flow:</strong>
+                        Create a test order that matches your trigger and conditions to verify the flow executes correctly. Check the Activity log to see real-time flow execution.
+                    </li>
+                    <li>
+                        <strong>Monitor in Activity Log:</strong>
+                        Go to Shopify Flow > Activity log to see all flow runs, successes, and failures. Use this to troubleshoot and optimize.
+                    </li>
+                </ol>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Quick Reference: Flow Builder Checklist</h3>
+            <div class="list-grid">
+                <div class="list-item">
+                    <h4>Before You Build</h4>
+                    <p>Define your business goal. What manual task are you automating? What decisions need to be made?</p>
+                </div>
+                <div class="list-item">
+                    <h4>Trigger</h4>
+                    <p>Select the event that starts the workflow. Be as specific as possible.</p>
+                </div>
+                <div class="list-item">
+                    <h4>Conditions</h4>
+                    <p>Add logic to filter which events proceed. Use multiple conditions if needed.</p>
+                </div>
+                <div class="list-item">
+                    <h4>Actions</h4>
+                    <p>Define what happens when conditions are met. Stack multiple actions if needed.</p>
+                </div>
+                <div class="list-item">
+                    <h4>Name & Describe</h4>
+                    <p>Use clear naming and add a description so your team understands the flow.</p>
+                </div>
+                <div class="list-item">
+                    <h4>Test & Deploy</h4>
+                    <p>Test with real data. Monitor the Activity log. Iterate based on results.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--border);">
+            <p style="font-size: 0.9rem;">Shopify Flow Automation Runbook for Unicity International | Dark Theme Edition</p>
+        </footer>
+    </div>
+</body>
+</html>

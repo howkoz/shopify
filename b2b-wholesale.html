@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B & Wholesale Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        html, body {
+            height: 100%;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+        }
+
+        body {
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #8b949e;
+            font-weight: 400;
+        }
+
+        .content {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.15);
+        }
+
+        .card-header {
+            background-color: var(--surface2);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .card-header:hover {
+            background-color: #212930;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: var(--accent);
+            transition: transform 0.3s;
+        }
+
+        .card.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .card-content {
+            padding: 2rem;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .card.collapsed .card-content {
+            max-height: 0;
+            padding: 0 2rem;
+            overflow: hidden;
+        }
+
+        .card-content h3 {
+            color: var(--cyan);
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .card-content p {
+            color: #c9d1d9;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .card-content ul, .card-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            color: #c9d1d9;
+        }
+
+        .card-content li {
+            margin-bottom: 0.75rem;
+            line-height: 1.7;
+        }
+
+        .card-content strong {
+            color: var(--text);
+        }
+
+        .code-block {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #c9d1d9;
+            overflow-x: auto;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .comparison-table thead {
+            background-color: var(--surface2);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-right: 1px solid var(--border);
+        }
+
+        .comparison-table th:last-child {
+            border-right: none;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table td:last-child {
+            border-right: none;
+        }
+
+        .comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tbody tr:nth-child(even) {
+            background-color: rgba(22, 27, 34, 0.5);
+        }
+
+        .tier-retail { color: var(--text); }
+        .tier-associate { color: var(--yellow); }
+        .tier-manager { color: var(--orange); }
+        .tier-director { color: var(--accent); }
+        .tier-presidential { color: var(--purple); }
+
+        .workflow-step {
+            display: flex;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .workflow-number {
+            background-color: var(--accent);
+            color: var(--bg);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .workflow-content {
+            flex: 1;
+        }
+
+        .workflow-content strong {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .workflow-content p {
+            color: #c9d1d9;
+            margin-top: 0.25rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-item {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .feature-item strong {
+            color: var(--green);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+
+        .highlight {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .highlight strong {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th, .comparison-table td {
+                padding: 0.75rem;
+            }
+
+            .workflow-step {
+                gap: 1rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <div class="header">
+            <h1>B2B & Wholesale Operations</h1>
+            <p class="subtitle">Managing distributor relationships, custom pricing, net payment terms, and B2B checkout on Shopify Plus</p>
+        </div>
+
+        <div class="content">
+            <!-- Section 1 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>1. B2B on Shopify Overview</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>Shopify Plus includes native B2B features that provide a complete solution for wholesale operations. These features replaced the legacy Wholesale Channel and are purpose-built for distributor-driven businesses.</p>
+
+                    <h3>Core B2B Capabilities</h3>
+                    <ul>
+                        <li><strong>Company Profiles:</strong> Create and manage distributor profiles with custom fields and company metadata</li>
+                        <li><strong>Custom Price Lists:</strong> Up to 25 price lists per company with fixed prices, percentage adjustments, and volume-based pricing</li>
+                        <li><strong>Net Payment Terms:</strong> Support for Net 15, Net 30, Net 45, Net 60, and custom payment schedules</li>
+                        <li><strong>Volume Pricing:</strong> Create quantity-based discount tiers (e.g., 1-10 units at price X, 11-50 at price Y)</li>
+                        <li><strong>Quick Order Lists:</strong> Bulk ordering by SKU for faster purchasing</li>
+                        <li><strong>B2B Checkout:</strong> Dedicated checkout experience showing company-specific pricing and terms</li>
+                    </ul>
+
+                    <h3>Deployment Models</h3>
+                    <ul>
+                        <li><strong>Blended Store:</strong> Single store serving both DTC customers and B2B distributors. Shopify automatically shows different prices and checkout experience based on login status.</li>
+                        <li><strong>Dedicated B2B Store:</strong> Separate expansion store exclusively for wholesale. Clean separation but requires dual catalog management.</li>
+                    </ul>
+
+                    <div class="highlight">
+                        <strong>Note:</strong> Shopify handles authentication automatically. Distributors log in with their company credentials, and all pricing and terms are applied server-side.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>2. Why B2B Matters for Unicity</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>Unicity International's business model is fundamentally distributor-driven. Distributors are not just customers—they are partners who buy wholesale and resell to end consumers. B2B features map directly to core business processes:</p>
+
+                    <h3>Strategic Alignment</h3>
+                    <ul>
+                        <li><strong>Distributor Onboarding:</strong> Automate the process of bringing new distributors into the platform with pre-configured pricing and terms</li>
+                        <li><strong>Tiered Pricing:</strong> Align wholesale prices with distributor rank (Associate, Manager, Director, Presidential)</li>
+                        <li><strong>Volume Discounts:</strong> Reward high-volume orders with deeper discounts</li>
+                        <li><strong>Recurring Orders:</strong> Support monthly distributor replenishment orders with saved payment methods</li>
+                        <li><strong>Net Terms for Trusted Distributors:</strong> Extend credit to established distributors, strengthening relationships</li>
+                    </ul>
+
+                    <h3>Business Impact</h3>
+                    <p>By implementing B2B features on Shopify Plus, Unicity can:</p>
+                    <ul>
+                        <li>Reduce manual order processing and invoicing</li>
+                        <li>Provide self-service ordering for distributors (reducing support burden)</li>
+                        <li>Maintain accurate wholesale pricing across all markets</li>
+                        <li>Track distributor spending and reorder patterns for better forecasting</li>
+                        <li>Enable integration with Unity ERP for seamless order-to-cash flow</li>
+                    </ul>
+
+                    <div class="highlight">
+                        <strong>Key Insight:</strong> B2B features are not an add-on—they are foundational to Unicity's Shopify Plus implementation. Everything else builds on this.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>3. Company Profiles (Distributor Management)</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>In Shopify B2B, each distributor is represented as a "Company" object. Companies are the parent container for pricing, contacts, locations, and custom data.</p>
+
+                    <h3>Company Core Fields</h3>
+                    <ul>
+                        <li><strong>Name:</strong> Distributor business name (e.g., "ABC Wholesale LLC")</li>
+                        <li><strong>Unity ID:</strong> Custom metafield linking to distributor ID in Unity ERP</li>
+                        <li><strong>Tax Exemption Status:</strong> Boolean flag to automatically apply tax exemption at checkout</li>
+                        <li><strong>Payment Terms:</strong> Default terms (Net 15, Net 30, etc.) assigned to the company</li>
+                        <li><strong>Assigned Price List:</strong> Primary price list for the company's orders</li>
+                        <li><strong>Status:</strong> Active, suspended, or inactive</li>
+                    </ul>
+
+                    <h3>Company Locations</h3>
+                    <p>Distributors often have multiple shipping addresses (headquarters, regional warehouses, etc.). Each location is managed separately:</p>
+                    <ul>
+                        <li>Set different shipping addresses per location</li>
+                        <li>Configure location-specific inventory (optional)</li>
+                        <li>Track orders by location for analytics</li>
+                    </ul>
+
+                    <h3>Company Contacts</h3>
+                    <p>Multiple users can access a single company account:</p>
+                    <ul>
+                        <li><strong>Admin:</strong> Full access to company settings, orders, and users</li>
+                        <li><strong>Buyer:</strong> Can place orders and view order history</li>
+                        <li><strong>Viewer:</strong> Read-only access to orders and company info</li>
+                    </ul>
+
+                    <h3>Company Metafields (Custom Data)</h3>
+                    <p>Extend the company object with custom fields:</p>
+                    <div class="code-block">
+// Example metafields for Unicity distributors
+{
+  "distributor_rank": "Director",
+  "region": "North America",
+  "upline_distributor_id": "12345",
+  "qualification_status": "Active",
+  "monthly_volume_target": 5000,
+  "previous_month_orders": 12,
+  "credit_limit": 50000
+}
+                    </div>
+
+                    <div class="highlight">
+                        <strong>Best Practice:</strong> Use metafields to store distributor rank, region, upline relationship, and qualification status. This enables dynamic pricing and reporting without modifying the core company object.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>4. Price Lists & Tiered Pricing</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>Price lists are the engine of wholesale pricing on Shopify B2B. Each price list defines prices, discounts, and product visibility for a specific distributor or group of distributors.</p>
+
+                    <h3>Price List Strategies</h3>
+                    <ul>
+                        <li><strong>Fixed Prices:</strong> Set specific JPY/EUR/USD prices per product per distributor tier</li>
+                        <li><strong>Percentage Adjustments:</strong> Apply uniform discount percentages across all products (e.g., -20% off retail)</li>
+                        <li><strong>Volume-Based Pricing:</strong> Quantity breaks where price changes based on order size (1-10 units at $X, 11-50 at $Y, 51+ at $Z)</li>
+                        <li><strong>Product Visibility:</strong> Show or hide products per price list (e.g., new products only shown to premium tiers)</li>
+                    </ul>
+
+                    <h3>Recommended Unicity Distributor Tiers</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Distributor Tier</th>
+                                <th>Discount Off Retail</th>
+                                <th>Payment Terms</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="tier-retail">Retail / Direct</span></td>
+                                <td>0%</td>
+                                <td>Due on receipt</td>
+                                <td>End consumers purchasing directly</td>
+                            </tr>
+                            <tr>
+                                <td><span class="tier-associate">Associate</span></td>
+                                <td>-15%</td>
+                                <td>Net 15</td>
+                                <td>New distributors, small volume</td>
+                            </tr>
+                            <tr>
+                                <td><span class="tier-manager">Manager</span></td>
+                                <td>-25%</td>
+                                <td>Net 30</td>
+                                <td>Growing distributors, mid-tier volume</td>
+                            </tr>
+                            <tr>
+                                <td><span class="tier-director">Director</span></td>
+                                <td>-35%</td>
+                                <td>Net 45</td>
+                                <td>Established distributors, high volume</td>
+                            </tr>
+                            <tr>
+                                <td><span class="tier-presidential">Presidential</span></td>
+                                <td>-45%</td>
+                                <td>Net 60</td>
+                                <td>Top-tier distributors, strategic partners</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Price List Limits & Best Practices</h3>
+                    <ul>
+                        <li>Up to 25 price lists per company</li>
+                        <li>Create one price list per distributor tier (Retail, Associate, Manager, Director, Presidential)</li>
+                        <li>Use percentage adjustments for simplicity (easier to maintain when retail prices change)</li>
+                        <li>Use fixed prices for special deals or margin-critical products</li>
+                        <li>Test price list changes in a dev environment before pushing to production</li>
+                    </ul>
+
+                    <div class="highlight">
+                        <strong>Example:</strong> Create a "Director Price List" with -35% discount. Assign it to all distributors with Director status. When retail prices change, the discount is automatically recalculated without manual updates.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>5. Payment Terms & Credit Management</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>Payment terms define when and how distributors pay for their orders. Shopify B2B supports flexible payment terms tied to each company or order.</p>
+
+                    <h3>Available Payment Terms</h3>
+                    <ul>
+                        <li><strong>Net 15:</strong> Payment due 15 days after order</li>
+                        <li><strong>Net 30:</strong> Payment due 30 days after order (most common for B2B)</li>
+                        <li><strong>Net 45:</strong> Payment due 45 days after order</li>
+                        <li><strong>Net 60:</strong> Payment due 60 days after order (premium distributors)</li>
+                        <li><strong>Due on Fulfillment:</strong> Payment due when order ships</li>
+                        <li><strong>Due on Receipt:</strong> Payment required before order processing (recommended for new distributors)</li>
+                        <li><strong>Cash on Delivery (COD):</strong> Payment collected at delivery</li>
+                    </ul>
+
+                    <h3>Term Assignment Strategy</h3>
+                    <p>Assign payment terms based on distributor tier and credit history:</p>
+                    <ul>
+                        <li><strong>New distributors (first 3 orders):</strong> Due on receipt or COD</li>
+                        <li><strong>Associates:</strong> Net 15</li>
+                        <li><strong>Managers:</strong> Net 30</li>
+                        <li><strong>Directors:</strong> Net 45</li>
+                        <li><strong>Presidential:</strong> Net 60</li>
+                    </ul>
+
+                    <h3>Credit Limit Management</h3>
+                    <p>Implement credit controls to minimize risk:</p>
+                    <ul>
+                        <li>Set credit limit per company based on payment history and financial standing</li>
+                        <li>Automatic order hold when credit limit exceeded</li>
+                        <li>Automatic order hold when payment past due (configurable threshold)</li>
+                        <li>Send automatic payment reminders (e.g., 10 days before due date)</li>
+                        <li>Configure escalation: reminder → second notice → order hold → account suspension</li>
+                    </ul>
+
+                    <h3>Payment Processing</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <strong>Vaulted Payment Methods</strong>
+                            <p>Distributors can save payment methods for faster reorders</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Draft Orders</strong>
+                            <p>Phone/email orders processed by Unicity team with manual approval</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Recurring Billing</strong>
+                            <p>Set up automatic monthly orders for predictable distributor purchases</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>ACH/Bank Transfer</strong>
+                            <p>Support for direct bank transfers for large orders</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight">
+                        <strong>Recommendation:</strong> Start conservative with payment terms. Begin all new distributors on "Due on Receipt" or Net 15. After 6-12 months of on-time payment, graduate to Net 30. This builds trust while minimizing risk.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>6. B2B Checkout Experience</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>The B2B checkout experience is tailored for distributor buying behavior—fast, bulk-oriented, and integrated with business workflows.</p>
+
+                    <h3>Company-Specific Checkout Features</h3>
+                    <ul>
+                        <li><strong>Company-Specific Pricing:</strong> Correct tier-based prices shown automatically at cart</li>
+                        <li><strong>Payment Terms Displayed:</strong> Prominently show payment terms (e.g., "Net 30 - Due April 30, 2026")</li>
+                        <li><strong>Purchase Order Number Field:</strong> Distributors can add PO number for accounting integration</li>
+                        <li><strong>Tax Exemption:</strong> Automatically applied for tax-exempt distributors (no tax collected)</li>
+                        <li><strong>Company Locations:</strong> Select shipping address from pre-configured company locations</li>
+                        <li><strong>Billing vs. Shipping:</strong> Separate billing and shipping addresses</li>
+                    </ul>
+
+                    <h3>B2B-Specific Ordering Tools</h3>
+                    <ul>
+                        <li><strong>Quick Order:</strong> Bulk add products by SKU and quantity in a spreadsheet-like interface</li>
+                        <li><strong>Reorder Lists:</strong> Favorite or saved orders for repeating monthly purchases</li>
+                        <li><strong>Order History:</strong> Full access to all previous orders with ability to reorder</li>
+                        <li><strong>Draft Orders:</strong> For phone/email orders placed through Unicity team (manual approval required)</li>
+                    </ul>
+
+                    <h3>Draft Orders for Assisted Selling</h3>
+                    <p>When a distributor calls or emails an order, Unicity team can create a draft order:</p>
+                    <div class="code-block">
+// Draft Order workflow
+1. Unicity team receives call from distributor
+2. Create draft order in Shopify admin
+3. Populate line items, apply company pricing/terms
+4. Send draft order invoice link to distributor
+5. Distributor reviews and pays (or pays later if Net terms)
+6. Unicity confirms and converts to final order
+7. Order syncs to inventory and fulfillment
+                    </div>
+
+                    <h3>Mobile B2B Experience</h3>
+                    <p>Shopify B2B checkout is responsive and works on mobile. Distributors can:</p>
+                    <ul>
+                        <li>Browse products on mobile with correct tier pricing</li>
+                        <li>Use quick order to bulk add items</li>
+                        <li>Place orders from the field or while at events</li>
+                    </ul>
+
+                    <div class="highlight">
+                        <strong>Pro Tip:</strong> Customize the checkout to prominently display payment terms. Many B2B buyers need to know terms before committing to an order.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>7. Distributor Onboarding Workflow</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>This is the step-by-step process to onboard a new distributor from approval to first order:</p>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">1</div>
+                        <div class="workflow-content">
+                            <strong>Distributor Approved in Unity System</strong>
+                            <p>Unicity distributes unit approves the new distributor in the Unity ERP. Distributor rank (Associate, Manager, Director, Presidential) is assigned based on qualifications and sponsorship.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">2</div>
+                        <div class="workflow-content">
+                            <strong>Create Company in Shopify</strong>
+                            <p>Unicity operations team creates a Company in Shopify Plus with distributor name, business address, tax ID, and custom metafields (Unity ID, rank, region, upline distributor ID). This can be done manually via Shopify admin or via API integration.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">3</div>
+                        <div class="workflow-content">
+                            <strong>Assign Price List Based on Rank</strong>
+                            <p>Link the company to the appropriate price list (Associate -15%, Manager -25%, Director -35%, Presidential -45%). This sets wholesale pricing for all products.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">4</div>
+                        <div class="workflow-content">
+                            <strong>Set Payment Terms</strong>
+                            <p>Assign payment terms (recommended: Net 15 for Associates, Net 30 for Managers, Net 45 for Directors, Net 60 for Presidential). Set credit limit based on expected order volume.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">5</div>
+                        <div class="workflow-content">
+                            <strong>Add Company Locations</strong>
+                            <p>Configure shipping addresses (headquarters, regional warehouses, etc.). Each location gets its own shipping address and can have location-specific settings.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">6</div>
+                        <div class="workflow-content">
+                            <strong>Create Contact & Send B2B Invite</strong>
+                            <p>Create the primary contact (usually the distributor owner or manager). Shopify sends an email invite to activate the account and set a password. Can add additional contacts (team members) with different permission levels.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">7</div>
+                        <div class="workflow-content">
+                            <strong>Distributor Logs In & Places First Order</strong>
+                            <p>Distributor receives email invite, creates password, and logs into Shopify B2B storefront. They see their tier pricing, available products, and can browse, add to cart, and checkout with their assigned payment terms.</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-step">
+                        <div class="workflow-number">8</div>
+                        <div class="workflow-content">
+                            <strong>Verify Order Syncs to Unity ERP</strong>
+                            <p>Order is placed in Shopify, inventory is adjusted, and Shopify webhook syncs the order to Unity ERP for fulfillment and accounting. Distributor receives order confirmation and tracking info.</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight">
+                        <strong>Timeline:</strong> Typical onboarding takes 1-2 business days (steps 1-5) plus waiting for distributor account activation (step 6). With automation via API, this can be reduced to same-day turnaround.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>8. B2B vs DTC Store Strategy</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>There are two deployment models for B2B features. Choose based on Unicity's business needs and operational capacity.</p>
+
+                    <h3>Option A: Blended Store (DTC + B2B on Same Store)</h3>
+                    <p><strong>Description:</strong> A single Shopify storefront serves both direct-to-consumer (DTC) customers and B2B distributors. Shopify automatically shows different prices, checkout experience, and features based on login status.</p>
+
+                    <h3>Blended Store: Pros & Cons</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <strong>Pros</strong>
+                            <p>Single catalog management. Easier to maintain product info, images, and inventory. Lower infrastructure cost. Unified analytics.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Cons</strong>
+                            <p>More complex checkout logic. Risk of pricing confusion for DTC if not carefully managed. Harder to customize B2B experience without affecting DTC. Both audiences share the same brand experience.</p>
+                        </div>
+                    </div>
+
+                    <h3>Option B: Dedicated B2B Store (Expansion Store)</h3>
+                    <p><strong>Description:</strong> A separate Shopify expansion store exclusively for B2B. DTC customers shop the main store. B2B distributors shop the dedicated B2B store with their own pricing, terms, and checkout.</p>
+
+                    <h3>Dedicated B2B Store: Pros & Cons</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <strong>Pros</strong>
+                            <p>Clean separation. Easier to customize B2B UX without affecting DTC. B2B store can have its own branding, language, and currency. Better for regional segregation.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Cons</strong>
+                            <p>Dual catalog management (products, inventory, pricing). Higher operational overhead. Requires syncing between stores. More complex data integration. Higher hosting cost.</p>
+                        </div>
+                    </div>
+
+                    <h3>Recommendation for Unicity</h3>
+                    <p><strong>Phase 1 (Year 1):</strong> Start with a blended US store (DTC + B2B). This allows rapid B2B launch with minimal overhead while you validate product-market fit and operational processes.</p>
+                    <p><strong>Phase 2 (Year 2+):</strong> Based on B2B volume and regional demand, evaluate dedicated B2B stores for EU and Japan. Separate stores make sense if B2B volume justifies the operational complexity.</p>
+
+                    <div class="highlight">
+                        <strong>Key Decision:</strong> Blended is simpler for launch. Dedicated is better for scale. Monitor B2B volume and complexity before deciding.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 9 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>9. B2B Analytics & Reporting</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>B2B analytics provide visibility into distributor behavior, pricing, and health. Shopify provides native reporting, and you can extend with Unity ERP integration.</p>
+
+                    <h3>Native Shopify B2B Reports</h3>
+                    <ul>
+                        <li><strong>Company Profiles:</strong> View all distributors, status, contact info, and associated price list</li>
+                        <li><strong>Company Order History:</strong> Total orders, spend, and reorder frequency per company</li>
+                        <li><strong>Price List Utilization:</strong> Which distributors are assigned to each price list</li>
+                        <li><strong>Payment Terms Aging:</strong> Overdue invoices, upcoming due dates, days-sales-outstanding (DSO)</li>
+                        <li><strong>Top Distributors by Volume:</strong> Rank by number of orders or total spend</li>
+                        <li><strong>Reorder Patterns:</strong> Frequency of orders (monthly, quarterly, etc.) per distributor</li>
+                    </ul>
+
+                    <h3>Custom Reports (via Shopify API)</h3>
+                    <p>Build additional analytics by querying the Shopify GraphQL API:</p>
+                    <div class="code-block">
+// Example: Get all orders for a company
+query {
+  orders(filter: "company:XYZ") {
+    edges {
+      node {
+        id
+        createdAt
+        totalPrice
+        lineItems { SKU, quantity, price }
+      }
+    }
+  }
+}
+                    </div>
+
+                    <h3>Unity ERP Integration</h3>
+                    <p>Shopify B2B data should sync to Unity ERP for comprehensive distributor analytics:</p>
+                    <ul>
+                        <li><strong>Order Sync:</strong> Every Shopify order creates/updates order in Unity</li>
+                        <li><strong>Revenue Recognition:</strong> COGS, margin, and profitability per distributor</li>
+                        <li><strong>Distributor Performance:</strong> Compare Shopify metrics (order frequency, average order value) with Unity metrics (volume purchased, commission earned)</li>
+                        <li><strong>Inventory Forecasting:</strong> Use distributor order patterns to forecast stock needs</li>
+                    </ul>
+
+                    <h3>Key Metrics to Track</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <strong>Order Frequency</strong>
+                            <p>Orders per month per distributor. Declining frequency may signal churn risk.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Average Order Value (AOV)</strong>
+                            <p>Track trends per distributor. AOV growth indicates deeper engagement.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Days-Sales-Outstanding (DSO)</strong>
+                            <p>Average days from order to payment. High DSO increases working capital risk.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Product Mix</strong>
+                            <p>Which products does each distributor buy? Identify upsell opportunities.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Churn Rate</strong>
+                            <p>Percentage of distributors inactive for 90+ days. Early warning of retention issues.</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Gross Margin</strong>
+                            <p>Revenue minus COGS per distributor. Identify high-margin vs. low-margin customers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 10 -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>10. API Integration Points</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <p>Shopify exposes B2B features via GraphQL API. Use these APIs to integrate Shopify B2B with Unity ERP and custom automation.</p>
+
+                    <h3>Core B2B Mutations (Write Operations)</h3>
+
+                    <h4>CompanyCreate / CompanyUpdate</h4>
+                    <p>Create or update a company (distributor) in Shopify:</p>
+                    <div class="code-block">
+mutation CreateCompany {
+  companyCreate(input: {
+    name: "ABC Wholesale LLC"
+    externalId: "unity-12345"
+    customerSince: "2026-01-15"
+    taxExempt: true
+  }) {
+    company {
+      id
+      name
+      externalId
+    }
+    userErrors { message }
+  }
+}
+                    </div>
+
+                    <h4>PriceListCreate / PriceListFixedPricesAdd</h4>
+                    <p>Create a price list and add fixed prices for products:</p>
+                    <div class="code-block">
+mutation CreatePriceList {
+  priceListCreate(input: {
+    name: "Director Tier"
+    currency: USD
+  }) {
+    priceList { id name }
+    userErrors { message }
+  }
+}
+
+mutation AddFixedPrices {
+  priceListFixedPricesAdd(input: {
+    priceListId: "gid://shopify/PriceList/1"
+    prices: [
+      { variantId: "gid://shopify/ProductVariant/1", price: "45.00" }
+      { variantId: "gid://shopify/ProductVariant/2", price: "95.00" }
+    ]
+  }) {
+    priceList { id }
+    userErrors { message }
+  }
+}
+                    </div>
+
+                    <h4>DraftOrderCreate</h4>
+                    <p>Create a draft order for phone/email orders placed by Unicity team:</p>
+                    <div class="code-block">
+mutation CreateDraftOrder {
+  draftOrderCreate(input: {
+    customerId: "gid://shopify/Customer/1"
+    note: "Phone order from distributor ABC"
+    lineItems: [
+      { variantId: "gid://shopify/ProductVariant/1", quantity: 10 }
+    ]
+  }) {
+    draftOrder { id invoiceUrl }
+    userErrors { message }
+  }
+}
+                    </div>
+
+                    <h3>Webhooks (Event Subscriptions)</h3>
+                    <p>Subscribe to B2B events and trigger downstream actions:</p>
+                    <ul>
+                        <li><strong>companies/create:</strong> Triggered when a new company (distributor) is created. Use to sync to Unity ERP.</li>
+                        <li><strong>companies/update:</strong> Triggered when company details change (tier upgrade, payment terms change). Use to update Unity.</li>
+                        <li><strong>orders/create:</strong> Triggered when a B2B order is placed. Use to create invoice and sync inventory.</li>
+                        <li><strong>orders/fulfilled:</strong> Triggered when a B2B order is fulfilled. Use to update distributor in Unity.</li>
+                    </ul>
+
+                    <h3>Recommended Integration Architecture</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <strong>Daily Sync Job</strong>
+                            <p>Scheduled batch process syncs all distributors from Unity to Shopify B2B (create/update companies and price lists)</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Real-Time Webhooks</strong>
+                            <p>Shopify webhooks trigger immediate actions: order created → create invoice in accounting, company updated → log in Unity</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Manual Overrides</strong>
+                            <p>Unicity team can manually adjust company tier, payment terms, or price list in Shopify if needed (e.g., dispute resolution)</p>
+                        </div>
+                    </div>
+
+                    <h3>Query Examples (Read Operations)</h3>
+                    <div class="code-block">
+// Get all companies with custom fields
+query {
+  companies(first: 100) {
+    edges {
+      node {
+        id
+        name
+        externalId
+        customAttributes {
+          key: "distributor_rank"
+          value
+        }
+      }
+    }
+  }
+}
+
+// Get company orders
+query {
+  company(id: "gid://shopify/Company/1") {
+    orders(first: 50) {
+      edges {
+        node {
+          id
+          createdAt
+          totalPrice
+          paymentTerms {
+            paymentTermsType
+            paymentTermsTemplate {
+              dueInDays
+            }
+          }
+        }
+      }
+    }
+  }
+}
+                    </div>
+
+                    <div class="highlight">
+                        <strong>Documentation:</strong> Shopify GraphQL Admin API reference: https://shopify.dev/api/admin-rest (or /docs/api/admin-graphql for GraphQL)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Closing section -->
+            <div class="card">
+                <div class="card-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <h2>Implementation Checklist</h2>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <h3>Phase 1: Foundation (Weeks 1-4)</h3>
+                    <ul>
+                        <li>Create Unicity B2B price lists for each distributor tier (Retail, Associate, Manager, Director, Presidential)</li>
+                        <li>Set up payment terms policy (Net 15 for new distributors, escalating based on tier)</li>
+                        <li>Design distributor onboarding checklist and assign responsibility</li>
+                        <li>Configure Shopify B2B checkout (customize for payment terms display, PO field)</li>
+                        <li>Plan API integration with Unity ERP (which data syncs, frequency)</li>
+                    </ul>
+
+                    <h3>Phase 2: Integration (Weeks 5-8)</h3>
+                    <ul>
+                        <li>Build batch sync job (Unity → Shopify: daily distributor updates)</li>
+                        <li>Set up webhooks (Shopify → Unity: order/company events)</li>
+                        <li>Test end-to-end workflow: Create test distributor → assign price list → place test order → verify sync to Unity</li>
+                        <li>Build B2B analytics dashboard (top distributors, order frequency, DSO)</li>
+                        <li>Create documentation and training for Unicity team</li>
+                    </ul>
+
+                    <h3>Phase 3: Pilot (Weeks 9-12)</h3>
+                    <ul>
+                        <li>Onboard 10-20 pilot distributors (mix of tiers)</li>
+                        <li>Monitor orders, payments, and system sync</li>
+                        <li>Gather feedback and iterate on UX/pricing/terms</li>
+                        <li>Plan full rollout and distributor communication</li>
+                    </ul>
+
+                    <h3>Phase 4: Launch (Week 13+)</h3>
+                    <ul>
+                        <li>Onboard all active distributors to Shopify B2B</li>
+                        <li>Decommission or archive legacy wholesale processes</li>
+                        <li>Monitor KPIs (order volume, payment terms compliance, churn)</li>
+                        <li>Plan next phase (dedicated EU/Japan stores, advanced analytics)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

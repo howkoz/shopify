@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multipass SSO Integration</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #8b949e;
+            margin-top: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #c9d1d9;
+        }
+
+        strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #c9d1d9;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        /* Code blocks */
+        code {
+            background-color: var(--surface2);
+            color: var(--cyan);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.5;
+        }
+
+        .code-block {
+            position: relative;
+        }
+
+        .code-label {
+            display: inline-block;
+            background-color: var(--surface);
+            color: var(--yellow);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        /* Syntax highlighting in code blocks */
+        .keyword { color: var(--purple); font-weight: 600; }
+        .string { color: var(--green); }
+        .number { color: var(--orange); }
+        .comment { color: #6e7681; }
+        .function { color: var(--cyan); }
+
+        /* Flow diagram */
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .flow-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .flow-content {
+            flex: 1;
+            padding: 1rem;
+            background-color: var(--surface2);
+            border-left: 2px solid var(--accent);
+            border-radius: 4px;
+        }
+
+        .flow-content strong {
+            display: block;
+            margin-bottom: 0.3rem;
+            color: var(--cyan);
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-left: 25px;
+        }
+
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: var(--surface2);
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--cyan);
+            border-right: 1px solid var(--border);
+        }
+
+        th:last-child {
+            border-right: none;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            color: #c9d1d9;
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        tbody tr:hover {
+            background-color: var(--surface2);
+        }
+
+        /* Checklist */
+        .checklist {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            cursor: pointer;
+            accent-color: var(--green);
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+            color: #c9d1d9;
+        }
+
+        /* Callout boxes */
+        .callout {
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout-info {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        .callout-warning {
+            background-color: rgba(210, 153, 34, 0.1);
+            border-left-color: var(--yellow);
+        }
+
+        .callout-success {
+            background-color: rgba(63, 185, 80, 0.1);
+            border-left-color: var(--green);
+        }
+
+        .callout-danger {
+            background-color: rgba(248, 81, 73, 0.1);
+            border-left-color: var(--red);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Architecture diagram */
+        .architecture-diagram {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .arch-box {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .arch-box strong {
+            display: block;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .flow-step {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .flow-arrow {
+                margin-left: 0;
+                text-align: left;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+
+            .architecture-diagram {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Back to Index</a>
+            <h1>Multipass SSO Integration</h1>
+            <p class="subtitle">Single sign-on for seamless customer authentication between Unicity platforms and Shopify stores.</p>
+        </header>
+
+        <!-- Section 1: What Is Multipass -->
+        <section class="section">
+            <h2>What Is Multipass</h2>
+            <p>
+                <strong>Multipass</strong> is a Shopify Plus-exclusive Single Sign-On (SSO) mechanism that allows external authentication systems to create and log in customers to Shopify without requiring separate account registration. It uses <strong>AES-256-CBC encrypted tokens</strong> passed via URL parameters, enabling seamless authentication. Customer accounts are automatically created on first login, with all attributes populated from the external system.
+            </p>
+        </section>
+
+        <!-- Section 2: Why Unicity Needs Multipass -->
+        <section class="section">
+            <h2>Why Unicity Needs Multipass</h2>
+            <ul>
+                <li><strong>Existing Distributor Accounts:</strong> Distributors already have Unity accounts with ID, rank, and commission data</li>
+                <li><strong>Avoid Duplicate Registrations:</strong> Customers may have existing Unicity accounts; eliminate forced separate Shopify registration</li>
+                <li><strong>Attribute Passing:</strong> Pass distributor attributes (Unity ID, rank, region) directly into Shopify customer records</li>
+                <li><strong>Single Login:</strong> Enable login across Unicity.com and Shopify stores using the same credentials</li>
+                <li><strong>B2B Support:</strong> B2B customers can log in with existing credentials, improving onboarding</li>
+                <li><strong>Unified Identity:</strong> Maintain a single source of truth for customer data across platforms</li>
+            </ul>
+        </section>
+
+        <!-- Section 3: How Multipass Works -->
+        <section class="section">
+            <h2>How Multipass Works</h2>
+            <p>The Multipass authentication flow involves five key steps:</p>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="flow-number">1</div>
+                    <div class="flow-content">
+                        <strong>User Logs Into Unicity Portal</strong>
+                        <p>Customer authenticates with existing Unicity credentials on Unicity.com or internal portal</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-number">2</div>
+                    <div class="flow-content">
+                        <strong>Unicity Server Generates Multipass Token</strong>
+                        <p>Backend creates encrypted JSON token containing email, name, ID, rank, and other attributes using AES-256-CBC</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-number">3</div>
+                    <div class="flow-content">
+                        <strong>User Redirected to Shopify</strong>
+                        <p>User's browser is redirected to: <code>https://store.myshopify.com/account/login/multipass/{token}</code></p>
+                    </div>
+                </div>
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-number">4</div>
+                    <div class="flow-content">
+                        <strong>Shopify Decrypts & Creates Customer</strong>
+                        <p>Shopify validates the signature, decrypts token, creates or matches customer, and sets session</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-number">5</div>
+                    <div class="flow-content">
+                        <strong>User Lands on Shopify Store</strong>
+                        <p>Customer is fully authenticated and redirected to specified return URL (e.g., wholesale collections)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Token Structure -->
+        <section class="section">
+            <h2>Token Structure</h2>
+            <p>The Multipass token is an encrypted JSON payload containing customer data. Before encryption, the JSON structure looks like this:</p>
+
+            <div class="code-block">
+                <div class="code-label">JSON Payload Structure</div>
+                <pre><code>{
+  <span class="string">"email"</span>: <span class="string">"distributor@unicity.com"</span>,
+  <span class="string">"created_at"</span>: <span class="string">"2026-03-30T14:30:00Z"</span>,
+  <span class="string">"first_name"</span>: <span class="string">"John"</span>,
+  <span class="string">"last_name"</span>: <span class="string">"Distributor"</span>,
+  <span class="string">"tag_string"</span>: <span class="string">"distributor,gold-rank,usa,wholesale"</span>,
+  <span class="string">"identifier"</span>: <span class="string">"UNITY-12345"</span>,
+  <span class="string">"remote_ip"</span>: <span class="string">"203.0.113.45"</span>,
+  <span class="string">"return_to"</span>: <span class="string">"/collections/wholesale"</span>,
+  <span class="string">"addresses"</span>: [
+    {
+      <span class="string">"address1"</span>: <span class="string">"123 Business Ave"</span>,
+      <span class="string">"city"</span>: <span class="string">"Salt Lake City"</span>,
+      <span class="string">"province"</span>: <span class="string">"UT"</span>,
+      <span class="string">"zip"</span>: <span class="string">"84101"</span>,
+      <span class="string">"country"</span>: <span class="string">"United States"</span>
+    }
+  ]
+}</code></pre>
+            </div>
+
+            <h3>Required Fields</h3>
+            <ul>
+                <li><strong>email</strong> – Customer email address (used for matching existing customers)</li>
+                <li><strong>created_at</strong> – ISO 8601 timestamp when token was generated (must be recent; expires in 15 minutes)</li>
+            </ul>
+
+            <h3>Optional but Recommended Fields</h3>
+            <ul>
+                <li><strong>first_name, last_name</strong> – Customer name</li>
+                <li><strong>tag_string</strong> – Comma-separated tags for segmentation (e.g., "distributor,gold-rank,usa")</li>
+                <li><strong>identifier</strong> – Unique external ID (e.g., Unity ID) for tracking</li>
+                <li><strong>remote_ip</strong> – Customer's IP address for security validation</li>
+                <li><strong>return_to</strong> – URL to redirect after successful login</li>
+                <li><strong>addresses</strong> – Array of shipping addresses to auto-populate</li>
+            </ul>
+        </section>
+
+        <!-- Section 5: Implementation Steps -->
+        <section class="section">
+            <h2>Implementation Steps</h2>
+            <ol>
+                <li><strong>Enable Multipass in Shopify Admin</strong> – Navigate to Settings → Customer accounts → Enable Multipass</li>
+                <li><strong>Copy the Multipass Secret Key</strong> – Store securely in environment variables (never commit to version control)</li>
+                <li><strong>Implement Token Generation</strong> – Add token generation logic to your Unicity backend</li>
+                <li><strong>Create Login Endpoint</strong> – Build an endpoint that generates tokens and redirects to Shopify</li>
+                <li><strong>Test with Sample Customer</strong> – Verify token generation, decryption, and customer creation</li>
+                <li><strong>Map Unity Fields to Shopify</strong> – Ensure all customer attributes flow correctly</li>
+            </ol>
+        </section>
+
+        <!-- Section 6: Code Examples -->
+        <section class="section">
+            <h2>Code Examples</h2>
+
+            <h3>Python Token Generation</h3>
+            <div class="code-block">
+                <div class="code-label">Python (with cryptography library)</div>
+                <pre><code><span class="keyword">import</span> json, hashlib, hmac, base64, os
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+<span class="keyword">from</span> cryptography.hazmat.primitives.ciphers <span class="keyword">import</span> Cipher, algorithms, modes
+<span class="keyword">from</span> cryptography.hazmat.backends <span class="keyword">import</span> default_backend
+
+<span class="keyword">def</span> <span class="function">generate_multipass_token</span>(secret, customer_data):
+    <span class="comment"># Step 1: Derive encryption and signing keys from secret</span>
+    key_material = hashlib.sha256(secret.encode()).digest()
+    encryption_key = key_material[:16]
+    signing_key = key_material[16:32]
+
+    <span class="comment"># Step 2: Add created_at timestamp</span>
+    customer_data[<span class="string">'created_at'</span>] = datetime.utcnow().isoformat() + <span class="string">'Z'</span>
+
+    <span class="comment"># Step 3: Convert to JSON and pad with PKCS7</span>
+    json_data = json.dumps(customer_data).encode()
+    block_size = <span class="number">16</span>
+    padding_length = block_size - (len(json_data) % block_size)
+    padded_data = json_data + bytes([padding_length] * padding_length)
+
+    <span class="comment"># Step 4: Encrypt with AES-256-CBC</span>
+    iv = os.urandom(<span class="number">16</span>)
+    cipher = Cipher(algorithms.AES(encryption_key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    encrypted = iv + encryptor.update(padded_data) + encryptor.finalize()
+
+    <span class="comment"># Step 5: Sign with HMAC-SHA256</span>
+    signature = hmac.new(signing_key, encrypted, hashlib.sha256).digest()
+
+    <span class="comment"># Step 6: Return base64 URL-safe token</span>
+    token_data = encrypted + signature
+    token = base64.urlsafe_b64encode(token_data).decode().rstrip(<span class="string">'='</span>)
+
+    <span class="keyword">return</span> token
+
+<span class="comment"># Usage</span>
+secret = os.environ.get(<span class="string">'SHOPIFY_MULTIPASS_SECRET'</span>)
+customer = {
+    <span class="string">'email'</span>: <span class="string">'john@example.com'</span>,
+    <span class="string">'first_name'</span>: <span class="string">'John'</span>,
+    <span class="string">'last_name'</span>: <span class="string">'Distributor'</span>,
+    <span class="string">'identifier'</span>: <span class="string">'UNITY-12345'</span>,
+    <span class="string">'tag_string'</span>: <span class="string">'distributor,gold-rank,usa'</span>,
+    <span class="string">'return_to'</span>: <span class="string">'/collections/wholesale'</span>
+}
+token = generate_multipass_token(secret, customer)
+redirect_url = f<span class="string">'https://store.myshopify.com/account/login/multipass/{token}'</span></code></pre>
+            </div>
+
+            <h3>Node.js Token Generation</h3>
+            <div class="code-block">
+                <div class="code-label">Node.js (with crypto module)</div>
+                <pre><code><span class="keyword">const</span> crypto = require(<span class="string">'crypto'</span>);
+
+<span class="keyword">function</span> <span class="function">generateMultipassToken</span>(secret, customerData) {
+    <span class="comment">// Step 1: Derive keys from secret</span>
+    <span class="keyword">const</span> keyMaterial = crypto.createHash(<span class="string">'sha256'</span>).update(secret).digest();
+    <span class="keyword">const</span> encryptionKey = keyMaterial.slice(<span class="number">0</span>, <span class="number">16</span>);
+    <span class="keyword">const</span> signingKey = keyMaterial.slice(<span class="number">16</span>, <span class="number">32</span>);
+
+    <span class="comment">// Step 2: Add timestamp</span>
+    customerData.created_at = <span class="keyword">new</span> Date().toISOString();
+
+    <span class="comment">// Step 3: Convert to JSON and pad</span>
+    <span class="keyword">const</span> jsonData = Buffer.from(JSON.stringify(customerData));
+    <span class="keyword">const</span> blockSize = <span class="number">16</span>;
+    <span class="keyword">const</span> paddingLength = blockSize - (jsonData.length % blockSize);
+    <span class="keyword">const</span> paddedData = Buffer.concat([
+        jsonData,
+        Buffer.alloc(paddingLength, paddingLength)
+    ]);
+
+    <span class="comment">// Step 4: Encrypt with AES-256-CBC</span>
+    <span class="keyword">const</span> iv = crypto.randomBytes(<span class="number">16</span>);
+    <span class="keyword">const</span> cipher = crypto.createCipheriv(<span class="string">'aes-256-cbc'</span>, encryptionKey, iv);
+    <span class="keyword">const</span> encrypted = Buffer.concat([iv, cipher.update(paddedData), cipher.final()]);
+
+    <span class="comment">// Step 5: Sign with HMAC-SHA256</span>
+    <span class="keyword">const</span> signature = crypto.createHmac(<span class="string">'sha256'</span>, signingKey).update(encrypted).digest();
+
+    <span class="comment">// Step 6: Return base64 URL-safe token</span>
+    <span class="keyword">const</span> token = Buffer.concat([encrypted, signature])
+        .toString(<span class="string">'base64'</span>)
+        .replace(/\+/g, <span class="string">'-'</span>)
+        .replace(/\//g, <span class="string">'_'</span>)
+        .replace(/=/g, <span class="string">''</span>);
+
+    <span class="keyword">return</span> token;
+}
+
+<span class="comment">// Usage</span>
+<span class="keyword">const</span> secret = process.env.SHOPIFY_MULTIPASS_SECRET;
+<span class="keyword">const</span> customer = {
+    email: <span class="string">'john@example.com'</span>,
+    first_name: <span class="string">'John'</span>,
+    last_name: <span class="string">'Distributor'</span>,
+    identifier: <span class="string">'UNITY-12345'</span>,
+    tag_string: <span class="string">'distributor,gold-rank,usa'</span>,
+    return_to: <span class="string">'/collections/wholesale'</span>
+};
+<span class="keyword">const</span> token = generateMultipassToken(secret, customer);
+<span class="keyword">const</span> redirectUrl = <span class="string">`https://store.myshopify.com/account/login/multipass/${token}`</span>;</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 7: Field Mapping -->
+        <section class="section">
+            <h2>Unicity-Specific Field Mapping</h2>
+            <p>Map Unicity Unity fields to Shopify customer attributes:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Unity Field</th>
+                        <th>Shopify Field</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Unity ID</td>
+                        <td>Customer tag + metafield</td>
+                        <td>Primary distributor identifier; store in tag "unity-id:{id}" and metafield for reporting</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>email</td>
+                        <td>Required for Multipass; used for customer matching</td>
+                    </tr>
+                    <tr>
+                        <td>Full Name</td>
+                        <td>first_name, last_name</td>
+                        <td>Split full name on space; populate customer profile</td>
+                    </tr>
+                    <tr>
+                        <td>Rank</td>
+                        <td>Customer tag</td>
+                        <td>Add as tag (e.g., "rank:gold", "rank:silver"); enables segmentation</td>
+                    </tr>
+                    <tr>
+                        <td>Region</td>
+                        <td>Customer tag</td>
+                        <td>Add as tag (e.g., "region:us", "region:eu", "region:japan")</td>
+                    </tr>
+                    <tr>
+                        <td>Upline ID</td>
+                        <td>Customer metafield</td>
+                        <td>Store for attribution and genealogy tracking; create metafield "upline_id"</td>
+                    </tr>
+                    <tr>
+                        <td>Account Status</td>
+                        <td>Customer tag</td>
+                        <td>Add tag to reflect status (e.g., "active", "inactive", "suspended")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 8: Security Considerations -->
+        <section class="section">
+            <h2>Security Considerations</h2>
+
+            <div class="callout callout-danger">
+                <strong>Critical: Secret Key Management</strong>
+                Never commit your Multipass secret key to version control. Store it as an environment variable on your server only. Never expose it to client-side code.
+            </div>
+
+            <ul>
+                <li>
+                    <strong>Server-Side Storage Only:</strong> Multipass secret must never be exposed to client-side JavaScript or committed to repositories
+                </li>
+                <li>
+                    <strong>Token Expiration:</strong> Tokens expire 15 minutes after creation (verified by <code>created_at</code> timestamp). Reject any stale tokens
+                </li>
+                <li>
+                    <strong>HTTPS Only:</strong> All redirect URLs must use HTTPS; never pass tokens over unencrypted HTTP
+                </li>
+                <li>
+                    <strong>Periodic Key Rotation:</strong> Rotate your Multipass secret key every 90 days. This will invalidate all existing tokens, so plan accordingly
+                </li>
+                <li>
+                    <strong>Audit Logging:</strong> Log all Multipass login attempts with timestamp, email, and IP address for security audits
+                </li>
+                <li>
+                    <strong>IP Validation:</strong> Compare the <code>remote_ip</code> in the token with the request IP to prevent token theft
+                </li>
+                <li>
+                    <strong>Rate Limiting:</strong> Implement rate limiting on your token generation endpoint to prevent brute-force attacks
+                </li>
+                <li>
+                    <strong>Signature Verification:</strong> Always verify the HMAC-SHA256 signature before decrypting; corrupted or tampered tokens will fail validation
+                </li>
+            </ul>
+
+            <div class="callout callout-warning">
+                <strong>Token Theft Prevention</strong>
+                If a token is intercepted, an attacker could potentially log in as that customer. Always use HTTPS, validate remote IP, and keep tokens short-lived.
+            </div>
+        </section>
+
+        <!-- Section 9: Testing Checklist -->
+        <section class="section">
+            <h2>Testing Checklist</h2>
+            <p>Use this checklist to verify your Multipass implementation:</p>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="check1">
+                    <label for="check1">Multipass enabled in Shopify Admin (Settings → Customer accounts)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2">
+                    <label for="check2">Secret key securely stored on server in environment variables</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3">
+                    <label for="check3">Token generation endpoint is working and returning valid tokens</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4">
+                    <label for="check4">New customer is auto-created on first login with all attributes populated</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5">
+                    <label for="check5">Existing customer is matched by email and logged in without duplication</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6">
+                    <label for="check6">Tags and metafields are populated correctly (rank, region, Unity ID)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7">
+                    <label for="check7">Return URL redirect works and customer lands on correct page</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check8">
+                    <label for="check8">Token expiration is enforced (reject tokens older than 15 minutes)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check9">
+                    <label for="check9">Security audit of token generation code completed</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check10">
+                    <label for="check10">Load testing performed for high-volume distributor logins</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Multi-Store Architecture -->
+        <section class="section">
+            <h2>Integration Architecture for Multi-Store</h2>
+            <p>
+                Unicity plans to expand Shopify to multiple regional stores. Here's how Multipass integrates across the expansion:
+            </p>
+
+            <h3>Key Principles</h3>
+            <ul>
+                <li><strong>One Secret Per Store:</strong> Each expansion store (US, EU, Japan) has its own Multipass secret key</li>
+                <li><strong>Region-Based Routing:</strong> The Unity login system determines which store to redirect to based on distributor region</li>
+                <li><strong>Unified Identity:</strong> All customers are identified by email; the same customer can access multiple stores with one login</li>
+                <li><strong>Store-Specific Tags:</strong> Use tags to track which stores a customer has accessed or has permissions for</li>
+            </ul>
+
+            <h3>Store Routing Logic</h3>
+            <div class="code-block">
+                <div class="code-label">Region-to-Store Mapping</div>
+                <pre><code><span class="keyword">const</span> storeMapping = {
+    <span class="string">'usa'</span>: {
+        domain: <span class="string">'us-store.myshopify.com'</span>,
+        secret: process.env.SHOPIFY_MULTIPASS_SECRET_US,
+        currency: <span class="string">'USD'</span>
+    },
+    <span class="string">'europe'</span>: {
+        domain: <span class="string">'eu-store.myshopify.com'</span>,
+        secret: process.env.SHOPIFY_MULTIPASS_SECRET_EU,
+        currency: <span class="string">'EUR'</span>
+    },
+    <span class="string">'japan'</span>: {
+        domain: <span class="string">'jp-store.myshopify.com'</span>,
+        secret: process.env.SHOPIFY_MULTIPASS_SECRET_JP,
+        currency: <span class="string">'JPY'</span>
+    }
+};
+
+<span class="keyword">function</span> <span class="function">getStoreForDistributor</span>(distributorData) {
+    <span class="keyword">const</span> region = distributorData.region.toLowerCase();
+    <span class="keyword">return</span> storeMapping[region] || storeMapping[<span class="string">'usa'</span>];
+}</code></pre>
+            </div>
+
+            <h3>Multi-Store Architecture Diagram</h3>
+            <div class="architecture-diagram">
+                <div class="arch-box">
+                    <strong>Unicity Login Portal</strong>
+                    <p>Single authentication point for all regions. Stores region in user session.</p>
+                </div>
+                <div class="arch-box">
+                    <strong>Token Generation Service</strong>
+                    <p>Generates region-specific Multipass tokens using appropriate secret key.</p>
+                </div>
+                <div class="arch-box">
+                    <strong>US Store</strong>
+                    <p>store.myshopify.com<br>USD currency<br>Own Multipass secret</p>
+                </div>
+                <div class="arch-box">
+                    <strong>EU Store</strong>
+                    <p>eu-store.myshopify.com<br>EUR currency<br>Own Multipass secret</p>
+                </div>
+                <div class="arch-box">
+                    <strong>Japan Store</strong>
+                    <p>jp-store.myshopify.com<br>JPY currency<br>Own Multipass secret</p>
+                </div>
+                <div class="arch-box">
+                    <strong>Shared Customer DB</strong>
+                    <p>Email-based identity across all stores. Cross-store order history and preferences.</p>
+                </div>
+            </div>
+
+            <h3>Cross-Store Customer Matching</h3>
+            <p>
+                Since all customers are matched by email, a distributor logging into the EU store with the same email address will be recognized and logged in automatically. The Multipass token includes region-specific attributes (currency, language, locale), but the customer record is unified. Use tags like "store:us", "store:eu", "store:japan" to track which stores a customer has accessed.
+            </p>
+
+            <div class="callout callout-success">
+                <strong>Benefit: Seamless Cross-Store Experience</strong>
+                A US distributor who travels to Europe can log into the EU store with their same email and immediately see their account, history, and preferences—all without re-registration.
+            </div>
+        </section>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; color: #6e7681; font-size: 0.9rem;">
+            <p>Shopify Multipass SSO Integration Guide for Unicity International &copy; 2026</p>
+        </footer>
+    </div>
+</body>
+</html>

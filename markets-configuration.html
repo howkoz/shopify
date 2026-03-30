@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Markets Configuration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .section {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-content {
+            display: none;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        .section-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 1rem;
+            background-color: var(--surface2);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .section-toggle:hover {
+            background-color: var(--border);
+        }
+
+        .toggle-icon {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 1rem;
+            color: var(--accent);
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .key-point {
+            background-color: var(--surface2);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .key-point strong {
+            color: var(--cyan);
+        }
+
+        .architecture-diagram {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .tab-button:hover {
+            color: var(--accent);
+        }
+
+        .tab-button.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: var(--surface);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--cyan);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .checkmark {
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        .currency-example {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--surface2);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            margin: 0.25rem 0;
+        }
+
+        .checklist {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: var(--surface);
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s;
+        }
+
+        .checklist-item:hover {
+            background-color: var(--border);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            accent-color: var(--green);
+        }
+
+        .checklist-item.checked {
+            opacity: 0.7;
+        }
+
+        .checklist-item.checked label {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+
+        label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                padding: 0.75rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+
+        .highlight {
+            background-color: rgba(88, 166, 255, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-primary {
+            background-color: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .badge-success {
+            background-color: rgba(63, 185, 80, 0.2);
+            color: var(--green);
+        }
+
+        .badge-warning {
+            background-color: rgba(210, 153, 34, 0.2);
+            color: var(--yellow);
+        }
+
+        .badge-danger {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--red);
+        }
+
+        .code-block {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            color: var(--cyan);
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <header>
+            <h1>Shopify Markets Configuration</h1>
+            <p class="subtitle">Multi-currency, multi-language, and regional pricing configuration for selling across US, Europe, and Japan.</p>
+        </header>
+
+        <!-- Section 1: What Is Shopify Markets -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">What Is Shopify Markets</h2>
+            </div>
+            <div class="section-content active">
+                <p>Shopify Markets allows you to manage international selling from a single store without creating separate storefronts. Each "market" is a group of countries or regions with shared settings for:</p>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>Currency</strong> - USD, EUR, GBP, JPY, etc.</li>
+                    <li><strong>Language</strong> - English, German, French, Japanese, etc.</li>
+                    <li><strong>Domain</strong> - Subdomains, subfolders, or country TLDs</li>
+                    <li><strong>Pricing</strong> - Regional pricing strategies</li>
+                    <li><strong>Duties & Taxes</strong> - Local tax and duty rules</li>
+                    <li><strong>Shipping</strong> - Regional shipping zones and rates</li>
+                </ul>
+                <div class="key-point">
+                    <strong>Key Feature:</strong> Shopify Markets supports up to <span class="highlight">50 markets</span> per store, making it ideal for global expansion while maintaining a unified product catalog and inventory system.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Markets vs Expansion Stores -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Markets vs Expansion Stores</h2>
+            </div>
+            <div class="section-content">
+                <p>Understanding when to use Markets vs creating fully independent Expansion Stores is critical for architecture decisions.</p>
+
+                <div class="comparison-grid">
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h3 style="margin-top: 0;">Shopify Markets</h3>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Lightweight configuration</li>
+                            <li>Same store, different regional settings</li>
+                            <li>Unified inventory</li>
+                            <li>Single admin dashboard</li>
+                            <li>Faster to set up</li>
+                            <li>Lower operational overhead</li>
+                        </ul>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);"><strong>Best for:</strong> Similar product catalogs, centralized operations, regional pricing variations</p>
+                    </div>
+
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h3 style="margin-top: 0;">Expansion Stores</h3>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Fully independent stores</li>
+                            <li>Separate product catalogs</li>
+                            <li>Separate inventory systems</li>
+                            <li>Separate admin dashboards</li>
+                            <li>More control & flexibility</li>
+                            <li>Higher operational complexity</li>
+                        </ul>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);"><strong>Best for:</strong> Completely different product lines, separate teams, strict regulatory requirements</p>
+                    </div>
+                </div>
+
+                <div class="key-point">
+                    <strong>Recommendation for Unicity International:</strong> Use <span class="highlight">Expansion Stores</span> for major geographic regions (e.g., US Store, EU Store, Japan Store) due to distinct product lines, regulatory requirements, and operational independence. Within each expansion store, use <span class="highlight">Shopify Markets</span> for sub-regional targeting (e.g., EU store with markets for UK, Germany, France, Italy, Spain, Netherlands).
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Unicity Market Architecture -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Unicity Market Architecture</h2>
+            </div>
+            <div class="section-content">
+                <p>Recommended multi-tier expansion strategy for Unicity International:</p>
+
+                <div class="architecture-diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                    UNICITY INTERNATIONAL                        │
+└─────────────────────────────────────────────────────────────────┘
+                                ↓
+        ┌───────────────────────────────────────────────┐
+        │         TIER 1: EXPANSION STORES              │
+        └───────────────────────────────────────────────┘
+         ↙                    ↓                        ↘
+    ┌─────────┐         ┌──────────┐           ┌─────────┐
+    │ US STORE│         │ EU STORE │           │JP STORE │
+    │ (USD)   │         │ (Multi)  │           │(JPY)    │
+    └─────────┘         └──────────┘           └─────────┘
+         ↓                    ↓                      ↓
+   ┌─────────────┐  ┌──────────────────┐  ┌──────────────┐
+   │Primary      │  │EU Market Group   │  │Japan Market  │
+   │US Market    │  │ ├─ UK (GBP)       │  │ └─ Japan(JPY)│
+   │(USD,EN)     │  │ ├─ Germany(EUR)   │  │              │
+   │             │  │ ├─ France(EUR)    │  │              │
+   │             │  │ ├─ Italy(EUR)     │  │              │
+   │             │  │ ├─ Spain(EUR)     │  │              │
+   │             │  │ └─ Neth.(EUR)     │  │              │
+   └─────────────┘  └──────────────────┘  └──────────────┘
+                </div>
+
+                <p style="margin-top: 1.5rem;"><strong>Architecture Benefits:</strong></p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Expansion Stores</strong> isolate regulatory, inventory, and operational concerns per region</li>
+                    <li><strong>Markets within each store</strong> enable granular regional customization without store duplication</li>
+                    <li>Single EU Expansion Store with 6 markets simplifies VAT, shipping, and payment integration</li>
+                    <li>Japan as dedicated store handles unique payment methods (Konbini, PayPay) and consumption tax</li>
+                    <li>Centralized product catalog management per store with market-level pricing adjustments</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Currency Configuration -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Currency Configuration</h2>
+            </div>
+            <div class="section-content">
+                <p><strong>Supported Currencies:</strong> Shopify Payments supports 130+ currencies globally. For Unicity, configure:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Market</th>
+                            <th>Currency</th>
+                            <th>Format Example</th>
+                            <th>Rounding Rule</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>United States</strong></td>
+                            <td>USD ($)</td>
+                            <td><code class="currency-example">$100.00</code></td>
+                            <td>$X.99 (cents)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>United Kingdom</strong></td>
+                            <td>GBP (£)</td>
+                            <td><code class="currency-example">£100.00</code></td>
+                            <td>£X.99 (pence)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Germany</strong></td>
+                            <td>EUR (€)</td>
+                            <td><code class="currency-example">€100,00</code></td>
+                            <td>€X,95 (cents)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>France</strong></td>
+                            <td>EUR (€)</td>
+                            <td><code class="currency-example">€100,00</code></td>
+                            <td>€X,95 (cents)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Italy</strong></td>
+                            <td>EUR (€)</td>
+                            <td><code class="currency-example">€100,00</code></td>
+                            <td>€X,95 (cents)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Spain</strong></td>
+                            <td>EUR (€)</td>
+                            <td><code class="currency-example">€100,00</code></td>
+                            <td>€X,95 (cents)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Netherlands</strong></td>
+                            <td>EUR (€)</td>
+                            <td><code class="currency-example">€100,00</code></td>
+                            <td>€X,95 (cents)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Japan</strong></td>
+                            <td>JPY (¥)</td>
+                            <td><code class="currency-example">¥10,000</code></td>
+                            <td>¥XXX0 (no decimals)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Exchange Rate Configuration</h3>
+                <div class="comparison-grid">
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--green); margin-bottom: 0.5rem;">Automatic Rates</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Shopify updates exchange rates daily based on market rates.</p>
+                        <div class="badge badge-success">Recommended for</div> Dynamic pricing, high-volume sales
+                    </div>
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--orange); margin-bottom: 0.5rem;">Manual Rates</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Set fixed rates per market for predictable pricing.</p>
+                        <div class="badge badge-warning">Recommended for</div> Stable pricing, predictable margins
+                    </div>
+                </div>
+
+                <h3>Price Adjustments per Market</h3>
+                <p>Apply percentage-based markups or markdowns to base prices for each market. Example:</p>
+                <div class="code-block">
+Base Price (USD): $100.00
+├─ US Market: $100.00 (0% adjustment)
+├─ UK Market: £80.00 (GBP rate + 2% markup)
+├─ Germany: €92.00 (EUR rate + 3% shipping cost markup)
+├─ France: €92.00 (same as Germany)
+├─ Italy: €92.00 (same as Germany)
+├─ Spain: €92.00 (same as Germany)
+├─ Netherlands: €92.00 (same as Germany)
+└─ Japan: ¥11,000 (JPY rate + 5% for local shipping)
+                </div>
+
+                <div class="key-point">
+                    <strong>Pro Tip:</strong> Use percentage adjustments for shipping costs, import duties, and regional market positioning rather than manually calculating each price.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Language & Localization -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Language & Localization</h2>
+            </div>
+            <div class="section-content">
+                <p>Localization extends beyond translation to include cultural adaptation and regional preferences.</p>
+
+                <h3>Primary & Regional Languages</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Market</th>
+                            <th>Primary Language</th>
+                            <th>Additional Languages</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>United States</td>
+                            <td>English (en-US)</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>United Kingdom</td>
+                            <td>English (en-GB)</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>Germany</td>
+                            <td>German (de-DE)</td>
+                            <td>English</td>
+                        </tr>
+                        <tr>
+                            <td>France</td>
+                            <td>French (fr-FR)</td>
+                            <td>English</td>
+                        </tr>
+                        <tr>
+                            <td>Italy</td>
+                            <td>Italian (it-IT)</td>
+                            <td>English</td>
+                        </tr>
+                        <tr>
+                            <td>Spain</td>
+                            <td>Spanish (es-ES)</td>
+                            <td>English</td>
+                        </tr>
+                        <tr>
+                            <td>Netherlands</td>
+                            <td>Dutch (nl-NL)</td>
+                            <td>English, German</td>
+                        </tr>
+                        <tr>
+                            <td>Japan</td>
+                            <td>Japanese (ja-JP)</td>
+                            <td>English</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>URL Structure & Subfolders</h3>
+                <div class="code-block">
+/en/           → English (US/default)
+/en-gb/        → English (UK)
+/de/           → German
+/fr/           → French
+/it/           → Italian
+/es/           → Spanish
+/nl/           → Dutch
+/ja/           → Japanese
+                </div>
+
+                <h3>Translation Management</h3>
+                <p><strong>Tool:</strong> Install Shopify's <span class="highlight">Translate & Adapt</span> app to:</p>
+                <ul style="margin-left: 2rem;">
+                    <li>Automatically translate product descriptions, metadata, and checkout</li>
+                    <li>Manually override translations for brand consistency</li>
+                    <li>Manage translations for custom pages and email templates</li>
+                    <li>Support native speakers for quality assurance</li>
+                </ul>
+
+                <h3>Content to Localize</h3>
+                <ul style="margin-left: 2rem;">
+                    <li>Product names, descriptions, and metadata (tags, collections)</li>
+                    <li>Checkout flow and payment method labels</li>
+                    <li>Transactional emails (order confirmation, shipping, returns)</li>
+                    <li>Customer support pages and FAQs</li>
+                    <li>Marketing copy, homepage, and promotional banners</li>
+                    <li>Return & refund policies (localized legal text)</li>
+                </ul>
+
+                <div class="key-point">
+                    <strong>Right-to-Left (RTL) Consideration:</strong> If expanding to Middle East (Arabic) or Israel (Hebrew), configure RTL layout in CSS and test checkout flow thoroughly.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Domain Strategy -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Domain Strategy</h2>
+            </div>
+            <div class="section-content">
+                <p>Choose a domain structure that balances SEO, user experience, and operational simplicity.</p>
+
+                <h3>Option A: Subdomains</h3>
+                <div class="code-block">
+us.unicity.com
+eu.unicity.com
+jp.unicity.com
+                </div>
+                <p><strong>Pros:</strong> Separate DNS and SSL certs, easier multi-store management, clear regional separation</p>
+                <p><strong>Cons:</strong> Potential SEO penalty if not properly configured with hreflang</p>
+                <p style="color: var(--green);"><strong>Best for:</strong> Expansion Stores (US, EU, Japan)</p>
+
+                <h3>Option B: Subfolders</h3>
+                <div class="code-block">
+unicity.com/en-us/
+unicity.com/en-eu/
+unicity.com/en-gb/
+unicity.com/de/
+unicity.com/fr/
+unicity.com/ja/
+                </div>
+                <p><strong>Pros:</strong> Single domain, simpler SEO, shared domain authority</p>
+                <p><strong>Cons:</strong> All content on one domain, more complex URL structure</p>
+                <p style="color: var(--green);"><strong>Best for:</strong> Shopify Markets within a single store</p>
+
+                <h3>Option C: Country TLDs (ccTLDs)</h3>
+                <div class="code-block">
+unicity.com       → United States
+unicity.co.uk     → United Kingdom
+unicity.de        → Germany
+unicity.fr        → France
+unicity.it        → Italy
+unicity.es        → Spain
+unicity.nl        → Netherlands
+unicity.jp        → Japan
+                </div>
+                <p><strong>Pros:</strong> Strongest local SEO signal, trusts from local search engines</p>
+                <p><strong>Cons:</strong> Multiple domain registrations, higher maintenance complexity</p>
+                <p style="color: var(--orange);"><strong>Best for:</strong> Enterprise with dedicated regional teams</p>
+
+                <div class="key-point">
+                    <strong>Unicity International Recommendation:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 2rem;">
+                        <li><strong>Expansion Stores:</strong> Use <span class="highlight">subdomains</span> (us.unicity.com, eu.unicity.com, jp.unicity.com)</li>
+                        <li><strong>Markets within EU Store:</strong> Use <span class="highlight">subfolders</span> (eu.unicity.com/en-gb/, eu.unicity.com/de/, etc.)</li>
+                        <li><strong>Future Growth:</strong> Consider country TLDs if regional legal entities are established</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Regional Pricing Strategy -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Regional Pricing Strategy</h2>
+            </div>
+            <div class="section-content">
+                <p>Implement pricing that reflects regional market conditions, shipping costs, and purchasing power.</p>
+
+                <h3>Pricing Configuration Methods</h3>
+                <div class="comparison-grid">
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--cyan); margin-bottom: 0.75rem;">1. Fixed Prices per Market</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Manually set specific prices for each market.</p>
+                        <div class="code-block" style="font-size: 0.8rem;">
+Product: Immunity Booster
+├─ USD: $49.99
+├─ GBP: £44.99
+└─ JPY: ¥5,500
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Best for stable, predictable pricing with manual control</p>
+                    </div>
+
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--cyan); margin-bottom: 0.75rem;">2. Percentage Adjustments</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Apply % markup/markdown to base price.</p>
+                        <div class="code-block" style="font-size: 0.8rem;">
+Base: $50
+├─ US: $50 (0%)
+├─ EU: +3% shipping
+└─ JP: +5% shipping
+= Auto-calculated
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Best for dynamic pricing tied to costs</p>
+                    </div>
+
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--cyan); margin-bottom: 0.75rem;">3. Product-Level Overrides</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Set custom prices for specific products in specific markets.</p>
+                        <div class="code-block" style="font-size: 0.8rem;">
+Pro Product (normally +10%):
+├─ Japan: +15% (premium market)
+├─ EU: +3% (standard)
+└─ US: 0% (base)
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Best for strategic pricing exceptions</p>
+                    </div>
+                </div>
+
+                <h3>Catalog Visibility & Segmentation</h3>
+                <p>Control which products are available in which markets:</p>
+                <ul style="margin-left: 2rem;">
+                    <li><strong>Show/Hide Products:</strong> Hide products that don't meet regional regulatory requirements</li>
+                    <li><strong>Variants per Market:</strong> Offer different sizes, colors, or options per region</li>
+                    <li><strong>B2B Price Lists:</strong> Create separate price lists for wholesale partners vs consumer markets</li>
+                    <li><strong>Seasonal Availability:</strong> Adjust product availability by market and season</li>
+                </ul>
+
+                <h3>Pricing Best Practices</h3>
+                <div class="key-point">
+                    <strong>Pricing Psychology:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 2rem;">
+                        <li>Use "charm pricing" ($X.99) in US, UK, Germany</li>
+                        <li>Use "round pricing" (€100) in France, Italy, Spain</li>
+                        <li>Avoid 9 endings in Japan (unlucky number); use 0 or 8</li>
+                        <li>Consider VAT-inclusive pricing in EU (standard practice)</li>
+                        <li>Display all-in pricing (no hidden fees) at checkout</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Payment Methods by Market -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Payment Methods by Market</h2>
+            </div>
+            <div class="section-content">
+                <p>Enable region-specific payment methods to maximize conversion and customer convenience.</p>
+
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab(this, 'payment-us')">🇺🇸 United States</button>
+                    <button class="tab-button" onclick="switchTab(this, 'payment-uk')">🇬🇧 United Kingdom</button>
+                    <button class="tab-button" onclick="switchTab(this, 'payment-eu')">🇪🇺 Europe (DE, FR, IT, ES, NL)</button>
+                    <button class="tab-button" onclick="switchTab(this, 'payment-jp')">🇯🇵 Japan</button>
+                </div>
+
+                <div id="payment-us" class="tab-content active">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Payment Method</th>
+                                <th>Provider</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Credit/Debit Cards (Visa, Mastercard, American Express)</td>
+                                <td>Shopify Payments</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Shop Pay (one-click checkout)</td>
+                                <td>Shopify</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Apple Pay</td>
+                                <td>Apple</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Google Pay</td>
+                                <td>Google</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>PayPal</td>
+                                <td>PayPal</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Affirm (Buy Now, Pay Later)</td>
+                                <td>Affirm</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);"><strong>Note:</strong> Shop Pay is the default one-click option. Affirm is popular for high-value wellness products.</p>
+                </div>
+
+                <div id="payment-uk" class="tab-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Payment Method</th>
+                                <th>Provider</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Credit/Debit Cards (Visa, Mastercard)</td>
+                                <td>Shopify Payments</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Shop Pay</td>
+                                <td>Shopify</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Apple Pay</td>
+                                <td>Apple</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Google Pay</td>
+                                <td>Google</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>PayPal</td>
+                                <td>PayPal</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Klarna</td>
+                                <td>Klarna</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Direct Bank Transfer</td>
+                                <td>Open Banking</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);"><strong>Note:</strong> Klarna is widely used for installment payments. PSD2 compliance enables open banking.</p>
+                </div>
+
+                <div id="payment-eu" class="tab-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Payment Method</th>
+                                <th>Recommended Countries</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Credit/Debit Cards</td>
+                                <td>All</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Klarna</td>
+                                <td>Germany, Sweden, UK</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>PayPal</td>
+                                <td>All</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>SOFORT (Klarna)</td>
+                                <td>Germany, Austria, Belgium</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Giropay</td>
+                                <td>Germany, Austria</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Carte Bancaire</td>
+                                <td>France</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>iDEAL</td>
+                                <td>Netherlands</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Apple Pay / Google Pay</td>
+                                <td>All</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Shop Pay</td>
+                                <td>All</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);"><strong>Note:</strong> Regional bank transfer methods (SOFORT, Giropay, iDEAL) are highly preferred for higher trust and lower fees. iDEAL is the dominant method in Netherlands.</p>
+                </div>
+
+                <div id="payment-jp" class="tab-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Payment Method</th>
+                                <th>Provider</th>
+                                <th>Market Share</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Credit Cards (Visa, Mastercard, JCB)</td>
+                                <td>Shopify Payments</td>
+                                <td>40%</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Konbini (Convenience Store Payment)</td>
+                                <td>7-Eleven, FamilyMart, Lawson, etc.</td>
+                                <td>30%</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>PayPay (Digital Wallet)</td>
+                                <td>PayPay Corp.</td>
+                                <td>15%</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Line Pay</td>
+                                <td>Line Corporation</td>
+                                <td>10%</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Bank Transfer</td>
+                                <td>Japanese Banks</td>
+                                <td>3%</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                            <tr>
+                                <td>Apple Pay / Google Pay</td>
+                                <td>Apple / Google</td>
+                                <td>2%</td>
+                                <td><span class="checkmark">✓</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);"><strong>Critical Note:</strong> Konbini payment is essential for Japan market success. Many Japanese customers prefer paying at convenience stores rather than online credit card entry. PayPay is rapidly growing as a digital wallet preference.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Duties & Import Taxes -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Duties & Import Taxes</h2>
+            </div>
+            <div class="section-content">
+                <p>Configure regional tax and duty rules to ensure accurate checkout pricing and compliance.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Market</th>
+                            <th>Tax Type</th>
+                            <th>Rate / Rule</th>
+                            <th>Shopify Handling</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>United States</strong></td>
+                            <td>Sales Tax</td>
+                            <td>0-10% (state/local)</td>
+                            <td>Calculated at checkout (varies by state)</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>European Union</strong></td>
+                            <td>VAT (standard)</td>
+                            <td>16-27% (varies by country)</td>
+                            <td>Included in displayed price (standard practice)</td>
+                        </tr>
+                        <tr>
+                            <td>Cross-border VAT</td>
+                            <td>Applicable on shipping</td>
+                            <td>Auto-calculated per market</td>
+                        </tr>
+                        <tr>
+                            <td>Duty-Free Threshold</td>
+                            <td>€150 de minimis</td>
+                            <td>Imports under €150 exempt from customs duties</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2"><strong>Japan</strong></td>
+                            <td>Consumption Tax</td>
+                            <td>10%</td>
+                            <td>Included in displayed price (standard)</td>
+                        </tr>
+                        <tr>
+                            <td>Customs Duty</td>
+                            <td>5-30% (product-dependent)</td>
+                            <td>DDP (Delivered Duty Paid) at checkout</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Shopify Markets Tax Configuration</h3>
+                <div class="comparison-grid">
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--green); margin-bottom: 0.75rem;">DDP (Delivered Duty Paid)</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Seller pays all duties/taxes upfront. Displayed price is all-inclusive.</p>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);"><strong>Best for:</strong> Japan, premium brands, transparent pricing preference</p>
+                    </div>
+
+                    <div class="section" style="background-color: var(--surface2);">
+                        <h4 style="color: var(--orange); margin-bottom: 0.75rem;">DDU (Delivered Duty Unpaid)</h4>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Customer pays duties/taxes at import. Price shown is before duties.</p>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);"><strong>Best for:</strong> EU B2B, cost-conscious pricing</p>
+                    </div>
+                </div>
+
+                <h3>Market-Specific Configuration</h3>
+                <div class="code-block">
+┌─────────────────────────────────────────────────┐
+│         TAX CONFIGURATION PER MARKET             │
+├─────────────────────────────────────────────────┤
+│ US Market (USD)                                 │
+│  ├─ Include sales tax: YES (by state)           │
+│  └─ Duties: N/A (domestic)                      │
+│                                                 │
+│ EU Markets (EUR/GBP)                            │
+│  ├─ Include VAT: YES (default in storefront)    │
+│  ├─ VAT Rate: 16-27% (varies by country)        │
+│  ├─ Duty handling: DDP (EU standard)            │
+│  └─ Shipping VAT: Calculated per destination    │
+│                                                 │
+│ Japan Market (JPY)                              │
+│  ├─ Include consumption tax: YES (10%)          │
+│  ├─ Customs duties: YES (DDP recommended)       │
+│  └─ Duty percentage: 5-30% (depends on HS code) │
+└─────────────────────────────────────────────────┘
+                </div>
+
+                <div class="key-point">
+                    <strong>VAT in EU:</strong> Standard rates by country:
+                    <ul style="margin-top: 0.5rem; margin-left: 2rem; font-size: 0.9rem;">
+                        <li>Germany: 19% (Mehrwertsteuer)</li>
+                        <li>France: 20% (TVA)</li>
+                        <li>Italy: 22% (IVA)</li>
+                        <li>Spain: 21% (IVA)</li>
+                        <li>Netherlands: 21% (BTW)</li>
+                        <li>UK: 20% (VAT)</li>
+                    </ul>
+                </div>
+
+                <div class="key-point" style="background-color: rgba(248, 81, 73, 0.1); border-left-color: var(--red);">
+                    <strong style="color: var(--red);">Tax Compliance Critical:</strong> EU VAT and Japan consumption tax calculations are automated by Shopify, but verify correct configuration in Settings > Markets. Non-compliance can result in tax audits and penalties.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Shipping Zones by Market -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Shipping Zones by Market</h2>
+            </div>
+            <div class="section-content">
+                <p>Configure region-specific shipping carriers, rates, and delivery expectations.</p>
+
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab(this, 'shipping-us')">🇺🇸 United States</button>
+                    <button class="tab-button" onclick="switchTab(this, 'shipping-eu')">🇪🇺 Europe</button>
+                    <button class="tab-button" onclick="switchTab(this, 'shipping-jp')">🇯🇵 Japan</button>
+                </div>
+
+                <div id="shipping-us" class="tab-content active">
+                    <h3>US Domestic Shipping Strategy</h3>
+                    <p><strong>Recommended Carriers:</strong> USPS, UPS, FedEx, DHL Express</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shipping Method</th>
+                                <th>Delivery Time</th>
+                                <th>Cost Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Free Shipping (Threshold)</td>
+                                <td>3-5 business days</td>
+                                <td>Free on orders $75+ (absorb cost)</td>
+                            </tr>
+                            <tr>
+                                <td>Standard (Ground)</td>
+                                <td>5-7 business days</td>
+                                <td>$5.99 - $9.99</td>
+                            </tr>
+                            <tr>
+                                <td>Expedited</td>
+                                <td>2-3 business days</td>
+                                <td>$14.99 - $19.99</td>
+                            </tr>
+                            <tr>
+                                <td>Overnight</td>
+                                <td>1 business day</td>
+                                <td>$24.99 - $34.99</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="key-point">
+                        <strong>Pro Strategy:</strong> Use free shipping threshold ($75+) to increase average order value. This is especially effective for subscription-based wellness products like Unicity's nutritional products.
+                    </div>
+                </div>
+
+                <div id="shipping-eu" class="tab-content">
+                    <h3>EU International Shipping Strategy</h3>
+                    <p><strong>Recommended Carriers:</strong> DHL, DPD, FedEx, National Post (Deutsche Post, La Poste, etc.)</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shipping Zone</th>
+                                <th>Delivery Time</th>
+                                <th>Cost Strategy</th>
+                                <th>VAT on Shipping</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Intra-EU</td>
+                                <td>5-10 business days</td>
+                                <td>€8.99 - €14.99</td>
+                                <td>Applied per destination</td>
+                            </tr>
+                            <tr>
+                                <td>EU Express</td>
+                                <td>2-3 business days</td>
+                                <td>€19.99 - €29.99</td>
+                                <td>Applied per destination</td>
+                            </tr>
+                            <tr>
+                                <td>UK Shipping (Post-Brexit)</td>
+                                <td>7-14 business days</td>
+                                <td>£12.99 - £19.99</td>
+                                <td>UK VAT applied</td>
+                            </tr>
+                            <tr>
+                                <td>Free Shipping (Threshold)</td>
+                                <td>5-10 business days</td>
+                                <td>Free on €100+</td>
+                                <td>Included in offer</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="key-point" style="background-color: rgba(210, 153, 34, 0.1); border-left-color: var(--yellow);">
+                        <strong style="color: var(--yellow);">Post-Brexit Considerations:</strong> UK shipments now require customs documentation. Recommend DDP for UK customers to avoid customs delays.
+                    </div>
+                </div>
+
+                <div id="shipping-jp" class="tab-content">
+                    <h3>Japan Domestic Shipping Strategy</h3>
+                    <p><strong>Recommended Carriers:</strong> Yamato (黒猫), Sagawa (佐川), Japan Post, Kuroneko-san</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Carrier</th>
+                                <th>Speed</th>
+                                <th>Weight Tier</th>
+                                <th>Cost (JPY)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Yamato (most popular)</strong></td>
+                                <td>1-2 days</td>
+                                <td>0-2kg</td>
+                                <td>¥1,100 - ¥2,000</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>2-5kg</td>
+                                <td>¥1,500 - ¥2,500</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sagawa</strong></td>
+                                <td>1-2 days</td>
+                                <td>0-2kg</td>
+                                <td>¥1,050 - ¥1,950</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Japan Post</strong></td>
+                                <td>2-3 days</td>
+                                <td>0-2kg</td>
+                                <td>¥900 - ¥1,600</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Free Shipping</strong></td>
+                                <td>2-3 days</td>
+                                <td>0-2kg</td>
+                                <td>Free on ¥10,000+</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="key-point">
+                        <strong>Japan-Specific Notes:</strong>
+                        <ul style="margin-top: 0.5rem; margin-left: 2rem;">
+                            <li>Yamato and Sagawa dominate Japan's domestic logistics (99%+ coverage)</li>
+                            <li>Same-day delivery available in major cities (Tokyo, Osaka, Kyoto)</li>
+                            <li>Consumption tax (10%) is included in shipping price</li>
+                            <li>Delivery windows (morning, afternoon, evening) are customer expectations</li>
+                            <li>Size/weight tiers are strict; check carrier specifications carefully</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 11: SEO & Hreflang Tags -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">SEO & Hreflang Tags</h2>
+            </div>
+            <div class="section-content">
+                <p>Properly configure international SEO to ensure Google indexes each market's content correctly.</p>
+
+                <h3>Hreflang Configuration</h3>
+                <p>Shopify automatically generates hreflang tags for each market and language variant. Example:</p>
+                <div class="code-block">
+&lt;link rel="alternate" hreflang="en-US"
+  href="https://us.unicity.com/products/immunity-booster" /&gt;
+&lt;link rel="alternate" hreflang="en-GB"
+  href="https://eu.unicity.com/en-gb/products/immunity-booster" /&gt;
+&lt;link rel="alternate" hreflang="de"
+  href="https://eu.unicity.com/de/products/immunity-booster" /&gt;
+&lt;link rel="alternate" hreflang="fr"
+  href="https://eu.unicity.com/fr/products/immunity-booster" /&gt;
+&lt;link rel="alternate" hreflang="ja"
+  href="https://jp.unicity.com/ja/products/immunity-booster" /&gt;
+&lt;link rel="canonical" href="https://us.unicity.com/products/immunity-booster" /&gt;
+                </div>
+
+                <h3>Market-Level SEO Setup</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SEO Task</th>
+                            <th>Configuration</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Google Search Console</strong></td>
+                            <td>Add each market domain/subfolder separately</td>
+                            <td><span style="color: var(--red);">CRITICAL</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Canonical URLs</strong></td>
+                            <td>Set primary market per region (US for global)</td>
+                            <td><span style="color: var(--red);">CRITICAL</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>XML Sitemaps</strong></td>
+                            <td>Shopify generates per language/market</td>
+                            <td><span style="color: var(--green);">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Meta Tags (Title, Description)</strong></td>
+                            <td>Localize for each market language</td>
+                            <td><span style="color: var(--green);">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>robots.txt</strong></td>
+                            <td>Allow crawling for all market paths</td>
+                            <td><span style="color: var(--green);">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>International Targeting</strong></td>
+                            <td>Set market country in Google Search Console</td>
+                            <td><span style="color: var(--yellow);">Medium</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Market-Specific Keywords</h3>
+                <div class="code-block">
+US Market (English):
+  "immunity booster supplements USA"
+  "buy wellness products online"
+
+Germany Market (German):
+  "Immunbooster Supplements Deutschland"
+  "Wellness-Produkte Online kaufen"
+
+France Market (French):
+  "suppléments immunitaires France"
+  "Acheter des produits bien-être en ligne"
+
+Japan Market (Japanese):
+  "免疫ブースターサプリメント日本"
+  "ウェルネス製品をオンラインで購入"
+                </div>
+
+                <div class="key-point">
+                    <strong>Hreflang Best Practices:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 2rem;">
+                        <li>Hreflang must be bidirectional (if A links to B, B must link back to A)</li>
+                        <li>Include self-referential hreflang (en-US page links to itself)</li>
+                        <li>Avoid hreflang errors in Google Search Console (under "International Targeting")</li>
+                        <li>Test with Google's URL Inspection tool to verify hreflang is correct</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Setup Checklist -->
+        <section class="section">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <span class="toggle-icon">▶</span>
+                <h2 style="margin: 0; border: none; font-size: 1.4rem;">Setup Checklist</h2>
+            </div>
+            <div class="section-content">
+                <p>Use this interactive checklist to track your Shopify Markets implementation progress. Click items to check them off.</p>
+
+                <div class="checklist" id="setupChecklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1" onchange="toggleChecklistItem(this)">
+                        <label for="check1">Enable Shopify Markets in Settings → Markets</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2" onchange="toggleChecklistItem(this)">
+                        <label for="check2">Create market for each target region (US, UK, DE, FR, IT, ES, NL, JP)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3" onchange="toggleChecklistItem(this)">
+                        <label for="check3">Assign countries to each market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4" onchange="toggleChecklistItem(this)">
+                        <label for="check4">Set currency for each market (USD, GBP, EUR, JPY)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check5" onchange="toggleChecklistItem(this)">
+                        <label for="check5">Configure rounding rules per currency</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check6" onchange="toggleChecklistItem(this)">
+                        <label for="check6">Choose exchange rate strategy (automatic vs manual)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check7" onchange="toggleChecklistItem(this)">
+                        <label for="check7">Add languages (German, French, Italian, Spanish, Dutch, Japanese)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check8" onchange="toggleChecklistItem(this)">
+                        <label for="check8">Install Shopify Translate & Adapt app for translation management</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check9" onchange="toggleChecklistItem(this)">
+                        <label for="check9">Translate product descriptions, meta data, and checkout copy</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check10" onchange="toggleChecklistItem(this)">
+                        <label for="check10">Translate email templates (order confirmation, shipping, returns)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check11" onchange="toggleChecklistItem(this)">
+                        <label for="check11">Configure domain strategy (subdomains, subfolders, or ccTLDs)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check12" onchange="toggleChecklistItem(this)">
+                        <label for="check12">Set up SSL certificates for each domain/subdomain</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check13" onchange="toggleChecklistItem(this)">
+                        <label for="check13">Configure payment methods per market (enable region-specific options)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check14" onchange="toggleChecklistItem(this)">
+                        <label for="check14">Enable Konbini payment for Japan market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check15" onchange="toggleChecklistItem(this)">
+                        <label for="check15">Enable PayPay and Line Pay for Japan market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check16" onchange="toggleChecklistItem(this)">
+                        <label for="check16">Configure tax rules per market (VAT, sales tax, consumption tax)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check17" onchange="toggleChecklistItem(this)">
+                        <label for="check17">Set duty handling method (DDP vs DDU)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check18" onchange="toggleChecklistItem(this)">
+                        <label for="check18">Create shipping zones for each market group (US, EU, JP)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check19" onchange="toggleChecklistItem(this)">
+                        <label for="check19">Configure shipping rates and methods per zone</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check20" onchange="toggleChecklistItem(this)">
+                        <label for="check20">Set up free shipping thresholds per market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check21" onchange="toggleChecklistItem(this)">
+                        <label for="check21">Configure product pricing adjustments per market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check22" onchange="toggleChecklistItem(this)">
+                        <label for="check22">Set product visibility and catalog availability per market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check23" onchange="toggleChecklistItem(this)">
+                        <label for="check23">Create B2B price lists for wholesale partners (if applicable)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check24" onchange="toggleChecklistItem(this)">
+                        <label for="check24">Test checkout flow in each market (desktop and mobile)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check25" onchange="toggleChecklistItem(this)">
+                        <label for="check25">Verify hreflang tags are correctly generated (check page source)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check26" onchange="toggleChecklistItem(this)">
+                        <label for="check26">Add market domains to Google Search Console</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check27" onchange="toggleChecklistItem(this)">
+                        <label for="check27">Configure international targeting in Google Search Console</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check28" onchange="toggleChecklistItem(this)">
+                        <label for="check28">Verify XML sitemaps are generated for each language/market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check29" onchange="toggleChecklistItem(this)">
+                        <label for="check29">Test currency conversion accuracy</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check30" onchange="toggleChecklistItem(this)">
+                        <label for="check30">Test shipping calculations for edge cases (high weight, remote areas)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check31" onchange="toggleChecklistItem(this)">
+                        <label for="check31">Set up analytics and tracking per market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check32" onchange="toggleChecklistItem(this)">
+                        <label for="check32">Brief customer support team on regional policies and payment methods</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check33" onchange="toggleChecklistItem(this)">
+                        <label for="check33">Monitor conversion rates and cart abandonment by market</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check34" onchange="toggleChecklistItem(this)">
+                        <label for="check34">Schedule post-launch review (7 days, 30 days, 90 days)</label>
+                    </div>
+                </div>
+
+                <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-secondary);">
+                    <strong>Tip:</strong> Your progress is saved in your browser. Complete this checklist systematically before going live in each market.
+                </p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Shopify Markets Configuration Guide for Unicity International | Last Updated: March 2026</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">This guide covers best practices for multi-market ecommerce expansion. Always verify current Shopify documentation and consult with tax/legal experts for regulatory compliance.</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleSection(element) {
+            const toggle = element.querySelector('.section-toggle');
+            const content = element.querySelector('.section-content');
+            const icon = toggle.querySelector('.toggle-icon');
+
+            content.classList.toggle('active');
+            icon.classList.toggle('collapsed');
+        }
+
+        function switchTab(button, tabId) {
+            // Remove active class from all buttons in this group
+            const allButtons = button.parentElement.querySelectorAll('.tab-button');
+            allButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // Hide all tab contents in this group
+            const tabContents = button.parentElement.parentElement.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Show the selected tab content
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+        }
+
+        function toggleChecklistItem(checkbox) {
+            const item = checkbox.parentElement;
+            item.classList.toggle('checked');
+        }
+
+        // Initialize: make first section expanded by default
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstSection = document.querySelector('.section');
+            if (firstSection) {
+                const content = firstSection.querySelector('.section-content');
+                const icon = firstSection.querySelector('.toggle-icon');
+                if (content && !content.classList.contains('active')) {
+                    content.classList.add('active');
+                    icon.classList.add('collapsed');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

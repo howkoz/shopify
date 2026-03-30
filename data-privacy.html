@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Privacy & Compliance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #8b949e;
+            margin-bottom: 20px;
+        }
+
+        .disclaimer {
+            background-color: var(--surface2);
+            border-left: 4px solid var(--orange);
+            padding: 16px;
+            margin-bottom: 40px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .disclaimer-title {
+            font-weight: 600;
+            color: var(--orange);
+            margin-bottom: 6px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            color: #8b949e;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            color: var(--text);
+        }
+
+        .tab-button.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 24px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            color: var(--cyan);
+        }
+
+        p {
+            margin-bottom: 12px;
+            color: #e6edf3;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: var(--text);
+        }
+
+        .highlight {
+            background-color: rgba(88, 166, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--accent);
+        }
+
+        .code-block {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            padding-left: 40px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background-color: var(--surface2);
+            border: 2px solid var(--cyan);
+            border-radius: 50%;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            width: 2px;
+            height: calc(100% + 20px);
+            background-color: var(--border);
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .timeline-label {
+            color: var(--cyan);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .checklist {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0;
+            margin: 12px 0;
+        }
+
+        .checklist-group {
+            border-bottom: 1px solid var(--border);
+            padding: 16px;
+        }
+
+        .checklist-group:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+
+        .checklist-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checklist-item:hover {
+            color: var(--accent);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: var(--green);
+        }
+
+        .checklist-item input[type="checkbox"]:checked + label {
+            color: var(--green);
+            text-decoration: line-through;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .data-flow {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--cyan);
+        }
+
+        .data-flow-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .data-flow-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .data-flow-arrow {
+            color: var(--accent);
+            margin: 0 12px;
+            font-weight: bold;
+        }
+
+        .feature-box {
+            background-color: var(--surface2);
+            border-left: 4px solid var(--accent);
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 4px;
+        }
+
+        .requirement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .requirement-card {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .requirement-card h4 {
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .requirement-card p {
+            font-size: 0.95rem;
+            color: #8b949e;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-required {
+            background-color: rgba(248, 81, 73, 0.2);
+            color: var(--red);
+        }
+
+        .status-recommended {
+            background-color: rgba(210, 153, 34, 0.2);
+            color: var(--yellow);
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .workflow-step::before {
+            content: attr(data-step);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            font-weight: 600;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .workflow-step-content {
+            flex: 1;
+        }
+
+        .workflow-step-content p {
+            margin-bottom: 0;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .section {
+                padding: 16px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+                gap: 0;
+            }
+
+            .tab-button {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .requirement-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-flow-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .data-flow-arrow {
+                margin: 8px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Back to index</a>
+            <h1>Data Privacy & Compliance</h1>
+            <p class="subtitle">GDPR, CCPA, and Japan APPI compliance configuration for customer data protection across all markets.</p>
+        </header>
+
+        <div class="disclaimer">
+            <div class="disclaimer-title">⚠️ Legal Disclaimer</div>
+            <p>This guide provides configuration guidance and best practices for data privacy compliance. Consult your legal team for all compliance decisions and regulatory requirements specific to your jurisdiction.</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="overview">Overview</button>
+            <button class="tab-button" data-tab="gdpr">GDPR</button>
+            <button class="tab-button" data-tab="ccpa">CCPA/CPRA</button>
+            <button class="tab-button" data-tab="appi">Japan APPI</button>
+            <button class="tab-button" data-tab="shopify">Shopify Config</button>
+            <button class="tab-button" data-tab="workflow">Workflows</button>
+            <button class="tab-button" data-tab="checklist">Checklists</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="section">
+                <h2><span class="icon">🌍</span> Privacy Landscape</h2>
+                <p>Three major privacy frameworks govern customer data protection globally. Understanding each is essential for operating across international markets.</p>
+
+                <div class="requirement-grid">
+                    <div class="requirement-card">
+                        <h4>GDPR (European Union)</h4>
+                        <p><strong>Scope:</strong> All EU residents</p>
+                        <p><strong>Jurisdiction:</strong> Most comprehensive privacy law</p>
+                        <p><strong>Enforcement:</strong> Fines up to 4% of global revenue</p>
+                        <p><strong>Key:</strong> Consent-based processing with extensive data subject rights</p>
+                    </div>
+                    <div class="requirement-card">
+                        <h4>CCPA/CPRA (California)</h4>
+                        <p><strong>Scope:</strong> Expanding US state-level privacy laws</p>
+                        <p><strong>Jurisdiction:</strong> California + 8+ similar state laws</p>
+                        <p><strong>Enforcement:</strong> Fines up to $7,500 per violation</p>
+                        <p><strong>Key:</strong> Consumer rights to know, delete, and opt-out</p>
+                    </div>
+                    <div class="requirement-card">
+                        <h4>APPI (Japan)</h4>
+                        <p><strong>Scope:</strong> Japanese personal information</p>
+                        <p><strong>Jurisdiction:</strong> Japan and cross-border transfers</p>
+                        <p><strong>Enforcement:</strong> Administrative penalties and restrictions</p>
+                        <p><strong>Key:</strong> Explicit consent for collection and cross-border transfers (updated 2022)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">📋</span> Compliance Priorities</h2>
+                <ul>
+                    <li><strong>Consent Management:</strong> Explicit, documented consent for all processing activities</li>
+                    <li><strong>Data Minimization:</strong> Collect only necessary data for specified purposes</li>
+                    <li><strong>Transparency:</strong> Clear privacy policies and customer communication</li>
+                    <li><strong>Rights Fulfillment:</strong> Processes to handle data access, deletion, and portability requests</li>
+                    <li><strong>Security:</strong> Protection of personal data from unauthorized access or breach</li>
+                    <li><strong>Cross-Border Controls:</strong> Mechanisms for safe international data transfers</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- GDPR Tab -->
+        <div id="gdpr" class="tab-content">
+            <div class="section">
+                <h2><span class="icon">🇪🇺</span> GDPR Requirements</h2>
+                <p>The General Data Protection Regulation (GDPR) is the most comprehensive privacy framework, applicable to any organization processing data of EU residents.</p>
+
+                <h3>Lawful Basis for Processing</h3>
+                <p>You must have one of these lawful bases to process personal data:</p>
+                <ul>
+                    <li><strong>Consent:</strong> Explicit opt-in from the data subject</li>
+                    <li><strong>Contract:</strong> Processing necessary to fulfill a contract</li>
+                    <li><strong>Legal Obligation:</strong> Required by law (e.g., tax, employment laws)</li>
+                    <li><strong>Vital Interest:</strong> Protecting someone's life or health</li>
+                    <li><strong>Public Task:</strong> Exercising official authority</li>
+                    <li><strong>Legitimate Interest:</strong> Your organization's interests (least used, high risk)</li>
+                </ul>
+
+                <h3>Data Subject Rights</h3>
+                <div class="feature-box">
+                    <strong>Right to Access (Article 15)</strong>
+                    <p>Customers can request all personal data held about them. Must respond within 30 days with data in machine-readable format.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Erasure (Article 17)</strong>
+                    <p>"Right to be forgotten" - customers can request deletion. Exceptions: legal obligations, public interest, defense of legal claims.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Portability (Article 20)</strong>
+                    <p>Customers can receive data in structured, commonly used, machine-readable format and transmit to another controller.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Object (Article 21)</strong>
+                    <p>Customers can object to processing for marketing or legitimate interest purposes.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Rectification (Article 16)</strong>
+                    <p>Customers can request correction of inaccurate personal data.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Rights Related to Automated Decision Making (Article 22)</strong>
+                    <p>Customers have rights regarding automated processing that produces legal or significant effects.</p>
+                </div>
+
+                <h3>Consent Management</h3>
+                <ul>
+                    <li><strong>Explicit Opt-In:</strong> Required for consent-based processing</li>
+                    <li><strong>Double Opt-In for Email:</strong> Mandatory in Germany, strongly recommended everywhere in EU</li>
+                    <li><strong>Granular Consent:</strong> Separate consent for different uses (e.g., marketing vs. transactional)</li>
+                    <li><strong>Pre-Unchecked Boxes:</strong> Checkboxes must be unchecked by default (cannot pre-check consent)</li>
+                    <li><strong>Withdrawal:</strong> Easy mechanism to withdraw consent at any time</li>
+                </ul>
+
+                <h3>Key Obligations</h3>
+                <div class="feature-box">
+                    <strong>Data Protection Officer (DPO)</strong>
+                    <p>Required if: public authority, large-scale systematic monitoring, or regular large-scale processing of special categories of data.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Privacy Impact Assessments</strong>
+                    <p>Required for high-risk processing (automated decision making, large-scale processing, special categories of data).</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Breach Notification</strong>
+                    <p>Notify supervisory authority within 72 hours of discovering a breach affecting personal data. Notify affected individuals without undue delay if high risk.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Data Processing Agreements (DPA)</strong>
+                    <p>Required with all vendors/processors who handle customer data. Must specify data types, purposes, and security measures.</p>
+                </div>
+
+                <h3>Cross-Border Transfer Rules</h3>
+                <p>Transferring data outside the EU requires legal mechanisms:</p>
+                <ul>
+                    <li><strong>Standard Contractual Clauses (SCCs):</strong> EU-approved contract terms for non-adequate countries</li>
+                    <li><strong>Adequacy Decisions:</strong> EU finding that destination country has adequate privacy protection</li>
+                    <li><strong>Binding Corporate Rules (BCRs):</strong> Internal policies for multi-national organizations</li>
+                    <li><strong>Current Status:</strong> US transfers require SCCs (not automated mechanisms alone)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CCPA Tab -->
+        <div id="ccpa" class="tab-content">
+            <div class="section">
+                <h2><span class="icon">🇺🇸</span> CCPA/CPRA Requirements</h2>
+                <p>California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) grant California residents extensive privacy rights. Related laws now exist in 8+ additional states.</p>
+
+                <h3>Applicability</h3>
+                <p>CCPA applies to for-profit businesses that collect California residents' personal information AND meet one of these thresholds:</p>
+                <ul>
+                    <li>Annual revenue exceeding $25 million</li>
+                    <li>Buy, sell, or share personal information of 100,000+ residents or households</li>
+                    <li>Derive 50%+ of annual revenue from selling/sharing residents' personal information</li>
+                </ul>
+
+                <h3>Consumer Rights</h3>
+                <div class="feature-box">
+                    <strong>Right to Know (CCPA § 1798.100)</strong>
+                    <p>Consumers can request what personal information is collected, used, shared, or sold. Must respond within 45 days with specific details.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Delete (CCPA § 1798.105)</strong>
+                    <p>Consumers can request deletion of personal information. Exceptions: fraud prevention, security, legal obligations, internal analytics.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Opt-Out (CCPA § 1798.120)</strong>
+                    <p>Consumers can opt-out of sale or sharing of personal information. Implement "Do Not Sell My Personal Information" link on homepage.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Correct (CPRA - new)</strong>
+                    <p>Consumers can request correction of inaccurate personal information.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Limit Use (CPRA - new)</strong>
+                    <p>Consumers can limit use of personal information to necessary business purposes.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Non-Discrimination (CCPA § 1798.125)</strong>
+                    <p>Cannot discriminate against consumers for exercising CCPA rights. Cannot deny service, charge higher prices, or provide lower quality for exercising rights.</p>
+                </div>
+
+                <h3>Data Request Handling</h3>
+                <ul>
+                    <li><strong>Timeline:</strong> Must respond within 45 calendar days</li>
+                    <li><strong>Lookback Period:</strong> 12 months of data</li>
+                    <li><strong>Verification:</strong> Must verify consumer identity (balance security with accessibility)</li>
+                    <li><strong>Format:</strong> Provide data in structured, commonly used format (CSV, JSON preferred)</li>
+                    <li><strong>Frequency:</strong> Consumers can submit requests twice per 12-month period</li>
+                </ul>
+
+                <h3>Required Disclosures</h3>
+                <p>Privacy policy must include (in California):</p>
+                <ul>
+                    <li>Categories of personal information collected</li>
+                    <li>Purposes for collection and use</li>
+                    <li>Categories of sources of personal information</li>
+                    <li>Categories of third parties with whom information is shared</li>
+                    <li>How to submit requests (access, deletion, opt-out)</li>
+                    <li>Categories of information sold/shared and opt-out instructions</li>
+                    <li>Financial incentives and how to opt-out</li>
+                </ul>
+
+                <h3>Required Links and Notices</h3>
+                <div class="feature-box">
+                    <strong>"Do Not Sell My Personal Information"</strong>
+                    <p>Required on homepage and privacy policy. Link must be conspicuous (same font size and color as other links).</p>
+                </div>
+                <div class="feature-box">
+                    <strong>"Limit Use of My Sensitive Personal Information" (CPRA)</strong>
+                    <p>Required for consumers in California regarding sensitive data use.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Shine the Light Notice (optional but recommended)</strong>
+                    <p>California Civil Code § 1798.83 requires disclosure of third parties sharing info for direct marketing.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPI Tab -->
+        <div id="appi" class="tab-content">
+            <div class="section">
+                <h2><span class="icon">🇯🇵</span> Japan APPI Requirements</h2>
+                <p>The Act on the Protection of Personal Information (APPI) governs personal information collection and use in Japan. Amended in 2022 with stronger requirements.</p>
+
+                <h3>Scope and Applicability</h3>
+                <ul>
+                    <li>Applies to organizations holding personal information of Japanese residents</li>
+                    <li>Personal information: Information by which individuals can be identified</li>
+                    <li>Includes names, addresses, phone numbers, email, ID numbers, IP addresses</li>
+                    <li>Exception: Anonymized data (cannot be restored to identify individuals)</li>
+                </ul>
+
+                <h3>Collection and Consent Requirements</h3>
+                <div class="feature-box">
+                    <strong>Consent Required for Collection</strong>
+                    <p>Generally, explicit consent required before collecting personal information, with limited exceptions for contractual necessity and legal obligations.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Purpose Notification</strong>
+                    <p>Must clearly state the purpose for collecting personal information. Cannot use data for purpose different than stated.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Accurate Data</strong>
+                    <p>Must maintain accuracy of personal information and take reasonable steps to ensure it's up-to-date.</p>
+                </div>
+
+                <h3>Cross-Border Transfer Rules (Updated 2022)</h3>
+                <p><strong>Most significant APPI requirement:</strong> Strict controls on transferring personal information outside Japan</p>
+                <ul>
+                    <li><strong>Explicit Consent Required:</strong> Must obtain explicit consent from individual for cross-border transfers</li>
+                    <li><strong>No Default Assumption:</strong> Cannot assume consent for international transfers (e.g., cloud services)</li>
+                    <li><strong>Adequacy Findings:</strong> Transfer to countries with PPC adequacy decisions (EU, South Korea, Philippines as of 2024) has lighter requirements</li>
+                    <li><strong>Non-Adequate Countries:</strong> Requires documented contractual commitments and individual consent for transfers to US, China, Singapore, etc.</li>
+                </ul>
+
+                <h3>Data Subject Rights</h3>
+                <div class="feature-box">
+                    <strong>Right to Access</strong>
+                    <p>Individuals can request access to personal information held about them.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Correction</strong>
+                    <p>Individuals can request correction of inaccurate information.</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Deletion</strong>
+                    <p>Individuals can request deletion of information (subject to exceptions).</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Right to Suspend Use</strong>
+                    <p>Individuals can request suspension of use for purposes other than those stated at collection.</p>
+                </div>
+
+                <h3>Special Categories (Enhanced Protection)</h3>
+                <p>The following require <strong>explicit consent</strong>:</p>
+                <ul>
+                    <li>Race, ethnicity, or national origin</li>
+                    <li>Religious or political beliefs</li>
+                    <li>Medical information or health status</li>
+                    <li>Criminal record information</li>
+                    <li>Information indicating sexual orientation or identity</li>
+                </ul>
+
+                <h3>Breach Notification</h3>
+                <ul>
+                    <li><strong>Notification Required:</strong> If breach affects security of personal information</li>
+                    <li><strong>Timeline:</strong> Without undue delay (typically within 30 days)</li>
+                    <li><strong>Content:</strong> Description of breach, affected data, likely impact, remedial measures</li>
+                    <li><strong>Authority Report:</strong> Notify Personal Information Protection Commission if significant scope</li>
+                </ul>
+
+                <h3>Key Differences from GDPR/CCPA</h3>
+                <ul>
+                    <li><strong>Cross-Border Transfers:</strong> More restrictive than GDPR/CCPA; cannot rely on standard clauses alone</li>
+                    <li><strong>Purpose Limitation:</strong> Strict - cannot easily repurpose collected data</li>
+                    <li><strong>Anonymization:</strong> Properly anonymized data has fewer restrictions</li>
+                    <li><strong>Joint Use Disclosure:</strong> Must disclose when sharing data with other organizations in advance</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Shopify Configuration Tab -->
+        <div id="shopify" class="tab-content">
+            <div class="section">
+                <h2><span class="icon">⚙️</span> Shopify Configuration</h2>
+                <p>Step-by-step guidance for configuring Shopify Plus for privacy compliance across all markets.</p>
+
+                <h3>1. Cookie Consent Management</h3>
+                <div class="feature-box">
+                    <strong>Shopify Built-In Cookie Banner</strong>
+                    <p><strong>Path:</strong> Settings > Customer privacy > Cookie consent</p>
+                    <p><strong>Configuration:</strong></p>
+                    <ul>
+                        <li>Enable cookie banner (required for EU visitors)</li>
+                        <li>Set three consent levels: Essential only, Analytics, Marketing</li>
+                        <li>Essential cookies: Required for checkout and security (cannot be disabled)</li>
+                        <li>Analytics: Google Analytics, session tracking</li>
+                        <li>Marketing: Advertising pixels, remarketing, email collection</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <strong>Third-Party Cookie Tools</strong>
+                    <p>For advanced requirements, integrate: OneTrust, Cookiebot, or TrustArc</p>
+                    <ul>
+                        <li>Provides granular cookie categorization</li>
+                        <li>Supports geolocation-based consent (different rules per country)</li>
+                        <li>Consent management platform (CMP) compliance</li>
+                    </ul>
+                </div>
+
+                <h3>2. Customer Data Requests</h3>
+                <div class="feature-box">
+                    <strong>Shopify Webhooks</strong>
+                    <p>Shopify automatically sends webhooks for customer data requests (GDPR/CCPA compliance):</p>
+                    <div class="code-block">
+• customers/data_request<br>
+• customers/redact<br>
+• shop/redact
+                    </div>
+                    <p><strong>Response Requirement:</strong> 30 days (GDPR), 45 days (CCPA)</p>
+                </div>
+                <div class="feature-box">
+                    <strong>Privacy Policy Template</strong>
+                    <p><strong>Path:</strong> Settings > Legal > Privacy policy</p>
+                    <ul>
+                        <li>Auto-generated template covering basic requirements</li>
+                        <li>Must be customized for your specific data practices</li>
+                        <li>Should mention third-party apps with data access</li>
+                        <li>Must include cross-border transfer details (especially for Japan)</li>
+                    </ul>
+                </div>
+
+                <h3>3. Marketing Consent Configuration</h3>
+                <div class="feature-box">
+                    <strong>Email Consent</strong>
+                    <p><strong>EU Markets (Recommended):</strong></p>
+                    <ul>
+                        <li>Double opt-in: Confirmation email after signup</li>
+                        <li>Mandatory in Germany, strongly recommended in all EU</li>
+                        <li>Checkbox at checkout: <span class="highlight">"Email me with news and offers"</span> (UNCHECKED by default)</li>
+                        <li>Pre-checked boxes = non-compliance in most EU countries</li>
+                    </ul>
+                    <p><strong>Implementation:</strong> Klaviyo, Klaviyo Flow, or custom checkbox logic</p>
+                </div>
+                <div class="feature-box">
+                    <strong>SMS Consent (Separate)</strong>
+                    <p>SMS consent must be separate from email consent</p>
+                    <ul>
+                        <li>Explicit opt-in required for SMS marketing</li>
+                        <li>Record consent timestamp and method</li>
+                        <li>Easy opt-out mechanism required</li>
+                    </ul>
+                </div>
+
+                <h3>4. Data Retention Policy</h3>
+                <div class="feature-box">
+                    <strong>Recommended Retention Periods</strong>
+                    <div class="code-block">
+Customer account data: Active + 3 years after last purchase<br>
+Order data: 7 years (financial/accounting requirements)<br>
+Transactional emails: 7 years<br>
+Analytics data: 26 months (GA4 default)<br>
+Marketing engagement data: 12-24 months<br>
+Support/help desk tickets: 3-5 years<br>
+Payment card data: Never store (PCI DSS violation)<br>
+                    </div>
+                </div>
+
+                <h3>5. App Permissions Audit</h3>
+                <div class="feature-box">
+                    <strong>Review All Installed Apps</strong>
+                    <p><strong>Path:</strong> Settings > Apps and integrations</p>
+                    <ul>
+                        <li>List all apps with customer data access</li>
+                        <li>Verify each app's privacy policy and DPA</li>
+                        <li>Document data types: Orders, customers, email, payment info</li>
+                        <li>Confirm security certifications (SOC 2, ISO 27001)</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <strong>Data Processing Agreements (DPA)</strong>
+                    <p>Required with every app that processes customer data:</p>
+                    <ul>
+                        <li>Specify data types and volume</li>
+                        <li>Define processing purposes</li>
+                        <li>Outline security and confidentiality measures</li>
+                        <li>Address sub-processors and international transfers</li>
+                        <li>Include customer rights obligations (access, deletion, etc.)</li>
+                    </ul>
+                </div>
+
+                <h3>6. Cross-Border Transfer Mechanisms</h3>
+                <div class="feature-box">
+                    <strong>For EU to US Transfers (Most Common)</strong>
+                    <ul>
+                        <li>Implement Standard Contractual Clauses (SCCs) with all US-based vendors</li>
+                        <li>Shopify has SCCs in place; verify with any third-party apps</li>
+                        <li>Document transfer mechanism in your privacy policy</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <strong>For Japan to Anywhere Transfers (Critical)</strong>
+                    <ul>
+                        <li>Require explicit customer consent before transferring data outside Japan</li>
+                        <li>Exceptions: Adequacy-finding countries (EU, South Korea, Philippines)</li>
+                        <li>For other destinations: Documented contractual commitments required</li>
+                        <li>Must be disclosed in Japanese privacy policy</li>
+                    </ul>
+                </div>
+
+                <h3>7. Security Configuration</h3>
+                <div class="feature-box">
+                    <strong>Shopify Plus Security Features</strong>
+                    <ul>
+                        <li>Enable 2FA for all admin accounts</li>
+                        <li>Use custom SSL certificate and HTTPS enforced</li>
+                        <li>Restrict staff access (principle of least privilege)</li>
+                        <li>Enable audit logs for all data access</li>
+                        <li>Configure access control policies for sensitive data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Tab -->
+        <div id="workflow" class="tab-content">
+            <div class="section">
+                <h2><span class="icon">🔄</span> Customer Data Rights Workflow</h2>
+                <p>Standard process for handling customer requests for data access, deletion, or portability across all markets.</p>
+
+                <h3>Data Request Handling Process</h3>
+                <div class="workflow-step" data-step="1">
+                    <div class="workflow-step-content">
+                        <strong>Request Received</strong>
+                        <p>Customer submits request via Shopify form, email, or Shopify API webhook. Record: request type (access/delete/object), timestamp, channel, customer identity.</p>
+                    </div>
+                </div>
+                <div class="workflow-step" data-step="2">
+                    <div class="workflow-step-content">
+                        <strong>Verify Identity</strong>
+                        <p>Confirm customer identity by email address, order number, or other verifiable information. Document verification method. (Balance security with accessibility - avoid asking for sensitive information like passwords.)</p>
+                    </div>
+                </div>
+                <div class="workflow-step" data-step="3">
+                    <div class="workflow-step-content">
+                        <strong>Acknowledge & Timeline</strong>
+                        <p>Send immediate acknowledgment email. State processing timeline: 30 days (GDPR), 45 days (CCPA), 30 days (APPI). Provide reference number for tracking.</p>
+                    </div>
+                </div>
+                <div class="workflow-step" data-step="4">
+                    <div class="workflow-step-content">
+                        <strong>Gather Data</strong>
+                        <p>Collect personal data from all systems: Shopify (orders, customer profile, interactions), ERP system, CRM, marketing platform (Klaviyo, Omnisend), email archive, support tickets (Zendesk, Help Scout), payment processor logs.</p>
+                    </div>
+                </div>
+                <div class="workflow-step" data-step="5">
+                    <div class="workflow-step-content">
+                        <strong>Compile Response</strong>
+                        <p>For <strong>access requests:</strong> Export in structured format (CSV, JSON). For <strong>deletion:</strong> Execute deletion across all systems. For <strong>portability:</strong> Machine-readable format (JSON preferred). Remove sensitive fields like internal notes or third-party IDs where appropriate.</p>
+                    </div>
+                </div>
+                <div class="workflow-step" data-step="6">
+                    <div class="workflow-step-content">
+                        <strong>Respond & Document</strong>
+                        <p>Deliver response within deadline. Send via secure channel (encrypted email, secure link). Document: response date, method, data included, any limitations. Store documentation for 3 years (audit trail).</p>
+                    </div>
+                </div>
+                <div class="workflow-step" data-step="7">
+                    <div class="workflow-step-content">
+                        <strong>Update Records</strong>
+                        <p>If deletion approved, confirm deletion across all systems. Mark customer as "deletion requested" in audit logs. Note: legal holds may require retaining some data despite deletion requests.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">🚨</span> Breach Response Timeline</h2>
+                <p>Incident response plan for personal data breaches. Timing varies by jurisdiction.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-label">Hour 0-1: Identify & Contain</div>
+                        <p>Detect breach, isolate affected systems, secure evidence. Determine: What data was exposed? How many individuals? Which markets affected?</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-label">Hour 1-4: Assess Scope</div>
+                        <p>Confirm data types (names, emails, payment data, SSNs, etc.), number of affected customers per country, whether special categories involved (health, race, financial).</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-label">Hour 4-24: Internal Notification</div>
+                        <p>Alert leadership, legal team, security team. Engage legal counsel. Begin root cause analysis. Notify insurance provider if applicable.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-label">Hour 24-72: Regulatory Notification (GDPR Critical)</div>
+                        <p><strong>GDPR Requirement:</strong> Notify supervisory authority within 72 hours if high risk. EU country with most affected customers has jurisdiction. Report includes: incident details, impact assessment, remedial measures.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-label">Day 3-30: Customer Notification</div>
+                        <p>If high risk to individuals: Notify affected customers without undue delay. Content: Nature of breach, affected data, remedial measures, contact info for questions. Notification method: email or website notice (mail if emails compromised).</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-label">Day 30+: Post-Incident</div>
+                        <p>Complete root cause analysis, implement remediation, notify affected customers if not yet done (CCPA 15 days), document all actions, review insurance coverage, board report.</p>
+                    </div>
+                </div>
+
+                <h3>Key Breach Response Contacts</h3>
+                <ul>
+                    <li><strong>EU Supervisory Authority:</strong> Data Protection Authority of affected country(ies)</li>
+                    <li><strong>US Breach Laws:</strong> State Attorney General (varies by state); AG contact info on https://www.naag.org</li>
+                    <li><strong>Japan PPC:</strong> Personal Information Protection Commission (https://www.ppc.go.jp)</li>
+                    <li><strong>Legal Counsel:</strong> Data privacy/cybersecurity specialist</li>
+                    <li><strong>Insurance:</strong> Cyber liability carrier</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Checklist Tab -->
+        <div id="checklist" class="tab-content">
+            <div class="section">
+                <h2><span class="icon">✓</span> Compliance Checklist</h2>
+                <p>Interactive checklist for tracking compliance status. Organized by jurisdiction.</p>
+
+                <div class="checklist">
+                    <div class="checklist-group">
+                        <div class="checklist-title">🇪🇺 GDPR Compliance</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-1">
+                            <label for="gdpr-1">Cookie consent banner active and configured for consent levels (Essential, Analytics, Marketing)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-2">
+                            <label for="gdpr-2">Privacy policy includes all GDPR-required disclosures (lawful basis, DPO, rights, cross-border transfers)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-3">
+                            <label for="gdpr-3">Data Protection Officer (DPO) designated (if required by processing scale)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-4">
+                            <label for="gdpr-4">Customer data request process documented and tested (data access, deletion, portability)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-5">
+                            <label for="gdpr-5">Data Processing Agreements (DPA) executed with all vendors processing customer data</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-6">
+                            <label for="gdpr-6">Cross-border transfer mechanisms in place (Standard Contractual Clauses, adequacy decision, or BCRs)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-7">
+                            <label for="gdpr-7">Marketing double opt-in enabled (explicit unchecked checkbox at signup and checkout)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-8">
+                            <label for="gdpr-8">Email consent separate from SMS consent</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-9">
+                            <label for="gdpr-9">Breach response plan documented and tested (72-hour notification requirement)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="gdpr-10">
+                            <label for="gdpr-10">Privacy impact assessments (DPIA) completed for high-risk processing</label>
+                        </div>
+                    </div>
+
+                    <div class="checklist-group">
+                        <div class="checklist-title">🇺🇸 CCPA/CPRA Compliance</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-1">
+                            <label for="ccpa-1">Privacy policy includes CCPA/CPRA-specific disclosures (data categories, sale/sharing, opt-out rights)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-2">
+                            <label for="ccpa-2">"Do Not Sell My Personal Information" link prominent on homepage and privacy policy</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-3">
+                            <label for="ccpa-3">"Limit Use of My Sensitive Personal Information" link (CPRA requirement)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-4">
+                            <label for="ccpa-4">Consumer data request intake process established (know, delete, opt-out)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-5">
+                            <label for="ccpa-5">45-day response timeline tracked and monitored for all requests</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-6">
+                            <label for="ccpa-6">Personal information inventory completed (categories, sources, use cases)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-7">
+                            <label for="ccpa-7">Employee training completed on CCPA requirements and procedures</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="ccpa-8">
+                            <label for="ccpa-8">Data retention policies align with CCPA (delete if not needed; don't indefinitely store)</label>
+                        </div>
+                    </div>
+
+                    <div class="checklist-group">
+                        <div class="checklist-title">🇯🇵 Japan APPI Compliance</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-1">
+                            <label for="appi-1">Privacy policy available in Japanese language</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-2">
+                            <label for="appi-2">Privacy policy clearly states purpose of data collection and use</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-3">
+                            <label for="appi-3">Explicit consent mechanism for cross-border data transfers (before any international transfer)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-4">
+                            <label for="appi-4">Cross-border transfer consent separate from initial collection consent</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-5">
+                            <label for="appi-5">Data subject request process documented (access, correction, deletion, suspension of use)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-6">
+                            <label for="appi-6">Special category data (health, race, religion, criminal) requires explicit consent noted and tracked</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-7">
+                            <label for="appi-7">Breach notification procedure documented (PPC notification if significant)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="appi-8">
+                            <label for="appi-8">Joint use disclosures (if sharing data with affiliates) disclosed in privacy policy</label>
+                        </div>
+                    </div>
+
+                    <div class="checklist-group">
+                        <div class="checklist-title">🔒 Cross-Jurisdictional Best Practices</div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cross-1">
+                            <label for="cross-1">Geolocation-based privacy policy selection (serve different policies to different regions)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cross-2">
+                            <label for="cross-2">Data minimization: Only collect data necessary for stated purposes</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cross-3">
+                            <label for="cross-3">Third-party app audit completed: All apps verified for privacy policies and DPAs</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cross-4">
+                            <label for="cross-4">Data retention policy documented: Deletion schedules per data type and jurisdiction</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cross-5">
+                            <label for="cross-5">Staff privacy training completed: All team members understand privacy obligations</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="cross-6">
+                            <label for="cross-6">Annual privacy audit scheduled: Review policies, procedures, and compliance status</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+
+                // Remove active class from all buttons and content
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
+
+        // Checkbox persistence (optional: save to localStorage)
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const key = checkbox.id;
+
+            // Load saved state
+            if (localStorage.getItem(key) === 'true') {
+                checkbox.checked = true;
+            }
+
+            // Save state on change
+            checkbox.addEventListener('change', function() {
+                localStorage.setItem(key, this.checked);
+            });
+        });
+
+        // Accessibility: allow checking boxes with keyboard
+        document.querySelectorAll('.checklist-item').forEach(item => {
+            item.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Governance & Security - Unicity Shopify Plus</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #8b949e;
+            font-weight: 400;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-weight: 700;
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.2em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        p, li {
+            font-size: 1em;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        ul, ol {
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .highlight {
+            background-color: var(--surface2);
+            border-left: 3px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: var(--surface2);
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 0.95em;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: var(--surface2);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.approved {
+            background-color: rgba(63, 185, 80, 0.15);
+            color: var(--green);
+            border: 1px solid var(--green);
+        }
+
+        .badge.evaluate {
+            background-color: rgba(210, 153, 34, 0.15);
+            color: var(--yellow);
+            border: 1px solid var(--yellow);
+        }
+
+        .badge.blocked {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--red);
+            border: 1px solid var(--red);
+        }
+
+        .risk-low {
+            background-color: rgba(63, 185, 80, 0.15);
+            color: var(--green);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .risk-medium {
+            background-color: rgba(210, 153, 34, 0.15);
+            color: var(--yellow);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .risk-high {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--red);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .checklist {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 12px;
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+            color: var(--text);
+        }
+
+        .scoring-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .score-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .score-card h4 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .score-card p {
+            font-size: 0.9em;
+            color: #8b949e;
+            margin-bottom: 0;
+        }
+
+        .score-slider {
+            width: 100%;
+            margin-top: 10px;
+            accent-color: var(--accent);
+        }
+
+        .score-value {
+            display: inline-block;
+            color: var(--accent);
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .process-steps {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .process-step {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .process-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            margin-top: 0;
+        }
+
+        .blocked-box {
+            background-color: rgba(248, 81, 73, 0.1);
+            border-left: 4px solid var(--red);
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .blocked-box h3 {
+            color: var(--red);
+            margin-top: 0;
+        }
+
+        .blocked-box ul {
+            margin: 0;
+        }
+
+        .blocked-box li {
+            color: #e6edf3;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .scoring-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .process-step {
+                flex-direction: column;
+            }
+
+            .step-number {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Index</a>
+
+        <header>
+            <h1>App Governance & Security</h1>
+            <p class="subtitle">Evaluation framework, approved vendor list, and security policies for Shopify apps across all Unicity stores.</p>
+        </header>
+
+        <!-- Why App Governance Matters -->
+        <section>
+            <h2>Why App Governance Matters</h2>
+            <p>Each app installed on a Shopify store receives API access to critical store data including orders, customers, and products. Without proper governance, uncontrolled app installations create significant risks:</p>
+            <ul>
+                <li><strong>Security Risk:</strong> Malicious or compromised apps can access sensitive customer and order data.</li>
+                <li><strong>Performance Degradation:</strong> Poorly optimized apps can slow page load times and impact customer experience.</li>
+                <li><strong>Data Leakage:</strong> Apps that store data outside Shopify may expose customer information to unauthorized access.</li>
+                <li><strong>Compliance Violations:</strong> Non-GDPR compliant apps can expose the business to regulatory penalties.</li>
+            </ul>
+            <div class="highlight">
+                <strong>Key Fact:</strong> Plus stores typically average 20–30 installed apps. Each must be evaluated, approved, and monitored throughout its lifecycle.
+            </div>
+        </section>
+
+        <!-- App Evaluation Framework -->
+        <section>
+            <h2>App Evaluation Framework</h2>
+            <p>Use the following scoring matrix to evaluate candidate apps before installation. Each category is scored 1–5, with a total of 30 points possible. <strong>Minimum threshold for approval: 18/30.</strong></p>
+
+            <h3>Evaluation Categories</h3>
+            <div class="scoring-grid">
+                <div class="score-card">
+                    <h4>Security</h4>
+                    <p>Data access scope, GDPR compliance, SOC 2 certification, encryption standards</p>
+                </div>
+                <div class="score-card">
+                    <h4>Performance</h4>
+                    <p>Page load impact, API call volume, background processing overhead</p>
+                </div>
+                <div class="score-card">
+                    <h4>Reliability</h4>
+                    <p>Uptime history, support responsiveness, update frequency and stability</p>
+                </div>
+                <div class="score-card">
+                    <h4>Cost</h4>
+                    <p>Monthly subscription fee, per-transaction fees, hidden costs analysis</p>
+                </div>
+                <div class="score-card">
+                    <h4>Integration</h4>
+                    <p>API compatibility, webhook support, data export capability</p>
+                </div>
+                <div class="score-card">
+                    <h4>Vendor</h4>
+                    <p>Company size, years in business, customer base, industry reviews</p>
+                </div>
+            </div>
+
+            <h3>Interactive Scoring Matrix</h3>
+            <div class="highlight">
+                <p><strong>Use this template to score candidate apps:</strong></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div>
+                        <label><strong>Security:</strong> <input type="range" class="score-slider" min="1" max="5" value="3"><span class="score-value">3</span>/5</label>
+                    </div>
+                    <div>
+                        <label><strong>Performance:</strong> <input type="range" class="score-slider" min="1" max="5" value="3"><span class="score-value">3</span>/5</label>
+                    </div>
+                    <div>
+                        <label><strong>Reliability:</strong> <input type="range" class="score-slider" min="1" max="5" value="3"><span class="score-value">3</span>/5</label>
+                    </div>
+                    <div>
+                        <label><strong>Cost:</strong> <input type="range" class="score-slider" min="1" max="5" value="3"><span class="score-value">3</span>/5</label>
+                    </div>
+                    <div>
+                        <label><strong>Integration:</strong> <input type="range" class="score-slider" min="1" max="5" value="3"><span class="score-value">3</span>/5</label>
+                    </div>
+                    <div>
+                        <label><strong>Vendor:</strong> <input type="range" class="score-slider" min="1" max="5" value="3"><span class="score-value">3</span>/5</label>
+                    </div>
+                </div>
+                <p style="margin-top: 15px;"><strong>Total Score: 18/30</strong> <span style="color: #8b949e;">(Copy and update for each app evaluation)</span></p>
+            </div>
+        </section>
+
+        <!-- Approved App Categories -->
+        <section>
+            <h2>Approved App Categories & Recommendations</h2>
+            <p>The following table outlines Unicity's recommended apps by category, along with their current approval status:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Recommended Apps</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Tax Compliance</strong></td>
+                        <td>TaxJar, Avalara</td>
+                        <td><span class="badge approved">Approved</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email Marketing</strong></td>
+                        <td>Klaviyo</td>
+                        <td><span class="badge approved">Approved</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reviews</strong></td>
+                        <td>Judge.me, Yotpo</td>
+                        <td><span class="badge approved">Approved</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Subscriptions</strong></td>
+                        <td>Recharge, Bold Subscriptions</td>
+                        <td><span class="badge evaluate">Evaluate</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Loyalty Programs</strong></td>
+                        <td>LoyaltyLion, Smile.io</td>
+                        <td><span class="badge evaluate">Evaluate</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Translation</strong></td>
+                        <td>Shopify Translate & Adapt</td>
+                        <td><span class="badge approved">Approved</span> (Native)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Analytics</strong></td>
+                        <td>Google Analytics 4, Triple Whale</td>
+                        <td><span class="badge approved">Approved</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fulfillment & Shipping</strong></td>
+                        <td>ShipStation, Shippo</td>
+                        <td><span class="badge approved">Approved</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer Service</strong></td>
+                        <td>Gorgias, Zendesk</td>
+                        <td><span class="badge evaluate">Evaluate</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SEO</strong></td>
+                        <td>SEO Manager, Plug in SEO</td>
+                        <td><span class="badge evaluate">Evaluate</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <strong>Badge Legend:</strong><br>
+                <span class="badge approved">Approved</span> = Ready for installation after security review<br>
+                <span class="badge evaluate">Evaluate</span> = Must complete full evaluation framework before approval<br>
+                <span class="badge blocked">Blocked</span> = Do not install without executive approval
+            </div>
+        </section>
+
+        <!-- App Installation Process -->
+        <section>
+            <h2>App Installation Process</h2>
+            <p>Follow these 10 steps to ensure every app meets security and performance standards before deployment to production:</p>
+
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Document Business Need</h3>
+                        <p>Identify the specific business problem the app solves. Document the intended use case and expected ROI.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Search App Store</h3>
+                        <p>Search the Shopify App Store for candidate solutions in the required category.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Complete Evaluation Scorecard</h3>
+                        <p>Score each candidate using the evaluation framework (Security, Performance, Reliability, Cost, Integration, Vendor).</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Security Review</h3>
+                        <p>Review all requested API permissions and use the security review checklist below. Reject unnecessary access requests.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Test in Development Store</h3>
+                        <p>Install the app in a development/staging environment. Test all core functionality in a non-production setting.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>Performance Benchmark</h3>
+                        <p>Measure page load time before and after app installation. Document Lighthouse scores and Core Web Vitals impact.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <h3>Approval from Store Admin</h3>
+                        <p>Obtain sign-off from the store administrator confirming the app meets business and security requirements.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">8</div>
+                    <div class="step-content">
+                        <h3>Install in Production</h3>
+                        <p>Install the app in the production store. Plan for installation during a low-traffic period if possible.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">9</div>
+                    <div class="step-content">
+                        <h3>Configure & Verify</h3>
+                        <p>Complete app configuration settings. Test functionality with real production data. Monitor for errors in Shopify logs.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">10</div>
+                    <div class="step-content">
+                        <h3>Add to App Registry</h3>
+                        <p>Record the app in the central registry with install date, owner, and next review date. Set calendar reminder for quarterly review.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Review Checklist -->
+        <section>
+            <h2>Security Review Checklist</h2>
+            <p>Complete this checklist for every app before approving installation:</p>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="check1">
+                    <label for="check1">Review required API scopes and reject any unnecessary access requests</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check2">
+                    <label for="check2">Verify if app stores data outside Shopify (and where)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check3">
+                    <label for="check3">Confirm GDPR/privacy policy compliance and data retention terms</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check4">
+                    <label for="check4">Verify SOC 2 or equivalent security certification</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check5">
+                    <label for="check5">Test data export and customer data deletion capability</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check6">
+                    <label for="check6">Review all webhook subscriptions for necessity and scope</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check7">
+                    <label for="check7">Confirm app does not modify theme code without clear documentation</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check8">
+                    <label for="check8">Verify app does not inject third-party scripts into storefront</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check9">
+                    <label for="check9">Confirm app supports all target markets (US, EU, Japan)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="check10">
+                    <label for="check10">Review vendor's incident response policy and SLA commitments</label>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Permission Scopes Guide -->
+        <section>
+            <h2>App Permission Scopes Guide</h2>
+            <p>Understanding API scopes is critical to app security. Below is a guide to common Shopify app permission scopes and their risk levels:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Permission Scope</th>
+                        <th>What It Allows</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code style="color: var(--cyan);">read_products</code></td>
+                        <td>Read product catalog data (titles, descriptions, prices, variants)</td>
+                        <td><span class="risk-low">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">write_products</code></td>
+                        <td>Modify product data including prices, descriptions, and inventory</td>
+                        <td><span class="risk-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">read_orders</code></td>
+                        <td>Read order data including customer names, emails, addresses, purchase history</td>
+                        <td><span class="risk-medium">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">write_orders</code></td>
+                        <td>Create, modify, or cancel orders in the store</td>
+                        <td><span class="risk-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">read_customers</code></td>
+                        <td>Read customer PII including names, emails, phone numbers, addresses (GDPR risk)</td>
+                        <td><span class="risk-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">write_customers</code></td>
+                        <td>Create, modify, or delete customer records and personal information</td>
+                        <td><span class="risk-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">read_all_orders</code></td>
+                        <td>Read ALL historical orders including sensitive order and customer data</td>
+                        <td><span class="risk-high">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><code style="color: var(--cyan);">write_script_tags</code></td>
+                        <td>Inject custom JavaScript code into the storefront (potential XSS vector)</td>
+                        <td><span class="risk-high">High</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <strong>Best Practice:</strong> Request the principle of least privilege. Only approve the minimum scopes needed for the app to function. Challenge any requests for write access or customer data access.
+            </div>
+        </section>
+
+        <!-- App Registry Template -->
+        <section>
+            <h2>App Registry Template</h2>
+            <p>Maintain a central registry of all installed apps. Use this template and update it monthly:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>App Name</th>
+                        <th>Category</th>
+                        <th>Vendor</th>
+                        <th>Monthly Cost</th>
+                        <th>API Scopes</th>
+                        <th>Install Date</th>
+                        <th>Owner</th>
+                        <th>Review Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Klaviyo</td>
+                        <td>Email Marketing</td>
+                        <td>Klaviyo Inc.</td>
+                        <td>$45–$580</td>
+                        <td><span class="risk-medium">read_customers</span>, <span class="risk-low">read_orders</span></td>
+                        <td>2024-01-15</td>
+                        <td>Sarah Chen</td>
+                        <td>2025-04-15</td>
+                        <td><span class="badge approved">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Judge.me</td>
+                        <td>Reviews</td>
+                        <td>Judge.me</td>
+                        <td>Free–$99</td>
+                        <td><span class="risk-low">read_products</span>, <span class="risk-low">read_orders</span></td>
+                        <td>2024-03-20</td>
+                        <td>Marcus Rodriguez</td>
+                        <td>2025-06-20</td>
+                        <td><span class="badge approved">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>ShipStation</td>
+                        <td>Fulfillment</td>
+                        <td>Shippo/ShipStation</td>
+                        <td>$9.99–$129.99</td>
+                        <td><span class="risk-low">read_orders</span>, <span class="risk-medium">write_orders</span></td>
+                        <td>2023-08-10</td>
+                        <td>Emily Wong</td>
+                        <td>2025-02-10</td>
+                        <td><span class="badge approved">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Google Analytics 4</td>
+                        <td>Analytics</td>
+                        <td>Google/Shopify</td>
+                        <td>Free</td>
+                        <td><span class="risk-low">read_products</span>, <span class="risk-low">read_orders</span></td>
+                        <td>2024-06-01</td>
+                        <td>James Park</td>
+                        <td>2025-06-01</td>
+                        <td><span class="badge approved">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>TaxJar</td>
+                        <td>Tax Compliance</td>
+                        <td>TaxJar (Stripe)</td>
+                        <td>$19–$299</td>
+                        <td><span class="risk-low">read_orders</span>, <span class="risk-medium">read_products</span></td>
+                        <td>2024-02-28</td>
+                        <td>Priya Sharma</td>
+                        <td>2025-05-28</td>
+                        <td><span class="badge approved">Active</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Quarterly App Audit -->
+        <section>
+            <h2>Quarterly App Audit Process</h2>
+            <p>Perform a comprehensive audit of all installed apps every quarter. Use this checklist:</p>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit1">
+                    <label for="audit1">Review all installed apps against the registry to confirm they are still in use</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit2">
+                    <label for="audit2">Remove any unused or abandoned apps from production stores</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit3">
+                    <label for="audit3">Check for apps with excessive API call volume (Settings → Apps & Sales Channels → API Connections)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit4">
+                    <label for="audit4">Verify all apps are still actively maintained and supported by vendors</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit5">
+                    <label for="audit5">Update security review for apps with major version updates in the last 90 days</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit6">
+                    <label for="audit6">Run Lighthouse audit to assess page speed impact (test before/after removing performance-heavy apps)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit7">
+                    <label for="audit7">Document any security incidents or performance issues from the quarter</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="audit8">
+                    <label for="audit8">Update app registry with new owners, costs, and next review dates</label>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>Schedule:</strong> Audits should run in January, April, July, and October. Set calendar reminders for each store owner 2 weeks before the audit deadline.
+            </div>
+        </section>
+
+        <!-- Blocked Practices -->
+        <section>
+            <div class="blocked-box">
+                <h3>Blocked Practices</h3>
+                <p><strong>Do not permit the following practices:</strong></p>
+                <ul>
+                    <li>Installing apps without completing the evaluation scorecard and security review</li>
+                    <li>Granting <code style="color: var(--cyan);">write_customers</code> scope without documented security review</li>
+                    <li>Using apps that modify checkout code directly without Shopify's official checkout APIs</li>
+                    <li>Installing duplicate-functionality apps on the same store (consolidate to one vendor per category)</li>
+                    <li>Using free/low-cost apps with aggressive user tracking or aggressive data collection policies</li>
+                    <li>Installing apps from unverified vendors with no public reviews or clear company information</li>
+                    <li>Failing to remove apps within 30 days of identifying they are no longer in use</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="border-top: 1px solid var(--border); padding-top: 40px; margin-top: 60px; text-align: center; color: #8b949e; font-size: 0.9em;">
+            <p>Last updated: March 2026 | For questions, contact your Shopify Plus Account Executive</p>
+        </footer>
+    </div>
+
+    <script>
+        // Interactive scoring sliders
+        const sliders = document.querySelectorAll('.score-slider');
+        sliders.forEach(slider => {
+            slider.addEventListener('input', function() {
+                const parent = this.closest('label');
+                const valueSpan = parent.querySelector('.score-value');
+                valueSpan.textContent = this.value;
+            });
+        });
+    </script>
+</body>
+</html>

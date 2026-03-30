@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expansion Stores Guide - Unicity International</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --purple: #bc8cff;
+            --red: #f85149;
+            --orange: #f0883e;
+            --cyan: #39d2c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--cyan);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #8b949e;
+        }
+
+        /* Collapsible Sections */
+        .section {
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--surface);
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            background-color: var(--surface2);
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header:hover {
+            background-color: #21262d;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        .toggle-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .section.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 2rem;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .section.collapsed .section-content {
+            max-height: 0;
+            padding: 0 2rem;
+        }
+
+        /* Diagram */
+        .diagram {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        }
+
+        .org-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .org-level {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .org-box {
+            padding: 1rem 1.5rem;
+            background-color: var(--surface);
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            text-align: center;
+            min-width: 200px;
+            font-weight: 600;
+        }
+
+        .org-box.primary {
+            border-color: var(--green);
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.1), transparent);
+        }
+
+        .org-box.expansion {
+            border-color: var(--cyan);
+            background: linear-gradient(135deg, rgba(57, 210, 192, 0.1), transparent);
+        }
+
+        .connector {
+            width: 2px;
+            height: 1.5rem;
+            background-color: var(--border);
+            margin: 0.5rem 0;
+        }
+
+        .horizontal-line {
+            height: 2px;
+            background-color: var(--border);
+            position: relative;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--surface2);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background-color: var(--surface2);
+        }
+
+        /* Tabs */
+        .tab-container {
+            margin: 1.5rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .tab-button.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-button:hover {
+            color: var(--text);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--surface2);
+            border-left: 3px solid var(--accent);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .checklist li:hover {
+            background-color: #21262d;
+        }
+
+        .checklist li.checked {
+            border-left-color: var(--green);
+            background-color: rgba(63, 185, 80, 0.1);
+        }
+
+        .checklist input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--green);
+            flex-shrink: 0;
+        }
+
+        .checklist label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Highlight Box */
+        .highlight {
+            background-color: var(--surface2);
+            border-left: 4px solid var(--cyan);
+            padding: 1rem 1.5rem;
+            border-radius: 3px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight.success {
+            border-left-color: var(--green);
+        }
+
+        .highlight.warning {
+            border-left-color: var(--yellow);
+        }
+
+        .highlight.info {
+            border-left-color: var(--accent);
+        }
+
+        /* Cost Card */
+        .cost-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .cost-card {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .cost-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .cost-card .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cost-card p {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-top: 0.5rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--cyan) 0%, var(--accent) 50%, var(--orange) 100%);
+        }
+
+        .timeline-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            width: 14px;
+            height: 14px;
+            background-color: var(--surface);
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            margin-top: 0.5rem;
+        }
+
+        .timeline-item h4 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item .phase-meta {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .org-level {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .org-box {
+                min-width: 100%;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                text-align: left;
+            }
+
+            .cost-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        /* Code block */
+        .code-block {
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: var(--cyan);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <a href="index.html" class="back-link">← Back to Index</a>
+            <h1>Expansion Stores Guide</h1>
+            <p class="subtitle">Managing multi-store architecture for US, European, and Japanese markets on Shopify Plus.</p>
+        </div>
+
+        <!-- Section 1: What Are Expansion Stores -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>What Are Expansion Stores</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>Shopify Plus includes powerful multi-store capabilities that enable brands to manage multiple independent storefronts under a single organization. Here's what you need to know:</p>
+
+                <div class="highlight info">
+                    <strong>Shopify Plus Multi-Store Breakdown:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1rem;">
+                        <li><strong>1 Primary Store:</strong> Included in Plus subscription ($2,500/mo)</li>
+                        <li><strong>Up to 9 Expansion Stores:</strong> Each adds ~$300/month to your bill</li>
+                        <li><strong>Independent Operations:</strong> Each store has its own domain, theme, currency, and payment gateways</li>
+                        <li><strong>Shared Organization:</strong> All stores share billing, user management, and organization-level settings</li>
+                    </ul>
+                </div>
+
+                <h3>Key Characteristics</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Domain</strong></td>
+                            <td>Each store gets its own custom domain (e.g., eu.unicity.com, jp.unicity.com)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Theme & Branding</strong></td>
+                            <td>Independent theme configuration per store allows region-specific customization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Localization</strong></td>
+                            <td>Language, currency, and regional content can be tailored to each market</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Payment Methods</strong></td>
+                            <td>Configure region-specific payment gateways and providers</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fulfillment</strong></td>
+                            <td>Each store can have independent shipping zones, carriers, and fulfillment locations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tax Configuration</strong></td>
+                            <td>Region-specific tax rules, rates, and compliance settings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 2: Unicity Store Architecture -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Unicity Store Architecture</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>Here's the planned three-store architecture for Unicity International's global expansion:</p>
+
+                <div class="diagram">
+                    <div class="org-chart">
+                        <div class="org-box" style="border-color: var(--purple); background: linear-gradient(135deg, rgba(188, 140, 255, 0.1), transparent);">
+                            Organization Admin<br>
+                            <span style="font-size: 0.85rem; font-weight: 400; color: #8b949e;">Billing & User Management</span>
+                        </div>
+                        <div class="connector"></div>
+                        <div style="width: 100%; height: 2px; background: var(--border); position: relative; display: flex; justify-content: center;">
+                            <div style="position: absolute; width: 2px; height: 20px; background: var(--border); top: -20px;"></div>
+                            <div style="position: absolute; width: 2px; height: 20px; background: var(--border); bottom: -20px;"></div>
+                        </div>
+                        <div class="org-level">
+                            <div>
+                                <div class="org-box primary">
+                                    🇺🇸 Primary: US Store<br>
+                                    <span style="font-size: 0.85rem; font-weight: 400;">unicity-us.myshopify.com</span><br>
+                                    <span style="font-size: 0.8rem; color: #8b949e;">USD | Stripe/WorldPay</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="org-box expansion">
+                                    🇪🇺 Expansion 1: EU Store<br>
+                                    <span style="font-size: 0.85rem; font-weight: 400;">eu.unicity.com</span><br>
+                                    <span style="font-size: 0.8rem; color: #8b949e;">EUR | Stripe EU</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="org-box expansion">
+                                    🇯🇵 Expansion 2: Japan Store<br>
+                                    <span style="font-size: 0.85rem; font-weight: 400;">jp.unicity.com</span><br>
+                                    <span style="font-size: 0.8rem; color: #8b949e;">JPY | Local Payments</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight success">
+                    <strong>Architecture Benefits:</strong> Each store operates independently with region-specific configurations, while sharing central billing and user management. This allows teams in each region to customize their experience while maintaining brand consistency and operational efficiency.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Setting Up an Expansion Store -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Setting Up an Expansion Store</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>Follow this checklist to set up a new expansion store:</p>
+
+                <ul class="checklist">
+                    <li>
+                        <input type="checkbox" id="check1" onchange="toggleChecked(this)">
+                        <label for="check1">Request from Organization Admin → Stores → Create Store button</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check2" onchange="toggleChecked(this)">
+                        <label for="check2">Choose store type (Online Store, POS, B2B, or Development)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check3" onchange="toggleChecked(this)">
+                        <label for="check3">Configure custom domain (e.g., eu.unicity.com or jp.unicity.com)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check4" onchange="toggleChecked(this)">
+                        <label for="check4">Set default currency and language for region</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check5" onchange="toggleChecked(this)">
+                        <label for="check5">Configure payment providers (Stripe, PayPal, local methods)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check6" onchange="toggleChecked(this)">
+                        <label for="check6">Set up tax rules and compliance settings for jurisdiction</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check7" onchange="toggleChecked(this)">
+                        <label for="check7">Configure shipping zones and carrier integrations</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check8" onchange="toggleChecked(this)">
+                        <label for="check8">Select and customize theme for regional audience</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check9" onchange="toggleChecked(this)">
+                        <label for="check9">Provision staff accounts with appropriate permissions</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="check10" onchange="toggleChecked(this)">
+                        <label for="check10">Execute test orders and validate all systems</label>
+                    </li>
+                </ul>
+
+                <div class="highlight warning">
+                    <strong>Important:</strong> Each expansion store incurs an additional ~$300/month fee. Ensure budget approval before creating new stores. All stores share organization-level billing.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Shared vs Isolated Settings -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Shared vs Isolated Settings</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>Understanding what's shared across your organization vs. what's isolated per store is critical for proper management:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setting Type</th>
+                            <th>Scope</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Billing</strong></td>
+                            <td style="color: var(--green);">SHARED</td>
+                            <td>Single organization bill for all stores. No per-store billing separation.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>User Accounts</strong></td>
+                            <td style="color: var(--green);">SHARED</td>
+                            <td>Users exist at organization level. Permissions assigned per-store.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Apps & Subscriptions</strong></td>
+                            <td style="color: var(--green);">SHARED</td>
+                            <td>App licenses at org level. May need multiple subscriptions for multi-store use.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Organization Roles</strong></td>
+                            <td style="color: var(--green);">SHARED</td>
+                            <td>Admin, Editor, Viewer roles span all stores (unless limited at store level).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Theme</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Each store has independent theme. Can customize per region.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Domain</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Each store must have unique domain. Can be custom or myshopify.com.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Currency</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Set per store. Primary store currency is store's default.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Payment Methods</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Unique payment gateways per store. Region-specific providers supported.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Taxes</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Tax rules configured independently per store for each jurisdiction.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shipping</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Shipping zones, rates, and carriers unique per store.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Checkout</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Language, policies, and settings per store.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Products</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Can be shared via Markets or kept separate. Inventory separate per store.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Customer Data</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Customers are store-specific. No cross-store view (unless using Markets).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Order Data</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Orders live in their respective stores. Separate fulfillment per store.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Analytics</strong></td>
+                            <td style="color: var(--orange);">ISOLATED</td>
+                            <td>Store-level analytics viewable in Organization Admin for aggregated reporting.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 5: Multi-Store User Management -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Multi-Store User Management</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>Managing users across multiple stores requires understanding both organization-level and store-level roles:</p>
+
+                <h3>Organization-Level Roles</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Permissions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Organization Admin</strong></td>
+                            <td>Full access to all organization settings, user management, billing, and all stores</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Organization Editor</strong></td>
+                            <td>Can edit all stores but cannot manage organization settings or billing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Organization Viewer</strong></td>
+                            <td>Read-only access to all stores. Can view reports and analytics across stores</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Store-Level Roles</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Scope</th>
+                            <th>Typical Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Store Owner</strong></td>
+                            <td>Full control of assigned store(s)</td>
+                            <td>Regional store manager</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Full Access</strong></td>
+                            <td>Complete store permissions</td>
+                            <td>Operations lead</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Limited Access</strong></td>
+                            <td>Restricted to specific areas (Products, Orders, etc.)</td>
+                            <td>Category managers, customer service</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POS Only</strong></td>
+                            <td>Access only to POS features</td>
+                            <td>Retail staff at physical locations</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Recommended Role Matrix for Unicity</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Organization Role</th>
+                            <th>Store Assignment</th>
+                            <th>Rationale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Global Admin</strong></td>
+                            <td>Organization Admin</td>
+                            <td>All stores</td>
+                            <td>Oversees all operations, billing, and user management</td>
+                        </tr>
+                        <tr>
+                            <td><strong>US Operations</strong></td>
+                            <td>Organization Editor</td>
+                            <td>US Store only</td>
+                            <td>Manages primary store independently</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EU Operations</strong></td>
+                            <td>Store Owner</td>
+                            <td>EU Expansion Store</td>
+                            <td>Full control of European market</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Japan Operations</strong></td>
+                            <td>Store Owner</td>
+                            <td>Japan Expansion Store</td>
+                            <td>Full control of Japan market</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Finance Team</strong></td>
+                            <td>Organization Viewer</td>
+                            <td>All stores</td>
+                            <td>View-only access to reporting across all stores</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Customer Service</strong></td>
+                            <td>Limited Access</td>
+                            <td>Assigned regions</td>
+                            <td>Orders & Customers only, region-specific</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight info">
+                    <strong>Key Point:</strong> Organization-level roles inherit access across all stores unless explicitly restricted with store-level permissions. Always assign the most restrictive role appropriate for each user's responsibilities.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Regional Store Configuration -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Regional Store Configuration Checklist</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>Each region requires specific configurations tailored to local requirements:</p>
+
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="switchTab(event, 'us-config')">🇺🇸 US Store</button>
+                        <button class="tab-button" onclick="switchTab(event, 'eu-config')">🇪🇺 EU Store</button>
+                        <button class="tab-button" onclick="switchTab(event, 'japan-config')">🇯🇵 Japan Store</button>
+                    </div>
+
+                    <!-- US Tab -->
+                    <div id="us-config" class="tab-content active">
+                        <h3>US Store Configuration</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Configuration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Currency</strong></td>
+                                    <td>USD (US Dollar)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Language(s)</strong></td>
+                                    <td>English (primary), Spanish (secondary supported)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Domain</strong></td>
+                                    <td>unicity-us.myshopify.com or custom unicity.com domain</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payment Methods</strong></td>
+                                    <td>Stripe (primary), WorldPay/Chase (alternative), Apple Pay, Google Pay</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tax Provider</strong></td>
+                                    <td>TaxJar or Avalara for automated sales tax by state</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Shipping Carriers</strong></td>
+                                    <td>USPS, FedEx, UPS with live rate quoting</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tax Rate</strong></td>
+                                    <td>State-based sales tax (varies 0-8.6%). Automated via TaxJar</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fulfillment</strong></td>
+                                    <td>US-based warehouse. Multi-state shipping support</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Compliance</strong></td>
+                                    <td>PCI-DSS, GDPR (if serving EU customers), CCPA compliance</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- EU Tab -->
+                    <div id="eu-config" class="tab-content">
+                        <h3>EU Store Configuration</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Configuration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Currency</strong></td>
+                                    <td>EUR (Euro primary), GBP (British Pound for UK)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Language(s)</strong></td>
+                                    <td>English, German, French, Spanish, Italian at minimum</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Domain</strong></td>
+                                    <td>eu.unicity.com or unicity-eu.myshopify.com</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payment Methods</strong></td>
+                                    <td>Stripe EU (mandatory), PayPal, Klarna, Mollie, iDEAL, SEPA</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tax Provider</strong></td>
+                                    <td>Shopify Tax for automated VAT by country (27 EU + UK)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Shipping Carriers</strong></td>
+                                    <td>DHL, DPD, Royal Mail, Hermes, local carriers per country</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tax Rate</strong></td>
+                                    <td>VAT per country (15-27%). Automated per delivery location</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fulfillment</strong></td>
+                                    <td>EU warehouse or regional fulfillment centers. Multi-country shipping</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Compliance</strong></td>
+                                    <td>GDPR (strict), PCI-DSS, VAT OSS, ETIAS, data residency requirements</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="highlight warning">
+                            <strong>EU Complexity:</strong> EU regulations are stringent. Ensure data is stored in EU servers, GDPR compliance is implemented, and VAT is correctly calculated per destination country. Consider legal review before launch.
+                        </div>
+                    </div>
+
+                    <!-- Japan Tab -->
+                    <div id="japan-config" class="tab-content">
+                        <h3>Japan Store Configuration</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Configuration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Currency</strong></td>
+                                    <td>JPY (Japanese Yen)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Language</strong></td>
+                                    <td>Japanese (primary), English optional</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Domain</strong></td>
+                                    <td>jp.unicity.com or unicity-jp.myshopify.com</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payment Methods</strong></td>
+                                    <td>Stripe Japan, PayPay, Konbini (convenient store), Credit Cards, Bank Transfer</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tax Provider</strong></td>
+                                    <td>Shopify Tax for Japan consumption tax (Shouhizei)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Shipping Carriers</strong></td>
+                                    <td>Yamato (Kuroneko), Sagawa, Japan Post, local options</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tax Rate</strong></td>
+                                    <td>10% consumption tax (standard), 8% reduced rate (food/beverages)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fulfillment</strong></td>
+                                    <td>Japan-based warehouse. Same-day/next-day delivery common</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Compliance</strong></td>
+                                    <td>APPI (Act on Protection of Personal Information), Local business registration, PCI-DSS</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="highlight info">
+                            <strong>Japan Market Notes:</strong> Konbini (convenience store) payment is hugely popular. Customers pay at stores like 7-11, FamilyMart, Lawson. Strong preference for straightforward UX and fast delivery. Local logistics partners essential.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Cross-Store Operations -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Cross-Store Operations</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <h3>Centralized Analytics & Reporting</h3>
+                <p>The Organization Admin dashboard provides aggregated views across all stores:</p>
+                <ul style="margin-left: 1.5rem; margin: 1rem 0;">
+                    <li>Combined revenue and order metrics across regions</li>
+                    <li>Customer growth trends by store</li>
+                    <li>Comparative performance (US vs EU vs Japan)</li>
+                    <li>Staff activity logs across organization</li>
+                </ul>
+
+                <h3>Shared Product Catalog Using Markets</h3>
+                <p>Shopify Markets allows you to manage a single product catalog across stores with region-specific pricing and availability:</p>
+                <ul style="margin-left: 1.5rem; margin: 1rem 0;">
+                    <li>Create products once, publish to multiple markets</li>
+                    <li>Override pricing per market/currency</li>
+                    <li>Different product availability per region</li>
+                    <li>Localized product descriptions and SEO</li>
+                </ul>
+
+                <h3>Inventory Visibility & Management</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inventory per Store</strong></td>
+                            <td>Each store maintains separate inventory counts. No automatic synchronization between stores.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Inventory Source</strong></td>
+                            <td>Use Inventory Management feature to track multiple warehouse locations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fulfillment Network</strong></td>
+                            <td>Configure which warehouse fulfills orders for each store/region</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stock Planning</strong></td>
+                            <td>Requires manual coordination. Use Shopify Reports or external tools for visibility.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Cross-Store Fulfillment</h3>
+                <ul style="margin-left: 1.5rem; margin: 1rem 0;">
+                    <li><strong>Regional Fulfillment:</strong> Best practice is regional fulfillment centers (US, EU, Japan) to minimize shipping costs and delivery time</li>
+                    <li><strong>Dropshipping:</strong> Can use single supplier for all stores via product fulfillment settings</li>
+                    <li><strong>3PL Integration:</strong> Manage inventory across stores using 3PL platforms (e.g., ShipBob, Flexport)</li>
+                    <li><strong>No Automatic Transfers:</strong> Stock cannot automatically route between stores—requires manual or external integration</li>
+                </ul>
+
+                <h3>Customer Data & CRM</h3>
+                <div class="highlight info">
+                    <strong>Important Limitation:</strong> Customers are store-specific. A customer who purchases on the US store is a separate customer record from the same person buying on the EU store. There is no native unified customer view across stores unless using a third-party CRM or Klaviyo-type integration.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: Cost Analysis -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Cost Analysis</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <h3>Monthly Platform Costs</h3>
+                <div class="cost-grid">
+                    <div class="cost-card">
+                        <h4>Shopify Plus Base</h4>
+                        <div class="amount">$2,500</div>
+                        <p>1 Primary Store<br>Included in Plus</p>
+                    </div>
+                    <div class="cost-card">
+                        <h4>Expansion Store (EU)</h4>
+                        <div class="amount">$300</div>
+                        <p>Additional monthly<br>European market</p>
+                    </div>
+                    <div class="cost-card">
+                        <h4>Expansion Store (Japan)</h4>
+                        <div class="amount">$300</div>
+                        <p>Additional monthly<br>Japan market</p>
+                    </div>
+                    <div class="cost-card">
+                        <h4>3-Store Total</h4>
+                        <div class="amount">$3,100</div>
+                        <p>Platform fees only<br>Per month</p>
+                    </div>
+                </div>
+
+                <h3>Additional Costs to Consider</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>US Store</th>
+                            <th>EU Store</th>
+                            <th>Japan Store</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Payment Processing</strong></td>
+                            <td>~2.2% + $0.30 per txn (Stripe)</td>
+                            <td>~2.2% + €0.30 per txn</td>
+                            <td>~3.6% + ¥10 per txn</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Apps & Extensions</strong></td>
+                            <td colspan="3">Per-store or organization licenses vary. Estimate $100-500/mo per store</td>
+                        </tr>
+                        <tr>
+                            <td><strong>POS Pro (if used)</strong></td>
+                            <td>$89/location/month</td>
+                            <td>€89/location/month</td>
+                            <td>¥8,900/location/month</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shipping Integrations</strong></td>
+                            <td>USPS, FedEx, UPS feeds (free to $50/mo)</td>
+                            <td>DHL, DPD, Royal Mail ($50-150/mo)</td>
+                            <td>Yamato, Sagawa ($100-200/mo)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tax Compliance</strong></td>
+                            <td>TaxJar/Avalara (~$100/mo)</td>
+                            <td>Shopify Tax (free) + legal review ($1,000-5,000 one-time)</td>
+                            <td>APPI compliance ($500-2,000 one-time)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hosting/CDN</strong></td>
+                            <td colspan="3">Included in Shopify Plus subscription</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Annual Cost Projection (3-Store Setup)</h3>
+                <div class="cost-grid">
+                    <div class="cost-card">
+                        <h4>Platform Fees</h4>
+                        <div class="amount">$37,200</div>
+                        <p>$3,100/mo × 12 months</p>
+                    </div>
+                    <div class="cost-card">
+                        <h4>Payment Processing</h4>
+                        <div class="amount">~$50-75K</div>
+                        <p>Estimated 2-3% of sales</p>
+                    </div>
+                    <div class="cost-card">
+                        <h4>Apps & Integrations</h4>
+                        <div class="amount">~$10-20K</div>
+                        <p>$300-500/store/mo</p>
+                    </div>
+                    <div class="cost-card">
+                        <h4>Total First Year</h4>
+                        <div class="amount">~$100K+</div>
+                        <p>Scales with sales volume</p>
+                    </div>
+                </div>
+
+                <div class="highlight warning">
+                    <strong>ROI Consideration:</strong> Expansion stores justify cost through incremental revenue. A 3-store setup costs ~$37K annually in platform fees. Calculate payback based on expected revenue per market. Typical breakeven is 3-6 months of operations per store.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 9: Launch Sequence -->
+        <div class="section">
+            <div class="section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h3>Launch Sequence Recommendation</h3>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="section-content">
+                <p>A phased approach minimizes risk and allows learning from each launch:</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>Phase 1: US Store (Current / Q1 2026)</h4>
+                        <div class="phase-meta">Duration: 2-3 months | Status: Primary Store</div>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>✅ Primary store fully operational with Stripe + WorldPay</li>
+                            <li>✅ POS pilot in select US locations</li>
+                            <li>✅ USPS/FedEx/UPS shipping live</li>
+                            <li>✅ TaxJar integration for sales tax</li>
+                            <li>✅ Established ops team and processes</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>Phase 2: EU Expansion Store (Q2 2026)</h4>
+                        <div class="phase-meta">Duration: 6-8 weeks total | Timeline: Setup (4 weeks) → Testing (2 weeks) → Launch (1 week)</div>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>📋 <strong>Weeks 1-2:</strong> Create expansion store, configure domain (eu.unicity.com), set currency to EUR</li>
+                            <li>📋 <strong>Week 2:</strong> Integrate Stripe EU, configure VAT via Shopify Tax, add DHL/DPD carriers</li>
+                            <li>📋 <strong>Week 3:</strong> Launch with UK + Germany only (2 largest markets), expand to other countries after validation</li>
+                            <li>📋 <strong>Week 3-4:</strong> Translate theme and product descriptions to EN/DE/FR/ES</li>
+                            <li>📋 <strong>Week 4-5:</strong> Intensive testing of checkout, payments, tax calculations, shipping</li>
+                            <li>📋 <strong>Week 6:</strong> Parallel run (live + monitoring)</li>
+                            <li>📋 <strong>Week 7:</strong> Full EU launch</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>Phase 3: Japan Expansion Store (Q3 2026)</h4>
+                        <div class="phase-meta">Duration: 6-8 weeks total | Timeline: Setup (4 weeks) → Testing (2 weeks) → Launch (1 week)</div>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>📋 <strong>Weeks 1-2:</strong> Create expansion store, configure domain (jp.unicity.com), set currency to JPY</li>
+                            <li>📋 <strong>Week 2:</strong> Integrate Stripe Japan, add PayPay + Konbini payment apps, configure Yamato/Sagawa</li>
+                            <li>📋 <strong>Week 3:</strong> Full Japanese translation and localization (theme, products, support)</li>
+                            <li>📋 <strong>Week 3-4:</strong> Configure 10% consumption tax, business registration compliance (APPI)</li>
+                            <li>📋 <strong>Week 4-5:</strong> Rigorous testing of all payment methods, tax, and shipping</li>
+                            <li>📋 <strong>Week 6:</strong> Parallel run with small test group</li>
+                            <li>📋 <strong>Week 7:</strong> Full Japan launch</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Post-Launch Activities</h3>
+                <ul style="margin-left: 1.5rem; margin: 1rem 0;">
+                    <li><strong>Monitor & Optimize:</strong> Track conversion rates, avg order value, payment failure rates per region</li>
+                    <li><strong>Customer Support:</strong> Ensure 24/7 regional support for each market</li>
+                    <li><strong>Inventory Coordination:</strong> Implement processes to coordinate stock across regional warehouses</li>
+                    <li><strong>Analytics Review:</strong> Weekly store performance reviews; monthly cross-store reporting</li>
+                    <li><strong>Compliance Audits:</strong> Quarterly reviews of GDPR (EU), APPI (Japan), and tax obligations</li>
+                </ul>
+
+                <div class="highlight success">
+                    <strong>Best Practice:</strong> Do not launch all stores simultaneously. A phased approach allows your team to master each market sequentially and apply learnings to subsequent launches. Each phase should be fully stable before moving to the next.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Expansion Stores Guide for Unicity International | Last Updated: March 2026</p>
+            <p>For questions or updates, contact your Shopify Plus Success Manager</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleChecked(checkbox) {
+            const listItem = checkbox.parentElement;
+            listItem.classList.toggle('checked');
+        }
+
+        function switchTab(event, tabId) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab and mark button as active
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Initialize all sections as expanded
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.remove('collapsed');
+        });
+    </script>
+</body>
+</html>

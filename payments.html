@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments & Integrations - Unicity Shopify Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --text: #e6edf3;
+            --accent: #58a6ff;
+            --cyan: #39d2c0;
+            --purple: #bc8cff;
+            --yellow: #d29922;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--surface);
+            padding: 3rem 2rem;
+            border-bottom: 1px solid rgba(88, 166, 255, 0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(230, 237, 243, 0.7);
+            max-width: 900px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--cyan);
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(57, 210, 192, 0.2);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .tool-card {
+            background-color: var(--surface);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            border-color: var(--accent);
+            background-color: rgba(88, 166, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .tool-card a {
+            display: block;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .tool-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .tool-card p {
+            font-size: 0.95rem;
+            color: rgba(230, 237, 243, 0.75);
+            margin-bottom: 1rem;
+        }
+
+        .tool-size {
+            font-size: 0.85rem;
+            color: var(--yellow);
+            font-weight: 500;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background-color: var(--surface);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            border-color: var(--accent);
+            background-color: rgba(88, 166, 255, 0.05);
+        }
+
+        .info-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: rgba(230, 237, 243, 0.75);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .file-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            background-color: rgba(188, 140, 255, 0.15);
+            border: 1px solid rgba(188, 140, 255, 0.3);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--purple);
+            margin-right: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .file-badge.markdown {
+            background-color: rgba(57, 210, 192, 0.15);
+            border-color: rgba(57, 210, 192, 0.3);
+            color: var(--cyan);
+        }
+
+        .file-badge.word {
+            background-color: rgba(88, 166, 255, 0.15);
+            border-color: rgba(88, 166, 255, 0.3);
+            color: var(--accent);
+        }
+
+        .meta-info {
+            font-size: 0.85rem;
+            color: rgba(230, 237, 243, 0.6);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(88, 166, 255, 0.1);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .tools-grid,
+            .cards-grid,
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            header {
+                padding: 2rem 1rem;
+            }
+        }
+
+        .anchor-link {
+            scroll-margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="back-link">← Back to Hub</a>
+            <h1>Payments & Integrations</h1>
+            <p class="subtitle">Payment gateway analysis, integration specifications, and cost comparisons for Stripe, WorldPay, Shop Pay, and PayPal across Unicity markets.</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- Interactive Tools Section -->
+        <section>
+            <h2 class="section-title">Interactive Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <a href="shop-pay-worldpay-flows.html">
+                        <h3>Shop Pay + WorldPay Flows</h3>
+                        <p>Integration scenario diagrams for dual gateway routing, fallback, and split processing configurations.</p>
+                        <span class="tool-size">26 KB</span>
+                    </a>
+                </div>
+                <div class="tool-card">
+                    <a href="shop-pay-worldpay-unified-demo.html">
+                        <h3>Shop Pay + WorldPay Demo</h3>
+                        <p>Side-by-side checkout comparison and unified payment experience demonstration.</p>
+                        <span class="tool-size">97 KB</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration Analysis Section -->
+        <section>
+            <h2 class="section-title">Integration Analysis</h2>
+            <div class="cards-grid">
+                <div class="info-card anchor-link" id="stripe">
+                    <span class="file-badge">MARKDOWN</span>
+                    <span class="file-badge word">DOCX</span>
+                    <h3>Stripe Integration Technical Spec</h3>
+                    <p>Development team specification for Shopify-Stripe payment integration. Complete technical documentation including API endpoints, authentication, webhook handling, and error management.</p>
+                    <div class="meta-info">
+                        <strong>Files:</strong> Shopify_Stripe_Integration_Technical_Spec.md (v1.1, Dec 31 2025) | Shopify_Stripe_Integration_Technical_Spec.docx
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shop Pay + WorldPay Analysis</h3>
+                    <p>Comprehensive factual assessment of dual gateway setup for Unicity. Explores whether Shop Pay and WorldPay can work in tandem, integration requirements, and operational considerations.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> shop-pay-worldpay-analysis.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shop Pay / Stripe Third-Party Integration Analysis v2</h3>
+                    <p>Detailed analysis of using Shopify and Stripe as third-party payment backend while maintaining existing frontend architecture and UI. Supersedes v1 (ShopPay_Stripe_ThirdParty_Integration_Analysis.md).</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> ShopPay_Stripe_ThirdParty_Integration_Analysis_v2.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Headless Shop Pay Integration Analysis</h3>
+                    <p>Technical assessment of using Shopify Storefront API as payment backend with Shop Pay, exploring replacement options for WorldPay frictionless checkout.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Headless_ShopPay_Integration_Analysis.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Currency & Payment Methods Reference</h3>
+                    <p>Comprehensive reference documentation for currency handling and payment method support across payment gateways. Essential for multi-market implementations.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Stripe_Currency_Payment_Methods_Reference.md
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gateway Comparisons Section -->
+        <section>
+            <h2 class="section-title">Gateway Comparisons</h2>
+            <div class="cards-grid">
+                <div class="info-card anchor-link" id="comparison">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shopify vs Stripe vs WorldPay</h3>
+                    <p>Three-way platform comparison covering features, costs, integrations, compliance, and operational requirements across all three payment solutions.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_vs_Stripe_vs_Worldpay_Comparison.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shopify vs Stripe - 500K Monthly</h3>
+                    <p>Detailed cost comparison at $500K monthly transaction volume. Analyzes pricing structures, fees, and total cost of ownership for both platforms.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_vs_Stripe_Comparison_500K_Monthly.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shopify vs Stripe - 3 Tiers</h3>
+                    <p>Multi-tier cost comparison across different transaction volumes. Evaluates pricing at small, medium, and large scale to identify optimal solution at each tier.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_vs_Stripe_Comparison_500K_3Tiers.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shopify vs Stripe Effective Rates</h3>
+                    <p>Analysis of effective transaction rates including all fees, interchange, and assessments. Provides true cost comparison beyond headline rates.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_vs_Stripe_Effective_Rates.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shopify vs Stripe Focused</h3>
+                    <p>Focused feature-by-feature comparison highlighting key differences in functionality, integration capabilities, and operational considerations.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_vs_Stripe_Focused_Comparison.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shopify vs Stripe Platform</h3>
+                    <p>Comprehensive platform-level comparison covering architecture, scalability, ecosystem, developer experience, and strategic fit for Unicity.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_vs_Stripe_Payment_Platform_Comparison.md
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Flow Documentation Section -->
+        <section>
+            <h2 class="section-title">Payment Flow Documentation</h2>
+            <div class="cards-grid">
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Payments Complete Flow Diagram</h3>
+                    <p>End-to-end Mermaid flow diagram showing complete payment processing workflow from checkout initiation through settlement.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Payments_Complete_Flow_Diagram.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Payments Flow with Ownership</h3>
+                    <p>Flow diagram with component ownership mapping. Identifies which system or team owns each step of the payment process.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Payments_Complete_Flow_With_Ownership.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Integration Flow Ownership v2</h3>
+                    <p>System ownership legend and flow diagram. Clarifies responsibilities across different components and systems in the payment ecosystem.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Integration_Flow_Ownership_v2.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shop Pay Integration Guide v2</h3>
+                    <p>Technical integration documentation for Shop Pay implementation. Covers setup, configuration, testing, and deployment procedures.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Payments_Shop_Pay_Integration_Guide_v2.md
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Payments Implementation Tickets</h3>
+                    <p>Structured breakdown of payment implementation work into actionable tickets. Includes scope, dependencies, and effort estimates for each phase.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shopify_Payments_Implementation_Tickets.md
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shop Pay Demo Documentation Section -->
+        <section>
+            <h2 class="section-title">Shop Pay Demo Documentation</h2>
+            <div class="two-column">
+                <div class="info-card">
+                    <span class="file-badge word">WORD</span>
+                    <h3>Shop Pay Demo Documentation</h3>
+                    <p>Complete reference documentation for the Shop Pay demo implementation and feature set.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> Shop-Pay-Demo-Documentation.docx
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="file-badge markdown">MARKDOWN</span>
+                    <h3>Shop Pay Demo Handoff v2</h3>
+                    <p>Completed 7-step demo features documentation. Includes implementation details and handoff specifications for team adoption.</p>
+                    <div class="meta-info">
+                        <strong>File:</strong> shop-pay-demo-handoff-v2.md
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
